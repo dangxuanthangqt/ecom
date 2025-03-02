@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "types-check": "tsc --noEmit",
     "format-check": "prettier --ignore-unknown --check .",
     "format-fix": "prettier --ignore-unknown --write .",
     "start": "nest start",
