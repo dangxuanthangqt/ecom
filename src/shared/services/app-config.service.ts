@@ -1,0 +1,75 @@
+import { Injectable } from "@nestjs/common";
+import { isNil } from "@nestjs/common/utils/shared.utils";
+import { ConfigService } from "@nestjs/config";
+
+import { AppConfig, JwtConfig } from "@/types/config.type";
+
+@Injectable()
+export class AppConfigService {
+  readonly appConfig: AppConfig;
+
+  constructor(private readonly configService: ConfigService) {
+    this.appConfig = this.getAppConfig();
+  }
+
+  private getAppConfig(): AppConfig {
+    return {
+      appEnv: this.getString("APP_ENV"), // for specifying the file name of the environment variables
+      port: this.getNumber("PORT"),
+      accessTokenConfig: this.accessTokenConfig,
+      refreshTokenConfig: this.refreshTokenConfig,
+      logLevel: this.getString("LOG_LEVEL"),
+      logPretty: this.getBoolean("LOG_PRETTY"),
+    };
+  }
+
+  private get accessTokenConfig(): JwtConfig {
+    return {
+      secretKey: this.getString("ACCESS_TOKEN_SECRET"),
+      expiresIn: this.getString("ACCESS_TOKEN_EXPIRES_IN"),
+    };
+  }
+
+  private get refreshTokenConfig(): JwtConfig {
+    return {
+      secretKey: this.getString("REFRESH_TOKEN_SECRET"),
+      expiresIn: this.getString("REFRESH_TOKEN_EXPIRES_IN"),
+    };
+  }
+
+  private getBoolean(key: string): boolean {
+    const value = this.get(key);
+
+    try {
+      return Boolean(JSON.parse(value));
+    } catch {
+      throw new Error(`AppConfigService: ${key} is not a boolean`);
+    }
+  }
+
+  private getNumber(key: string): number {
+    const value = this.get(key);
+
+    if (isNaN(Number(value))) {
+      throw new Error(`AppConfigService: ${key} is not a number`);
+    }
+
+    return Number(value);
+  }
+
+  private get(key: string): string {
+    const value = this.configService.get<string>(key);
+
+    if (isNil(value)) {
+      throw new Error(`AppConfigService: ${key} is not defined`);
+    }
+
+    return value;
+  }
+
+  private getString(key: string): string {
+    const value = this.get(key);
+    console.log("value", value);
+    return value.replaceAll("\\n", "\n");
+  }
+}

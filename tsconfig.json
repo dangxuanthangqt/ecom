@@ -18,7 +18,22 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "paths": {
+      "@/shared/*": ["src/shared/*"],
+      "@/utilities/*": ["src/utilities/*"],
+      "@/constants/*": ["src/constants/*"],
+      "@/types/*": ["src/types/*"]
+    }
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "*.config.ts"]
+  "include": [
+    "initial-scripts/**/*.ts",
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "initialS",
+    "*.config.ts"
+  ],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"] // Configuring for seeding data
+  }
 }
