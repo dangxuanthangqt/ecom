@@ -1,13 +1,22 @@
 import { Global, Module, Provider } from "@nestjs/common";
+import { JwtModule } from "@nestjs/jwt";
 
 import { AppConfigService } from "./services/app-config.service";
+import { HashingService } from "./services/hashing.service";
+import { PrismaService } from "./services/prisma.service";
+import { TokenService } from "./services/token.service";
 
-const providers: Provider[] = [AppConfigService];
+const sharedProviders: Provider[] = [
+  AppConfigService,
+  PrismaService,
+  HashingService,
+  TokenService,
+];
 
 @Global()
 @Module({
-  imports: [],
-  exports: providers, // Exporting providers to be used in other modules
-  providers,
+  imports: [JwtModule],
+  providers: sharedProviders,
+  exports: sharedProviders, // Exporting providers to be used in other modules
 })
 export class SharedModule {}

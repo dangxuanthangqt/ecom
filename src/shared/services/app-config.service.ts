@@ -69,7 +69,7 @@ export class AppConfigService {
 
   private getString(key: string): string {
     const value = this.get(key);
-    console.log("value", value);
+
     return value.replaceAll("\\n", "\n");
   }
 }

@@ -61,6 +61,13 @@ export default tseslint.config(
           },
         },
       ],
+      "no-console": "error",
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: ["../../**", "../../../**"],
+        },
+      ],
     },
   },
 );

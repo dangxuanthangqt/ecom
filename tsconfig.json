@@ -23,7 +23,10 @@
       "@/shared/*": ["src/shared/*"],
       "@/utilities/*": ["src/utilities/*"],
       "@/constants/*": ["src/constants/*"],
-      "@/types/*": ["src/types/*"]
+      "@/types/*": ["src/types/*"],
+      "@/dto/*": ["src/dtos/*"],
+      "@/decorators/*": ["src/decorators/*"],
+      "@/repositories/*": ["src/repositories/*"]
     }
   },
   "include": [
