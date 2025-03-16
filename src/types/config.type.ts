@@ -5,6 +5,9 @@ export type AppConfig = {
   readonly logPretty: boolean;
   readonly accessTokenConfig: JwtConfig;
   readonly refreshTokenConfig: JwtConfig;
+  readonly otpExpiresIn: string;
+  readonly resendApiKey: string;
+  readonly sandboxEmail?: string;
 };
 
 export type JwtConfig = {

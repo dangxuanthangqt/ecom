@@ -20,6 +20,11 @@ export class AppConfigService {
       refreshTokenConfig: this.refreshTokenConfig,
       logLevel: this.getString("LOG_LEVEL"),
       logPretty: this.getBoolean("LOG_PRETTY"),
+
+      // Otp
+      otpExpiresIn: this.getString("OTP_EXPIRES_IN"),
+      resendApiKey: this.getString("RESEND_API_KEY"),
+      sandboxEmail: this.getString("SANDBOX_EMAIL"),
     };
   }
 

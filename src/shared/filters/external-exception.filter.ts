@@ -34,7 +34,7 @@ export class ExternalExceptionFilter implements ExceptionFilter {
       this.logger.error(`ZodSerializationException: ${zodError.message}`);
 
       defaultExceptionDto.statusCode = exception.getStatus();
-      defaultExceptionDto.message = zodError.message;
+      defaultExceptionDto.messages = zodError.message;
     }
 
     if (exception instanceof HttpException) {
@@ -43,10 +43,10 @@ export class ExternalExceptionFilter implements ExceptionFilter {
       const errorMessage = errorResponse.message || exception.message;
 
       defaultExceptionDto.statusCode = exception.getStatus();
-      defaultExceptionDto.message = errorMessage;
+      defaultExceptionDto.messages = errorMessage;
     }
 
-    const logMessage = `${exception.constructor.name} occurred at ${new Date().toISOString()} - Status: ${defaultExceptionDto.statusCode}, Message: ${JSON.stringify(defaultExceptionDto.message)}`;
+    const logMessage = `${exception.constructor.name} occurred at ${new Date().toISOString()} - Status: ${defaultExceptionDto.statusCode}, Message: ${JSON.stringify(defaultExceptionDto.messages)}`;
 
     this.logger.error(logMessage);
     // this.logger.error([logMessage, exception.stack]);

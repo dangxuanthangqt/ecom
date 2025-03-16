@@ -12,6 +12,8 @@ import {
 
 import { AuthService } from "./auth.service";
 
+import { SendOTPRequestDto, SendOTPResponseDto } from "@/dto/auth/send-otp.dto";
+
 @Controller("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -31,5 +33,12 @@ export class AuthController {
     const response = await this.authService.login(data);
 
     return new LoginResponseDto(response);
+  }
+
+  @Post("otp")
+  async sendOTP(@Body() data: SendOTPRequestDto): Promise<SendOTPResponseDto> {
+    const response = await this.authService.sendOTP(data);
+
+    return new SendOTPResponseDto(response);
   }
 }

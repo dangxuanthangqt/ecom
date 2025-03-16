@@ -2,6 +2,7 @@ import { Global, Module, Provider } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 
 import { AppConfigService } from "./services/app-config.service";
+import { EmailService } from "./services/email.service";
 import { HashingService } from "./services/hashing.service";
 import { PrismaService } from "./services/prisma.service";
 import { TokenService } from "./services/token.service";
@@ -11,6 +12,7 @@ const sharedProviders: Provider[] = [
   PrismaService,
   HashingService,
   TokenService,
+  EmailService,
 ];
 
 @Global()

@@ -43,6 +43,12 @@ class EnvSchema {
   @IsOptional()
   @IsString()
   LOG_LEVEL: string;
+
+  @IsString()
+  OTP_EXPIRES_IN: string;
+
+  @IsString()
+  RESEND_API_KEY: string;
 }
 
 export function validateEnv(config: Record<string, unknown>) {

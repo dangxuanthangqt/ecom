@@ -1,4 +1,10 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from "@nestjs/common";
+import { addMilliseconds } from "date-fns";
+import ms from "ms";
 import { LoginRequestDto, LoginResponseDto } from "src/dtos/auth/login.dto";
 import {
   RegisterRequestDto,
@@ -8,12 +14,18 @@ import {
 import { RoleService } from "./role.service";
 
 // import { VerificationCodeRequestDto } from "@/dto/auth/verification-code.dto";
+import { VerificationCodeType } from "@/constants/verification-code.constant";
+import { SendOTPRequestDto } from "@/dto/auth/send-otp.dto";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { UserRepository } from "@/repositories/user/user.repository";
 import { UserInputData } from "@/repositories/user/user.repository.type";
+import { VerificationCodeRepository } from "@/repositories/verification-code/verification-code.repository";
+import { AppConfigService } from "@/shared/services/app-config.service";
+import { EmailService } from "@/shared/services/email.service";
 import { HashingService } from "@/shared/services/hashing.service";
 import { PrismaService } from "@/shared/services/prisma.service";
 import { TokenService } from "@/shared/services/token.service";
+import { generateOTP } from "@/shared/utils/generate-otp.util";
 import { AccessTokenPayloadCreate } from "@/types/jwt-payload.type";
 
 @Injectable()
@@ -25,9 +37,30 @@ export class AuthService {
     private readonly tokenService: TokenService,
     private readonly userRepository: UserRepository,
     private readonly sharedUserRepository: SharedUserRepository,
+    private readonly verificationCodeRepository: VerificationCodeRepository,
+    private readonly configService: AppConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(data: RegisterRequestDto): Promise<RegisterResponseDto> {
+    const verificationCode = await this.verificationCodeRepository.findUnique({
+      email: data.email,
+      code: data.code,
+      type: VerificationCodeType.REGISTER,
+    });
+
+    if (!verificationCode) {
+      throw new UnprocessableEntityException([
+        { message: "Verification code is not valid.", path: "code" },
+      ]);
+    }
+
+    if (verificationCode.expiresAt < new Date()) {
+      throw new UnprocessableEntityException([
+        { message: "Verification code is expired.", path: "code" },
+      ]);
+    }
+
     const hashedPassword = this.hashingService.hash(data.password);
 
     const roleId = await this.roleService.getClientRoleId();
@@ -49,8 +82,6 @@ export class AuthService {
     return user;
   }
 
-  // async sendOTP(data: VerificationCodeRequestDto) {}
-
   async login(data: LoginRequestDto): Promise<LoginResponseDto> {
     const user = await this.prismaService.user.findUnique({
       where: {
@@ -62,7 +93,9 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException("Email is not found.");
+      throw new UnauthorizedException([
+        { message: "Email is not found.", path: "email" },
+      ]);
     }
 
     const isPasswordValid = this.hashingService.compare(
@@ -71,7 +104,9 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException("Password is not valid.");
+      throw new UnauthorizedException([
+        { message: "Password is not valid.", path: "password" },
+      ]);
     }
 
     const tokens = await this.generateTokens({
@@ -152,7 +187,50 @@ export class AuthService {
         roleName: refreshTokenInDb.user.role.name,
       });
     } catch {
-      throw new UnauthorizedException("Refresh token is not valid.");
+      throw new UnauthorizedException([
+        { message: "Refresh token is not valid.", path: "refreshToken" },
+      ]);
     }
+  }
+
+  async sendOTP(data: SendOTPRequestDto) {
+    const user = await this.sharedUserRepository.findUnique({
+      email: data.email,
+    });
+
+    if (user) {
+      throw new UnprocessableEntityException([
+        {
+          message: "Email is already exist.",
+          path: "email",
+        },
+      ]);
+    }
+
+    const code = generateOTP();
+
+    const otpExpiresIn = this.configService.appConfig
+      .otpExpiresIn as Parameters<typeof ms>[0];
+
+    const verificationCode =
+      await this.verificationCodeRepository.createVerificationCode({
+        code,
+        email: data.email,
+        type: VerificationCodeType.REGISTER,
+        expiresAt: addMilliseconds(new Date(), ms(otpExpiresIn)),
+      });
+
+    const { error } = await this.emailService.sendEmail({
+      email: this.configService.appConfig.sandboxEmail || data.email,
+      code: verificationCode.code,
+    });
+
+    if (error) {
+      throw new UnprocessableEntityException([
+        { message: "Failed to send email.", path: "email" },
+      ]);
+    }
+
+    return verificationCode;
   }
 }

@@ -24,6 +24,10 @@ export class RegisterRequestDto {
 
   @IsString()
   name: string;
+
+  @IsString()
+  @Length(6, 6, { message: "Code must be 6 characters." })
+  code: string;
 }
 
 export class RegisterResponseDto {

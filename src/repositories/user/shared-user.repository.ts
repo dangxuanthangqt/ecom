@@ -14,6 +14,10 @@ export class SharedUserRepository {
   ): Promise<UserResponseData | null> {
     const user = await this.prismaService.user.findUnique({
       where: where,
+      omit: {
+        password: true,
+        totpSecret: true,
+      },
     });
 
     return user;
