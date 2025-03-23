@@ -19,6 +19,7 @@ import {
   RefreshTokenResponseDto,
 } from "@/dto/auth/refresh-token.dto";
 import { SendOTPRequestDto, SendOTPResponseDto } from "@/dto/auth/send-otp.dto";
+import { IsPublicApi } from "@/shared/decorators/auth-api.decorator";
 import { UserAgent } from "@/shared/decorators/user-agent.decorator";
 
 @Controller("auth")
@@ -26,6 +27,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post("register")
+  @IsPublicApi()
   async register(
     @Body() data: RegisterRequestDto,
   ): Promise<RegisterResponseDto> {
@@ -35,6 +37,7 @@ export class AuthController {
   }
 
   @Post("login")
+  @IsPublicApi()
   // @ZodSerializerDto(LoginResponseZodDto) // /** It's run after global TransformInterceptor*/
   async login(
     @Body() data: LoginRequestDto,
@@ -51,6 +54,7 @@ export class AuthController {
   }
 
   @Post("refresh-token")
+  @IsPublicApi()
   async refreshToken(
     @Body() data: RefreshTokenRequestDto,
     @Ip() ip: string,
@@ -77,6 +81,7 @@ export class AuthController {
   }
 
   @Post("otp")
+  @IsPublicApi()
   async sendOTP(@Body() data: SendOTPRequestDto): Promise<SendOTPResponseDto> {
     const response = await this.authService.sendOTP(data);
 

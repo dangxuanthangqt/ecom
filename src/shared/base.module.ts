@@ -1,12 +1,21 @@
 import { ClassSerializerInterceptor, Module, Provider } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE, Reflector } from "@nestjs/core";
+import {
+  APP_FILTER,
+  APP_GUARD,
+  APP_INTERCEPTOR,
+  APP_PIPE,
+  Reflector,
+} from "@nestjs/core";
 import { LoggerModule } from "nestjs-pino";
 import { ZodSerializerInterceptor, ZodValidationPipe } from "nestjs-zod";
 import { validateEnv } from "src/validations/env.validation";
 
 import { ExternalExceptionFilter } from "./filters/external-exception.filter";
 import { PrismaClientExceptionFilter } from "./filters/prisma-exception.filter";
+import { AccessTokenGuard } from "./guards/access-token.guard";
+import { ApiKeyGuard } from "./guards/api-key.guard";
+import { AuthorizationHeaderGuard } from "./guards/authorization-header.guard";
 import { AppConfigService } from "./services/app-config.service";
 import { loggerFactory } from "./utils/setup-logger.util";
 
@@ -20,6 +29,15 @@ const filters: Provider[] = [
     useClass: ExternalExceptionFilter,
   },
 ];
+
+const guards: Provider[] = [
+  AccessTokenGuard,
+  ApiKeyGuard,
+  {
+    provide: APP_GUARD,
+    useClass: AuthorizationHeaderGuard,
+  },
+]; // AccessTokenGuard & ApiKeyGuard can inject into AuthorizationHeaderGuard, no need to export them
 
 const serializerInterceptor: Provider = {
   provide: APP_INTERCEPTOR,
@@ -43,6 +61,7 @@ const zodSerializerInterceptor: Provider = {
 
 const providers: Provider[] = [
   ...filters,
+  ...guards,
   serializerInterceptor,
 
   /** Testing with zod */
