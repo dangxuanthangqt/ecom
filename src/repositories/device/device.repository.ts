@@ -2,13 +2,15 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnprocessableEntityException,
 } from "@nestjs/common";
-import { Device } from "@prisma/client";
+import { Device, Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
+  isRecordNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 
@@ -55,6 +57,57 @@ export class DeviceRepository {
       throw new InternalServerErrorException([
         {
           message: "Failed to create device.",
+          path: "device",
+        },
+      ]);
+    }
+  }
+
+  async updateDevice<T extends Prisma.DeviceUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.DeviceUpdateArgs>,
+  ): Promise<Prisma.DeviceGetPayload<T>> {
+    try {
+      const device = await this.prismaService.device.update(args);
+
+      return device;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(
+          `Failed to update device with args: ${JSON.stringify(args)}`,
+          error.stack,
+        );
+      }
+
+      if (isRecordNotFoundPrismaError(error)) {
+        throw new NotFoundException([
+          {
+            message: "Device not found.",
+            path: "device",
+          },
+        ]);
+      }
+
+      if (isUniqueConstraintPrismaError(error)) {
+        throw new UnprocessableEntityException([
+          {
+            message: "Device already exists.",
+            path: "device",
+          },
+        ]);
+      }
+
+      if (isForeignKeyConstraintPrismaError(error)) {
+        throw new UnprocessableEntityException([
+          {
+            message: "Invalid user ID.",
+            path: "userId",
+          },
+        ]);
+      }
+
+      throw new InternalServerErrorException([
+        {
+          message: "Failed to update device.",
           path: "device",
         },
       ]);

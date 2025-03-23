@@ -65,3 +65,19 @@ export function isForeignKeyConstraintPrismaError(
 ): error is PrismaClientKnownRequestError {
   return isPrismaClientKnownRequestError(error) && error.code === "P2003";
 }
+
+/**
+ * Determines if the provided error is a Prisma "Record Not Found" error.
+ *
+ * This function checks if the given error is a `PrismaClientKnownRequestError`
+ * and if its error code matches `P2025`, which indicates that a requested
+ * record could not be found in the database.
+ *
+ * @param error - The error object to check.
+ * @returns A boolean indicating whether the error is a "Record Not Found" error.
+ */
+export function isRecordNotFoundPrismaError(
+  error: unknown,
+): error is PrismaClientKnownRequestError {
+  return isPrismaClientKnownRequestError(error) && error.code === "P2025";
+}

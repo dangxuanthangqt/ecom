@@ -42,7 +42,7 @@ export class TokenService {
       { ...payload, uuid: uuidv4() },
       {
         secret: refreshTokenConfig.secretKey,
-        expiresIn: refreshTokenConfig.expiresIn,
+        expiresIn: payload.expiresIn ?? refreshTokenConfig.expiresIn, // Rotate refresh token
         algorithm: "HS256",
       },
     );

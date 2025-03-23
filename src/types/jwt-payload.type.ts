@@ -1,22 +1,22 @@
 import { Role, User, Device } from "@prisma/client";
 
-export interface AccessTokenPayloadCreate {
+type BaseTokenPayload = {
+  exp: number;
+  iat: number;
+};
+
+export type AccessTokenPayloadCreate = {
   userId: User["id"];
   deviceId: Device["id"];
   roleId: Role["id"];
   roleName: Role["name"];
-}
+};
 
-export interface AccessTokenPayload extends AccessTokenPayloadCreate {
-  exp: number;
-  iat: number;
-}
+export type AccessTokenPayload = BaseTokenPayload & AccessTokenPayloadCreate;
 
-export interface RefreshTokenPayloadCreate {
+export type RefreshTokenPayloadCreate = {
   userId: User["id"];
-}
+  expiresIn?: number; // Rotate refresh token
+};
 
-export interface RefreshTokenPayload extends RefreshTokenPayloadCreate {
-  exp: number;
-  iat: number;
-}
+export type RefreshTokenPayload = BaseTokenPayload & RefreshTokenPayloadCreate;

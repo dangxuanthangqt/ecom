@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  UnauthorizedException,
   UnprocessableEntityException,
 } from "@nestjs/common";
 import { Device } from "@prisma/client";
@@ -15,8 +14,9 @@ import {
 
 import { RoleService } from "./role.service";
 
-// import { VerificationCodeRequestDto } from "@/dto/auth/verification-code.dto";
 import { VerificationCodeType } from "@/constants/verification-code.constant";
+import { LogoutResponseDto } from "@/dto/auth/logout.dto";
+import { RefreshTokenResponseDto } from "@/dto/auth/refresh-token.dto";
 import { SendOTPRequestDto } from "@/dto/auth/send-otp.dto";
 import { DeviceRepository } from "@/repositories/device/device.repository";
 import { RefreshTokenRepository } from "@/repositories/refresh-token/refresh-token.repository";
@@ -27,15 +27,16 @@ import { VerificationCodeRepository } from "@/repositories/verification-code/ver
 import { AppConfigService } from "@/shared/services/app-config.service";
 import { EmailService } from "@/shared/services/email.service";
 import { HashingService } from "@/shared/services/hashing.service";
-import { PrismaService } from "@/shared/services/prisma.service";
 import { TokenService } from "@/shared/services/token.service";
 import { generateOTP } from "@/shared/utils/generate-otp.util";
-import { AccessTokenPayloadCreate } from "@/types/jwt-payload.type";
+import {
+  AccessTokenPayloadCreate,
+  RefreshTokenPayloadCreate,
+} from "@/types/jwt-payload.type";
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prismaService: PrismaService,
     private readonly hashingService: HashingService,
     private readonly roleService: RoleService,
     private readonly tokenService: TokenService,
@@ -140,7 +141,9 @@ export class AuthService {
     return tokens;
   }
 
-  private async generateTokens(payload: AccessTokenPayloadCreate) {
+  private async generateTokens(
+    payload: AccessTokenPayloadCreate & RefreshTokenPayloadCreate,
+  ) {
     const [accessToken, refreshToken] = await Promise.all([
       this.tokenService.signAccessToken({
         userId: payload.userId,
@@ -151,6 +154,7 @@ export class AuthService {
 
       this.tokenService.signRefreshToken({
         userId: payload.userId,
+        expiresIn: payload.expiresIn,
       }),
     ]);
 
@@ -170,47 +174,95 @@ export class AuthService {
     };
   }
 
-  async refreshToken(refreshToken: string) {
-    try {
-      const { userId } =
-        await this.tokenService.verifyRefreshToken(refreshToken);
+  async refreshToken({
+    refreshToken: oldRefreshToken,
+    ip,
+    userAgent,
+  }: {
+    refreshToken: string;
+  } & Pick<Device, "ip" | "userAgent">): Promise<RefreshTokenResponseDto> {
+    const { userId, exp } =
+      await this.tokenService.verifyRefreshToken(oldRefreshToken);
 
-      const refreshTokenInDb =
-        await this.prismaService.refreshToken.findUniqueOrThrow({
-          where: {
-            token: refreshToken,
-          },
-          select: {
-            user: {
-              select: {
-                role: {
-                  select: {
-                    name: true,
-                    id: true,
-                  },
+    const refreshTokenInDb =
+      await this.refreshTokenRepository.findUniqueOrThrow({
+        where: {
+          token: oldRefreshToken,
+        },
+        select: {
+          user: {
+            select: {
+              role: {
+                select: {
+                  name: true,
+                  id: true,
                 },
               },
             },
           },
-        });
-
-      await this.prismaService.refreshToken.delete({
-        where: {
-          token: refreshToken,
+          deviceId: true,
         },
       });
 
-      await this.generateTokens({
-        userId,
-        deviceId: 123,
-        roleId: refreshTokenInDb.user.role.id,
-        roleName: refreshTokenInDb.user.role.name,
-      });
-    } catch {
-      throw new UnauthorizedException([
-        { message: "Refresh token is not valid.", path: "refreshToken" },
-      ]);
-    }
+    const $deleteOldRefreshToken = this.refreshTokenRepository.delete({
+      where: {
+        token: oldRefreshToken,
+      },
+    });
+
+    const $updateDevice = this.deviceRepository.updateDevice({
+      where: {
+        id: refreshTokenInDb.deviceId,
+      },
+      data: {
+        ip,
+        userAgent,
+      },
+    });
+
+    // Handle rotate refresh token
+    const oldRefreshTokenExpiresIn = exp - Math.floor(Date.now() / 1000);
+
+    const $generateTokens = this.generateTokens({
+      userId,
+      deviceId: refreshTokenInDb.deviceId,
+      roleId: refreshTokenInDb.user.role.id,
+      roleName: refreshTokenInDb.user.role.name,
+      expiresIn: oldRefreshTokenExpiresIn,
+    });
+
+    const [_, __, tokens] = await Promise.all([
+      $deleteOldRefreshToken,
+      $updateDevice,
+      $generateTokens,
+    ]);
+
+    return tokens;
+  }
+
+  async logout({
+    refreshToken,
+  }: {
+    refreshToken: string;
+  }): Promise<LogoutResponseDto> {
+    const deletedRefreshToken = await this.refreshTokenRepository.delete({
+      where: {
+        token: refreshToken,
+      },
+    });
+
+    await this.deviceRepository.updateDevice({
+      where: {
+        id: deletedRefreshToken.deviceId,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
+    return {
+      message: "Logout successfully.",
+    };
   }
 
   async sendOTP(data: SendOTPRequestDto) {
@@ -242,6 +294,7 @@ export class AuthService {
         expiresAt: addMilliseconds(new Date(), ms(otpExpiresIn)),
       });
 
+    // SEND EMAIL SERVICE - RESEND
     // const { error } = await this.emailService.sendEmail({
     //   email: this.configService.appConfig.sandboxEmail || data.email,
     //   code: verificationCode.code,

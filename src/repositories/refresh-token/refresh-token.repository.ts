@@ -2,6 +2,7 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnprocessableEntityException,
 } from "@nestjs/common";
 import { Prisma, RefreshToken } from "@prisma/client";
@@ -9,6 +10,7 @@ import { Prisma, RefreshToken } from "@prisma/client";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
+  isRecordNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 
@@ -18,13 +20,62 @@ export class RefreshTokenRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findUnique<T extends Prisma.RefreshTokenFindUniqueOrThrowArgs>(
+  async findUniqueOrThrow<T extends Prisma.RefreshTokenFindUniqueOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.RefreshTokenFindUniqueOrThrowArgs>,
-  ): Promise<Prisma.RefreshTokenGetPayload<T> | null> {
-    const refreshToken =
-      await this.prismaService.refreshToken.findUniqueOrThrow(args);
+  ): Promise<Prisma.RefreshTokenGetPayload<T>> {
+    try {
+      const refreshToken =
+        await this.prismaService.refreshToken.findUniqueOrThrow(args);
 
-    return refreshToken;
+      return refreshToken;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(
+          `Failed to find refresh token with args: ${JSON.stringify(args)}`,
+          error.stack,
+        );
+      }
+
+      if (isRecordNotFoundPrismaError(error)) {
+        throw new NotFoundException([
+          {
+            message: "Refresh token not found.",
+            path: "refreshToken",
+          },
+        ]);
+      }
+
+      throw new InternalServerErrorException([
+        {
+          message: "Failed to find refresh token.",
+          path: "refreshToken",
+        },
+      ]);
+    }
+  }
+
+  async delete<T extends Prisma.RefreshTokenDeleteArgs>(
+    args: Prisma.SelectSubset<T, Prisma.RefreshTokenDeleteArgs>,
+  ): Promise<Prisma.RefreshTokenGetPayload<T>> {
+    try {
+      const result = await this.prismaService.refreshToken.delete(args);
+
+      return result;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(
+          `Failed to delete refresh token with args: ${JSON.stringify(args)}`,
+          error.stack,
+        );
+      }
+
+      throw new InternalServerErrorException([
+        {
+          message: "Failed to delete refresh token.",
+          path: "refreshToken",
+        },
+      ]);
+    }
   }
 
   async createRefreshToken(

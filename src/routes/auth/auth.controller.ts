@@ -13,6 +13,11 @@ import {
 
 import { AuthService } from "./auth.service";
 
+import { LogoutResponseDto } from "@/dto/auth/logout.dto";
+import {
+  RefreshTokenRequestDto,
+  RefreshTokenResponseDto,
+} from "@/dto/auth/refresh-token.dto";
 import { SendOTPRequestDto, SendOTPResponseDto } from "@/dto/auth/send-otp.dto";
 import { UserAgent } from "@/shared/decorators/user-agent.decorator";
 
@@ -43,6 +48,32 @@ export class AuthController {
     });
 
     return new LoginResponseDto(response);
+  }
+
+  @Post("refresh-token")
+  async refreshToken(
+    @Body() data: RefreshTokenRequestDto,
+    @Ip() ip: string,
+    @UserAgent() userAgent: Device["userAgent"],
+  ): Promise<RefreshTokenResponseDto> {
+    const response = await this.authService.refreshToken({
+      ...data,
+      ip,
+      userAgent,
+    });
+
+    return new LoginResponseDto(response);
+  }
+
+  @Post("logout")
+  async logout(
+    @Body() data: RefreshTokenRequestDto,
+  ): Promise<LogoutResponseDto> {
+    const response = await this.authService.logout({
+      ...data,
+    });
+
+    return new LogoutResponseDto(response);
   }
 
   @Post("otp")

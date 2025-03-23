@@ -7,7 +7,7 @@ import { NestFactory } from "@nestjs/core";
 import { Logger } from "nestjs-pino";
 
 import { AppModule } from "./app.module";
-import { TransformInterceptor } from "./shared/interceptors/transform.interceptor";
+// import { TransformInterceptor } from "./shared/interceptors/transform.interceptor";
 import { AppConfigService } from "./shared/services/app-config.service";
 import { SharedModule } from "./shared/shared.module";
 
@@ -46,7 +46,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalInterceptors(new TransformInterceptor());
+  // app.useGlobalInterceptors(new TransformInterceptor());
 
   // app.useGlobalFilters(
   //   new PrismaClientExceptionFilter(),
