@@ -1,8 +1,8 @@
-import { Role, User } from "@prisma/client";
+import { Role, User, Device } from "@prisma/client";
 
 export interface AccessTokenPayloadCreate {
   userId: User["id"];
-  deviceId: number;
+  deviceId: Device["id"];
   roleId: Role["id"];
   roleName: Role["name"];
 }

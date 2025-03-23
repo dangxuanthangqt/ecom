@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Injectable,
   UnauthorizedException,
   UnprocessableEntityException,
 } from "@nestjs/common";
+import { Device } from "@prisma/client";
 import { addMilliseconds } from "date-fns";
 import ms from "ms";
 import { LoginRequestDto, LoginResponseDto } from "src/dtos/auth/login.dto";
@@ -16,6 +18,8 @@ import { RoleService } from "./role.service";
 // import { VerificationCodeRequestDto } from "@/dto/auth/verification-code.dto";
 import { VerificationCodeType } from "@/constants/verification-code.constant";
 import { SendOTPRequestDto } from "@/dto/auth/send-otp.dto";
+import { DeviceRepository } from "@/repositories/device/device.repository";
+import { RefreshTokenRepository } from "@/repositories/refresh-token/refresh-token.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { UserRepository } from "@/repositories/user/user.repository";
 import { UserInputData } from "@/repositories/user/user.repository.type";
@@ -40,13 +44,17 @@ export class AuthService {
     private readonly verificationCodeRepository: VerificationCodeRepository,
     private readonly configService: AppConfigService,
     private readonly emailService: EmailService,
+    private readonly refreshTokenRepository: RefreshTokenRepository,
+    private readonly deviceRepository: DeviceRepository,
   ) {}
 
   async register(data: RegisterRequestDto): Promise<RegisterResponseDto> {
     const verificationCode = await this.verificationCodeRepository.findUnique({
-      email: data.email,
-      code: data.code,
-      type: VerificationCodeType.REGISTER,
+      where: {
+        email: data.email,
+        code: data.code,
+        type: VerificationCodeType.REGISTER,
+      },
     });
 
     if (!verificationCode) {
@@ -73,17 +81,22 @@ export class AuthService {
       roleId,
     };
 
-    const user = await this.userRepository.createUser({
-      ...createUserInputData,
-      password: hashedPassword,
-      roleId,
+    const user = await this.userRepository.createUser(createUserInputData);
+
+    await this.verificationCodeRepository.deleteVerificationCode({
+      where: {
+        email: data.email,
+      },
     });
 
     return user;
   }
 
-  async login(data: LoginRequestDto): Promise<LoginResponseDto> {
-    const user = await this.prismaService.user.findUnique({
+  async login(
+    data: LoginRequestDto & Pick<Device, "ip" | "userAgent">,
+  ): Promise<LoginResponseDto> {
+    // 1. Find User by Email
+    const user = await this.sharedUserRepository.findUnique({
       where: {
         email: data.email,
       },
@@ -93,27 +106,35 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException([
+      throw new BadRequestException([
         { message: "Email is not found.", path: "email" },
       ]);
     }
 
+    // 2. Verify Password
     const isPasswordValid = this.hashingService.compare(
       data.password,
       user.password,
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException([
+      throw new BadRequestException([
         { message: "Password is not valid.", path: "password" },
       ]);
     }
+
+    const device = await this.deviceRepository.createDevice({
+      userId: user.id,
+      ip: data.ip,
+      isActive: true,
+      userAgent: data.userAgent,
+    });
 
     const tokens = await this.generateTokens({
       userId: user.id,
       roleId: user.roleId,
       roleName: user.role.name,
-      deviceId: 123,
+      deviceId: device.id,
     });
 
     return tokens;
@@ -136,12 +157,11 @@ export class AuthService {
     const decodedRefreshToken =
       await this.tokenService.verifyRefreshToken(refreshToken);
 
-    await this.prismaService.refreshToken.create({
-      data: {
-        token: refreshToken,
-        userId: payload.userId,
-        expiresAt: new Date(decodedRefreshToken.exp * 1000),
-      },
+    await this.refreshTokenRepository.createRefreshToken({
+      token: refreshToken,
+      userId: payload.userId,
+      expiresAt: new Date(decodedRefreshToken.exp * 1000),
+      deviceId: payload.deviceId,
     });
 
     return {
@@ -195,7 +215,9 @@ export class AuthService {
 
   async sendOTP(data: SendOTPRequestDto) {
     const user = await this.sharedUserRepository.findUnique({
-      email: data.email,
+      where: {
+        email: data.email,
+      },
     });
 
     if (user) {
@@ -220,16 +242,16 @@ export class AuthService {
         expiresAt: addMilliseconds(new Date(), ms(otpExpiresIn)),
       });
 
-    const { error } = await this.emailService.sendEmail({
-      email: this.configService.appConfig.sandboxEmail || data.email,
-      code: verificationCode.code,
-    });
+    // const { error } = await this.emailService.sendEmail({
+    //   email: this.configService.appConfig.sandboxEmail || data.email,
+    //   code: verificationCode.code,
+    // });
 
-    if (error) {
-      throw new UnprocessableEntityException([
-        { message: "Failed to send email.", path: "email" },
-      ]);
-    }
+    // if (error) {
+    //   throw new UnprocessableEntityException([
+    //     { message: "Failed to send email.", path: "email" },
+    //   ]);
+    // }
 
     return verificationCode;
   }

@@ -4,6 +4,8 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import { RoleService } from "./role.service";
 
+import { DeviceRepository } from "@/repositories/device/device.repository";
+import { RefreshTokenRepository } from "@/repositories/refresh-token/refresh-token.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { UserRepository } from "@/repositories/user/user.repository";
 import { VerificationCodeRepository } from "@/repositories/verification-code/verification-code.repository";
@@ -16,6 +18,8 @@ import { VerificationCodeRepository } from "@/repositories/verification-code/ver
     UserRepository,
     SharedUserRepository,
     VerificationCodeRepository,
+    RefreshTokenRepository,
+    DeviceRepository,
   ],
   exports: [SharedUserRepository],
 })

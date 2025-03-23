@@ -34,7 +34,8 @@
     "src/**/*.ts",
     "test/**/*.ts",
     "initialS",
-    "*.config.ts"
+    "*.config.ts",
+    "src/repositories/refresh-token"
   ],
   "ts-node": {
     "require": ["tsconfig-paths/register"] // Configuring for seeding data

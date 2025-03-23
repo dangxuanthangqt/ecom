@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Ip, Post } from "@nestjs/common";
+import { Device } from "@prisma/client";
 import {
   LoginRequestDto,
   //   LoginRequestZodDto,
@@ -13,6 +14,7 @@ import {
 import { AuthService } from "./auth.service";
 
 import { SendOTPRequestDto, SendOTPResponseDto } from "@/dto/auth/send-otp.dto";
+import { UserAgent } from "@/shared/decorators/user-agent.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -29,8 +31,16 @@ export class AuthController {
 
   @Post("login")
   // @ZodSerializerDto(LoginResponseZodDto) // /** It's run after global TransformInterceptor*/
-  async login(@Body() data: LoginRequestDto): Promise<LoginResponseDto> {
-    const response = await this.authService.login(data);
+  async login(
+    @Body() data: LoginRequestDto,
+    @Ip() ip: string,
+    @UserAgent() userAgent: Device["userAgent"],
+  ): Promise<LoginResponseDto> {
+    const response = await this.authService.login({
+      ...data,
+      ip,
+      userAgent,
+    });
 
     return new LoginResponseDto(response);
   }

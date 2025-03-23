@@ -25,7 +25,6 @@ export class LoginResponseDto {
 }
 
 // Test with zod
-
 const LoginRequestSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(20),
