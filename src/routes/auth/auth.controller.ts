@@ -1,5 +1,15 @@
-import { Body, Controller, Ip, Post } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Ip,
+  Logger,
+  Post,
+  Query,
+  Res,
+} from "@nestjs/common";
 import { Device } from "@prisma/client";
+import { Response } from "express";
 import {
   LoginRequestDto,
   //   LoginRequestZodDto,
@@ -12,6 +22,7 @@ import {
 } from "src/dtos/auth/register.dto";
 
 import { AuthService } from "./auth.service";
+import { GoogleService } from "./google.service";
 
 import { LogoutResponseDto } from "@/dto/auth/logout.dto";
 import {
@@ -21,10 +32,17 @@ import {
 import { SendOTPRequestDto, SendOTPResponseDto } from "@/dto/auth/send-otp.dto";
 import { IsPublicApi } from "@/shared/decorators/auth-api.decorator";
 import { UserAgent } from "@/shared/decorators/user-agent.decorator";
+import { AppConfigService } from "@/shared/services/app-config.service";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  private logger = new Logger(AuthController.name);
+
+  constructor(
+    private readonly authService: AuthService,
+    private readonly googleService: GoogleService,
+    private readonly appConfigService: AppConfigService,
+  ) {}
 
   @Post("register")
   @IsPublicApi()
@@ -86,5 +104,50 @@ export class AuthController {
     const response = await this.authService.sendOTP(data);
 
     return new SendOTPResponseDto(response);
+  }
+
+  @Get("google/authorization-url")
+  @IsPublicApi()
+  getAuthorizationUrl(
+    @Ip() ip: string,
+    @UserAgent() userAgent: Device["userAgent"],
+  ) {
+    const url = this.googleService.getAuthorizationUrl({ ip, userAgent });
+
+    return { url };
+  }
+
+  @Get("google/callback")
+  @IsPublicApi()
+  async googleCallback(
+    @Query("code") code: string,
+    @Query("state") state: string,
+    @Res() res: Response,
+  ) {
+    const googleClientRedirectUri =
+      this.appConfigService.appConfig.googleRedirectClientUri;
+
+    try {
+      const { refreshToken, accessToken } =
+        await this.googleService.googleCallback(code, state);
+
+      const searchParams = new URLSearchParams({ refreshToken, accessToken });
+
+      const queryParams = searchParams.toString();
+
+      return res.redirect(`${googleClientRedirectUri}?${queryParams}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(`Failed to google callback`, error.stack);
+      }
+
+      const searchParams = new URLSearchParams({
+        errorMessage: "Failed to google login.",
+      });
+
+      const queryParams = searchParams.toString();
+
+      return res.redirect(`${googleClientRedirectUri}?${queryParams}`);
+    }
   }
 }

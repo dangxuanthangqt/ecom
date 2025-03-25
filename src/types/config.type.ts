@@ -8,6 +8,12 @@ export type AppConfig = {
   readonly otpExpiresIn: string;
   readonly resendApiKey: string;
   readonly sandboxEmail?: string;
+
+  // Google
+  readonly googleClientId: string;
+  readonly googleClientSecret: string;
+  readonly googleRedirectUri: string;
+  readonly googleRedirectClientUri: string;
 };
 
 export type JwtConfig = {

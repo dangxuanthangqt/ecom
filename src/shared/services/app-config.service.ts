@@ -25,6 +25,12 @@ export class AppConfigService {
       otpExpiresIn: this.getString("OTP_EXPIRES_IN"),
       resendApiKey: this.getString("RESEND_API_KEY"),
       sandboxEmail: this.getString("SANDBOX_EMAIL"),
+
+      // Google
+      googleClientId: this.getString("GOOGLE_CLIENT_ID"),
+      googleClientSecret: this.getString("GOOGLE_CLIENT_SECRET"),
+      googleRedirectUri: this.getString("GOOGLE_REDIRECT_URI"),
+      googleRedirectClientUri: this.getString("GOOGLE_REDIRECT_CLIENT_URI"),
     };
   }
 

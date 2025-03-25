@@ -20,6 +20,14 @@ async function bootstrap() {
 
   const configService = app.select(SharedModule).get(AppConfigService);
 
+  // Enable CORS
+  app.enableCors({
+    origin: "http://localhost:3000",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
+import { GoogleService } from "./google.service";
 import { RoleService } from "./role.service";
 
 import { DeviceRepository } from "@/repositories/device/device.repository";
@@ -20,6 +21,7 @@ import { VerificationCodeRepository } from "@/repositories/verification-code/ver
     VerificationCodeRepository,
     RefreshTokenRepository,
     DeviceRepository,
+    GoogleService,
   ],
   exports: [SharedUserRepository],
 })

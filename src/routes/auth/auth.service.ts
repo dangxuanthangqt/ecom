@@ -25,7 +25,7 @@ import { UserRepository } from "@/repositories/user/user.repository";
 import { UserInputData } from "@/repositories/user/user.repository.type";
 import { VerificationCodeRepository } from "@/repositories/verification-code/verification-code.repository";
 import { AppConfigService } from "@/shared/services/app-config.service";
-import { EmailService } from "@/shared/services/email.service";
+// import { EmailService } from "@/shared/services/email.service";
 import { HashingService } from "@/shared/services/hashing.service";
 import { TokenService } from "@/shared/services/token.service";
 import { generateOTP } from "@/shared/utils/generate-otp.util";
@@ -44,7 +44,7 @@ export class AuthService {
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly verificationCodeRepository: VerificationCodeRepository,
     private readonly configService: AppConfigService,
-    private readonly emailService: EmailService,
+    // private readonly emailService: EmailService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly deviceRepository: DeviceRepository,
   ) {}
@@ -72,14 +72,14 @@ export class AuthService {
 
     const hashedPassword = this.hashingService.hash(data.password);
 
-    const roleId = await this.roleService.getClientRoleId();
+    const clientRoleId = await this.roleService.getClientRoleId();
 
     const createUserInputData: UserInputData = {
       email: data.email,
       name: data.name,
       phoneNumber: data.phoneNumber,
       password: hashedPassword,
-      roleId,
+      roleId: clientRoleId,
     };
 
     const user = await this.userRepository.createUser(createUserInputData);
@@ -141,7 +141,7 @@ export class AuthService {
     return tokens;
   }
 
-  private async generateTokens(
+  async generateTokens(
     payload: AccessTokenPayloadCreate & RefreshTokenPayloadCreate,
   ) {
     const [accessToken, refreshToken] = await Promise.all([
