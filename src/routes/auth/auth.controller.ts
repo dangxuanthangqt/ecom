@@ -24,6 +24,10 @@ import {
 import { AuthService } from "./auth.service";
 import { GoogleService } from "./google.service";
 
+import {
+  ForgotPasswordRequestDto,
+  ForgotPasswordResponseDto,
+} from "@/dto/auth/forgot-password.dto";
 import { LogoutResponseDto } from "@/dto/auth/logout.dto";
 import {
   RefreshTokenRequestDto,
@@ -149,5 +153,13 @@ export class AuthController {
 
       return res.redirect(`${googleClientRedirectUri}?${queryParams}`);
     }
+  }
+
+  @Post("forgot-password")
+  @IsPublicApi()
+  async forgotPassword(@Body() data: ForgotPasswordRequestDto) {
+    const response = await this.authService.forgotPassword(data);
+
+    return new ForgotPasswordResponseDto(response);
   }
 }

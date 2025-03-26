@@ -61,6 +61,7 @@ export class SharedUserRepository {
       ]);
     }
   }
+
   async createUser<T extends Prisma.UserCreateArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserCreateArgs>,
   ): Promise<Prisma.UserGetPayload<T>> {
@@ -72,6 +73,7 @@ export class SharedUserRepository {
       if (error instanceof Error) {
         this.logger.error(`Failed to create user`, error.stack);
       }
+
       throw new InternalServerErrorException([
         {
           message: "Failed to create user.",

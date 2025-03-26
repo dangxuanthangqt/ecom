@@ -2,15 +2,17 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnprocessableEntityException,
 } from "@nestjs/common";
-import { User } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 
 import { UserInputData } from "./user.repository.type";
 
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
+  isRecordToUpdateNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 
@@ -61,6 +63,65 @@ export class UserRepository {
       throw new InternalServerErrorException([
         {
           message: "Failed to create user.",
+          path: "user",
+        },
+      ]);
+    }
+  }
+
+  async updateUser({
+    where,
+    data,
+  }: {
+    where: Prisma.UserWhereUniqueInput;
+    data: Prisma.UserUpdateInput;
+  }): Promise<Omit<User, "password" | "totpSecret"> | undefined> {
+    try {
+      const user = await this.prismaService.user.update({
+        where,
+        data,
+        omit: {
+          password: true,
+          totpSecret: true,
+        },
+      });
+
+      return user;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(`Failed to create user`, error.stack);
+      }
+
+      if (isRecordToUpdateNotFoundPrismaError(error)) {
+        throw new NotFoundException([
+          {
+            message: "User not found.",
+            path: "user",
+          },
+        ]);
+      }
+
+      if (isUniqueConstraintPrismaError(error)) {
+        throw new UnprocessableEntityException([
+          {
+            message: "Email is already in use.",
+            path: "email",
+          },
+        ]);
+      }
+
+      if (isForeignKeyConstraintPrismaError(error)) {
+        throw new UnprocessableEntityException([
+          {
+            message: "Invalid role ID.",
+            path: "roleId",
+          },
+        ]);
+      }
+
+      throw new InternalServerErrorException([
+        {
+          message: "Failed to update user.",
           path: "user",
         },
       ]);

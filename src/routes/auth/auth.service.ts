@@ -14,7 +14,11 @@ import {
 
 import { RoleService } from "./role.service";
 
-import { VerificationCodeType } from "@/constants/verification-code.constant";
+import {
+  VerificationCodeType,
+  VerificationCodeTypeType,
+} from "@/constants/verification-code.constant";
+import { ForgotPasswordRequestDto } from "@/dto/auth/forgot-password.dto";
 import { LogoutResponseDto } from "@/dto/auth/logout.dto";
 import { RefreshTokenResponseDto } from "@/dto/auth/refresh-token.dto";
 import { SendOTPRequestDto } from "@/dto/auth/send-otp.dto";
@@ -49,12 +53,16 @@ export class AuthService {
     private readonly deviceRepository: DeviceRepository,
   ) {}
 
-  async register(data: RegisterRequestDto): Promise<RegisterResponseDto> {
+  async validateVerificationCode(data: {
+    email: string;
+    code: string;
+    type: VerificationCodeTypeType;
+  }) {
     const verificationCode = await this.verificationCodeRepository.findUnique({
       where: {
         email: data.email,
         code: data.code,
-        type: VerificationCodeType.REGISTER,
+        type: data.type,
       },
     });
 
@@ -69,6 +77,14 @@ export class AuthService {
         { message: "Verification code is expired.", path: "code" },
       ]);
     }
+  }
+
+  async register(data: RegisterRequestDto): Promise<RegisterResponseDto> {
+    await this.validateVerificationCode({
+      email: data.email,
+      code: data.code,
+      type: VerificationCodeType.REGISTER,
+    });
 
     const hashedPassword = this.hashingService.hash(data.password);
 
@@ -82,13 +98,14 @@ export class AuthService {
       roleId: clientRoleId,
     };
 
-    const user = await this.userRepository.createUser(createUserInputData);
-
-    await this.verificationCodeRepository.deleteVerificationCode({
-      where: {
-        email: data.email,
-      },
-    });
+    const [user] = await Promise.all([
+      this.userRepository.createUser(createUserInputData),
+      this.verificationCodeRepository.deleteVerificationCode({
+        where: {
+          email: data.email,
+        },
+      }),
+    ]);
 
     return user;
   }
@@ -272,10 +289,19 @@ export class AuthService {
       },
     });
 
-    if (user) {
+    if (data.type === VerificationCodeType.REGISTER && user) {
       throw new UnprocessableEntityException([
         {
           message: "Email is already exist.",
+          path: "email",
+        },
+      ]);
+    }
+
+    if (data.type === VerificationCodeType.FORGOT_PASSWORD && !user) {
+      throw new UnprocessableEntityException([
+        {
+          message: "Email is not exist.",
           path: "email",
         },
       ]);
@@ -290,7 +316,7 @@ export class AuthService {
       await this.verificationCodeRepository.createVerificationCode({
         code,
         email: data.email,
-        type: VerificationCodeType.REGISTER,
+        type: data.type,
         expiresAt: addMilliseconds(new Date(), ms(otpExpiresIn)),
       });
 
@@ -307,5 +333,41 @@ export class AuthService {
     // }
 
     return verificationCode;
+  }
+
+  async forgotPassword({ code, email, password }: ForgotPasswordRequestDto) {
+    const user = await this.sharedUserRepository.findUniqueOrThrow({
+      where: {
+        email,
+      },
+    });
+
+    await this.validateVerificationCode({
+      email,
+      code,
+      type: VerificationCodeType.FORGOT_PASSWORD,
+    });
+
+    const hashedPassword = this.hashingService.hash(password);
+
+    await Promise.all([
+      this.userRepository.updateUser({
+        where: {
+          id: user.id,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      }),
+      this.verificationCodeRepository.deleteVerificationCode({
+        where: {
+          email,
+        },
+      }),
+    ]);
+
+    return {
+      message: "Password has been updated.",
+    };
   }
 }
