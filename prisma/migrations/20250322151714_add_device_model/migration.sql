@@ -1,5 +1,5 @@
 -- AlterTable
-ALTER TABLE "RefreshToken" ADD COLUMN     "deviceId" INTEGER DEFAULT -1;
+ALTER TABLE "RefreshToken" ADD COLUMN "deviceId" INTEGER NOT NULL;
 
 -- CreateTable
 CREATE TABLE "Device" (

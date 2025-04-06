@@ -3,11 +3,16 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  UnprocessableEntityException,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/shared/services/prisma.service";
-import { isRecordToUpdateNotFoundPrismaError } from "@/shared/utils/prisma-error";
+import {
+  isForeignKeyConstraintPrismaError,
+  isRecordToUpdateNotFoundPrismaError,
+  isUniqueConstraintPrismaError,
+} from "@/shared/utils/prisma-error";
 
 @Injectable()
 export class SharedUserRepository {
@@ -72,6 +77,30 @@ export class SharedUserRepository {
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(`Failed to create user`, error.stack);
+      }
+
+      if (isUniqueConstraintPrismaError(error)) {
+        throw new UnprocessableEntityException([
+          {
+            message: "Email is already exist.",
+            path: "email",
+          },
+        ]);
+      }
+
+      if (isForeignKeyConstraintPrismaError(error)) {
+        const prismaError = error;
+        const meta = prismaError.meta;
+        const target = meta?.target as string[];
+
+        const errorDetails = target.map((field) => {
+          return {
+            message: `Invalid ${field} ID.`,
+            path: field,
+          };
+        });
+
+        throw new UnprocessableEntityException(errorDetails);
       }
 
       throw new InternalServerErrorException([

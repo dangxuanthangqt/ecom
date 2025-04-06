@@ -25,6 +25,11 @@ import { AuthService } from "./auth.service";
 import { GoogleService } from "./google.service";
 
 import {
+  Disable2faRequestDto,
+  Disable2faResponseDto,
+  TwoFactorAuthenticationResponseDto,
+} from "@/dto/auth/2fa.dto";
+import {
   ForgotPasswordRequestDto,
   ForgotPasswordResponseDto,
 } from "@/dto/auth/forgot-password.dto";
@@ -34,8 +39,10 @@ import {
   RefreshTokenResponseDto,
 } from "@/dto/auth/refresh-token.dto";
 import { SendOTPRequestDto, SendOTPResponseDto } from "@/dto/auth/send-otp.dto";
+import ActiveUser from "@/shared/decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/decorators/auth-api.decorator";
 import { UserAgent } from "@/shared/decorators/user-agent.decorator";
+import { TwoFactorAuthenticationService } from "@/shared/services/2fa.service";
 import { AppConfigService } from "@/shared/services/app-config.service";
 
 @Controller("auth")
@@ -46,6 +53,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly googleService: GoogleService,
     private readonly appConfigService: AppConfigService,
+    private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
   ) {}
 
   @Post("register")
@@ -161,5 +169,25 @@ export class AuthController {
     const response = await this.authService.forgotPassword(data);
 
     return new ForgotPasswordResponseDto(response);
+  }
+
+  @Post("2fa/enable")
+  async enable2fa(@ActiveUser("userId") userId: number) {
+    const response =
+      await this.authService.setupTwoFactorAuthentication(userId);
+
+    return new TwoFactorAuthenticationResponseDto(response);
+  }
+  @Post("2fa/disable")
+  async disable2fa(
+    @Body() body: Disable2faRequestDto,
+    @ActiveUser("userId") userId: number,
+  ) {
+    const response = await this.authService.disableTwoFactorAuthentication({
+      ...body,
+      userId,
+    });
+
+    return new Disable2faResponseDto(response);
   }
 }

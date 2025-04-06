@@ -2,7 +2,7 @@ import { Expose } from "class-transformer";
 import { IsEmail, IsIn, IsString, Length } from "class-validator";
 
 import { ActiveStatus } from "@/constants/role.constant";
-import { IsPasswordMatch } from "@/validations/decorators/match-password.decorator";
+import { IsPasswordMatch } from "@/validations/decorators/is-password-match.decorator";
 
 export class RegisterRequestDto {
   @IsEmail()

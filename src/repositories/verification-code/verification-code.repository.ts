@@ -3,13 +3,17 @@ import {
   InternalServerErrorException,
   Logger,
   NotFoundException,
+  UnprocessableEntityException,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { VerificationCodeInputData } from "./verification-code.repository.type";
 
 import { PrismaService } from "@/shared/services/prisma.service";
-import { isRecordToUpdateNotFoundPrismaError } from "@/shared/utils/prisma-error";
+import {
+  isRecordToUpdateNotFoundPrismaError,
+  isUniqueConstraintPrismaError,
+} from "@/shared/utils/prisma-error";
 
 @Injectable()
 export class VerificationCodeRepository {
@@ -26,6 +30,7 @@ export class VerificationCodeRepository {
       if (error instanceof Error) {
         this.logger.error(`Failed to delete verification code`, error.stack);
       }
+
       if (isRecordToUpdateNotFoundPrismaError(error)) {
         throw new NotFoundException([
           {
@@ -34,9 +39,10 @@ export class VerificationCodeRepository {
           },
         ]);
       }
+
       throw new InternalServerErrorException([
         {
-          message: "Failed to delete verification code.",
+          message: "An error occurred while deleting verification code.",
           path: "verificationCode",
         },
       ]);
@@ -49,24 +55,56 @@ export class VerificationCodeRepository {
     type,
     expiresAt,
   }: VerificationCodeInputData) {
-    const verificationCode = await this.prismaService.verificationCode.upsert({
-      where: {
-        email: email,
-      },
-      create: {
-        code,
-        email,
-        type,
-        expiresAt,
-      },
-      update: {
-        code,
-        type,
-        expiresAt,
-      },
-    });
+    try {
+      const verificationCode = await this.prismaService.verificationCode.upsert(
+        {
+          where: {
+            email_code_type: {
+              email,
+              code,
+              type,
+            },
+          },
+          create: {
+            code,
+            email,
+            type,
+            expiresAt,
+          },
+          update: {
+            code,
+            type,
+            expiresAt,
+          },
+        },
+      );
 
-    return verificationCode;
+      return verificationCode;
+    } catch (error) {
+      if (error instanceof Error) {
+        this.logger.error(
+          `Failed to create or update verification code`,
+          error.stack,
+        );
+      }
+
+      if (isUniqueConstraintPrismaError(error)) {
+        throw new UnprocessableEntityException([
+          {
+            message: "Verification code already exists.",
+            path: "verificationCode",
+          },
+        ]);
+      }
+
+      throw new InternalServerErrorException([
+        {
+          message:
+            "An error occurred while creating or updating verification code.",
+          path: "verificationCode",
+        },
+      ]);
+    }
   }
 
   async findUnique<T extends Prisma.VerificationCodeFindUniqueArgs>(
@@ -81,6 +119,7 @@ export class VerificationCodeRepository {
       if (error instanceof Error) {
         this.logger.error(`Failed to find verification code`, error.stack);
       }
+
       throw new InternalServerErrorException([
         {
           message: "Failed to find verification code.",
@@ -103,6 +142,7 @@ export class VerificationCodeRepository {
       if (error instanceof Error) {
         this.logger.error(`Failed to find verification code`, error.stack);
       }
+
       if (isRecordToUpdateNotFoundPrismaError(error)) {
         throw new NotFoundException([
           {

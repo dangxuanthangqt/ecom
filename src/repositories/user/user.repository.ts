@@ -51,13 +51,18 @@ export class UserRepository {
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        // Handle foreign key constraint violation (e.g., invalid roleId)
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid role ID.",
-            path: "roleId",
-          },
-        ]);
+        const prismaError = error;
+        const meta = prismaError.meta;
+        const target = meta?.target as string[];
+
+        const errorDetails = target.map((field) => {
+          return {
+            message: `Invalid ${field} ID.`,
+            path: field,
+          };
+        });
+
+        throw new UnprocessableEntityException(errorDetails);
       }
 
       throw new InternalServerErrorException([
@@ -111,12 +116,18 @@ export class UserRepository {
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid role ID.",
-            path: "roleId",
-          },
-        ]);
+        const prismaError = error;
+        const meta = prismaError.meta;
+        const target = meta?.target as string[];
+
+        const errorDetails = target.map((field) => {
+          return {
+            message: `Invalid ${field} ID.`,
+            path: field,
+          };
+        });
+
+        throw new UnprocessableEntityException(errorDetails);
       }
 
       throw new InternalServerErrorException([

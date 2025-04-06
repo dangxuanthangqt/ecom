@@ -1,7 +1,9 @@
 import { Expose } from "class-transformer";
-import { IsEmail, IsString, Length } from "class-validator";
+import { IsEmail, IsOptional, IsString, Length } from "class-validator";
 import { createZodDto } from "nestjs-zod";
 import { z } from "zod";
+
+import { IsOnlyOneExists } from "@/validations/decorators/is-only-one-exists";
 
 export class LoginRequestDto {
   @IsEmail()
@@ -10,6 +12,17 @@ export class LoginRequestDto {
   @IsString()
   @Length(8, 20, { message: "Password must be between 8 and 20 characters." })
   password: string;
+
+  @IsString()
+  @IsOptional()
+  @Length(6, 6, { message: "totpCode must be exactly 6 characters." })
+  totpCode: string;
+
+  @IsString()
+  @IsOptional()
+  @Length(6, 6, { message: "Verification code must be exactly 6 characters." })
+  @IsOnlyOneExists("totpCode")
+  verificationCode: string;
 }
 
 export class LoginResponseDto {

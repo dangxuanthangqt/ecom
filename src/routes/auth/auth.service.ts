@@ -18,7 +18,11 @@ import {
   VerificationCodeType,
   VerificationCodeTypeType,
 } from "@/constants/verification-code.constant";
-import { ForgotPasswordRequestDto } from "@/dto/auth/forgot-password.dto";
+import { Disable2faRequestDto } from "@/dto/auth/2fa.dto";
+import {
+  ForgotPasswordRequestDto,
+  ForgotPasswordResponseDto,
+} from "@/dto/auth/forgot-password.dto";
 import { LogoutResponseDto } from "@/dto/auth/logout.dto";
 import { RefreshTokenResponseDto } from "@/dto/auth/refresh-token.dto";
 import { SendOTPRequestDto } from "@/dto/auth/send-otp.dto";
@@ -28,6 +32,7 @@ import { SharedUserRepository } from "@/repositories/user/shared-user.repository
 import { UserRepository } from "@/repositories/user/user.repository";
 import { UserInputData } from "@/repositories/user/user.repository.type";
 import { VerificationCodeRepository } from "@/repositories/verification-code/verification-code.repository";
+import { TwoFactorAuthenticationService } from "@/shared/services/2fa.service";
 import { AppConfigService } from "@/shared/services/app-config.service";
 // import { EmailService } from "@/shared/services/email.service";
 import { HashingService } from "@/shared/services/hashing.service";
@@ -51,6 +56,7 @@ export class AuthService {
     // private readonly emailService: EmailService,
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly deviceRepository: DeviceRepository,
+    private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
   ) {}
 
   async validateVerificationCode(data: {
@@ -60,9 +66,11 @@ export class AuthService {
   }) {
     const verificationCode = await this.verificationCodeRepository.findUnique({
       where: {
-        email: data.email,
-        code: data.code,
-        type: data.type,
+        email_code_type: {
+          email: data.email,
+          code: data.code,
+          type: data.type,
+        },
       },
     });
 
@@ -127,6 +135,37 @@ export class AuthService {
       throw new BadRequestException([
         { message: "Email is not found.", path: "email" },
       ]);
+    }
+
+    if (user.totpSecret) {
+      if (!data.totpCode && !data.verificationCode) {
+        throw new UnprocessableEntityException([
+          {
+            message: "TOTP or verification code is required.",
+            path: "totpCode",
+          },
+        ]);
+      }
+
+      if (data.totpCode) {
+        const isTOTPCodeValid =
+          this.twoFactorAuthenticationService.verifyTOTPCode({
+            email: user.email,
+            secret: user.totpSecret,
+            totpCode: data.totpCode,
+          });
+        if (!isTOTPCodeValid) {
+          throw new UnprocessableEntityException([
+            { message: "TOTP code is not valid.", path: "totpCode" },
+          ]);
+        }
+      } else {
+        await this.validateVerificationCode({
+          email: user.email,
+          code: data.verificationCode,
+          type: VerificationCodeType.LOGIN,
+        });
+      }
     }
 
     // 2. Verify Password
@@ -335,7 +374,11 @@ export class AuthService {
     return verificationCode;
   }
 
-  async forgotPassword({ code, email, password }: ForgotPasswordRequestDto) {
+  async forgotPassword({
+    code,
+    email,
+    password,
+  }: ForgotPasswordRequestDto): Promise<ForgotPasswordResponseDto> {
     const user = await this.sharedUserRepository.findUniqueOrThrow({
       where: {
         email,
@@ -368,6 +411,98 @@ export class AuthService {
 
     return {
       message: "Password has been updated.",
+    };
+  }
+
+  async setupTwoFactorAuthentication(userid: number) {
+    // 1: Check user info and 2fa status
+    const user = await this.sharedUserRepository.findUniqueOrThrow({
+      where: {
+        id: userid,
+      },
+    });
+
+    if (user.totpSecret) {
+      throw new UnprocessableEntityException([
+        { message: "2FA is already enabled.", path: "totpCode" },
+      ]);
+    }
+
+    // 2: Generate secret key & uri
+    const { secret, uri } =
+      this.twoFactorAuthenticationService.generateTOTPSecret(user.email);
+
+    // 3: Save secret key to user
+    await this.userRepository.updateUser({
+      where: {
+        id: user.id,
+      },
+      data: {
+        totpSecret: secret,
+      },
+    });
+
+    // 4: Send uri to user
+    return {
+      secret,
+      uri,
+    };
+  }
+
+  async disableTwoFactorAuthentication({
+    userId,
+    totpCode,
+    verificationCode,
+  }: Disable2faRequestDto & {
+    userId: number;
+  }) {
+    // 1: Check user info and 2fa status
+    const user = await this.sharedUserRepository.findUniqueOrThrow({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user.totpSecret) {
+      throw new UnprocessableEntityException([
+        { message: "2FA is already disabled.", path: "totpCode" },
+      ]);
+    }
+
+    if (totpCode) {
+      const isValidTOTPCode =
+        this.twoFactorAuthenticationService.verifyTOTPCode({
+          email: user.email,
+          secret: user.totpSecret,
+          totpCode,
+        });
+
+      if (!isValidTOTPCode) {
+        throw new UnprocessableEntityException([
+          { message: "TOTP code is not valid.", path: "totpCode" },
+        ]);
+      }
+    } else {
+      if (verificationCode) {
+        await this.validateVerificationCode({
+          email: user.email,
+          code: verificationCode,
+          type: VerificationCodeType.DISABLE_2FA,
+        });
+      }
+    }
+
+    await this.userRepository.updateUser({
+      where: {
+        id: user.id,
+      },
+      data: {
+        totpSecret: null,
+      },
+    });
+
+    return {
+      message: "2FA has been disabled.",
     };
   }
 }

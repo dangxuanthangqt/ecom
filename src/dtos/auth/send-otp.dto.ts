@@ -8,7 +8,12 @@ export class SendOTPRequestDto {
   @IsEmail()
   email: string;
 
-  @IsIn([VerificationCodeType.REGISTER, VerificationCodeType.FORGOT_PASSWORD])
+  @IsIn([
+    VerificationCodeType.REGISTER,
+    VerificationCodeType.FORGOT_PASSWORD,
+    VerificationCodeType.LOGIN,
+    VerificationCodeType.DISABLE_2FA,
+  ])
   type: VerificationCodeTypeType;
 }
 

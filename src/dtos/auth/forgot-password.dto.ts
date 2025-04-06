@@ -1,7 +1,7 @@
 import { Expose } from "class-transformer";
 import { IsEmail, IsString, Length } from "class-validator";
 
-import { IsPasswordMatch } from "@/validations/decorators/match-password.decorator";
+import { IsPasswordMatch } from "@/validations/decorators/is-password-match.decorator";
 
 export class ForgotPasswordRequestDto {
   @IsString()
