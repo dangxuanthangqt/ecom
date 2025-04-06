@@ -138,7 +138,7 @@ export class AuthService {
     }
 
     if (user.totpSecret) {
-      if (!data.totpCode && !data.verificationCode) {
+      if (!data.totpCode && !data.code) {
         throw new UnprocessableEntityException([
           {
             message: "TOTP or verification code is required.",
@@ -162,7 +162,7 @@ export class AuthService {
       } else {
         await this.validateVerificationCode({
           email: user.email,
-          code: data.verificationCode,
+          code: data.code,
           type: VerificationCodeType.LOGIN,
         });
       }
@@ -452,7 +452,7 @@ export class AuthService {
   async disableTwoFactorAuthentication({
     userId,
     totpCode,
-    verificationCode,
+    code,
   }: Disable2faRequestDto & {
     userId: number;
   }) {
@@ -483,10 +483,10 @@ export class AuthService {
         ]);
       }
     } else {
-      if (verificationCode) {
+      if (code) {
         await this.validateVerificationCode({
           email: user.email,
-          code: verificationCode,
+          code: code,
           type: VerificationCodeType.DISABLE_2FA,
         });
       }

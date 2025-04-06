@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "build:swagger": "pnpm run build && APP_ENV=development node dist/src/generate-swagger.js",
     "es-check": "eslint --max-warnings=0 .",
     "types-check": "tsc --noEmit",
     "format-check": "prettier --ignore-unknown --check .",
@@ -34,6 +35,7 @@
     "@nestjs/core": "11.0.1",
     "@nestjs/jwt": "11.0.0",
     "@nestjs/platform-express": "11.0.1",
+    "@nestjs/swagger": "11.1.1",
     "@prisma/client": "6.4.1",
     "@types/ms": "2.1.0",
     "bcrypt": "5.1.1",
@@ -53,6 +55,7 @@
     "resend": "4.1.2",
     "rxjs": "7.8.1",
     "uuid": "11.1.0",
+    "yaml": "2.7.1",
     "zod": "3.24.2"
   },
   "devDependencies": {

@@ -1,0 +1,494 @@
+openapi: 3.0.0
+paths:
+  /auth/register:
+    post:
+      operationId: register
+      parameters: []
+      requestBody:
+        required: true
+        description: User registration data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequestDto"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterResponseDto"
+      summary: Register a new user
+      tags: &a1
+        - Auth
+  /auth/login:
+    post:
+      operationId: login
+      parameters: []
+      requestBody:
+        required: true
+        description: User login data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequestDto"
+      responses:
+        "201":
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponseDto"
+      summary: Login user
+      tags: *a1
+  /auth/refresh-token:
+    post:
+      operationId: refreshToken
+      parameters: []
+      requestBody:
+        required: true
+        description: Refresh token data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequestDto"
+      responses:
+        "201":
+          description: Access token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshTokenResponseDto"
+      summary: Refresh access token
+      tags: *a1
+  /auth/logout:
+    post:
+      operationId: logout
+      parameters: []
+      requestBody:
+        required: true
+        description: Logout data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogoutRequestDto"
+      responses:
+        "201":
+          description: User logged out successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutResponseDto"
+      summary: Logout user
+      tags: *a1
+  /auth/otp:
+    post:
+      operationId: sendOTP
+      parameters: []
+      requestBody:
+        required: true
+        description: Send OTP data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendOTPRequestDto"
+      responses:
+        "201":
+          description: OTP sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SendOTPResponseDto"
+      summary: Send OTP
+      tags: *a1
+  /auth/google/authorization-url:
+    get:
+      operationId: getAuthorizationUrl
+      parameters: []
+      responses:
+        "200":
+          description: Google authorization URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    example: https://accounts.google.com/o/oauth2/v2/auth?...
+      summary: Get Google authorization URL
+      tags: *a1
+  /auth/google/callback:
+    get:
+      operationId: googleCallback
+      parameters:
+        - name: code
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: state
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+      summary: Google callback
+      tags: *a1
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      parameters: []
+      requestBody:
+        required: true
+        description: Forgot password data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordRequestDto"
+      responses:
+        "201":
+          description: Password reset email sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ForgotPasswordResponseDto"
+      summary: Forgot password
+      tags: *a1
+  /auth/2fa/enable:
+    post:
+      operationId: enable2fa
+      parameters: []
+      responses:
+        "201":
+          description: 2FA enabled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EnableTwoFactorAuthenticationResponseDto"
+      summary: Enable 2FA
+      tags: *a1
+  /auth/2fa/disable:
+    post:
+      operationId: disable2fa
+      parameters: []
+      requestBody:
+        required: true
+        description: Disable 2FA data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Disable2faRequestDto"
+      responses:
+        "201":
+          description: 2FA disabled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Disable2faResponseDto"
+      summary: Disable 2FA
+      tags: *a1
+info:
+  title: Ecom API
+  description: The Ecom API description
+  version: "1.0"
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas:
+    RegisterRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+        password:
+          type: string
+          description: The user's password
+          example: securePassword123
+          minLength: 8
+          maxLength: 20
+        confirmPassword:
+          type: string
+          description: Confirm password
+          example: securePassword123
+          minLength: 8
+          maxLength: 20
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+          minLength: 10
+          maxLength: 11
+        name:
+          type: string
+          description: The user's name
+          example: John Doe
+        code:
+          type: string
+          description: Verification code
+          example: "123456"
+          minLength: 6
+          maxLength: 6
+      required:
+        - email
+        - password
+        - confirmPassword
+        - phoneNumber
+        - name
+        - code
+    RegisterResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: The user's ID
+          example: 1
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+        name:
+          type: string
+          description: The user's name
+          example: John Doe
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+        createdAt:
+          format: date-time
+          type: string
+          description: The user's created date
+          example: 2023-10-27T00:00:00.000Z
+        status:
+          type: string
+          description: The user's status
+          example: ACTIVE
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - BLOCKED
+        avatar:
+          type: object
+          description: The user's avatar
+          example: null
+          nullable: true
+        updatedAt:
+          format: date-time
+          type: string
+          description: The user's updated date
+          example: 2023-10-27T00:00:00.000Z
+      required:
+        - id
+        - email
+        - name
+        - phoneNumber
+        - createdAt
+        - status
+        - avatar
+        - updatedAt
+    LoginRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+        password:
+          type: string
+          description: The user's password
+          example: securePassword123
+          minLength: 8
+          maxLength: 20
+        totpCode:
+          type: string
+          description: The user's TOTP code (if 2FA is enabled)
+          example: "123456"
+          minLength: 6
+          maxLength: 6
+        code:
+          type: string
+          description: The user's verification code (if 2FA is enabled)
+          example: "123456"
+          minLength: 6
+          maxLength: 6
+      required:
+        - email
+        - password
+    LoginResponseDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: The access token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          description: The refresh token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      required:
+        - accessToken
+        - refreshToken
+    RefreshTokenRequestDto:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          description: The refresh token used to obtain new access and refresh tokens
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      required:
+        - refreshToken
+    RefreshTokenResponseDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: The new access token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        refreshToken:
+          type: string
+          description: The new refresh token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      required:
+        - accessToken
+        - refreshToken
+    LogoutRequestDto:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+          description: The refresh token to invalidate
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      required:
+        - refreshToken
+    LogoutResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message indicating the success of the logout operation
+          example: Logout successfully.
+      required:
+        - message
+    SendOTPRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+        type:
+          type: string
+          description: The type of verification code being requested
+          enum:
+            - REGISTER
+            - FORGOT_PASSWORD
+            - LOGIN
+            - DISABLE_2FA
+          example: REGISTER
+      required:
+        - email
+        - type
+    SendOTPResponseDto:
+      type: object
+      properties:
+        code:
+          type: string
+          description: The generated OTP code
+          example: "123456"
+        createdAt:
+          format: date-time
+          type: string
+          description: The creation timestamp of the OTP code
+          example: 2023-10-27T00:00:00.000Z
+        expiresAt:
+          format: date-time
+          type: string
+          description: The expiration timestamp of the OTP code
+          example: 2023-10-27T00:05:00.000Z
+      required:
+        - code
+        - createdAt
+        - expiresAt
+    ForgotPasswordRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+        password:
+          type: string
+          description: The new password for the user
+          example: newSecurePassword123
+          minLength: 8
+          maxLength: 20
+        confirmPassword:
+          type: string
+          description: Confirm the new password
+          example: newSecurePassword123
+          minLength: 8
+          maxLength: 20
+        code:
+          type: string
+          description: The verification code sent to the user's email
+          example: "123456"
+          minLength: 6
+          maxLength: 6
+      required:
+        - email
+        - password
+        - confirmPassword
+        - code
+    ForgotPasswordResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message indicating the success of the password update
+          example: Password has been updated.
+      required:
+        - message
+    EnableTwoFactorAuthenticationResponseDto:
+      type: object
+      properties:
+        secret:
+          type: string
+          description: The secret key for 2FA setup
+          example: JBSWY3DPEHPK3PXP
+        uri:
+          type: string
+          description: The URI for 2FA setup
+          example: otpauth://totp/Example:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example
+      required:
+        - secret
+        - uri
+    Disable2faRequestDto:
+      type: object
+      properties:
+        totpCode:
+          type: string
+          description: The user's TOTP code (if 2FA is enabled)
+          example: "123456"
+          minLength: 6
+          maxLength: 6
+        code:
+          type: string
+          description: The user's verification code (if 2FA is enabled)
+          example: "123456"
+          minLength: 6
+          maxLength: 6
+    Disable2faResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message indicating the success of disabling 2FA
+          example: 2FA has been disabled.
+      required:
+        - message

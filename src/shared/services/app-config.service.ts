@@ -48,6 +48,14 @@ export class AppConfigService {
     };
   }
 
+  get appEnv(): string {
+    return this.getString("APP_ENV");
+  }
+
+  get isDevelopment(): boolean {
+    return this.appEnv === "development";
+  }
+
   private getBoolean(key: string): boolean {
     const value = this.get(key);
 

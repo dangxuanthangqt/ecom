@@ -8,13 +8,13 @@ import {
   Query,
   Res,
 } from "@nestjs/common";
+import { ApiBody, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { Device } from "@prisma/client";
 import { Response } from "express";
 import {
   LoginRequestDto,
   //   LoginRequestZodDto,
   LoginResponseDto,
-  //   LoginResponseZodDto,
 } from "src/dtos/auth/login.dto";
 import {
   RegisterRequestDto,
@@ -27,13 +27,13 @@ import { GoogleService } from "./google.service";
 import {
   Disable2faRequestDto,
   Disable2faResponseDto,
-  TwoFactorAuthenticationResponseDto,
+  EnableTwoFactorAuthenticationResponseDto,
 } from "@/dto/auth/2fa.dto";
 import {
   ForgotPasswordRequestDto,
   ForgotPasswordResponseDto,
 } from "@/dto/auth/forgot-password.dto";
-import { LogoutResponseDto } from "@/dto/auth/logout.dto";
+import { LogoutRequestDto, LogoutResponseDto } from "@/dto/auth/logout.dto";
 import {
   RefreshTokenRequestDto,
   RefreshTokenResponseDto,
@@ -42,7 +42,6 @@ import { SendOTPRequestDto, SendOTPResponseDto } from "@/dto/auth/send-otp.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/decorators/auth-api.decorator";
 import { UserAgent } from "@/shared/decorators/user-agent.decorator";
-import { TwoFactorAuthenticationService } from "@/shared/services/2fa.service";
 import { AppConfigService } from "@/shared/services/app-config.service";
 
 @Controller("auth")
@@ -53,11 +52,17 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly googleService: GoogleService,
     private readonly appConfigService: AppConfigService,
-    private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
   ) {}
 
   @Post("register")
   @IsPublicApi()
+  @ApiOperation({ summary: "Register a new user" })
+  @ApiBody({ type: RegisterRequestDto, description: "User registration data" })
+  @ApiResponse({
+    status: 201,
+    description: "User registered successfully",
+    type: RegisterResponseDto,
+  })
   async register(
     @Body() data: RegisterRequestDto,
   ): Promise<RegisterResponseDto> {
@@ -68,6 +73,13 @@ export class AuthController {
 
   @Post("login")
   @IsPublicApi()
+  @ApiOperation({ summary: "Login user" })
+  @ApiBody({ type: LoginRequestDto, description: "User login data" })
+  @ApiResponse({
+    status: 201,
+    description: "User logged in successfully",
+    type: LoginResponseDto,
+  })
   // @ZodSerializerDto(LoginResponseZodDto) // /** It's run after global TransformInterceptor*/
   async login(
     @Body() data: LoginRequestDto,
@@ -85,6 +97,15 @@ export class AuthController {
 
   @Post("refresh-token")
   @IsPublicApi()
+  @Post("refresh-token")
+  @IsPublicApi()
+  @ApiOperation({ summary: "Refresh access token" })
+  @ApiBody({ type: RefreshTokenRequestDto, description: "Refresh token data" })
+  @ApiResponse({
+    status: 201,
+    description: "Access token refreshed successfully",
+    type: RefreshTokenResponseDto,
+  })
   async refreshToken(
     @Body() data: RefreshTokenRequestDto,
     @Ip() ip: string,
@@ -100,9 +121,15 @@ export class AuthController {
   }
 
   @Post("logout")
-  async logout(
-    @Body() data: RefreshTokenRequestDto,
-  ): Promise<LogoutResponseDto> {
+  @Post("logout")
+  @ApiOperation({ summary: "Logout user" })
+  @ApiBody({ type: LogoutRequestDto, description: "Logout data" })
+  @ApiResponse({
+    status: 201,
+    description: "User logged out successfully",
+    type: LogoutResponseDto,
+  })
+  async logout(@Body() data: LogoutRequestDto): Promise<LogoutResponseDto> {
     const response = await this.authService.logout({
       ...data,
     });
@@ -112,6 +139,13 @@ export class AuthController {
 
   @Post("otp")
   @IsPublicApi()
+  @ApiOperation({ summary: "Send OTP" })
+  @ApiBody({ type: SendOTPRequestDto, description: "Send OTP data" })
+  @ApiResponse({
+    status: 201,
+    description: "OTP sent successfully",
+    type: SendOTPResponseDto,
+  })
   async sendOTP(@Body() data: SendOTPRequestDto): Promise<SendOTPResponseDto> {
     const response = await this.authService.sendOTP(data);
 
@@ -120,6 +154,20 @@ export class AuthController {
 
   @Get("google/authorization-url")
   @IsPublicApi()
+  @ApiOperation({ summary: "Get Google authorization URL" })
+  @ApiResponse({
+    status: 200,
+    description: "Google authorization URL",
+    schema: {
+      type: "object",
+      properties: {
+        url: {
+          type: "string",
+          example: "https://accounts.google.com/o/oauth2/v2/auth?...",
+        },
+      },
+    },
+  })
   getAuthorizationUrl(
     @Ip() ip: string,
     @UserAgent() userAgent: Device["userAgent"],
@@ -130,6 +178,7 @@ export class AuthController {
   }
 
   @Get("google/callback")
+  @ApiOperation({ summary: "Google callback" })
   @IsPublicApi()
   async googleCallback(
     @Query("code") code: string,
@@ -165,6 +214,17 @@ export class AuthController {
 
   @Post("forgot-password")
   @IsPublicApi()
+  @ApiOperation({ summary: "Forgot password" })
+  @ApiBody({
+    type: ForgotPasswordRequestDto,
+    description: "Forgot password data",
+  })
+  @ApiResponse({
+    status: 201,
+    description: "Password reset email sent successfully",
+    type: ForgotPasswordResponseDto,
+  })
+  @IsPublicApi()
   async forgotPassword(@Body() data: ForgotPasswordRequestDto) {
     const response = await this.authService.forgotPassword(data);
 
@@ -172,13 +232,27 @@ export class AuthController {
   }
 
   @Post("2fa/enable")
+  @ApiOperation({ summary: "Enable 2FA" })
+  @ApiResponse({
+    status: 201,
+    description: "2FA enabled successfully",
+    type: EnableTwoFactorAuthenticationResponseDto,
+  })
   async enable2fa(@ActiveUser("userId") userId: number) {
     const response =
       await this.authService.setupTwoFactorAuthentication(userId);
 
-    return new TwoFactorAuthenticationResponseDto(response);
+    return new EnableTwoFactorAuthenticationResponseDto(response);
   }
+
   @Post("2fa/disable")
+  @ApiOperation({ summary: "Disable 2FA" })
+  @ApiBody({ type: Disable2faRequestDto, description: "Disable 2FA data" })
+  @ApiResponse({
+    status: 201,
+    description: "2FA disabled successfully",
+    type: Disable2faResponseDto,
+  })
   async disable2fa(
     @Body() body: Disable2faRequestDto,
     @ActiveUser("userId") userId: number,

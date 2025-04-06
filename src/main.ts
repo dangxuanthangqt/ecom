@@ -4,12 +4,14 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
+import { SwaggerModule } from "@nestjs/swagger";
 import { Logger } from "nestjs-pino";
 
 import { AppModule } from "./app.module";
 // import { TransformInterceptor } from "./shared/interceptors/transform.interceptor";
 import { AppConfigService } from "./shared/services/app-config.service";
 import { SharedModule } from "./shared/shared.module";
+import { setupSwagger } from "./shared/utils/setup-swagger.util";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -60,6 +62,15 @@ async function bootstrap() {
   //   new PrismaClientExceptionFilter(),
   //   new ExternalExceptionFilter(),
   // ); not working with pipe ?
+
+  // Setup Swagger
+  if (configService.isDevelopment) {
+    SwaggerModule.setup("api", app, setupSwagger(app), {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
+  }
 
   await app.listen(configService.appConfig.port);
 }
