@@ -8,9 +8,8 @@ datasource db {
 }
 
 model Language {
-  id                   Int                   @id @default(autoincrement())
+  id                   String                @id @db.VarChar(10)
   name                 String                @db.VarChar(500)
-  code                 String                @unique @db.VarChar(10)
   createdById          Int?
   updatedById          Int?
   deletedAt            DateTime?
@@ -22,6 +21,8 @@ model Language {
   updatedBy            User?                 @relation("LanguageUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
   productTranslations  ProductTranslation[]
   userTranslations     UserTranslation[]
+
+  @@index([deletedAt])
 }
 
 model User {
@@ -80,6 +81,8 @@ model User {
   updatedVariants             Variant[]             @relation("VariantUpdatedBy")
   createdVariantOptions       VariantOption[]       @relation("VariantOptionCreatedBy")
   updatedVariantOptions       VariantOption[]       @relation("VariantOptionUpdatedBy")
+
+  @@index([deletedAt])
 }
 
 model Device {
@@ -97,7 +100,7 @@ model Device {
 model UserTranslation {
   id          Int       @id @default(autoincrement())
   userId      Int
-  languageId  Int
+  languageId  String
   address     String?   @db.VarChar(500)
   description String?
   createdById Int?
@@ -109,6 +112,8 @@ model UserTranslation {
   language    Language  @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   updatedBy   User?     @relation("UserTranslationUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
   user        User      @relation("User", fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([deletedAt])
 }
 
 model VerificationCode {
@@ -149,6 +154,8 @@ model Permission {
   createdBy   User?      @relation("PermissionCreatedBy", fields: [createdById], references: [id], onUpdate: NoAction)
   updatedBy   User?      @relation("PermissionUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
   roles       Role[]     @relation("PermissionToRole")
+
+  @@index([deletedAt])
 }
 
 model Role {
@@ -165,6 +172,8 @@ model Role {
   updatedBy   User?        @relation("RoleUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
   users       User[]
   permissions Permission[] @relation("PermissionToRole")
+
+  @@index([deletedAt])
 }
 
 model Product {
@@ -186,12 +195,14 @@ model Product {
   skus                SKU[]
   variants            Variant[]
   categories          Category[]           @relation("CategoryToProduct")
+
+  @@index([deletedAt])
 }
 
 model ProductTranslation {
   id          Int       @id @default(autoincrement())
   productId   Int
-  languageId  Int
+  languageId  String
   name        String    @db.VarChar(500)
   description String
   createdById Int?
@@ -203,6 +214,8 @@ model ProductTranslation {
   language    Language  @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   updatedBy   User?     @relation("ProductTranslationUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
+
+  @@index([deletedAt])
 }
 
 model Category {
@@ -219,12 +232,14 @@ model Category {
   updatedBy            User?                 @relation("CategoryUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
   categoryTranslations CategoryTranslation[]
   products             Product[]             @relation("CategoryToProduct")
+
+  @@index([deletedAt])
 }
 
 model CategoryTranslation {
   id          Int       @id @default(autoincrement())
   categoryId  Int
-  languageId  Int
+  languageId  String
   name        String    @db.VarChar(500)
   description String
   createdById Int?
@@ -236,21 +251,26 @@ model CategoryTranslation {
   createdBy   User?     @relation("CategoryTranslationCreatedBy", fields: [createdById], references: [id], onUpdate: NoAction)
   language    Language  @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   updatedBy   User?     @relation("CategoryTranslationUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
+
+  @@index([deletedAt])
 }
 
 model Variant {
-  id             Int             @id @default(autoincrement())
-  name           String          @db.VarChar(500)
-  productId      Int
-  createdById    Int?
-  updatedById    Int?
-  deletedAt      DateTime?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  createdBy      User?           @relation("VariantCreatedBy", fields: [createdById], references: [id], onUpdate: NoAction)
-  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  updatedBy      User?           @relation("VariantUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(500)
+  productId   Int
+  createdById Int?
+  updatedById Int?
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdBy   User?     @relation("VariantCreatedBy", fields: [createdById], references: [id], onUpdate: NoAction)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  updatedBy   User?     @relation("VariantUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
+
   variantOptions VariantOption[]
+
+  @@index([deletedAt])
 }
 
 model VariantOption {
@@ -266,6 +286,8 @@ model VariantOption {
   updatedBy   User?     @relation("VariantOptionUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
   variant     Variant   @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   skus        SKU[]     @relation("SKUToVariantOption")
+
+  @@index([deletedAt])
 }
 
 model SKU {
@@ -285,7 +307,10 @@ model SKU {
   createdBy           User?                @relation("SKUCreatedBy", fields: [createdById], references: [id], onUpdate: NoAction)
   product             Product              @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   updatedBy           User?                @relation("SKUUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
-  variantOptions      VariantOption[]      @relation("SKUToVariantOption")
+
+  variantOptions VariantOption[] @relation("SKUToVariantOption")
+
+  @@index([deletedAt])
 }
 
 model Brand {
@@ -300,12 +325,14 @@ model Brand {
   updatedBy         User?              @relation("BrandUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
   brandTranslations BrandTranslation[]
   products          Product[]
+
+  @@index([deletedAt])
 }
 
 model BrandTranslation {
   id          Int       @id @default(autoincrement())
   brandId     Int
-  languageId  Int
+  languageId  String
   name        String    @db.VarChar(500)
   description String
   createdById Int?
@@ -317,6 +344,8 @@ model BrandTranslation {
   createdBy   User?     @relation("BrandTranslationCreatedBy", fields: [createdById], references: [id], onUpdate: NoAction)
   language    Language  @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   updatedBy   User?     @relation("BrandTranslationUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
+
+  @@index([deletedAt])
 }
 
 model CartItem {
@@ -356,6 +385,8 @@ model Order {
   updatedBy   User?                @relation("OrderUpdatedBy", fields: [updatedById], references: [id], onUpdate: NoAction)
   user        User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   items       ProductSKUSnapshot[]
+
+  @@index([deletedAt])
 }
 
 model Review {

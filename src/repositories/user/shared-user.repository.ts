@@ -10,7 +10,7 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
-  isRecordToUpdateNotFoundPrismaError,
+  isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 
@@ -25,11 +25,13 @@ export class SharedUserRepository {
   ): Promise<Prisma.UserGetPayload<T> | null> {
     try {
       const user = await this.prismaService.user.findUnique(args);
+
       return user;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(`Failed to find user`, error.stack);
       }
+
       throw new InternalServerErrorException([
         {
           message: "Failed to find user.",
@@ -44,12 +46,14 @@ export class SharedUserRepository {
   ): Promise<Prisma.UserGetPayload<T>> {
     try {
       const user = await this.prismaService.user.findUniqueOrThrow(args);
+
       return user;
     } catch (error) {
       if (error instanceof Error) {
         this.logger.error(`Failed to find user`, error.stack);
       }
-      if (isRecordToUpdateNotFoundPrismaError(error)) {
+
+      if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throw new NotFoundException([
           {
             message: "User not found.",

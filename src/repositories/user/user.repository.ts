@@ -12,7 +12,7 @@ import { UserInputData } from "./user.repository.type";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
-  isRecordToUpdateNotFoundPrismaError,
+  isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 
@@ -97,7 +97,7 @@ export class UserRepository {
         this.logger.error(`Failed to create user`, error.stack);
       }
 
-      if (isRecordToUpdateNotFoundPrismaError(error)) {
+      if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throw new NotFoundException([
           {
             message: "User not found.",

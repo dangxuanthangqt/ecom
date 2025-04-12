@@ -6,13 +6,22 @@
 $ pnpm install
 ```
 
-## Seeding initial data (ex: roles....)
+### Seeding initial data (ex: roles....)
 
 ```bash
 # Seed roles and create admin user
 $  pnpm run seed:initial-scripts
 
 ```
+
+### Generate prisma client
+
+```bash
+$ pnpm run prisma:generate
+
+```
+
+If having issue related bcrypt, please run `npm rebuild bcrypt` after install dependencies.
 
 ## Compile and run the project
 

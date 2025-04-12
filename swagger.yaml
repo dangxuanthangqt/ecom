@@ -190,6 +190,134 @@ paths:
                 $ref: "#/components/schemas/Disable2faResponseDto"
       summary: Disable 2FA
       tags: *a1
+  /languages:
+    get:
+      operationId: getLanguages
+      parameters: []
+      responses:
+        "200":
+          description: Successfully retrieved the list of languages.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LanguageListResponseDto"
+        "500":
+          description: Internal server error.
+      tags: &a2
+        - languages
+  /languages/{id}:
+    get:
+      operationId: getLanguageById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Language ID
+          schema:
+            minLength: 2
+            maxLength: 2
+            example: en
+            type: string
+      responses:
+        "200":
+          description: Successfully retrieved the language.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LanguageResponseDto"
+        "404":
+          description: Language not found.
+        "500":
+          description: Internal server error.
+      tags: *a2
+    put:
+      operationId: updateLanguage
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Language ID
+          schema:
+            minLength: 2
+            maxLength: 2
+            example: en
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LanguageUpdateRequestDto"
+      responses:
+        "200":
+          description: Successfully updated the language.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LanguageUpdateResponseDto"
+        "400":
+          description: Bad request.
+        "404":
+          description: Language not found.
+        "422":
+          description: Language already exists or invalid user ID.
+        "500":
+          description: Internal server error.
+      tags: *a2
+    delete:
+      operationId: deleteLanguage
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Language ID
+          schema:
+            minLength: 2
+            maxLength: 2
+            example: en
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LanguageDeleteRequestDto"
+      responses:
+        "200":
+          description: Successfully deleted the language.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LanguageDeleteResponseDto"
+        "404":
+          description: Language not found or already deleted.
+        "500":
+          description: Internal server error.
+      tags: *a2
+  /languages/create:
+    post:
+      operationId: createLanguage
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LanguageCreateRequestDto"
+      responses:
+        "201":
+          description: Successfully created the language.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LanguageCreateResponseDto"
+        "400":
+          description: Bad request.
+        "422":
+          description: Language already exists or invalid user ID.
+        "500":
+          description: Internal server error.
+      tags: *a2
 info:
   title: Ecom API
   description: The Ecom API description
@@ -492,3 +620,111 @@ components:
           example: 2FA has been disabled.
       required:
         - message
+    LanguageResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+        name:
+          type: string
+          description: Language name
+          example: English
+      required:
+        - id
+        - name
+    LanguageListResponseDto:
+      type: object
+      properties:
+        languages:
+          description: List of languages
+          type: array
+          items:
+            $ref: "#/components/schemas/LanguageResponseDto"
+        total:
+          type: number
+          description: Total number of languages
+          example: 10
+      required:
+        - languages
+        - total
+    LanguageCreateRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Language name
+          example: English
+          minLength: 2
+          maxLength: 500
+        id:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+          minLength: 2
+          maxLength: 2
+      required:
+        - name
+        - id
+    LanguageCreateResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+        name:
+          type: string
+          description: Language name
+          example: English
+      required:
+        - id
+        - name
+    LanguageUpdateRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Language name
+          example: Vietnamese
+          minLength: 2
+          maxLength: 500
+      required:
+        - name
+    LanguageUpdateResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+        name:
+          type: string
+          description: Language name
+          example: English
+      required:
+        - id
+        - name
+    LanguageDeleteRequestDto:
+      type: object
+      properties:
+        isHardDelete:
+          type: boolean
+          description: Whether to hard delete the language
+          example: false
+          default: false
+    LanguageDeleteResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+        name:
+          type: string
+          description: Language name
+          example: English
+      required:
+        - id
+        - name

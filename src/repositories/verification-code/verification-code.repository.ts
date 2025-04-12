@@ -11,7 +11,7 @@ import { VerificationCodeInputData } from "./verification-code.repository.type";
 
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
-  isRecordToUpdateNotFoundPrismaError,
+  isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 
@@ -31,7 +31,7 @@ export class VerificationCodeRepository {
         this.logger.error(`Failed to delete verification code`, error.stack);
       }
 
-      if (isRecordToUpdateNotFoundPrismaError(error)) {
+      if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throw new NotFoundException([
           {
             message: "Verification code not found.",
@@ -143,7 +143,7 @@ export class VerificationCodeRepository {
         this.logger.error(`Failed to find verification code`, error.stack);
       }
 
-      if (isRecordToUpdateNotFoundPrismaError(error)) {
+      if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throw new NotFoundException([
           {
             message: "Verification code not found.",

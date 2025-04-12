@@ -43,7 +43,7 @@ export function isUniqueConstraintPrismaError(
  * @param error - The error object to check.
  * @returns `true` if the error is a PrismaClientKnownRequestError with code 'P2025', `false` otherwise.
  */
-export function isRecordToUpdateNotFoundPrismaError(
+export function isRecordToUpdateOrDeleteNotFoundPrismaError(
   error: unknown,
 ): error is PrismaClientKnownRequestError {
   return isPrismaClientKnownRequestError(error) && error.code === "P2025";
