@@ -183,17 +183,12 @@ export class LanguageRepository {
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        const prismaError = error;
-        const meta = prismaError.meta;
-        const target = meta?.target as string[];
-        const errorDetails = target.map((field) => {
-          return {
-            message: `Invalid ${field} ID.`,
-            path: field,
-          };
-        });
-
-        throw new UnprocessableEntityException(errorDetails);
+        throw new UnprocessableEntityException([
+          {
+            message: "Invalid foreign key constraint.",
+            path: "language",
+          },
+        ]);
       }
 
       throw new InternalServerErrorException([

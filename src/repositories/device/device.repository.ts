@@ -48,8 +48,8 @@ export class DeviceRepository {
         // Handle foreign key constraint violation (e.g., invalid userId)
         throw new UnprocessableEntityException([
           {
-            message: "Invalid user ID.",
-            path: "userId",
+            message: "Invalid foreign key constraint.",
+            path: "device",
           },
         ]);
       }
@@ -99,8 +99,8 @@ export class DeviceRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throw new UnprocessableEntityException([
           {
-            message: "Invalid user ID.",
-            path: "userId",
+            message: "Invalid foreign key constraint.",
+            path: "device",
           },
         ]);
       }
