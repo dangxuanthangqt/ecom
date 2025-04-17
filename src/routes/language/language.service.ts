@@ -17,7 +17,7 @@ export class LanguageService {
   constructor(private readonly languageRepository: LanguageRepository) {}
 
   async getLanguages(): Promise<LanguageListResponseDto> {
-    const languages = await this.languageRepository.getAllLanguages();
+    const languages = await this.languageRepository.findManyLanguages();
 
     return {
       languages: languages,
@@ -26,7 +26,7 @@ export class LanguageService {
   }
 
   async getLanguageById(id: string): Promise<LanguageResponseDto> {
-    const language = await this.languageRepository.getLanguageById(id);
+    const language = await this.languageRepository.findUniqueLanguage(id);
 
     return language;
   }
@@ -64,19 +64,19 @@ export class LanguageService {
     return language;
   }
 
-  async deleteLanguage(
-    id: Language["id"],
-    body: LanguageDeleteRequestDto,
-    userId: User["id"],
-  ): Promise<LanguageUpdateResponseDto> {
+  async deleteLanguage({
+    id,
+    userId,
+    body: { isHardDelete },
+  }: {
+    id: Language["id"];
+    body: LanguageDeleteRequestDto;
+    userId: User["id"];
+  }): Promise<LanguageUpdateResponseDto> {
     const language = await this.languageRepository.deleteLanguageById({
-      where: {
-        id,
-      },
-      data: {
-        updatedById: userId,
-      },
-      isHardDelete: body.isHardDelete,
+      id,
+      isHardDelete,
+      userId,
     });
 
     return language;

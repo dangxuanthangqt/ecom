@@ -10,6 +10,7 @@ import { Language, User } from "@prisma/client";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
+  isRecordNotFoundPrismaError,
   isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
@@ -20,7 +21,7 @@ export class LanguageRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getAllLanguages() {
+  async findManyLanguages() {
     try {
       const languages = await this.prismaService.language.findMany({
         where: {
@@ -47,7 +48,7 @@ export class LanguageRepository {
     }
   }
 
-  async getLanguageById(id: string) {
+  async findUniqueLanguage(id: string) {
     try {
       const language = await this.prismaService.language.findUniqueOrThrow({
         where: {
@@ -66,7 +67,7 @@ export class LanguageRepository {
         this.logger.error(`Failed to get language by id`, error.stack);
       }
 
-      if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
+      if (isRecordNotFoundPrismaError(error)) {
         throw new NotFoundException([
           {
             message: `Language ${id} not found.`,
@@ -201,12 +202,12 @@ export class LanguageRepository {
   }
 
   async deleteLanguageById({
-    where: { id },
-    data: { updatedById },
+    id,
+    userId,
     isHardDelete = false,
   }: {
-    where: { id: string };
-    data: Pick<Language, "updatedById">;
+    id: string;
+    userId: User["id"];
     isHardDelete?: boolean;
   }) {
     try {
@@ -231,7 +232,7 @@ export class LanguageRepository {
         },
         data: {
           deletedAt: new Date(),
-          updatedById,
+          deletedById: userId,
         },
         select: {
           id: true,

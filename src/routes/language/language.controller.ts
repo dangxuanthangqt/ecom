@@ -126,11 +126,11 @@ export class LanguageController {
     @Body() body: LanguageDeleteRequestDto,
     @ActiveUser("userId") userId: number,
   ) {
-    const result = await this.languageService.deleteLanguage(
-      params.id,
-      body,
+    const result = await this.languageService.deleteLanguage({
+      id: params.id,
       userId,
-    );
+      body,
+    });
 
     return new LanguageDeleteResponseDto(result);
   }

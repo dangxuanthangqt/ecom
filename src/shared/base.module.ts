@@ -73,7 +73,9 @@ const providers: Provider[] = [
     ConfigModule.forRoot({
       isGlobal: true, // This is important to make the configuration available in the whole application
       validate: validateEnv,
-      envFilePath: `.env.${process.env.APP_ENV}`,
+      envFilePath: process.env.APP_ENV
+        ? `.env.${process.env.APP_ENV}`
+        : undefined,
     }),
     LoggerModule.forRootAsync({
       useFactory: loggerFactory,

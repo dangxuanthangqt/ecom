@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { plainToInstance } from "class-transformer";
 import { IsString } from "class-validator";
 import { config } from "dotenv";

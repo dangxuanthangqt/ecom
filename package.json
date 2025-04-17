@@ -23,6 +23,8 @@
     "prisma:generate": "prisma generate",
     "prisma:studio": "prisma studio",
     "seed:initial-scripts": "ts-node initial-scripts",
+    "seed:initial-scripts:create-permission:dev": "APP_ENV=development ts-node initial-scripts/create-permission",
+    "seed:initial-scripts:create-permission:pod": "APP_ENV=production ts-node initial-scripts/create-permission",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

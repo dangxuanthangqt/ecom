@@ -12,6 +12,9 @@ $ pnpm install
 # Seed roles and create admin user
 $  pnpm run seed:initial-scripts
 
+# Seed permissions development
+$  pnpm run seed:initial-scripts:create-permission:dev
+
 ```
 
 ### Generate prisma client
