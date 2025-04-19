@@ -1,8 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Expose, Type } from "class-transformer";
 import {
-  ArrayNotEmpty,
   IsArray,
+  IsBoolean,
   IsIn,
   IsNumber,
   IsOptional,
@@ -63,9 +63,9 @@ export class PermissionRequestDto {
     type: [Number],
   })
   @IsArray()
-  @ArrayNotEmpty({ message: "Roles must not be empty." })
+  @IsOptional()
   @IsNumber({}, { each: true, message: "Roles must be an array of numbers." })
-  roles: number[]; // Array of role IDs to associate with the permission
+  roles?: number[]; // Array of role IDs to associate with the permission
 }
 
 export class CreatePermissionRequestDto extends PermissionRequestDto {}
@@ -143,12 +143,13 @@ export class PermissionListResponseDto {
   }
 }
 
-export class PermissionDeleteRequestDto {
+export class DeletePermissionRequestDto {
   @ApiPropertyOptional({
     description: "Whether to hard delete the permission",
     example: false,
     default: false,
   })
   @IsOptional()
+  @IsBoolean()
   isHardDelete?: boolean;
 }

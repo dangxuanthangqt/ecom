@@ -3,7 +3,7 @@ import { Permission, User } from "@prisma/client";
 
 import {
   CreatePermissionRequestDto,
-  PermissionDeleteRequestDto,
+  DeletePermissionRequestDto,
   UpdatePermissionRequestDto,
 } from "@/dto/permission/permission.dto";
 import { PaginationRequestParamsDto } from "@/dto/shared/pagination.dto";
@@ -65,7 +65,7 @@ export class PermissionService {
         path,
         method,
         roles: {
-          connect: roles.map((roleId) => ({ id: roleId })),
+          connect: roles?.map((roleId) => ({ id: roleId })),
         },
         createdById: userId,
       },
@@ -91,7 +91,7 @@ export class PermissionService {
         path,
         method,
         roles: {
-          set: roles.map((roleId) => ({ id: roleId })),
+          set: roles?.map((roleId) => ({ id: roleId })),
         },
         updatedById: userId,
       },
@@ -107,7 +107,7 @@ export class PermissionService {
   }: {
     id: Permission["id"];
     userId: User["id"];
-    body: PermissionDeleteRequestDto;
+    body: DeletePermissionRequestDto;
   }) {
     const permission = await this.permissionRepository.deletePermission({
       id,

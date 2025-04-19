@@ -1,16 +1,24 @@
+import { ApiProperty } from "@nestjs/swagger";
 import { Expose, Type } from "class-transformer";
 import { IsInt, IsOptional, IsPositive, IsString, Min } from "class-validator";
 
 export class PaginationResponseDto {
+  @ApiProperty({ description: "Total number of pages", example: 5 })
   @Expose()
   totalPages: number;
 
+  @ApiProperty({ description: "Total number of items", example: 100 })
   @Expose()
   totalItems: number;
 
+  @ApiProperty({ description: "Number of items per page", example: 20 })
   @Expose()
   pageSize: number;
 
+  @ApiProperty({
+    description: "Current page index (starts from 0)",
+    example: 0,
+  })
   @Expose()
   pageIndex: number;
 

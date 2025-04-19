@@ -26,6 +26,9 @@ export class PermissionRepository {
     path: true,
     method: true,
     roles: {
+      where: {
+        deletedAt: null,
+      },
       select: {
         id: true,
         name: true,
@@ -125,20 +128,7 @@ export class PermissionRepository {
     try {
       const permission = await this.prismaService.permission.create({
         data,
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          path: true,
-          method: true,
-          roles: {
-            select: {
-              id: true,
-              name: true,
-              description: true,
-            },
-          },
-        },
+        select: this.permissionSelect,
       });
 
       return permission;

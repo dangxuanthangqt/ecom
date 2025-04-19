@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   ValidationPipe,
 } from "@nestjs/common";
@@ -16,13 +17,14 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiInternalServerErrorResponse,
+  ApiQuery,
 } from "@nestjs/swagger";
 
 import { PermissionService } from "./permission.service";
 
 import {
   CreatePermissionRequestDto,
-  PermissionDeleteRequestDto,
+  DeletePermissionRequestDto,
   PermissionListResponseDto,
   PermissionResponseDto,
   UpdatePermissionRequestDto,
@@ -30,7 +32,7 @@ import {
 import { PaginationRequestParamsDto } from "@/dto/shared/pagination.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
 
-@ApiTags("permissions")
+@ApiTags("Permissions")
 @Controller("permissions")
 export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
@@ -43,6 +45,36 @@ export class PermissionController {
   })
   @ApiBadRequestResponse({ description: "Bad request." })
   @ApiInternalServerErrorResponse({ description: "Internal server error." })
+  @ApiQuery({
+    name: "pageSize",
+    required: false,
+    type: Number,
+    description: "Number of items per page",
+  })
+  @ApiQuery({
+    name: "pageIndex",
+    required: false,
+    type: Number,
+    description: "Page index (starts from 0)",
+  })
+  @ApiQuery({
+    name: "order",
+    required: false,
+    enum: ["ASC", "DESC"],
+    description: "Sort order (ASC or DESC)",
+  })
+  @ApiQuery({
+    name: "orderBy",
+    required: false,
+    type: String,
+    description: "Field to order by",
+  })
+  @ApiQuery({
+    name: "keyword",
+    required: false,
+    type: String,
+    description: "Search keyword",
+  })
   async getPermissions(
     @Query(new ValidationPipe({ transform: true }))
     query: PaginationRequestParamsDto,
@@ -87,7 +119,7 @@ export class PermissionController {
     return new PermissionResponseDto(result);
   }
 
-  @Post("update/:id")
+  @Put(":id")
   @ApiOperation({ summary: "Update an existing permission" })
   @ApiOkResponse({
     description: "Successfully updated the permission.",
@@ -110,7 +142,7 @@ export class PermissionController {
     return new PermissionResponseDto(result);
   }
 
-  @Delete("delete/:id")
+  @Delete(":id")
   @ApiOperation({ summary: "Delete a permission" })
   @ApiOkResponse({
     description: "Successfully deleted the permission.",
@@ -122,7 +154,7 @@ export class PermissionController {
   async deletePermission(
     @Param("id", ParseIntPipe) id: number,
     @ActiveUser("userId") userId: number,
-    @Body() body: PermissionDeleteRequestDto,
+    @Body() body: DeletePermissionRequestDto,
   ) {
     const result = await this.permissionService.deletePermission({
       id,

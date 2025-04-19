@@ -3,8 +3,9 @@ import { Module } from "@nestjs/common";
 import { AuthModule } from "./auth/auth.module";
 import { LanguageModule } from "./language/language.module";
 import { PermissionModule } from "./permission/permission.module";
+import { RoleModule } from "./role/role.module";
 
 @Module({
-  imports: [AuthModule, LanguageModule, PermissionModule],
+  imports: [AuthModule, LanguageModule, PermissionModule, RoleModule],
 })
 export class RouteModule {}

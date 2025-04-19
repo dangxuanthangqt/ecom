@@ -18,9 +18,10 @@ export class RoleService {
     }
 
     try {
-      const clientRole = await this.prismaService.role.findUniqueOrThrow({
+      const clientRole = await this.prismaService.role.findFirstOrThrow({
         where: {
           name: Role.CLIENT,
+          deletedAt: null,
         },
       });
 

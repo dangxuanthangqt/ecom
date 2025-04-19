@@ -69,7 +69,7 @@ async function bootstrap() {
   const permissionsToAdd = availableRoutes.filter((item) => {
     return !formattedPermissionsInDb.includes(`${item.method}-${item.path}`);
   });
-  // console.log("permissionsToAdd", permissionsToAdd);
+
   if (permissionsToAdd.length > 0) {
     const addResult = await prisma.permission.createMany({
       data: permissionsToAdd,
@@ -78,7 +78,7 @@ async function bootstrap() {
     console.log("Added permission: ", addResult.count);
   }
 
-  process.exit(0);
+  await app.close();
 }
 
 // eslint-disable-next-line @typescript-eslint/no-floating-promises

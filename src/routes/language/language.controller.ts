@@ -34,7 +34,7 @@ import {
 } from "@/dto/language/language.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
 
-@ApiTags("languages")
+@ApiTags("Languages")
 @Controller("languages")
 export class LanguageController {
   constructor(private readonly languageService: LanguageService) {}
