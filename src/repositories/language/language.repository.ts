@@ -68,12 +68,9 @@ export class LanguageRepository {
       }
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: `Language ${id} not found.`,
-            path: `language`,
-          },
-        ]);
+        throw new NotFoundException({
+          message: `Language ${id} not found.`,
+        });
       }
 
       throw new InternalServerErrorException([

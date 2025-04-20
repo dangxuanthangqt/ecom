@@ -34,28 +34,19 @@ export class AccessTokenGuard implements CanActivate {
         return true;
       } catch (error) {
         if (error instanceof TokenExpiredError) {
-          throw new UnauthorizedException([
-            {
-              message: "Access token is expired.",
-              path: "accessToken",
-            },
-          ]);
+          throw new UnauthorizedException({
+            message: "Access token is expired.",
+          });
         }
 
-        throw new UnauthorizedException([
-          {
-            message: "Access token is invalid.",
-            path: "accessToken",
-          },
-        ]);
+        throw new UnauthorizedException({
+          message: "Access token is invalid.",
+        });
       }
     }
 
-    throw new UnauthorizedException([
-      {
-        message: "Access token is required.",
-        path: "accessToken",
-      },
-    ]);
+    throw new UnauthorizedException({
+      message: "Access token is required.",
+    });
   }
 }

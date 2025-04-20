@@ -8,29 +8,21 @@ import {
   Post,
   Put,
   Query,
-  ValidationPipe,
 } from "@nestjs/common";
-import {
-  ApiTags,
-  ApiOperation,
-  ApiOkResponse,
-  ApiBadRequestResponse,
-  ApiNotFoundResponse,
-  ApiInternalServerErrorResponse,
-  ApiQuery,
-} from "@nestjs/swagger";
+import { ApiParam, ApiTags } from "@nestjs/swagger";
 
 import { PermissionService } from "./permission.service";
 
 import {
   CreatePermissionRequestDto,
   DeletePermissionRequestDto,
-  PermissionListResponseDto,
-  PermissionResponseDto,
+  PermissionWithRolesResponseDto,
   UpdatePermissionRequestDto,
 } from "@/dto/permission/permission.dto";
-import { PaginationRequestParamsDto } from "@/dto/shared/pagination.dto";
+import { PageDto } from "@/dto/shared/page.dto";
+import { PaginationQueryDto } from "@/dto/shared/pagination.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
+import { ApiAuth, ApiPageOkResponse } from "@/shared/decorators/http-decorator";
 
 @ApiTags("Permissions")
 @Controller("permissions")
@@ -38,75 +30,49 @@ export class PermissionController {
   constructor(private readonly permissionService: PermissionService) {}
 
   @Get()
-  @ApiOperation({ summary: "Get a list of permissions" })
-  @ApiOkResponse({
-    description: "Successfully retrieved the list of permissions.",
-    type: PermissionListResponseDto,
-  })
-  @ApiBadRequestResponse({ description: "Bad request." })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
-  @ApiQuery({
-    name: "pageSize",
-    required: false,
-    type: Number,
-    description: "Number of items per page",
-  })
-  @ApiQuery({
-    name: "pageIndex",
-    required: false,
-    type: Number,
-    description: "Page index (starts from 0)",
-  })
-  @ApiQuery({
-    name: "order",
-    required: false,
-    enum: ["ASC", "DESC"],
-    description: "Sort order (ASC or DESC)",
-  })
-  @ApiQuery({
-    name: "orderBy",
-    required: false,
-    type: String,
-    description: "Field to order by",
-  })
-  @ApiQuery({
-    name: "keyword",
-    required: false,
-    type: String,
-    description: "Search keyword",
+  @ApiPageOkResponse({
+    summary: "Get a list of permissions",
+    description: "Retrieve a list of permissions with pagination.",
+    type: PermissionWithRolesResponseDto,
   })
   async getPermissions(
-    @Query(new ValidationPipe({ transform: true }))
-    query: PaginationRequestParamsDto,
+    @Query()
+    query: PaginationQueryDto,
   ) {
     const result = await this.permissionService.getPermissions(query);
 
-    return new PermissionListResponseDto(result);
+    return new PageDto(result);
   }
 
   @Get(":id")
-  @ApiOperation({ summary: "Get a permission by ID" })
-  @ApiOkResponse({
-    description: "Successfully retrieved the permission.",
-    type: PermissionResponseDto,
+  @ApiAuth({
+    type: PermissionWithRolesResponseDto,
+    options: {
+      summary: "Get a permission by ID",
+      description: "Retrieve a specific permission by its ID.",
+    },
   })
-  @ApiNotFoundResponse({ description: "Permission not found." })
-  @ApiBadRequestResponse({ description: "Bad request." })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
+  @ApiParam({
+    name: "id",
+    type: Number,
+    description: "Permission ID",
+    required: true,
+    example: 1,
+  })
   async getPermissionById(@Param("id", ParseIntPipe) id: number) {
     const result = await this.permissionService.getPermissionById(id);
 
-    return new PermissionResponseDto(result);
+    return new PermissionWithRolesResponseDto(result);
   }
 
-  @Post("create")
-  @ApiOperation({ summary: "Create a new permission" })
-  @ApiOkResponse({
-    description: "Successfully created the permission.",
-    type: PermissionResponseDto,
+  @Post()
+  @ApiAuth({
+    type: PermissionWithRolesResponseDto,
+    options: {
+      summary: "Create a new permission",
+      description: "Create a new permission with associated roles.",
+    },
   })
-  @ApiBadRequestResponse({ description: "Bad request." })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
   async createPermission(
     @Body() body: CreatePermissionRequestDto,
     @ActiveUser("userId") userId: number,
@@ -116,18 +82,24 @@ export class PermissionController {
       userId,
     });
 
-    return new PermissionResponseDto(result);
+    return new PermissionWithRolesResponseDto(result);
   }
 
   @Put(":id")
-  @ApiOperation({ summary: "Update an existing permission" })
-  @ApiOkResponse({
-    description: "Successfully updated the permission.",
-    type: PermissionResponseDto,
+  @ApiAuth({
+    type: PermissionWithRolesResponseDto,
+    options: {
+      summary: "Update a permission",
+      description: "Update an existing permission by its ID.",
+    },
   })
-  @ApiNotFoundResponse({ description: "Permission not found." })
-  @ApiBadRequestResponse({ description: "Bad request." })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
+  @ApiParam({
+    name: "id",
+    type: Number,
+    description: "Permission ID",
+    required: true,
+    example: 1,
+  })
   async updatePermission(
     @Param("id", ParseIntPipe) id: number,
     @Body() body: UpdatePermissionRequestDto,
@@ -139,18 +111,24 @@ export class PermissionController {
       userId,
     });
 
-    return new PermissionResponseDto(result);
+    return new PermissionWithRolesResponseDto(result);
   }
 
   @Delete(":id")
-  @ApiOperation({ summary: "Delete a permission" })
-  @ApiOkResponse({
-    description: "Successfully deleted the permission.",
-    type: PermissionResponseDto,
+  @ApiAuth({
+    type: PermissionWithRolesResponseDto,
+    options: {
+      summary: "Delete a permission",
+      description: "Delete a specific permission by its ID.",
+    },
   })
-  @ApiNotFoundResponse({ description: "Permission not found." })
-  @ApiBadRequestResponse({ description: "Bad request." })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
+  @ApiParam({
+    name: "id",
+    type: Number,
+    description: "Permission ID",
+    required: true,
+    example: 1,
+  })
   async deletePermission(
     @Param("id", ParseIntPipe) id: number,
     @ActiveUser("userId") userId: number,
@@ -162,6 +140,6 @@ export class PermissionController {
       body,
     });
 
-    return new PermissionResponseDto(result);
+    return new PermissionWithRolesResponseDto(result);
   }
 }

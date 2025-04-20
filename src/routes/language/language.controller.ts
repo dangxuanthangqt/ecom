@@ -6,17 +6,11 @@ import {
   Param,
   Post,
   Put,
-  ValidationPipe,
 } from "@nestjs/common";
 import {
-  ApiTags,
-  ApiCreatedResponse,
-  ApiOkResponse,
-  ApiParam,
-  ApiBadRequestResponse,
-  ApiNotFoundResponse,
-  ApiUnprocessableEntityResponse,
   ApiInternalServerErrorResponse,
+  ApiParam,
+  ApiTags,
 } from "@nestjs/swagger";
 
 import { LanguageService } from "./language.service";
@@ -25,14 +19,15 @@ import {
   LanguageCreateRequestDto,
   LanguageCreateResponseDto,
   LanguageDeleteRequestDto,
+  LanguageDeleteResponseDto,
   LanguageIdParamDto,
   LanguageListResponseDto,
   LanguageResponseDto,
   LanguageUpdateRequestDto,
   LanguageUpdateResponseDto,
-  LanguageDeleteResponseDto,
 } from "@/dto/language/language.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
+import { ApiAuth } from "@/shared/decorators/http-decorator";
 
 @ApiTags("Languages")
 @Controller("languages")
@@ -40,9 +35,12 @@ export class LanguageController {
   constructor(private readonly languageService: LanguageService) {}
 
   @Get()
-  @ApiOkResponse({
-    description: "Successfully retrieved the list of languages.",
+  @ApiAuth({
     type: LanguageListResponseDto,
+    options: {
+      summary: "Get a list of languages",
+      description: "Retrieve a list of languages with pagination.",
+    },
   })
   @ApiInternalServerErrorResponse({ description: "Internal server error." })
   async getLanguages() {
@@ -52,31 +50,28 @@ export class LanguageController {
   }
 
   @Get(":id")
-  @ApiParam({ name: "id", type: String, description: "Language ID" })
-  @ApiOkResponse({
-    description: "Successfully retrieved the language.",
+  @ApiAuth({
     type: LanguageResponseDto,
+    options: {
+      summary: "Get a language by ID",
+      description: "Retrieve a specific language by its ID.",
+    },
   })
-  @ApiNotFoundResponse({ description: "Language not found." })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
-  async getLanguageById(
-    @Param(new ValidationPipe({ transform: true })) params: LanguageIdParamDto,
-  ) {
+  @ApiParam({ name: "id", type: String, description: "Language ID" })
+  async getLanguageById(@Param() params: LanguageIdParamDto) {
     const result = await this.languageService.getLanguageById(params.id);
 
     return new LanguageResponseDto(result);
   }
 
   @Post("create")
-  @ApiCreatedResponse({
-    description: "Successfully created the language.",
+  @ApiAuth({
     type: LanguageCreateResponseDto,
+    options: {
+      summary: "Create a new language",
+      description: "Create a new language.",
+    },
   })
-  @ApiBadRequestResponse({ description: "Bad request." })
-  @ApiUnprocessableEntityResponse({
-    description: "Language already exists or invalid user ID.",
-  })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
   async createLanguage(
     @Body() body: LanguageCreateRequestDto,
     @ActiveUser("userId") userId: number,
@@ -88,18 +83,15 @@ export class LanguageController {
 
   @Put(":id")
   @ApiParam({ name: "id", type: String, description: "Language ID" })
-  @ApiOkResponse({
-    description: "Successfully updated the language.",
+  @ApiAuth({
     type: LanguageUpdateResponseDto,
+    options: {
+      summary: "Update a language",
+      description: "Update an existing language.",
+    },
   })
-  @ApiBadRequestResponse({ description: "Bad request." })
-  @ApiNotFoundResponse({ description: "Language not found." })
-  @ApiUnprocessableEntityResponse({
-    description: "Language already exists or invalid user ID.",
-  })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
   async updateLanguage(
-    @Param(new ValidationPipe({ transform: true })) params: LanguageIdParamDto,
+    @Param() params: LanguageIdParamDto,
     @Body() body: LanguageUpdateRequestDto,
     @ActiveUser("userId") userId: number,
   ) {
@@ -113,16 +105,15 @@ export class LanguageController {
 
   @Delete(":id")
   @ApiParam({ name: "id", type: String, description: "Language ID" })
-  @ApiOkResponse({
-    description: "Successfully deleted the language.",
+  @ApiAuth({
     type: LanguageDeleteResponseDto,
+    options: {
+      summary: "Delete a language",
+      description: "Delete a specific language by its ID.",
+    },
   })
-  @ApiNotFoundResponse({
-    description: "Language not found or already deleted.",
-  })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
   async deleteLanguage(
-    @Param(new ValidationPipe({ transform: true })) params: LanguageIdParamDto,
+    @Param() params: LanguageIdParamDto,
     @Body() body: LanguageDeleteRequestDto,
     @ActiveUser("userId") userId: number,
   ) {

@@ -6,7 +6,7 @@ import {
   DeleteRoleRequestDto,
   UpdateRoleRequestDto,
 } from "@/dto/role/role.dto";
-import { PaginationRequestParamsDto } from "@/dto/shared/pagination.dto";
+import { PaginationQueryDto } from "@/dto/shared/pagination.dto";
 import { RoleRepository } from "@/repositories/role/role.repository";
 
 @Injectable()
@@ -18,7 +18,7 @@ export class RoleService {
     pageSize = 10,
     order = "ASC",
     orderBy = "createdAt",
-  }: PaginationRequestParamsDto) {
+  }: PaginationQueryDto) {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
     // Normalize order for Prisma

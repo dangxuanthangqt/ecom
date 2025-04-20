@@ -9,6 +9,7 @@ import { Logger } from "nestjs-pino";
 
 import { AppModule } from "./app.module";
 // import { TransformInterceptor } from "./shared/interceptors/transform.interceptor";
+import { BadRequestErrorDetailDto } from "./dtos/bad-request-exception.dto";
 import { AppConfigService } from "./shared/services/app-config.service";
 import { SharedModule } from "./shared/shared.module";
 import { setupSwagger } from "./shared/utils/setup-swagger.util";
@@ -46,10 +47,10 @@ async function bootstrap() {
       exceptionFactory: (errors) => {
         return new BadRequestException(
           errors.map((error) => {
-            return {
+            return new BadRequestErrorDetailDto({
               field: error.property,
-              error: Object.values(error.constraints as object).join(", "),
-            };
+              message: Object.values(error.constraints as object).join(", "),
+            });
           }),
         );
       },

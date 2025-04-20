@@ -11,7 +11,6 @@ import {
 } from "class-validator";
 
 import { RoleResponseDto } from "../role/role.dto";
-import { PaginationResponseDto } from "../shared/pagination.dto";
 
 import { HTTPMethod, HTTPMethodType } from "@/constants/http-method.constant";
 
@@ -108,37 +107,29 @@ export class PermissionResponseDto {
   @Expose()
   method: string;
 
-  @ApiProperty({
-    description: "Roles associated with the permission",
-    type: [RoleResponseDto],
-  })
-  @Expose()
-  @Type(() => RoleResponseDto) // Transform nested roles into RoleDto objects
-  roles: RoleResponseDto[]; // Array of Role objects associated with the permission
-
   constructor(partial: Partial<PermissionResponseDto>) {
     Object.assign(this, partial);
   }
 }
 
-export class PermissionListResponseDto {
-  @ApiProperty({
-    description: "List of permissions",
-    type: [PermissionResponseDto],
+export class PermissionWithRolesResponseDto extends PermissionResponseDto {
+  @ApiPropertyOptional({
+    description: "Roles associated with the permission",
+    type: [RoleResponseDto],
+    example: [
+      {
+        id: 1,
+        name: "Admin",
+        description: "Administrator role",
+      },
+    ],
   })
   @Expose()
-  @Type(() => PermissionResponseDto)
-  data: PermissionResponseDto[];
+  @Type(() => RoleResponseDto) // Transform nested roles into RoleDto objects
+  roles?: RoleResponseDto[]; // Array of Role objects associated with the permission
 
-  @ApiProperty({
-    description: "Pagination information",
-    type: PaginationResponseDto,
-  })
-  @Expose()
-  @Type(() => PaginationResponseDto)
-  pagination: PaginationResponseDto;
-
-  constructor(partial: Partial<PermissionListResponseDto>) {
+  constructor(partial: Partial<PermissionWithRolesResponseDto>) {
+    super(partial);
     Object.assign(this, partial);
   }
 }

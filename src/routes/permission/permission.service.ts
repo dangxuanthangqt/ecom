@@ -6,7 +6,7 @@ import {
   DeletePermissionRequestDto,
   UpdatePermissionRequestDto,
 } from "@/dto/permission/permission.dto";
-import { PaginationRequestParamsDto } from "@/dto/shared/pagination.dto";
+import { PaginationQueryDto } from "@/dto/shared/pagination.dto";
 import { PermissionRepository } from "@/repositories/permission/permission.repository";
 
 @Injectable()
@@ -18,7 +18,7 @@ export class PermissionService {
     pageSize = 10,
     order = "ASC",
     orderBy = "createdAt",
-  }: PaginationRequestParamsDto) {
+  }: PaginationQueryDto) {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
 

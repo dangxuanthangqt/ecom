@@ -59,7 +59,7 @@ export class AuthorizationHeaderGuard implements CanActivate {
         }
       }
 
-      throw new UnauthorizedException([{ message: "Unauthorized header." }]);
+      throw new UnauthorizedException({ message: "Unauthorized header." });
     }
 
     if (combinedCondition === CombinedAuthorizationCondition.AND) {

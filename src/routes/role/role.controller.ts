@@ -8,107 +8,71 @@ import {
   Post,
   Put,
   Query,
-  ValidationPipe,
 } from "@nestjs/common";
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiCreatedResponse,
-  ApiForbiddenResponse,
-  ApiNotFoundResponse,
-  ApiOkResponse,
-  ApiOperation,
-  ApiQuery,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from "@nestjs/swagger";
+import { ApiParam, ApiTags } from "@nestjs/swagger";
 
 import { RoleService } from "./role.service";
 
 import {
   CreateRoleRequestDto,
   DeleteRoleRequestDto,
-  RoleListResponseDto,
-  RoleResponseDto,
+  RoleWithPermissionsResponseDto,
   UpdateRoleRequestDto,
 } from "@/dto/role/role.dto";
-import { PaginationRequestParamsDto } from "@/dto/shared/pagination.dto";
+import { PageDto } from "@/dto/shared/page.dto";
+import { PaginationQueryDto } from "@/dto/shared/pagination.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
+import { ApiAuth, ApiPageOkResponse } from "@/shared/decorators/http-decorator";
 
 @ApiTags("Roles")
-@ApiBearerAuth()
-@ApiUnauthorizedResponse({ description: "Unauthorized" })
-@ApiForbiddenResponse({ description: "Forbidden resource" })
 @Controller("roles")
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
-  @ApiOperation({ summary: "Get roles" })
-  @ApiOkResponse({
-    description: "List of roles",
-    type: RoleListResponseDto,
-  })
-  @ApiQuery({
-    name: "pageSize",
-    required: false,
-    type: Number,
-    description: "Number of items per page",
-  })
-  @ApiQuery({
-    name: "pageIndex",
-    required: false,
-    type: Number,
-    description: "Page index (starts from 0)",
-  })
-  @ApiQuery({
-    name: "order",
-    required: false,
-    enum: ["ASC", "DESC"],
-    description: "Sort order",
-  })
-  @ApiQuery({
-    name: "orderBy",
-    required: false,
-    type: String,
-    description: "Field to order by",
-  })
-  @ApiQuery({
-    name: "keyword",
-    required: false,
-    type: String,
-    description: "Search keyword",
-  })
   @Get()
+  @ApiPageOkResponse({
+    summary: "Get a list of roles",
+    description: "Retrieve a list of roles with pagination.",
+    type: RoleWithPermissionsResponseDto,
+  })
   async getRoles(
-    @Query(new ValidationPipe({ transform: true }))
-    query: PaginationRequestParamsDto,
+    @Query()
+    query: PaginationQueryDto,
   ) {
     const result = await this.roleService.getRoles(query);
 
-    return new RoleListResponseDto(result);
+    return new PageDto(result);
   }
 
-  @ApiOperation({ summary: "Get role by ID" })
-  @ApiOkResponse({
-    description: "Role details",
-    type: RoleResponseDto,
+  @ApiAuth({
+    type: RoleWithPermissionsResponseDto,
+    options: {
+      summary: "Get a role by ID",
+      description: "Retrieve a role by its ID.",
+    },
   })
-  @ApiNotFoundResponse({ description: "Role not found" })
-  @ApiBadRequestResponse({ description: "Invalid ID" })
+  @ApiParam({
+    name: "id",
+    type: Number,
+    description: "Role ID",
+    required: true,
+    example: 1,
+  })
   @Get(":id")
   async getRoleById(@Param("id", ParseIntPipe) id: number) {
     const result = await this.roleService.getRoleById(id);
 
-    return new RoleResponseDto(result);
+    return new RoleWithPermissionsResponseDto(result);
   }
 
-  @ApiOperation({ summary: "Create a new role" })
-  @ApiCreatedResponse({
-    description: "Role created",
-    type: RoleResponseDto,
+  @ApiAuth({
+    type: RoleWithPermissionsResponseDto,
+    options: {
+      summary: "Create a new role",
+      description: "Create a new role with permissions.",
+    },
   })
-  @ApiBadRequestResponse({ description: "Invalid request body" })
-  @Post("create")
+  @Post()
   async createRole(
     @Body() body: CreateRoleRequestDto,
     @ActiveUser("userId") userId: number,
@@ -118,16 +82,23 @@ export class RoleController {
       userId,
     });
 
-    return new RoleResponseDto(result);
+    return new RoleWithPermissionsResponseDto(result);
   }
 
-  @ApiOperation({ summary: "Update a role" })
-  @ApiOkResponse({
-    description: "Role updated",
-    type: RoleResponseDto,
+  @ApiAuth({
+    type: RoleWithPermissionsResponseDto,
+    options: {
+      summary: "Update an existing role",
+      description: "Update a role by its ID.",
+    },
   })
-  @ApiNotFoundResponse({ description: "Role not found" })
-  @ApiBadRequestResponse({ description: "Invalid request body" })
+  @ApiParam({
+    name: "id",
+    type: Number,
+    description: "Role ID",
+    required: true,
+    example: 1,
+  })
   @Put(":id")
   async updateRole(
     @Param("id", ParseIntPipe) id: number,
@@ -140,16 +111,23 @@ export class RoleController {
       userId,
     });
 
-    return new RoleResponseDto(result);
+    return new RoleWithPermissionsResponseDto(result);
   }
 
-  @ApiOperation({ summary: "Delete a role" })
-  @ApiOkResponse({
-    description: "Role deleted",
-    type: RoleResponseDto,
+  @ApiAuth({
+    type: RoleWithPermissionsResponseDto,
+    options: {
+      summary: "Delete a role",
+      description: "Delete a role by its ID.",
+    },
   })
-  @ApiNotFoundResponse({ description: "Role not found" })
-  @ApiBadRequestResponse({ description: "Invalid request body" })
+  @ApiParam({
+    name: "id",
+    type: Number,
+    description: "Role ID",
+    required: true,
+    example: 1,
+  })
   @Delete(":id")
   async deleteRole(
     @Param("id", ParseIntPipe) id: number,
@@ -162,6 +140,6 @@ export class RoleController {
       body,
     });
 
-    return new RoleResponseDto(result);
+    return new RoleWithPermissionsResponseDto(result);
   }
 }

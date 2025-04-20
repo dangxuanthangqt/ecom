@@ -24,13 +24,15 @@ export class RoleRepository {
     id: true,
     name: true,
     description: true,
-    // permissions: {
-    //   select: {
-    //     id: true,
-    //     name: true,
-    //     description: true,
-    //   },
-    // },
+    permissions: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        path: true,
+        method: true,
+      },
+    },
   };
 
   async findManyRoles({
