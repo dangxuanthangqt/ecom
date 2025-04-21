@@ -59,13 +59,9 @@ export class RoleService {
       data: {
         name,
         description,
-        permissions: {
-          connect: permissions?.map((permissionId) => ({
-            id: permissionId,
-          })),
-        },
         createdById: userId,
       },
+      permissions,
     });
 
     return role;
@@ -85,13 +81,9 @@ export class RoleService {
       data: {
         name,
         description,
-        permissions: {
-          set: permissions?.map((permissionId) => ({
-            id: permissionId,
-          })),
-        },
         updatedById: userId,
       },
+      permissions,
     });
 
     return role;

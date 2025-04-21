@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnprocessableEntityException,
-} from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Language, User } from "@prisma/client";
 
 import { PrismaService } from "@/shared/services/prisma.service";
@@ -14,6 +8,7 @@ import {
   isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class LanguageRepository {
@@ -39,12 +34,10 @@ export class LanguageRepository {
         this.logger.error(`Failed to get languages`, error.stack);
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: `Failed to get languages.`,
-          path: `languages`,
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: `Failed to get languages.`,
+      });
     }
   }
 
@@ -68,17 +61,16 @@ export class LanguageRepository {
       }
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException({
+        throwHttpException({
+          type: "notFound",
           message: `Language ${id} not found.`,
         });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: `Failed to get language by id.`,
-          path: `language`,
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: `Failed to get language by id.`,
+      });
     }
   }
 
@@ -107,29 +99,23 @@ export class LanguageRepository {
       }
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: `Language ${id} already exists.`,
-            path: "language",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: `Language ${id} already exists.`,
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid user ID.",
-            path: "userId",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: `Invalid foreign key constraint.`,
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to create language.",
-          path: "language",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: `Failed to create language.`,
+      });
     }
   }
 
@@ -163,38 +149,30 @@ export class LanguageRepository {
       }
 
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: "Language not found.",
-            path: "language",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: `Language ${id} not found or already deleted.`,
+        });
       }
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Language already exists.",
-            path: "language",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: `Language ${id} already exists.`,
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid foreign key constraint.",
-            path: "language",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: `Invalid foreign key constraint.`,
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to update language.",
-          path: "language",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: `Failed to update language.`,
+      });
     }
   }
 
@@ -245,20 +223,16 @@ export class LanguageRepository {
 
       /** Delete and Update not found record */
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: `Language ${id} not found or already deleted.`,
-            path: "language",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: `Language ${id} not found or already deleted.`,
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to delete language.",
-          path: "language",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: `Language ${id} already exists.`,
+      });
     }
   }
 }

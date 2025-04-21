@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnprocessableEntityException,
-} from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Device, Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/shared/services/prisma.service";
@@ -13,6 +7,7 @@ import {
   isRecordNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class DeviceRepository {
@@ -36,30 +31,25 @@ export class DeviceRepository {
 
       if (isUniqueConstraintPrismaError(error)) {
         // Handle unique constraint violation (e.g., duplicate device)
-        throw new UnprocessableEntityException([
-          {
-            message: "Device already exists.",
-            path: "device", // You might want to specify a more specific path if applicable
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: `Device already exists.`,
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
         // Handle foreign key constraint violation (e.g., invalid userId)
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid foreign key constraint.",
-            path: "device",
-          },
-        ]);
+
+        throwHttpException({
+          type: "unprocessable",
+          message: `Invalid foreign key constraint.`,
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to create device.",
-          path: "device",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: `Failed to create device.`,
+      });
     }
   }
 
@@ -79,38 +69,30 @@ export class DeviceRepository {
       }
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: "Device not found.",
-            path: "device",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: "Device not found.",
+        });
       }
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Device already exists.",
-            path: "device",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Device already exists.",
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid foreign key constraint.",
-            path: "device",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Invalid foreign key constraint.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to update device.",
-          path: "device",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to update device.",
+      });
     }
   }
 }

@@ -1,11 +1,5 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnprocessableEntityException,
-} from "@nestjs/common";
-import { Permission, Prisma, User } from "@prisma/client";
+import { Injectable, Logger } from "@nestjs/common";
+import { Permission, Prisma, Role, User } from "@prisma/client";
 
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -14,6 +8,7 @@ import {
   isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class PermissionRepository {
@@ -79,12 +74,10 @@ export class PermissionRepository {
         this.logger.error(`Failed to fetch permissions`, error.stack);
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to fetch permissions.",
-          path: "permissions",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to fetch permissions.",
+      });
     }
   }
 
@@ -105,29 +98,61 @@ export class PermissionRepository {
       }
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException({
+        throwHttpException({
+          type: "notFound",
           message: "Permission not found.",
-          path: "permission",
         });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to fetch permission.",
-          path: "permission",
+      throwHttpException({
+        type: "internal",
+        message: "Failed to fetch permission.",
+      });
+    }
+  }
+
+  async validateRoles(roles: Permission["id"][]) {
+    const validRoles = await this.prismaService.role.findMany({
+      where: {
+        id: {
+          in: roles,
         },
-      ]);
+        deletedAt: null,
+      },
+    });
+
+    if (validRoles.length !== roles.length) {
+      this.logger.error(
+        `Invalid roles provided. Expected: ${roles.toString()}, Found: ${validRoles.map((role) => role.id).toString()}`,
+      );
+
+      throwHttpException({
+        type: "badRequest",
+        message: "Invalid roles provided.",
+        field: "roles",
+      });
     }
   }
 
   async createPermission({
     data,
+    roles,
   }: {
     data: Prisma.PermissionCreateArgs["data"];
+    roles?: Role["id"][];
   }) {
+    if (roles && roles.length > 0) {
+      await this.validateRoles(roles);
+    }
+
     try {
       const permission = await this.prismaService.permission.create({
-        data,
+        data: {
+          ...data,
+          roles: {
+            connect: roles?.map((roleId) => ({ id: roleId })),
+          },
+        },
         select: this.permissionSelect,
       });
 
@@ -138,46 +163,51 @@ export class PermissionRepository {
       }
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Permission already exists.",
-            path: "permission",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Permission already exists.",
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid foreign key constraint.",
-            path: "permission",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Invalid foreign key constraint.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to create permission.",
-          path: "permission",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to create permission.",
+      });
     }
   }
 
   async updatePermission({
     id,
     data,
+    roles,
   }: {
     id: Permission["id"];
     data: Prisma.PermissionUpdateArgs["data"];
+    roles?: Role["id"][];
   }) {
+    if (roles && roles.length > 0) {
+      await this.validateRoles(roles);
+    }
+
     try {
       const permission = await this.prismaService.permission.update({
         where: {
           id,
           deletedAt: null,
         },
-        data,
+        data: {
+          ...data,
+          roles: {
+            set: roles?.map((roleId) => ({ id: roleId })),
+          },
+        },
         select: this.permissionSelect,
       });
 
@@ -188,38 +218,30 @@ export class PermissionRepository {
       }
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: "Permission not found.",
-            path: "permission",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: `Permission ${id} not found or already deleted.`,
+        });
       }
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Permission already exists.",
-            path: "permission",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Permission already exists.",
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid foreign key constraint.",
-            path: "permission",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Invalid foreign key constraint.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to update permission.",
-          path: "permission",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to update permission.",
+      });
     }
   }
 
@@ -264,20 +286,16 @@ export class PermissionRepository {
 
       /** Delete and Update not found record */
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: `Permission ${id} not found or already deleted.`,
-            path: "permission",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: `Permission ${id} not found or already deleted.`,
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to delete permission.",
-          path: "permission",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to delete permission.",
+      });
     }
   }
 }

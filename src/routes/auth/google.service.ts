@@ -11,6 +11,7 @@ import { DeviceRepository } from "@/repositories/device/device.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { AppConfigService } from "@/shared/services/app-config.service";
 import { HashingService } from "@/shared/services/hashing.service";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 const DEFAULT_PASSWORD = "changeme";
 
@@ -134,7 +135,10 @@ export class GoogleService {
         this.logger.error("Failed to get user info from Google.", error.stack);
       }
 
-      throw new Error("Invalid state data.");
+      throwHttpException({
+        type: "internal",
+        message: "Invalid state data.",
+      });
     }
   }
 }

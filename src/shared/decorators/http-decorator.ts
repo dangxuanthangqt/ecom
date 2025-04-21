@@ -11,6 +11,7 @@ import {
   ApiOperation,
   ApiResponseCommonMetadata,
   ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
   getSchemaPath,
 } from "@nestjs/swagger";
 
@@ -70,6 +71,14 @@ export function ApiAuth({
         }),
       },
     }),
+    ApiUnprocessableEntityResponse({
+      description: "Unprocessable Entity",
+      schema: {
+        example: new DefaultExceptionDto({
+          statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+      },
+    }),
     ApiNotFoundResponse({
       description: "Not Found",
       schema: {
@@ -126,6 +135,14 @@ export function ApiPublic({
       schema: {
         example: new DefaultExceptionDto({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        }),
+      },
+    }),
+    ApiUnprocessableEntityResponse({
+      description: "Unprocessable Entity",
+      schema: {
+        example: new DefaultExceptionDto({
+          statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
       },
     }),

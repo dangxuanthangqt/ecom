@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnprocessableEntityException,
-} from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Device } from "@prisma/client";
 import { addMilliseconds } from "date-fns";
 import ms from "ms";
@@ -38,6 +34,7 @@ import { AppConfigService } from "@/shared/services/app-config.service";
 import { HashingService } from "@/shared/services/hashing.service";
 import { TokenService } from "@/shared/services/token.service";
 import { generateOTP } from "@/shared/utils/generate-otp.util";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 import {
   AccessTokenPayloadCreate,
   RefreshTokenPayloadCreate,
@@ -75,15 +72,17 @@ export class AuthService {
     });
 
     if (!verificationCode) {
-      throw new UnprocessableEntityException([
-        { message: "Verification code is not valid.", path: "code" },
-      ]);
+      throwHttpException({
+        type: "unprocessable",
+        message: "Verification code is not valid.",
+      });
     }
 
     if (verificationCode.expiresAt < new Date()) {
-      throw new UnprocessableEntityException([
-        { message: "Verification code is expired.", path: "code" },
-      ]);
+      throwHttpException({
+        type: "unprocessable",
+        message: "Verification code is expired.",
+      });
     }
   }
 
@@ -132,19 +131,20 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException([
-        { message: "Email is not found.", path: "email" },
-      ]);
+      throwHttpException({
+        type: "badRequest",
+        message: "Email is not found.",
+        field: "email",
+      });
     }
 
     if (user.totpSecret) {
       if (!data.totpCode && !data.code) {
-        throw new UnprocessableEntityException([
-          {
-            message: "TOTP or verification code is required.",
-            path: "totpCode",
-          },
-        ]);
+        throwHttpException({
+          type: "badRequest",
+          field: "totpCode",
+          message: "TOTP or verification code is required.",
+        });
       }
 
       if (data.totpCode) {
@@ -154,10 +154,12 @@ export class AuthService {
             secret: user.totpSecret,
             totpCode: data.totpCode,
           });
+
         if (!isTOTPCodeValid) {
-          throw new UnprocessableEntityException([
-            { message: "TOTP code is not valid.", path: "totpCode" },
-          ]);
+          throwHttpException({
+            type: "unprocessable",
+            message: "TOTP code is not valid.",
+          });
         }
       } else {
         await this.validateVerificationCode({
@@ -175,9 +177,11 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new BadRequestException([
-        { message: "Password is not valid.", path: "password" },
-      ]);
+      throwHttpException({
+        type: "badRequest",
+        message: "Password is not valid.",
+        field: "password",
+      });
     }
 
     const device = await this.deviceRepository.createDevice({
@@ -329,21 +333,17 @@ export class AuthService {
     });
 
     if (data.type === VerificationCodeType.REGISTER && user) {
-      throw new UnprocessableEntityException([
-        {
-          message: "Email is already exist.",
-          path: "email",
-        },
-      ]);
+      throwHttpException({
+        type: "unprocessable",
+        message: "Email is already exist.",
+      });
     }
 
     if (data.type === VerificationCodeType.FORGOT_PASSWORD && !user) {
-      throw new UnprocessableEntityException([
-        {
-          message: "Email is not exist.",
-          path: "email",
-        },
-      ]);
+      throwHttpException({
+        type: "unprocessable",
+        message: "Email is not exist.",
+      });
     }
 
     const code = generateOTP();
@@ -423,9 +423,10 @@ export class AuthService {
     });
 
     if (user.totpSecret) {
-      throw new UnprocessableEntityException([
-        { message: "2FA is already enabled.", path: "totpCode" },
-      ]);
+      throwHttpException({
+        type: "unprocessable",
+        message: "2FA is already enabled.",
+      });
     }
 
     // 2: Generate secret key & uri
@@ -464,9 +465,10 @@ export class AuthService {
     });
 
     if (!user.totpSecret) {
-      throw new UnprocessableEntityException([
-        { message: "2FA is already disabled.", path: "totpCode" },
-      ]);
+      throwHttpException({
+        type: "unprocessable",
+        message: "2FA is not enabled.",
+      });
     }
 
     if (totpCode) {
@@ -478,9 +480,10 @@ export class AuthService {
         });
 
       if (!isValidTOTPCode) {
-        throw new UnprocessableEntityException([
-          { message: "TOTP code is not valid.", path: "totpCode" },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "TOTP code is not valid.",
+        });
       }
     } else {
       if (code) {

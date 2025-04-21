@@ -25,6 +25,13 @@ export class RoleResponseDto {
   @Expose()
   name: string;
 
+  @ApiProperty({
+    description: "Is role active",
+    example: true,
+  })
+  @Expose()
+  isActive: boolean;
+
   @ApiPropertyOptional({
     description: "Role description",
     example: "Administrator role",

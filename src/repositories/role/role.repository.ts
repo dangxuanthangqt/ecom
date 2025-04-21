@@ -1,11 +1,5 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnprocessableEntityException,
-} from "@nestjs/common";
-import { Prisma, Role, User } from "@prisma/client";
+import { Injectable, Logger } from "@nestjs/common";
+import { Permission, Prisma, Role, User } from "@prisma/client";
 
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -13,6 +7,7 @@ import {
   isRecordNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class RoleRepository {
@@ -24,7 +19,9 @@ export class RoleRepository {
     id: true,
     name: true,
     description: true,
+    isActive: true,
     permissions: {
+      where: { deletedAt: null },
       select: {
         id: true,
         name: true,
@@ -72,12 +69,10 @@ export class RoleRepository {
         this.logger.error(`Failed to fetch roles`, error.stack);
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to fetch roles.",
-          path: "roles",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to fetch roles.",
+      });
     }
   }
 
@@ -95,25 +90,63 @@ export class RoleRepository {
       }
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException({
+        throwHttpException({
+          type: "notFound",
           message: "Role not found.",
-          path: "role",
         });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to fetch role.",
-          path: "role",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to fetch role.",
+      });
     }
   }
 
-  async createRole({ data }: { data: Prisma.RoleCreateArgs["data"] }) {
+  private async validatePermissions(permissions: Permission["id"][]) {
+    const validPermissions = await this.prismaService.permission.findMany({
+      where: {
+        id: {
+          in: permissions,
+        },
+        deletedAt: null,
+      },
+    });
+
+    if (validPermissions.length !== permissions.length) {
+      this.logger.error(
+        `Invalid permissions provided: ${JSON.stringify(permissions)}`,
+      );
+
+      throwHttpException({
+        type: "badRequest",
+        message: "Invalid permissions provided.",
+        field: "permissions",
+      });
+    }
+  }
+
+  async createRole({
+    data,
+    permissions,
+  }: {
+    data: Prisma.RoleCreateArgs["data"];
+    permissions?: Permission["id"][];
+  }) {
+    if (permissions && permissions.length > 0) {
+      await this.validatePermissions(permissions);
+    }
+
     try {
       const role = await this.prismaService.role.create({
-        data,
+        data: {
+          ...data,
+          permissions: {
+            connect: permissions?.map((permissionId) => ({
+              id: permissionId,
+            })),
+          },
+        },
         select: this.roleSelect,
       });
 
@@ -124,43 +157,52 @@ export class RoleRepository {
       }
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Role already exists.",
-            path: "role",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Role already exists.",
+          field: "role",
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Foreign key constraint violation.",
-            path: "role",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Foreign key constraint violation.",
+          field: "role",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to create role.",
-          path: "role",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to create role.",
+      });
     }
   }
 
   async updateRole({
     id,
     data,
+    permissions,
   }: {
     id: Role["id"];
     data: Prisma.RoleUpdateArgs["data"];
+    permissions?: Permission["id"][];
   }) {
+    if (permissions && permissions.length > 0) {
+      await this.validatePermissions(permissions);
+    }
+
     try {
       const role = await this.prismaService.role.update({
         where: { id, deletedAt: null },
-        data,
+        data: {
+          ...data,
+          permissions: {
+            set: permissions?.map((permissionId) => ({
+              id: permissionId,
+            })),
+          },
+        },
         select: this.roleSelect,
       });
 
@@ -171,36 +213,32 @@ export class RoleRepository {
       }
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException({
+        throwHttpException({
+          type: "notFound",
           message: "Role not found.",
-          path: "role",
         });
       }
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Role already exists.",
-            path: "role",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Role already exists.",
+          field: "role",
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Foreign key constraint violation.",
-            path: "role",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Foreign key constraint violation.",
+          field: "role",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to update role.",
-          path: "role",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to update role.",
+      });
     }
   }
 
@@ -239,18 +277,16 @@ export class RoleRepository {
       }
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException({
+        throwHttpException({
+          type: "notFound",
           message: "Role not found.",
-          path: "role",
         });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to delete role.",
-          path: "role",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to delete role.",
+      });
     }
   }
 }
