@@ -3,9 +3,10 @@ import {
   ExecutionContext,
   Injectable,
   Logger,
-  UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
+
+import throwHttpException from "../utils/throw-http-exception.util";
 
 import { AccessTokenGuard } from "./access-token.guard";
 import { ApiKeyGuard } from "./api-key.guard";
@@ -41,7 +42,7 @@ export class AuthorizationHeaderGuard implements CanActivate {
     >(AUTHORIZATION_HEADER_KEY, [context.getHandler(), context.getClass()]);
 
     const {
-      authorizationTypes = [AuthorizationType.BEARER],
+      authorizationTypes = [AuthorizationType.BEARER], // Default value is BEARER
       combinedCondition = CombinedAuthorizationCondition.AND, // Default value is AND
     } = authorizationMetadata ?? {};
 
@@ -59,7 +60,11 @@ export class AuthorizationHeaderGuard implements CanActivate {
         }
       }
 
-      throw new UnauthorizedException({ message: "Unauthorized header." });
+      // If all guards failed, throw an exception
+      throwHttpException({
+        type: "unauthorized",
+        message: "Authorization failed for all conditions.",
+      });
     }
 
     if (combinedCondition === CombinedAuthorizationCondition.AND) {
