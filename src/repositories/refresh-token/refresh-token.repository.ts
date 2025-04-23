@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnprocessableEntityException,
-} from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Prisma, RefreshToken } from "@prisma/client";
 
 import { PrismaService } from "@/shared/services/prisma.service";
@@ -13,6 +7,7 @@ import {
   isRecordNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class RefreshTokenRepository {
@@ -29,28 +24,19 @@ export class RefreshTokenRepository {
 
       return refreshToken;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(
-          `Failed to find refresh token with args: ${JSON.stringify(args)}`,
-          error.stack,
-        );
-      }
+      this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: "Refresh token not found.",
-            path: "refreshToken",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: "Refresh token not found.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to find refresh token.",
-          path: "refreshToken",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to find refresh token.",
+      });
     }
   }
 
@@ -62,19 +48,12 @@ export class RefreshTokenRepository {
 
       return result;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(
-          `Failed to delete refresh token with args: ${JSON.stringify(args)}`,
-          error.stack,
-        );
-      }
+      this.logger.error(error);
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to delete refresh token.",
-          path: "refreshToken",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to delete refresh token.",
+      });
     }
   }
 
@@ -88,35 +67,28 @@ export class RefreshTokenRepository {
         data,
       });
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to create refresh token`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isUniqueConstraintPrismaError(error)) {
         // Handle unique constraint violation (e.g., duplicate token)
-        throw new UnprocessableEntityException([
-          {
-            message: "Refresh token already exists.",
-            path: "refreshToken",
-          },
-        ]);
+
+        throwHttpException({
+          type: "unprocessable",
+          message: "Refresh token already exists.",
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid foreign key constraint.",
-            path: "refreshToken",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Invalid foreign key constraint.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to create refresh token.",
-          path: "refreshToken",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to create refresh token.",
+      });
     }
   }
 }

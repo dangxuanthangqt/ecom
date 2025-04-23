@@ -7,6 +7,7 @@ import { AppModule } from "src/app.module";
 import { PrismaService } from "src/shared/services/prisma.service";
 
 import { HTTPMethod } from "@/constants/http-method.constant";
+import { Role } from "@/constants/role.constant";
 
 const prisma = new PrismaService();
 
@@ -77,6 +78,38 @@ async function bootstrap() {
     });
     console.log("Added permission: ", addResult.count);
   }
+
+  const adminRole = await prisma.role.findFirstOrThrow({
+    where: {
+      name: Role.ADMIN,
+      deletedAt: null,
+    },
+  });
+
+  const permissions = await prisma.permission.findMany({
+    where: {
+      deletedAt: null,
+    },
+  });
+
+  const result = await prisma.role.update({
+    where: {
+      id: adminRole.id,
+      deletedAt: null,
+    },
+    data: {
+      permissions: {
+        set: permissions.map((item) => ({
+          id: item.id,
+        })),
+      },
+    },
+    include: {
+      permissions: true,
+    },
+  });
+
+  console.log("result", result);
 
   await app.close();
 }

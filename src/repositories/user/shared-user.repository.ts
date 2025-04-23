@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnprocessableEntityException,
-} from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/shared/services/prisma.service";
@@ -13,6 +7,7 @@ import {
   isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class SharedUserRepository {
@@ -28,16 +23,12 @@ export class SharedUserRepository {
 
       return user;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to find user`, error.stack);
-      }
+      this.logger.error(error);
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to find user.",
-          path: "user",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to find user.",
+      });
     }
   }
 
@@ -49,25 +40,19 @@ export class SharedUserRepository {
 
       return user;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to find user`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: "User not found.",
-            path: "user",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: "User not found.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to find user.",
-          path: "user",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to find user.",
+      });
     }
   }
 
@@ -79,34 +64,26 @@ export class SharedUserRepository {
 
       return user;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to create user`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Email is already exist.",
-            path: "email",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Email is already exist.",
+        });
       }
 
       if (isForeignKeyConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Invalid foreign key constraint.",
-            path: "user",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Invalid foreign key constraint.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to create user.",
-          path: "user",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to create user.",
+      });
     }
   }
 }

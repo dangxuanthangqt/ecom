@@ -70,9 +70,7 @@ export class PermissionRepository {
         permissionsCount,
       };
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to fetch permissions`, error.stack);
-      }
+      this.logger.error(error);
 
       throwHttpException({
         type: "internal",
@@ -93,9 +91,7 @@ export class PermissionRepository {
 
       return permission;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to fetch permission`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
@@ -158,9 +154,7 @@ export class PermissionRepository {
 
       return permission;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to create permission`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
@@ -213,9 +207,7 @@ export class PermissionRepository {
 
       return permission;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to update permission`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
@@ -280,9 +272,7 @@ export class PermissionRepository {
 
       return permission;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to delete permission`, error.stack);
-      }
+      this.logger.error(error);
 
       /** Delete and Update not found record */
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {

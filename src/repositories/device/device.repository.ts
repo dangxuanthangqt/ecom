@@ -25,9 +25,7 @@ export class DeviceRepository {
 
       return device;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to create device`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isUniqueConstraintPrismaError(error)) {
         // Handle unique constraint violation (e.g., duplicate device)
@@ -61,12 +59,7 @@ export class DeviceRepository {
 
       return device;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(
-          `Failed to update device with args: ${JSON.stringify(args)}`,
-          error.stack,
-        );
-      }
+      this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({

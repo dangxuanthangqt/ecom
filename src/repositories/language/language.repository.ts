@@ -30,9 +30,7 @@ export class LanguageRepository {
 
       return languages;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to get languages`, error.stack);
-      }
+      this.logger.error(error);
 
       throwHttpException({
         type: "internal",
@@ -56,9 +54,7 @@ export class LanguageRepository {
 
       return language;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to get language by id`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
@@ -94,9 +90,7 @@ export class LanguageRepository {
 
       return language;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to create language`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
@@ -144,9 +138,7 @@ export class LanguageRepository {
 
       return language;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to update language`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throwHttpException({
@@ -217,9 +209,7 @@ export class LanguageRepository {
 
       return result;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to delete language`, error.stack);
-      }
+      this.logger.error(error);
 
       /** Delete and Update not found record */
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {

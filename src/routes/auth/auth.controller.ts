@@ -195,9 +195,7 @@ export class AuthController {
 
       return res.redirect(`${googleClientRedirectUri}?${queryParams}`);
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to google callback`, error.stack);
-      }
+      this.logger.error(error);
 
       const searchParams = new URLSearchParams({
         errorMessage: "Failed to google login.",

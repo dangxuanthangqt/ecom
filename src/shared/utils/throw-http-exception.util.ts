@@ -4,6 +4,8 @@ import {
   UnprocessableEntityException,
   InternalServerErrorException,
   HttpException,
+  UnauthorizedException,
+  ForbiddenException,
 } from "@nestjs/common";
 
 interface HttpExceptionDetail {
@@ -11,7 +13,13 @@ interface HttpExceptionDetail {
   field?: string;
 }
 
-type HttpErrorType = "badRequest" | "notFound" | "unprocessable" | "internal";
+type HttpErrorType =
+  | "badRequest"
+  | "notFound"
+  | "unprocessable"
+  | "internal"
+  | "unauthorized"
+  | "forbidden";
 
 function throwHttpException({
   type,
@@ -29,12 +37,23 @@ function throwHttpException({
     case "badRequest":
       exception = new BadRequestException([detail]);
       break;
+
     case "notFound":
       exception = new NotFoundException(detail);
       break;
+
     case "unprocessable":
       exception = new UnprocessableEntityException(detail);
       break;
+
+    case "unauthorized":
+      exception = new UnauthorizedException(detail);
+      break;
+
+    case "forbidden":
+      exception = new ForbiddenException(detail);
+      break;
+
     case "internal":
     default:
       exception = new InternalServerErrorException(detail);

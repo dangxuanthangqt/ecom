@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-  UnprocessableEntityException,
-} from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { VerificationCodeInputData } from "./verification-code.repository.type";
@@ -14,6 +8,7 @@ import {
   isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class VerificationCodeRepository {
@@ -27,25 +22,19 @@ export class VerificationCodeRepository {
     try {
       await this.prismaService.verificationCode.deleteMany(args);
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to delete verification code`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: "Verification code not found.",
-            path: "verificationCode",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: "Verification code not found.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "An error occurred while deleting verification code.",
-          path: "verificationCode",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to delete verification code.",
+      });
     }
   }
 
@@ -81,29 +70,19 @@ export class VerificationCodeRepository {
 
       return verificationCode;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(
-          `Failed to create or update verification code`,
-          error.stack,
-        );
-      }
+      this.logger.error(error);
 
       if (isUniqueConstraintPrismaError(error)) {
-        throw new UnprocessableEntityException([
-          {
-            message: "Verification code already exists.",
-            path: "verificationCode",
-          },
-        ]);
+        throwHttpException({
+          type: "unprocessable",
+          message: "Verification code already exists.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message:
-            "An error occurred while creating or updating verification code.",
-          path: "verificationCode",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to create or update verification code.",
+      });
     }
   }
 
@@ -116,16 +95,12 @@ export class VerificationCodeRepository {
 
       return verificationCode;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to find verification code`, error.stack);
-      }
+      this.logger.error(error);
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to find verification code.",
-          path: "verificationCode",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to find verification code.",
+      });
     }
   }
 
@@ -139,25 +114,19 @@ export class VerificationCodeRepository {
         await this.prismaService.verificationCode.findUniqueOrThrow(args);
       return verificationCode;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to find verification code`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
-        throw new NotFoundException([
-          {
-            message: "Verification code not found.",
-            path: "verificationCode",
-          },
-        ]);
+        throwHttpException({
+          type: "notFound",
+          message: "Verification code not found.",
+        });
       }
 
-      throw new InternalServerErrorException([
-        {
-          message: "Failed to find verification code.",
-          path: "verificationCode",
-        },
-      ]);
+      throwHttpException({
+        type: "internal",
+        message: "Failed to find verification code.",
+      });
     }
   }
 }

@@ -131,9 +131,7 @@ export class GoogleService {
 
       return authTokens;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error("Failed to get user info from Google.", error.stack);
-      }
+      this.logger.error(error);
 
       throwHttpException({
         type: "internal",

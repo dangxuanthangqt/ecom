@@ -65,9 +65,7 @@ export class RoleRepository {
 
       return { roles, rolesCount };
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to fetch roles`, error.stack);
-      }
+      this.logger.error(error);
 
       throwHttpException({
         type: "internal",
@@ -85,9 +83,7 @@ export class RoleRepository {
 
       return role;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to fetch role`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
@@ -152,9 +148,7 @@ export class RoleRepository {
 
       return role;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to create role`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
@@ -208,9 +202,7 @@ export class RoleRepository {
 
       return role;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to update role`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
@@ -272,9 +264,7 @@ export class RoleRepository {
 
       return role;
     } catch (error) {
-      if (error instanceof Error) {
-        this.logger.error(`Failed to delete role`, error.stack);
-      }
+      this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
