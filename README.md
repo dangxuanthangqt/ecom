@@ -12,7 +12,7 @@ $ pnpm install
 # Seed roles and create admin user
 $  pnpm run seed:initial-scripts
 
-# Seed permissions development
+# Seed permissions development, create permission for admin role
 $  pnpm run seed:initial-scripts:create-permission:dev
 
 ```

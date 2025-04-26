@@ -4,12 +4,13 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
+import { User } from "@prisma/client";
 
 import { PermissionService } from "./permission.service";
 
@@ -54,12 +55,12 @@ export class PermissionController {
   })
   @ApiParam({
     name: "id",
-    type: Number,
-    description: "Permission ID",
+    type: String,
+    description: "Permission ID (UUID)",
     required: true,
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
-  async getPermissionById(@Param("id", ParseIntPipe) id: number) {
+  async getPermissionById(@Param("id", ParseUUIDPipe) id: string) {
     const result = await this.permissionService.getPermissionById(id);
 
     return new PermissionWithRolesResponseDto(result);
@@ -75,7 +76,7 @@ export class PermissionController {
   })
   async createPermission(
     @Body() body: CreatePermissionRequestDto,
-    @ActiveUser("userId") userId: number,
+    @ActiveUser("userId") userId: User["id"],
   ) {
     const result = await this.permissionService.createPermission({
       body,
@@ -95,15 +96,15 @@ export class PermissionController {
   })
   @ApiParam({
     name: "id",
-    type: Number,
-    description: "Permission ID",
+    type: String,
+    description: "Permission ID (UUID)",
     required: true,
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   async updatePermission(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() body: UpdatePermissionRequestDto,
-    @ActiveUser("userId") userId: number,
+    @ActiveUser("userId") userId: User["id"],
   ) {
     const result = await this.permissionService.updatePermission({
       id,
@@ -124,14 +125,14 @@ export class PermissionController {
   })
   @ApiParam({
     name: "id",
-    type: Number,
-    description: "Permission ID",
+    type: String,
+    description: "Permission ID (UUID)",
     required: true,
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   async deletePermission(
-    @Param("id", ParseIntPipe) id: number,
-    @ActiveUser("userId") userId: number,
+    @Param("id", ParseUUIDPipe) id: string,
+    @ActiveUser("userId") userId: User["id"],
     @Body() body: DeletePermissionRequestDto,
   ) {
     const result = await this.permissionService.deletePermission({

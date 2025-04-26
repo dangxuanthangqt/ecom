@@ -12,6 +12,7 @@ import {
   ApiParam,
   ApiTags,
 } from "@nestjs/swagger";
+import { User } from "@prisma/client";
 
 import { LanguageService } from "./language.service";
 
@@ -74,7 +75,7 @@ export class LanguageController {
   })
   async createLanguage(
     @Body() body: LanguageCreateRequestDto,
-    @ActiveUser("userId") userId: number,
+    @ActiveUser("userId") userId: User["id"],
   ) {
     const result = await this.languageService.createLanguage(body, userId);
 
@@ -93,7 +94,7 @@ export class LanguageController {
   async updateLanguage(
     @Param() params: LanguageIdParamDto,
     @Body() body: LanguageUpdateRequestDto,
-    @ActiveUser("userId") userId: number,
+    @ActiveUser("userId") userId: User["id"],
   ) {
     const result = await this.languageService.updateLanguage(params.id, {
       name: body.name,
@@ -115,7 +116,7 @@ export class LanguageController {
   async deleteLanguage(
     @Param() params: LanguageIdParamDto,
     @Body() body: LanguageDeleteRequestDto,
-    @ActiveUser("userId") userId: number,
+    @ActiveUser("userId") userId: User["id"],
   ) {
     const result = await this.languageService.deleteLanguage({
       id: params.id,

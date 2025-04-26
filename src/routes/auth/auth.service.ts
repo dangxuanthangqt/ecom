@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Device } from "@prisma/client";
+import { Device, User } from "@prisma/client";
 import { addMilliseconds } from "date-fns";
 import ms from "ms";
 import { LoginRequestDto, LoginResponseDto } from "src/dtos/auth/login.dto";
@@ -20,7 +20,10 @@ import {
   ForgotPasswordResponseDto,
 } from "@/dto/auth/forgot-password.dto";
 import { LogoutResponseDto } from "@/dto/auth/logout.dto";
-import { RefreshTokenResponseDto } from "@/dto/auth/refresh-token.dto";
+import {
+  RefreshTokenRequestDto,
+  RefreshTokenResponseDto,
+} from "@/dto/auth/refresh-token.dto";
 import { SendOTPRequestDto } from "@/dto/auth/send-otp.dto";
 import { DeviceRepository } from "@/repositories/device/device.repository";
 import { RefreshTokenRepository } from "@/repositories/refresh-token/refresh-token.repository";
@@ -117,13 +120,19 @@ export class AuthService {
     return user;
   }
 
-  async login(
-    data: LoginRequestDto & Pick<Device, "ip" | "userAgent">,
-  ): Promise<LoginResponseDto> {
+  async login({
+    body,
+    ip,
+    userAgent,
+  }: {
+    body: LoginRequestDto;
+    ip: Device["ip"];
+    userAgent: Device["userAgent"];
+  }): Promise<LoginResponseDto> {
     // 1. Find User by Email
     const user = await this.sharedUserRepository.findUnique({
       where: {
-        email: data.email,
+        email: body.email,
       },
       include: {
         role: true,
@@ -139,7 +148,7 @@ export class AuthService {
     }
 
     if (user.totpSecret) {
-      if (!data.totpCode && !data.code) {
+      if (!body.totpCode && !body.code) {
         throwHttpException({
           type: "badRequest",
           field: "totpCode",
@@ -147,12 +156,12 @@ export class AuthService {
         });
       }
 
-      if (data.totpCode) {
+      if (body.totpCode) {
         const isTOTPCodeValid =
           this.twoFactorAuthenticationService.verifyTOTPCode({
             email: user.email,
             secret: user.totpSecret,
-            totpCode: data.totpCode,
+            totpCode: body.totpCode,
           });
 
         if (!isTOTPCodeValid) {
@@ -164,7 +173,7 @@ export class AuthService {
       } else {
         await this.validateVerificationCode({
           email: user.email,
-          code: data.code,
+          code: body.code,
           type: VerificationCodeType.LOGIN,
         });
       }
@@ -172,7 +181,7 @@ export class AuthService {
 
     // 2. Verify Password
     const isPasswordValid = this.hashingService.compare(
-      data.password,
+      body.password,
       user.password,
     );
 
@@ -186,9 +195,9 @@ export class AuthService {
 
     const device = await this.deviceRepository.createDevice({
       userId: user.id,
-      ip: data.ip,
+      ip,
       isActive: true,
-      userAgent: data.userAgent,
+      userAgent,
     });
 
     const tokens = await this.generateTokens({
@@ -235,12 +244,16 @@ export class AuthService {
   }
 
   async refreshToken({
-    refreshToken: oldRefreshToken,
+    body,
     ip,
     userAgent,
   }: {
-    refreshToken: string;
-  } & Pick<Device, "ip" | "userAgent">): Promise<RefreshTokenResponseDto> {
+    body: RefreshTokenRequestDto;
+    ip: Device["ip"];
+    userAgent: Device["userAgent"];
+  }): Promise<RefreshTokenResponseDto> {
+    const oldRefreshToken = body.refreshToken;
+
     const { userId, exp } =
       await this.tokenService.verifyRefreshToken(oldRefreshToken);
 
@@ -414,7 +427,7 @@ export class AuthService {
     };
   }
 
-  async setupTwoFactorAuthentication(userid: number) {
+  async setupTwoFactorAuthentication(userid: User["id"]) {
     // 1: Check user info and 2fa status
     const user = await this.sharedUserRepository.findUniqueOrThrow({
       where: {
@@ -455,7 +468,7 @@ export class AuthService {
     totpCode,
     code,
   }: Disable2faRequestDto & {
-    userId: number;
+    userId: User["id"];
   }) {
     // 1: Check user info and 2fa status
     const user = await this.sharedUserRepository.findUniqueOrThrow({

@@ -9,7 +9,7 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { Device } from "@prisma/client";
+import { Device, User } from "@prisma/client";
 import { Response } from "express";
 import {
   LoginRequestDto,
@@ -65,9 +65,9 @@ export class AuthController {
   @Post("register")
   @IsPublicApi()
   async register(
-    @Body() data: RegisterRequestDto,
+    @Body() body: RegisterRequestDto,
   ): Promise<RegisterResponseDto> {
-    const response = await this.authService.register(data);
+    const response = await this.authService.register(body);
 
     return new RegisterResponseDto(response);
   }
@@ -83,12 +83,12 @@ export class AuthController {
   @IsPublicApi()
   // @ZodSerializerDto(LoginResponseZodDto) // /** It's run after global TransformInterceptor*/
   async login(
-    @Body() data: LoginRequestDto,
+    @Body() body: LoginRequestDto,
     @Ip() ip: string,
     @UserAgent() userAgent: Device["userAgent"],
   ): Promise<LoginResponseDto> {
     const response = await this.authService.login({
-      ...data,
+      body,
       ip,
       userAgent,
     });
@@ -106,12 +106,12 @@ export class AuthController {
   @Post("refresh-token")
   @IsPublicApi()
   async refreshToken(
-    @Body() data: RefreshTokenRequestDto,
+    @Body() body: RefreshTokenRequestDto,
     @Ip() ip: string,
     @UserAgent() userAgent: Device["userAgent"],
   ): Promise<RefreshTokenResponseDto> {
     const response = await this.authService.refreshToken({
-      ...data,
+      body,
       ip,
       userAgent,
     });
@@ -230,7 +230,7 @@ export class AuthController {
     },
   })
   @Post("2fa/enable")
-  async enable2fa(@ActiveUser("userId") userId: number) {
+  async enable2fa(@ActiveUser("userId") userId: User["id"]) {
     const response =
       await this.authService.setupTwoFactorAuthentication(userId);
 
@@ -247,7 +247,7 @@ export class AuthController {
   @Post("2fa/disable")
   async disable2fa(
     @Body() body: Disable2faRequestDto,
-    @ActiveUser("userId") userId: number,
+    @ActiveUser("userId") userId: User["id"],
   ) {
     const response = await this.authService.disableTwoFactorAuthentication({
       ...body,

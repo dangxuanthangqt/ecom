@@ -4,9 +4,9 @@ import {
   IsArray,
   IsBoolean,
   IsIn,
-  IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
 } from "class-validator";
 
@@ -58,13 +58,19 @@ export class PermissionRequestDto {
 
   @ApiProperty({
     description: "Roles associated with the permission",
-    example: [1, 2],
-    type: [Number],
+    example: [
+      "123e4567-e89b-12d3-a456-426614174000",
+      "223e4567-e89b-12d3-a456-426614174001",
+    ],
+    type: [String],
   })
   @IsArray()
   @IsOptional()
-  @IsNumber({}, { each: true, message: "Roles must be an array of numbers." })
-  roles?: number[]; // Array of role IDs to associate with the permission
+  @IsUUID("4", {
+    each: true,
+    message: "Roles must be an array of valid UUIDs.",
+  })
+  roles?: string[]; // Array of role UUIDs to associate with the permission
 }
 
 export class CreatePermissionRequestDto extends PermissionRequestDto {}
@@ -74,10 +80,10 @@ export class UpdatePermissionRequestDto extends PermissionRequestDto {}
 export class PermissionResponseDto {
   @ApiProperty({
     description: "Permission ID",
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @Expose()
-  id: number;
+  id: string;
 
   @ApiProperty({
     description: "Permission name",
@@ -118,7 +124,7 @@ export class PermissionWithRolesResponseDto extends PermissionResponseDto {
     type: [RoleResponseDto],
     example: [
       {
-        id: 1,
+        id: "123e4567-e89b-12d3-a456-426614174000",
         name: "Admin",
         description: "Administrator role",
       },

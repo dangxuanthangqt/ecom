@@ -3,9 +3,9 @@ import { Expose, Type } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
-  IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
 } from "class-validator";
 
 import { PermissionResponseDto } from "../permission/permission.dto";
@@ -13,10 +13,10 @@ import { PermissionResponseDto } from "../permission/permission.dto";
 export class RoleResponseDto {
   @ApiProperty({
     description: "Role ID",
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @Expose()
-  id: number;
+  id: string;
 
   @ApiProperty({
     description: "Role name",
@@ -50,7 +50,7 @@ export class RoleWithPermissionsResponseDto extends RoleResponseDto {
     type: [PermissionResponseDto],
     example: [
       {
-        id: 1,
+        id: "123e4567-e89b-12d3-a456-426614174000",
         name: "Login",
         description: "Allows user to log in",
         path: "/login",
@@ -93,16 +93,19 @@ export class CreateRoleRequestDto {
 
   @ApiPropertyOptional({
     description: "Permissions",
-    example: [1, 2, 3],
-    type: [Number],
+    example: [
+      "123e4567-e89b-12d3-a456-426614174000",
+      "223e4567-e89b-12d3-a456-426614174001",
+    ],
+    type: [String],
   })
   @IsOptional()
   @IsArray()
-  @IsNumber(
-    {},
-    { each: true, message: "Permissions must be an array of numbers" },
-  )
-  permissions?: number[];
+  @IsUUID("4", {
+    each: true,
+    message: "Permissions must be an array of valid UUIDs",
+  })
+  permissions?: string[];
 }
 
 export class UpdateRoleRequestDto {
@@ -131,16 +134,19 @@ export class UpdateRoleRequestDto {
 
   @ApiPropertyOptional({
     description: "Permissions",
-    example: [1, 2, 3],
-    type: [Number],
+    example: [
+      "123e4567-e89b-12d3-a456-426614174000",
+      "223e4567-e89b-12d3-a456-426614174001",
+    ],
+    type: [String],
   })
   @IsOptional()
   @IsArray()
-  @IsNumber(
-    {},
-    { each: true, message: "Permissions must be an array of numbers" },
-  )
-  permissions?: number[];
+  @IsUUID("4", {
+    each: true,
+    message: "Permissions must be an array of valid UUIDs",
+  })
+  permissions?: string[];
 }
 
 export class DeleteRoleRequestDto {

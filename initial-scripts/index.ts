@@ -48,6 +48,7 @@ async function main() {
         description: "Seller role",
       },
     ],
+    skipDuplicates: true,
   });
 
   const adminRole = await prismaService.role.findFirstOrThrow({

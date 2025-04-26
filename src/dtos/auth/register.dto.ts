@@ -72,10 +72,10 @@ export class RegisterRequestDto {
 export class RegisterResponseDto {
   @ApiProperty({
     description: "The user's ID",
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @Expose()
-  id: number;
+  id: string;
 
   @ApiProperty({
     description: "The user's email address",

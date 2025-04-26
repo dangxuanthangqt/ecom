@@ -4,12 +4,13 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
+import { User } from "@prisma/client";
 
 import { RoleService } from "./role.service";
 
@@ -53,13 +54,13 @@ export class RoleController {
   })
   @ApiParam({
     name: "id",
-    type: Number,
-    description: "Role ID",
+    type: String,
+    description: "Role ID (UUID)",
     required: true,
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @Get(":id")
-  async getRoleById(@Param("id", ParseIntPipe) id: number) {
+  async getRoleById(@Param("id", ParseUUIDPipe) id: string) {
     const result = await this.roleService.getRoleById(id);
 
     return new RoleWithPermissionsResponseDto(result);
@@ -75,7 +76,7 @@ export class RoleController {
   @Post()
   async createRole(
     @Body() body: CreateRoleRequestDto,
-    @ActiveUser("userId") userId: number,
+    @ActiveUser("userId") userId: User["id"],
   ) {
     const result = await this.roleService.createRole({
       body,
@@ -94,16 +95,16 @@ export class RoleController {
   })
   @ApiParam({
     name: "id",
-    type: Number,
-    description: "Role ID",
+    type: String,
+    description: "Role ID (UUID)",
     required: true,
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @Put(":id")
   async updateRole(
-    @Param("id", ParseIntPipe) id: number,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() body: UpdateRoleRequestDto,
-    @ActiveUser("userId") userId: number,
+    @ActiveUser("userId") userId: User["id"],
   ) {
     const result = await this.roleService.updateRole({
       id,
@@ -123,15 +124,15 @@ export class RoleController {
   })
   @ApiParam({
     name: "id",
-    type: Number,
-    description: "Role ID",
+    type: String,
+    description: "Role ID (UUID)",
     required: true,
-    example: 1,
+    example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @Delete(":id")
   async deleteRole(
-    @Param("id", ParseIntPipe) id: number,
-    @ActiveUser("userId") userId: number,
+    @Param("id", ParseUUIDPipe) id: string,
+    @ActiveUser("userId") userId: User["id"],
     @Body() body: DeleteRoleRequestDto,
   ) {
     const result = await this.roleService.deleteRole({
