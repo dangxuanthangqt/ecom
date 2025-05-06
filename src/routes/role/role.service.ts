@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { Role, User } from "@prisma/client";
+import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
+import { Role } from "@/constants/role.constant";
 import {
   CreateRoleRequestDto,
   DeleteRoleRequestDto,
@@ -8,9 +9,12 @@ import {
 } from "@/dto/role/role.dto";
 import { PaginationQueryDto } from "@/dto/shared/pagination.dto";
 import { RoleRepository } from "@/repositories/role/role.repository";
+import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class RoleService {
+  private forbiddenRoles: string[] = [Role.ADMIN, Role.CLIENT, Role.SELLER];
+
   constructor(private readonly roleRepository: RoleRepository) {}
 
   async getRoles({
@@ -42,7 +46,7 @@ export class RoleService {
     };
   }
 
-  async getRoleById(id: Role["id"]) {
+  async getRoleById(id: RoleSchema["id"]) {
     const role = await this.roleRepository.findUniqueRole(id);
 
     return role;
@@ -53,7 +57,7 @@ export class RoleService {
     userId,
   }: {
     body: CreateRoleRequestDto;
-    userId: User["id"];
+    userId: UserSchema["id"];
   }) {
     const role = await this.roleRepository.createRole({
       data: {
@@ -67,15 +71,35 @@ export class RoleService {
     return role;
   }
 
+  async verifyForbiddenRole(id: RoleSchema["id"]) {
+    const role = await this.roleRepository.findUniqueRole(id);
+
+    if (!role) {
+      throwHttpException({
+        type: "notFound",
+        message: "Role not found",
+      });
+    }
+
+    if (this.forbiddenRoles.includes(role.name)) {
+      throwHttpException({
+        type: "forbidden",
+        message: "You cannot modify this role.",
+      });
+    }
+  }
+
   async updateRole({
     body: { name, description, permissions },
     userId,
     id,
   }: {
     body: UpdateRoleRequestDto;
-    userId: User["id"];
-    id: Role["id"];
+    userId: UserSchema["id"];
+    id: RoleSchema["id"];
   }) {
+    await this.verifyForbiddenRole(id);
+
     const role = await this.roleRepository.updateRole({
       id,
       data: {
@@ -94,10 +118,12 @@ export class RoleService {
     userId,
     body: { isHardDelete },
   }: {
-    id: Role["id"];
-    userId: User["id"];
+    id: RoleSchema["id"];
+    userId: UserSchema["id"];
     body: DeleteRoleRequestDto;
   }) {
+    await this.verifyForbiddenRole(id);
+
     const role = await this.roleRepository.deleteRole({
       id,
       userId,

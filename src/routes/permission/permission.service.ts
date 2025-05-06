@@ -64,6 +64,7 @@ export class PermissionService {
         description,
         path,
         method,
+        module: path.split("/")[1].toUpperCase(),
         roles: {
           connect: roles?.map((roleId) => ({ id: roleId })),
         },

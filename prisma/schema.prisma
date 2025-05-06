@@ -179,6 +179,7 @@ model Permission {
   name        String     @db.VarChar(500)
   description String     @default("")
   path        String     @db.VarChar(1000)
+  module      String     @db.VarChar(500)
   method      HTTPMethod
   roles       Role[]
 

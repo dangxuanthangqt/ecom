@@ -245,15 +245,15 @@ export class RoleRepository {
   }) {
     try {
       if (isHardDelete) {
-        const role = await this.prismaService.role.delete({
+        const deletedRole = await this.prismaService.role.delete({
           where: { id },
           select: this.roleSelect,
         });
 
-        return role;
+        return deletedRole;
       }
 
-      const role = await this.prismaService.role.update({
+      const updatedRole = await this.prismaService.role.update({
         where: { id, deletedAt: null },
         data: {
           deletedAt: new Date(),
@@ -262,7 +262,7 @@ export class RoleRepository {
         select: this.roleSelect,
       });
 
-      return role;
+      return updatedRole;
     } catch (error) {
       this.logger.error(error);
 

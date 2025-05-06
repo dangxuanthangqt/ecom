@@ -54,7 +54,7 @@ export class AccessTokenGuard implements CanActivate {
     decodedAccessToken: AccessTokenPayload,
   ): Promise<void> {
     try {
-      const path = (request.route as { path: string }).path;
+      const path = (request.route as { path: string }).path; // check permission of the route
 
       const method = request.method.toUpperCase() as HTTPMethod;
 
@@ -62,12 +62,13 @@ export class AccessTokenGuard implements CanActivate {
         where: {
           deletedAt: null,
           id: decodedAccessToken.roleId,
+          isActive: true,
         },
         include: {
           permissions: {
             where: {
               deletedAt: null,
-              path,
+              path, // check permission of the route
               method,
             },
           },

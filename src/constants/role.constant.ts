@@ -4,7 +4,7 @@ export const Role = {
   SELLER: "seller",
 } as const;
 
-export type Role = (typeof Role)[keyof typeof Role];
+export type RoleType = (typeof Role)[keyof typeof Role];
 
 export const ActiveStatus = {
   ACTIVE: "ACTIVE",
