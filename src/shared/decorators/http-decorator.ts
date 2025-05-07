@@ -15,9 +15,9 @@ import {
   getSchemaPath,
 } from "@nestjs/swagger";
 
-import { BadRequestExceptionDto } from "@/dto/bad-request-exception.dto";
-import { DefaultExceptionDto } from "@/dto/default-exception.dto";
-import { PageDto } from "@/dto/shared/page.dto";
+import { BadRequestExceptionDto } from "@/dtos/bad-request-exception.dto";
+import { DefaultExceptionDto } from "@/dtos/default-exception.dto";
+import { PageDto } from "@/dtos/shared/page.dto";
 
 export function ApiAuth({
   type,

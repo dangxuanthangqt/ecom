@@ -24,7 +24,7 @@
       "@/utilities/*": ["src/utilities/*"],
       "@/constants/*": ["src/constants/*"],
       "@/types/*": ["src/types/*"],
-      "@/dto/*": ["src/dtos/*"],
+      "@/dtos/*": ["src/dtos/*"],
       "@/validations/*": ["src/validations/*"],
       "@/repositories/*": ["src/repositories/*"]
     }

@@ -6,7 +6,7 @@ import {
   ValidatorConstraintInterface,
 } from "class-validator";
 
-import { LoginRequestDto } from "@/dto/auth/login.dto";
+import { LoginRequestDto } from "@/dtos/auth/login.dto";
 
 @ValidatorConstraint({ name: "mutuallyExclusive", async: false })
 export class OnlyOneExistsConstraint implements ValidatorConstraintInterface {

@@ -113,6 +113,13 @@ export class PermissionResponseDto {
   @Expose()
   method: string;
 
+  @ApiProperty({
+    description: "Permission module",
+    example: "USER",
+  })
+  @Expose()
+  module: string;
+
   constructor(partial: Partial<PermissionResponseDto>) {
     Object.assign(this, partial);
   }

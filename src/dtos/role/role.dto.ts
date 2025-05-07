@@ -45,7 +45,7 @@ export class RoleResponseDto {
 }
 
 export class RoleWithPermissionsResponseDto extends RoleResponseDto {
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: "Permissions associated with the role",
     type: [PermissionResponseDto],
     example: [
@@ -60,7 +60,8 @@ export class RoleWithPermissionsResponseDto extends RoleResponseDto {
   })
   @Expose()
   @Type(() => PermissionResponseDto) // Transform nested permissions into PermissionDto objects
-  permissions?: PermissionResponseDto[]; // Array of Permission objects associated with the role
+  permissions: PermissionResponseDto[]; // Array of Permission objects associated with the role
+
   constructor(partial: Partial<RoleWithPermissionsResponseDto>) {
     super(partial);
     Object.assign(this, partial);

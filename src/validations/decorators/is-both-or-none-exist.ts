@@ -6,7 +6,7 @@ import {
   registerDecorator,
 } from "class-validator";
 
-import { Disable2faRequestDto } from "@/dto/auth/2fa.dto";
+import { Disable2faRequestDto } from "@/dtos/auth/2fa.dto";
 
 @ValidatorConstraint({ name: "mutuallyExclusive", async: false })
 export class BothOrNoneExistConstraint implements ValidatorConstraintInterface {

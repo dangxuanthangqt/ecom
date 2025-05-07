@@ -14,17 +14,17 @@ import {
   VerificationCodeType,
   VerificationCodeTypeType,
 } from "@/constants/verification-code.constant";
-import { Disable2faRequestDto } from "@/dto/auth/2fa.dto";
+import { Disable2faRequestDto } from "@/dtos/auth/2fa.dto";
 import {
   ForgotPasswordRequestDto,
   ForgotPasswordResponseDto,
-} from "@/dto/auth/forgot-password.dto";
-import { LogoutResponseDto } from "@/dto/auth/logout.dto";
+} from "@/dtos/auth/forgot-password.dto";
+import { LogoutResponseDto } from "@/dtos/auth/logout.dto";
 import {
   RefreshTokenRequestDto,
   RefreshTokenResponseDto,
-} from "@/dto/auth/refresh-token.dto";
-import { SendOTPRequestDto } from "@/dto/auth/send-otp.dto";
+} from "@/dtos/auth/refresh-token.dto";
+import { SendOTPRequestDto } from "@/dtos/auth/send-otp.dto";
 import { DeviceRepository } from "@/repositories/device/device.repository";
 import { RefreshTokenRepository } from "@/repositories/refresh-token/refresh-token.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";

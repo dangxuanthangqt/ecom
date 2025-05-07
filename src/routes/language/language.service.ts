@@ -9,7 +9,7 @@ import {
   LanguageResponseDto,
   LanguageUpdateRequestDto,
   LanguageUpdateResponseDto,
-} from "@/dto/language/language.dto";
+} from "@/dtos/language/language.dto";
 import { LanguageRepository } from "@/repositories/language/language.repository";
 
 @Injectable()

@@ -20,6 +20,7 @@ export class PermissionRepository {
     description: true,
     path: true,
     method: true,
+    module: true,
     roles: {
       where: {
         deletedAt: null,

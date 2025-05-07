@@ -6,8 +6,8 @@ import {
   CreateRoleRequestDto,
   DeleteRoleRequestDto,
   UpdateRoleRequestDto,
-} from "@/dto/role/role.dto";
-import { PaginationQueryDto } from "@/dto/shared/pagination.dto";
+} from "@/dtos/role/role.dto";
+import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import { RoleRepository } from "@/repositories/role/role.repository";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 

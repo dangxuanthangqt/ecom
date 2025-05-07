@@ -5,8 +5,8 @@ import {
   CreatePermissionRequestDto,
   DeletePermissionRequestDto,
   UpdatePermissionRequestDto,
-} from "@/dto/permission/permission.dto";
-import { PaginationQueryDto } from "@/dto/shared/pagination.dto";
+} from "@/dtos/permission/permission.dto";
+import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import { PermissionRepository } from "@/repositories/permission/permission.repository";
 
 @Injectable()

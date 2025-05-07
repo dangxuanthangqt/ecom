@@ -19,9 +19,9 @@ import {
   DeletePermissionRequestDto,
   PermissionWithRolesResponseDto,
   UpdatePermissionRequestDto,
-} from "@/dto/permission/permission.dto";
-import { PageDto } from "@/dto/shared/page.dto";
-import { PaginationQueryDto } from "@/dto/shared/pagination.dto";
+} from "@/dtos/permission/permission.dto";
+import { PageDto } from "@/dtos/shared/page.dto";
+import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
 import { ApiAuth, ApiPageOkResponse } from "@/shared/decorators/http-decorator";
 

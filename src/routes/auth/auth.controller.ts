@@ -28,17 +28,20 @@ import {
   Disable2faRequestDto,
   Disable2faResponseDto,
   EnableTwoFactorAuthenticationResponseDto,
-} from "@/dto/auth/2fa.dto";
+} from "@/dtos/auth/2fa.dto";
 import {
   ForgotPasswordRequestDto,
   ForgotPasswordResponseDto,
-} from "@/dto/auth/forgot-password.dto";
-import { LogoutRequestDto, LogoutResponseDto } from "@/dto/auth/logout.dto";
+} from "@/dtos/auth/forgot-password.dto";
+import { LogoutRequestDto, LogoutResponseDto } from "@/dtos/auth/logout.dto";
 import {
   RefreshTokenRequestDto,
   RefreshTokenResponseDto,
-} from "@/dto/auth/refresh-token.dto";
-import { SendOTPRequestDto, SendOTPResponseDto } from "@/dto/auth/send-otp.dto";
+} from "@/dtos/auth/refresh-token.dto";
+import {
+  SendOTPRequestDto,
+  SendOTPResponseDto,
+} from "@/dtos/auth/send-otp.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/decorators/auth-api.decorator";
 import { ApiAuth, ApiPublic } from "@/shared/decorators/http-decorator";

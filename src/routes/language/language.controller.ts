@@ -26,7 +26,7 @@ import {
   LanguageResponseDto,
   LanguageUpdateRequestDto,
   LanguageUpdateResponseDto,
-} from "@/dto/language/language.dto";
+} from "@/dtos/language/language.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
 import { ApiAuth } from "@/shared/decorators/http-decorator";
 

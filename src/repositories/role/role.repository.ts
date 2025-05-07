@@ -15,7 +15,7 @@ export class RoleRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  private readonly roleSelect: Prisma.RoleSelect = {
+  readonly roleSelect: Prisma.RoleSelect = {
     id: true,
     name: true,
     description: true,
