@@ -9,7 +9,7 @@ export class SendOTPRequestDto {
   @ApiProperty({
     description: "The user's email address",
     example: "user@example.com",
-    required: true,
+    format: "email",
   })
   @IsEmail()
   email: string;
@@ -23,7 +23,6 @@ export class SendOTPRequestDto {
       VerificationCodeType.DISABLE_2FA,
     ],
     example: VerificationCodeType.REGISTER,
-    required: true,
   })
   @IsIn([
     VerificationCodeType.REGISTER,
@@ -45,6 +44,7 @@ export class SendOTPResponseDto {
   @ApiProperty({
     description: "The creation timestamp of the OTP code",
     example: "2023-10-27T00:00:00.000Z",
+    format: "date-time",
   })
   @Expose()
   createdAt: Date;
@@ -52,6 +52,7 @@ export class SendOTPResponseDto {
   @ApiProperty({
     description: "The expiration timestamp of the OTP code",
     example: "2023-10-27T00:05:00.000Z",
+    format: "date-time",
   })
   @Expose()
   expiresAt: Date;

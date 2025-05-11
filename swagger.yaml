@@ -6,19 +6,52 @@ paths:
       parameters: []
       requestBody:
         required: true
-        description: User registration data
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/RegisterRequestDto"
       responses:
-        "201":
-          description: User registered successfully
+        "200":
+          description: Register
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/RegisterResponseDto"
-      summary: Register a new user
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Register user
       tags: &a1
         - Auth
   /auth/login:
@@ -27,18 +60,51 @@ paths:
       parameters: []
       requestBody:
         required: true
-        description: User login data
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/LoginRequestDto"
       responses:
-        "201":
-          description: User logged in successfully
+        "200":
+          description: Login
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LoginResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
       summary: Login user
       tags: *a1
   /auth/refresh-token:
@@ -47,38 +113,126 @@ paths:
       parameters: []
       requestBody:
         required: true
-        description: Refresh token data
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/RefreshTokenRequestDto"
       responses:
-        "201":
-          description: Access token refreshed successfully
+        "200":
+          description: Refresh token
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/RefreshTokenResponseDto"
-      summary: Refresh access token
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Refresh token
       tags: *a1
   /auth/logout:
     post:
       operationId: logout
-      parameters: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
-        description: Logout data
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/LogoutRequestDto"
       responses:
-        "201":
-          description: User logged out successfully
+        "200":
+          description: Logout
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LogoutResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
       summary: Logout user
       tags: *a1
   /auth/otp:
@@ -87,18 +241,51 @@ paths:
       parameters: []
       requestBody:
         required: true
-        description: Send OTP data
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/SendOTPRequestDto"
       responses:
-        "201":
-          description: OTP sent successfully
+        "200":
+          description: Send OTP
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/SendOTPResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
       summary: Send OTP
       tags: *a1
   /auth/google/authorization-url:
@@ -116,7 +303,6 @@ paths:
                   url:
                     type: string
                     example: https://accounts.google.com/o/oauth2/v2/auth?...
-      summary: Get Google authorization URL
       tags: *a1
   /auth/google/callback:
     get:
@@ -143,68 +329,267 @@ paths:
       parameters: []
       requestBody:
         required: true
-        description: Forgot password data
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/ForgotPasswordRequestDto"
       responses:
-        "201":
-          description: Password reset email sent successfully
+        "200":
+          description: Forgot password
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ForgotPasswordResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
       summary: Forgot password
       tags: *a1
   /auth/2fa/enable:
     post:
       operationId: enable2fa
-      parameters: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
       responses:
-        "201":
-          description: 2FA enabled successfully
+        "200":
+          description: Enable 2FA
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/EnableTwoFactorAuthenticationResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
       summary: Enable 2FA
       tags: *a1
   /auth/2fa/disable:
     post:
       operationId: disable2fa
-      parameters: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
-        description: Disable 2FA data
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/Disable2faRequestDto"
       responses:
-        "201":
-          description: 2FA disabled successfully
+        "200":
+          description: Disable 2FA
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Disable2faResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
       summary: Disable 2FA
       tags: *a1
   /languages:
     get:
       operationId: getLanguages
-      parameters: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
       responses:
         "200":
-          description: Successfully retrieved the list of languages.
+          description: Retrieve a list of languages with pagination.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LanguageListResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
         "500":
-          description: Internal server error.
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a list of languages
       tags: &a2
-        - languages
+        - Languages
   /languages/{id}:
     get:
       operationId: getLanguageById
@@ -218,17 +603,70 @@ paths:
             maxLength: 2
             example: en
             type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
       responses:
         "200":
-          description: Successfully retrieved the language.
+          description: Retrieve a specific language by its ID.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LanguageResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
         "404":
-          description: Language not found.
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
         "500":
-          description: Internal server error.
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a language by ID
       tags: *a2
     put:
       operationId: updateLanguage
@@ -242,6 +680,12 @@ paths:
             maxLength: 2
             example: en
             type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -250,19 +694,62 @@ paths:
               $ref: "#/components/schemas/LanguageUpdateRequestDto"
       responses:
         "200":
-          description: Successfully updated the language.
+          description: Update an existing language.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LanguageUpdateResponseDto"
         "400":
-          description: Bad request.
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
         "404":
-          description: Language not found.
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
         "422":
-          description: Language already exists or invalid user ID.
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
         "500":
-          description: Internal server error.
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update a language
       tags: *a2
     delete:
       operationId: deleteLanguage
@@ -276,6 +763,12 @@ paths:
             maxLength: 2
             example: en
             type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -284,20 +777,73 @@ paths:
               $ref: "#/components/schemas/LanguageDeleteRequestDto"
       responses:
         "200":
-          description: Successfully deleted the language.
+          description: Delete a specific language by its ID.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LanguageDeleteResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
         "404":
-          description: Language not found or already deleted.
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
         "500":
-          description: Internal server error.
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a language
       tags: *a2
   /languages/create:
     post:
       operationId: createLanguage
-      parameters: []
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -305,19 +851,892 @@ paths:
             schema:
               $ref: "#/components/schemas/LanguageCreateRequestDto"
       responses:
-        "201":
-          description: Successfully created the language.
+        "200":
+          description: Create a new language.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/LanguageCreateResponseDto"
         "400":
-          description: Bad request.
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
         "422":
-          description: Language already exists or invalid user ID.
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
         "500":
-          description: Internal server error.
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new language
       tags: *a2
+  /permissions:
+    get:
+      operationId: getPermissions
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: ASC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: name
+            type: string
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a list of permissions with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PermissionWithRolesResponseDto"
+                    required:
+                      - data
+      summary: Get a list of permissions
+      tags: &a3
+        - Permissions
+    post:
+      operationId: createPermission
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePermissionRequestDto"
+      responses:
+        "200":
+          description: Create a new permission with associated roles.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionWithRolesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new permission
+      tags: *a3
+  /permissions/{id}:
+    get:
+      operationId: getPermissionById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Permission ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a specific permission by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionWithRolesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a permission by ID
+      tags: *a3
+    put:
+      operationId: updatePermission
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Permission ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePermissionRequestDto"
+      responses:
+        "200":
+          description: Update an existing permission by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionWithRolesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update a permission
+      tags: *a3
+    delete:
+      operationId: deletePermission
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Permission ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeletePermissionRequestDto"
+      responses:
+        "200":
+          description: Delete a specific permission by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PermissionWithRolesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a permission
+      tags: *a3
+  /roles:
+    get:
+      operationId: getRoles
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: ASC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: name
+            type: string
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a list of roles with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/RoleWithPermissionsResponseDto"
+                    required:
+                      - data
+      summary: Get a list of roles
+      tags: &a4
+        - Roles
+    post:
+      operationId: createRole
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateRoleRequestDto"
+      responses:
+        "200":
+          description: Create a new role with permissions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleWithPermissionsResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new role
+      tags: *a4
+  /roles/{id}:
+    get:
+      operationId: getRoleById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Role ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a role by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleWithPermissionsResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a role by ID
+      tags: *a4
+    put:
+      operationId: updateRole
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Role ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateRoleRequestDto"
+      responses:
+        "200":
+          description: Update a role by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleWithPermissionsResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update an existing role
+      tags: *a4
+    delete:
+      operationId: deleteRole
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Role ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteRoleRequestDto"
+      responses:
+        "200":
+          description: Delete a role by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleWithPermissionsResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a role
+      tags: *a4
+  /profile:
+    get:
+      operationId: getProfile
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description:
+            Retrieves the complete profile information for the authenticated
+            user including role and permissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get current user profile.
+      tags:
+        - Profile
 info:
   title: Ecom API
   description: The Ecom API description
@@ -334,6 +1753,7 @@ components:
           type: string
           description: The user's email address
           example: user@example.com
+          format: email
         password:
           type: string
           description: The user's password
@@ -356,6 +1776,10 @@ components:
           type: string
           description: The user's name
           example: John Doe
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
         code:
           type: string
           description: Verification code
@@ -373,13 +1797,15 @@ components:
       type: object
       properties:
         id:
-          type: number
+          type: string
           description: The user's ID
-          example: 1
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
         email:
           type: string
           description: The user's email address
           example: user@example.com
+          format: email
         name:
           type: string
           description: The user's name
@@ -402,9 +1828,9 @@ components:
             - INACTIVE
             - BLOCKED
         avatar:
-          type: object
-          description: The user's avatar
-          example: null
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
           nullable: true
         updatedAt:
           format: date-time
@@ -510,6 +1936,7 @@ components:
           type: string
           description: The user's email address
           example: user@example.com
+          format: email
         type:
           type: string
           description: The type of verification code being requested
@@ -728,3 +2155,348 @@ components:
       required:
         - id
         - name
+    PaginationResponseDto:
+      type: object
+      properties:
+        totalPages:
+          type: number
+          description: Total number of pages
+          example: 5
+        totalItems:
+          type: number
+          description: Total number of items
+          example: 100
+        pageSize:
+          type: number
+          description: Number of items per page
+          example: 20
+        pageIndex:
+          type: number
+          description: Current page index (starts from 0)
+          example: 0
+      required:
+        - totalPages
+        - totalItems
+        - pageSize
+        - pageIndex
+    PageDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationResponseDto"
+      required:
+        - pagination
+    RoleResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Role ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          description: Role name
+          example: Admin
+        isActive:
+          type: boolean
+          description: Is role active
+          example: true
+        description:
+          type: string
+          description: Role description
+          example: Administrator role
+      required:
+        - id
+        - name
+        - isActive
+    PermissionWithRolesResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Permission ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          description: Permission name
+          example: Create User
+        description:
+          type: string
+          description: Permission description
+          example: Allows creating new users
+        path:
+          type: string
+          description: Permission path
+          example: /users
+        method:
+          type: string
+          description: Permission method
+          example: POST
+        module:
+          type: string
+          description: Permission module
+          example: USER
+        roles:
+          description: Roles associated with the permission
+          example:
+            - id: 123e4567-e89b-12d3-a456-426614174000
+              name: Admin
+              description: Administrator role
+          type: array
+          items:
+            $ref: "#/components/schemas/RoleResponseDto"
+      required:
+        - id
+        - name
+        - path
+        - method
+        - module
+    CreatePermissionRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Permission name
+          example: Create User
+          minLength: 2
+          maxLength: 500
+        description:
+          type: string
+          description: Permission description
+          example: Allows creating new users
+          maxLength: 1000
+        path:
+          type: string
+          description: Permission path
+          example: /users
+          minLength: 1
+          maxLength: 1000
+        method:
+          type: string
+          description: Permission method
+          example: POST
+          enum: &a5
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - PATCH
+        roles:
+          description: Roles associated with the permission
+          example: &a6
+            - 123e4567-e89b-12d3-a456-426614174000
+            - 223e4567-e89b-12d3-a456-426614174001
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - path
+        - method
+        - roles
+    UpdatePermissionRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Permission name
+          example: Create User
+          minLength: 2
+          maxLength: 500
+        description:
+          type: string
+          description: Permission description
+          example: Allows creating new users
+          maxLength: 1000
+        path:
+          type: string
+          description: Permission path
+          example: /users
+          minLength: 1
+          maxLength: 1000
+        method:
+          type: string
+          description: Permission method
+          example: POST
+          enum: *a5
+        roles:
+          description: Roles associated with the permission
+          example: *a6
+          type: array
+          items:
+            type: string
+      required:
+        - name
+        - path
+        - method
+        - roles
+    DeletePermissionRequestDto:
+      type: object
+      properties:
+        isHardDelete:
+          type: boolean
+          description: Whether to hard delete the permission
+          example: false
+          default: false
+    PermissionResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Permission ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          description: Permission name
+          example: Create User
+        description:
+          type: string
+          description: Permission description
+          example: Allows creating new users
+        path:
+          type: string
+          description: Permission path
+          example: /users
+        method:
+          type: string
+          description: Permission method
+          example: POST
+        module:
+          type: string
+          description: Permission module
+          example: USER
+      required:
+        - id
+        - name
+        - path
+        - method
+        - module
+    RoleWithPermissionsResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Role ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          description: Role name
+          example: Admin
+        isActive:
+          type: boolean
+          description: Is role active
+          example: true
+        description:
+          type: string
+          description: Role description
+          example: Administrator role
+        permissions:
+          description: Permissions associated with the role
+          example:
+            - id: 123e4567-e89b-12d3-a456-426614174000
+              name: Login
+              description: Allows user to log in
+              path: /login
+              method: POST
+          type: array
+          items:
+            $ref: "#/components/schemas/PermissionResponseDto"
+      required:
+        - id
+        - name
+        - isActive
+        - permissions
+    CreateRoleRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Role name
+          example: Admin
+        description:
+          type: string
+          description: Role description
+          example: Administrator role
+        isActive:
+          type: boolean
+          description: Is role active
+          example: true
+        permissions:
+          description: Permissions
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
+            - 223e4567-e89b-12d3-a456-426614174001
+          type: array
+          items:
+            type: string
+      required:
+        - name
+    UpdateRoleRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Role name
+          example: Admin
+        description:
+          type: string
+          description: Role description
+          example: Administrator role
+        isActive:
+          type: boolean
+          description: Is role active
+          example: true
+        permissions:
+          description: Permissions
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
+            - 223e4567-e89b-12d3-a456-426614174001
+          type: array
+          items:
+            type: string
+      required:
+        - name
+    DeleteRoleRequestDto:
+      type: object
+      properties:
+        isHardDelete:
+          type: boolean
+          description: Is hard delete
+          example: true
+    ProfileResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the user
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: User's full name
+          example: John Doe
+        email:
+          type: string
+          description: User's email address
+          example: john.doe@example.com
+          format: email
+        phoneNumber:
+          type: string
+          description: User's phone number
+          example: "0987654321"
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
+          nullable: true
+        role:
+          description: User's role with associated permissions
+          allOf:
+            - $ref: "#/components/schemas/RoleWithPermissionsResponseDto"
+      required:
+        - id
+        - name
+        - email
+        - phoneNumber
+        - avatar
+        - role

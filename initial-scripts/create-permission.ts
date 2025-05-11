@@ -84,9 +84,12 @@ async function bootstrap() {
     console.log("Added permission: ", addResult.count);
   }
 
-  const adminRole = await prisma.role.findFirstOrThrow({
+  // Find all three roles: ADMIN, CLIENT, SELLER
+  const roles = await prisma.role.findMany({
     where: {
-      name: Role.ADMIN,
+      name: {
+        in: [Role.ADMIN, Role.CLIENT, Role.SELLER],
+      },
       deletedAt: null,
     },
   });
@@ -97,22 +100,33 @@ async function bootstrap() {
     },
   });
 
-  const result = await prisma.role.update({
-    where: {
-      id: adminRole.id,
-      deletedAt: null,
-    },
-    data: {
-      permissions: {
-        set: permissions.map((item) => ({
-          id: item.id,
-        })),
-      },
-    },
-    include: {
-      permissions: true,
-    },
-  });
+  // Update permissions for each role
+  const updateResults = await Promise.all(
+    roles.map(async (role) => {
+      return await prisma.role.update({
+        where: {
+          id: role.id,
+          deletedAt: null,
+        },
+        data: {
+          permissions: {
+            set: permissions.map((item) => ({
+              id: item.id,
+            })),
+          },
+        },
+        include: {
+          permissions: true,
+        },
+      });
+    }),
+  );
+
+  const result = {
+    adminRole: updateResults.find((r) => r.name === Role.ADMIN),
+    clientRole: updateResults.find((r) => r.name === Role.CLIENT),
+    sellerRole: updateResults.find((r) => r.name === Role.SELLER),
+  };
 
   console.log("result", result);
 

@@ -261,6 +261,7 @@ export class AuthService {
       await this.refreshTokenRepository.findUniqueOrThrow({
         where: {
           token: oldRefreshToken,
+          deletedAt: null,
         },
         select: {
           user: {
@@ -283,6 +284,7 @@ export class AuthService {
       },
     });
 
+    // Khi người dùng sử dụng refresh token, thông tin về thiết bị của họ (như địa chỉ IP hoặc user agent) có thể đã thay đổi so với lần đăng nhập ban đầu.
     const $updateDevice = this.deviceRepository.updateDevice({
       where: {
         id: refreshTokenInDb.deviceId,

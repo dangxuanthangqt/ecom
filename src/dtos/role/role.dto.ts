@@ -47,7 +47,7 @@ export class RoleResponseDto {
 export class RoleWithPermissionsResponseDto extends RoleResponseDto {
   @ApiProperty({
     description: "Permissions associated with the role",
-    type: [PermissionResponseDto],
+    type: () => PermissionResponseDto,
     example: [
       {
         id: "123e4567-e89b-12d3-a456-426614174000",
@@ -55,12 +55,13 @@ export class RoleWithPermissionsResponseDto extends RoleResponseDto {
         description: "Allows user to log in",
         path: "/login",
         method: "POST",
-      } as PermissionResponseDto,
+      },
     ],
+    isArray: true,
   })
   @Expose()
-  @Type(() => PermissionResponseDto) // Transform nested permissions into PermissionDto objects
-  permissions: PermissionResponseDto[]; // Array of Permission objects associated with the role
+  @Type(() => PermissionResponseDto)
+  permissions: PermissionResponseDto[];
 
   constructor(partial: Partial<RoleWithPermissionsResponseDto>) {
     super(partial);

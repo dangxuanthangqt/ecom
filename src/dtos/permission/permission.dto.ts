@@ -50,7 +50,7 @@ export class PermissionRequestDto {
 
   @ApiProperty({
     description: "Permission method",
-    example: "POST",
+    example: HTTPMethod.POST,
     enum: HTTPMethod,
   })
   @IsIn(Object.values(HTTPMethod))

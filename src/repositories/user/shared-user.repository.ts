@@ -86,4 +86,35 @@ export class SharedUserRepository {
       });
     }
   }
+
+  async updateUser<T extends Prisma.UserUpdateArgs>(
+    args: Prisma.SelectSubset<T, Prisma.UserUpdateArgs>,
+  ): Promise<Prisma.UserGetPayload<T>> {
+    try {
+      const user = await this.prismaService.user.update(args);
+
+      return user;
+    } catch (error) {
+      this.logger.error(error);
+
+      if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
+        throwHttpException({
+          type: "notFound",
+          message: "User not found.",
+        });
+      }
+
+      if (isForeignKeyConstraintPrismaError(error)) {
+        throwHttpException({
+          type: "unprocessable",
+          message: "Invalid foreign key constraint.",
+        });
+      }
+
+      throwHttpException({
+        type: "internal",
+        message: "Failed to update user.",
+      });
+    }
+  }
 }

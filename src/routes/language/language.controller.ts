@@ -58,7 +58,12 @@ export class LanguageController {
       description: "Retrieve a specific language by its ID.",
     },
   })
-  @ApiParam({ name: "id", type: String, description: "Language ID" })
+  @ApiParam({
+    name: "id",
+    type: String,
+    required: true,
+    description: "Language ID",
+  })
   async getLanguageById(@Param() params: LanguageIdParamDto) {
     const result = await this.languageService.getLanguageById(params.id);
 
@@ -83,7 +88,12 @@ export class LanguageController {
   }
 
   @Put(":id")
-  @ApiParam({ name: "id", type: String, description: "Language ID" })
+  @ApiParam({
+    name: "id",
+    type: String,
+    required: true,
+    description: "Language ID",
+  })
   @ApiAuth({
     type: LanguageUpdateResponseDto,
     options: {

@@ -1,15 +1,15 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
-import { IsEmail, IsIn, IsString, Length } from "class-validator";
+import { IsEmail, IsOptional, IsString, IsUrl, Length } from "class-validator";
 
-import { ActiveStatus } from "@/constants/role.constant";
+import { UserStatus } from "@/constants/user-status.constant";
 import { IsPasswordMatch } from "@/validations/decorators/is-password-match.decorator";
 
 export class RegisterRequestDto {
   @ApiProperty({
     description: "The user's email address",
     example: "user@example.com",
-    required: true,
+    format: "email",
   })
   @IsEmail()
   email: string;
@@ -17,7 +17,6 @@ export class RegisterRequestDto {
   @ApiProperty({
     description: "The user's password",
     example: "securePassword123",
-    required: true,
     minLength: 8,
     maxLength: 20,
   })
@@ -28,7 +27,6 @@ export class RegisterRequestDto {
   @ApiProperty({
     description: "Confirm password",
     example: "securePassword123",
-    required: true,
     minLength: 8,
     maxLength: 20,
   })
@@ -39,7 +37,6 @@ export class RegisterRequestDto {
   @ApiProperty({
     description: "The user's phone number",
     example: "0987654321",
-    required: true,
     minLength: 10,
     maxLength: 11,
   })
@@ -52,15 +49,21 @@ export class RegisterRequestDto {
   @ApiProperty({
     description: "The user's name",
     example: "John Doe",
-    required: true,
   })
   @IsString()
   name: string;
 
+  @ApiPropertyOptional({
+    description: "URL to user's avatar image",
+    example: "https://example.com/avatars/johndoe.jpg",
+  })
+  @IsUrl({}, { message: "Avatar must be a valid URL." })
+  @IsOptional()
+  avatar?: string;
+
   @ApiProperty({
     description: "Verification code",
     example: "123456",
-    required: true,
     minLength: 6,
     maxLength: 6,
   })
@@ -73,6 +76,7 @@ export class RegisterResponseDto {
   @ApiProperty({
     description: "The user's ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
+    format: "uuid",
   })
   @Expose()
   id: string;
@@ -80,6 +84,7 @@ export class RegisterResponseDto {
   @ApiProperty({
     description: "The user's email address",
     example: "user@example.com",
+    format: "email",
   })
   @Expose()
   email: string;
@@ -101,23 +106,23 @@ export class RegisterResponseDto {
   @ApiProperty({
     description: "The user's created date",
     example: "2023-10-27T00:00:00.000Z",
+    format: "date-time",
   })
   @Expose()
   createdAt: Date;
-
   @ApiProperty({
     description: "The user's status",
-    example: "ACTIVE",
-    enum: [ActiveStatus.ACTIVE, ActiveStatus.INACTIVE, ActiveStatus.BLOCKED],
+    example: UserStatus.ACTIVE,
+    enum: [UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.BLOCKED],
   })
   @Expose()
-  @IsIn([ActiveStatus.ACTIVE, ActiveStatus.INACTIVE, ActiveStatus.BLOCKED])
   status: string;
 
   @ApiProperty({
-    description: "The user's avatar",
-    example: null,
+    description: "URL to user's avatar image",
+    example: "https://example.com/avatars/johndoe.jpg",
     nullable: true,
+    type: String,
   })
   @Expose()
   avatar: string | null;
@@ -125,6 +130,7 @@ export class RegisterResponseDto {
   @ApiProperty({
     description: "The user's updated date",
     example: "2023-10-27T00:00:00.000Z",
+    format: "date-time",
   })
   @Expose()
   updatedAt: Date;

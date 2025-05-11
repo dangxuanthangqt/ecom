@@ -8,6 +8,7 @@
   "scripts": {
     "build": "nest build",
     "build:swagger": "pnpm run build && APP_ENV=development node dist/src/generate-swagger.js",
+    "build:schema": "openapi-typescript swagger.yaml --export-type --output schema.ts && eslint --fix schema.ts && prettier --write schema.ts",
     "es-check": "eslint --max-warnings=0 .",
     "types-check": "tsc --noEmit",
     "format-check": "prettier --ignore-unknown --check .",
@@ -85,6 +86,7 @@
     "husky": "9.1.7",
     "jest": "29.7.0",
     "lint-staged": "15.4.3",
+    "openapi-typescript": "7.7.3",
     "prettier": "3.4.2",
     "prisma": "6.4.1",
     "source-map-support": "0.5.21",
