@@ -133,6 +133,7 @@ export class AuthService {
     const user = await this.sharedUserRepository.findUnique({
       where: {
         email: body.email,
+        deletedAt: null,
       },
       include: {
         role: true,
@@ -344,6 +345,7 @@ export class AuthService {
     const user = await this.sharedUserRepository.findUnique({
       where: {
         email: data.email,
+        deletedAt: null,
       },
     });
 
@@ -397,6 +399,7 @@ export class AuthService {
     const user = await this.sharedUserRepository.findUniqueOrThrow({
       where: {
         email,
+        deletedAt: null,
       },
     });
 
@@ -434,6 +437,7 @@ export class AuthService {
     const user = await this.sharedUserRepository.findUniqueOrThrow({
       where: {
         id: userid,
+        deletedAt: null,
       },
     });
 
@@ -476,6 +480,7 @@ export class AuthService {
     const user = await this.sharedUserRepository.findUniqueOrThrow({
       where: {
         id: userId,
+        deletedAt: null,
       },
     });
 

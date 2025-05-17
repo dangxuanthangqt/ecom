@@ -91,6 +91,7 @@ export class GoogleService {
       let user = await this.sharedUserRepository.findUnique({
         where: {
           email: data.email,
+          deletedAt: null,
         },
         include: {
           role: true,

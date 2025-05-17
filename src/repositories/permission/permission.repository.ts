@@ -14,24 +14,25 @@ import throwHttpException from "@/shared/utils/throw-http-exception.util";
 export class PermissionRepository {
   private logger = new Logger(PermissionRepository.name);
 
-  private readonly permissionSelect: Prisma.PermissionSelect = {
-    id: true,
-    name: true,
-    description: true,
-    path: true,
-    method: true,
-    module: true,
-    roles: {
-      where: {
-        deletedAt: null,
+  private readonly permissionSelect =
+    Prisma.validator<Prisma.PermissionSelect>()({
+      id: true,
+      name: true,
+      description: true,
+      path: true,
+      method: true,
+      module: true,
+      roles: {
+        where: {
+          deletedAt: null,
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+        },
       },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-      },
-    },
-  };
+    });
 
   constructor(private readonly prismaService: PrismaService) {}
 

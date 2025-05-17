@@ -15,7 +15,9 @@ export class RoleRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  readonly roleSelect: Prisma.RoleSelect = {
+  // hover mouse over the roleSelect to see the type
+  // this is a Prisma validator that validates the shape of the object
+  readonly roleSelect = Prisma.validator<Prisma.RoleSelect>()({
     id: true,
     name: true,
     description: true,
@@ -30,7 +32,7 @@ export class RoleRepository {
         method: true,
       },
     },
-  };
+  });
 
   async findManyRoles({
     where,

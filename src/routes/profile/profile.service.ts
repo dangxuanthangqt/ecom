@@ -34,7 +34,6 @@ export class ProfileService {
         name: true,
         email: true,
         phoneNumber: true,
-
         role: {
           select: this.roleRepository.roleSelect,
         },
@@ -131,6 +130,7 @@ export class ProfileService {
       await prisma.refreshToken.updateMany({
         where: {
           userId,
+          deletedAt: null,
         },
         data: {
           deletedAt: new Date(),
