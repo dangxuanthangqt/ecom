@@ -30,6 +30,7 @@ export class RoleRepository {
         description: true,
         path: true,
         method: true,
+        module: true,
       },
     },
   });

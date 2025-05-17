@@ -106,9 +106,10 @@ export class LanguageController {
     @Body() body: LanguageUpdateRequestDto,
     @ActiveUser("userId") userId: User["id"],
   ) {
-    const result = await this.languageService.updateLanguage(params.id, {
-      name: body.name,
-      updatedById: userId,
+    const result = await this.languageService.updateLanguage({
+      id: params.id,
+      body,
+      userId,
     });
 
     return new LanguageUpdateResponseDto(result);

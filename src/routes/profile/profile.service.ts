@@ -123,6 +123,7 @@ export class ProfileService {
         },
         data: {
           password: hashedNewPassword,
+          updatedById: userId,
         },
       });
 

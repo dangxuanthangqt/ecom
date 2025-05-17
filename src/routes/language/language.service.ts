@@ -44,20 +44,22 @@ export class LanguageService {
     return language;
   }
 
-  async updateLanguage(
-    id: Language["id"],
-    {
-      name,
-      updatedById,
-    }: LanguageUpdateRequestDto & { updatedById: User["id"] },
-  ): Promise<LanguageUpdateResponseDto> {
+  async updateLanguage({
+    id,
+    body: { name },
+    userId,
+  }: {
+    id: Language["id"];
+    userId: User["id"];
+    body: LanguageUpdateRequestDto;
+  }): Promise<LanguageUpdateResponseDto> {
     const language = await this.languageRepository.updateLanguageById({
       where: {
         id,
       },
       data: {
         name,
-        updatedById,
+        updatedById: userId,
       },
     });
 
@@ -70,8 +72,8 @@ export class LanguageService {
     body: { isHardDelete },
   }: {
     id: Language["id"];
-    body: LanguageDeleteRequestDto;
     userId: User["id"];
+    body: LanguageDeleteRequestDto;
   }): Promise<LanguageUpdateResponseDto> {
     const language = await this.languageRepository.deleteLanguageById({
       id,

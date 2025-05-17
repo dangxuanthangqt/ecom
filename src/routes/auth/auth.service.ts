@@ -418,6 +418,7 @@ export class AuthService {
         },
         data: {
           password: hashedPassword,
+          updatedById: user.id,
         },
       }),
       this.verificationCodeRepository.deleteVerificationCode({
@@ -459,6 +460,7 @@ export class AuthService {
       },
       data: {
         totpSecret: secret,
+        updatedById: user.id,
       },
     });
 
@@ -521,6 +523,7 @@ export class AuthService {
       },
       data: {
         totpSecret: null,
+        updatedById: user.id,
       },
     });
 

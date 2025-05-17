@@ -58,10 +58,9 @@ export class UserRepository {
   async updateUser({
     where,
     data,
-  }: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  }): Promise<Omit<User, "password" | "totpSecret"> | undefined> {
+  }: Pick<Prisma.UserUpdateArgs, "where" | "data">): Promise<
+    Omit<User, "password" | "totpSecret">
+  > {
     try {
       const user = await this.prismaService.user.update({
         where,

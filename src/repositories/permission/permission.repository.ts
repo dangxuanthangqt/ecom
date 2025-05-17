@@ -30,6 +30,7 @@ export class PermissionRepository {
           id: true,
           name: true,
           description: true,
+          isActive: true,
         },
       },
     });
@@ -268,6 +269,7 @@ export class PermissionRepository {
         data: {
           deletedAt: new Date(),
           deletedById: userId,
+          updatedById: userId,
         },
         select: this.permissionSelect,
       });
