@@ -36,7 +36,7 @@ export class ProfileController {
 
   @Put()
   @ApiAuth({
-    type: ProfileResponseDto,
+    type: UpdateProfileResponseDto,
     options: {
       summary: "Update current user profile.",
       description:

@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { User as UserSchema } from "@prisma/client";
+import { roleWithPermissionsSelect } from "src/selectors/role.selector";
 
 import {
   ChangePasswordRequestDto,
@@ -7,7 +8,6 @@ import {
   UpdateProfileRequestDto,
   UpdateProfileResponseDto,
 } from "@/dtos/profile/profile.dto";
-import { RoleRepository } from "@/repositories/role/role.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { HashingService } from "@/shared/services/hashing.service";
 import { PrismaService } from "@/shared/services/prisma.service";
@@ -18,7 +18,6 @@ export class ProfileService {
   constructor(
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly prismaService: PrismaService,
-    private readonly roleRepository: RoleRepository,
     private readonly hashingService: HashingService,
   ) {}
 
@@ -35,7 +34,7 @@ export class ProfileService {
         email: true,
         phoneNumber: true,
         role: {
-          select: this.roleRepository.roleSelect,
+          select: roleWithPermissionsSelect,
         },
       },
     });
@@ -71,7 +70,7 @@ export class ProfileService {
         avatar: true,
         status: true,
         role: {
-          select: this.roleRepository.roleSelect, // Use consistent role selection
+          select: roleWithPermissionsSelect, // Use consistent role selection
         },
         updatedAt: true,
       },

@@ -8,8 +8,6 @@ import {
   RegisterResponseDto,
 } from "src/dtos/auth/register.dto";
 
-import { RoleService } from "./role.service";
-
 import {
   VerificationCodeType,
   VerificationCodeTypeType,
@@ -27,6 +25,7 @@ import {
 import { SendOTPRequestDto } from "@/dtos/auth/send-otp.dto";
 import { DeviceRepository } from "@/repositories/device/device.repository";
 import { RefreshTokenRepository } from "@/repositories/refresh-token/refresh-token.repository";
+import { SharedRoleRepository } from "@/repositories/role/shared-role.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { UserRepository } from "@/repositories/user/user.repository";
 import { UserInputData } from "@/repositories/user/user.repository.type";
@@ -47,7 +46,7 @@ import {
 export class AuthService {
   constructor(
     private readonly hashingService: HashingService,
-    private readonly roleService: RoleService,
+    private readonly sharedRoleRepository: SharedRoleRepository,
     private readonly tokenService: TokenService,
     private readonly userRepository: UserRepository,
     private readonly sharedUserRepository: SharedUserRepository,
@@ -98,7 +97,7 @@ export class AuthService {
 
     const hashedPassword = this.hashingService.hash(data.password);
 
-    const clientRoleId = await this.roleService.getClientRoleId();
+    const clientRoleId = await this.sharedRoleRepository.getClientRoleId();
 
     const createUserInputData: UserInputData = {
       email: data.email,
@@ -109,7 +108,7 @@ export class AuthService {
     };
 
     const [user] = await Promise.all([
-      this.userRepository.createUser(createUserInputData),
+      this.userRepository.registerUser(createUserInputData),
       this.verificationCodeRepository.deleteVerificationCode({
         where: {
           email: data.email,

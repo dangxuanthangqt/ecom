@@ -1735,8 +1735,316 @@ paths:
                   statusCode: 500
                   message: Internal server error.
       summary: Get current user profile.
-      tags:
+      tags: &a5
         - Profile
+    put:
+      operationId: updateProfile
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequestDto"
+      responses:
+        "200":
+          description:
+            Updates the profile information for the authenticated user
+            including role and permissions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateProfileResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update current user profile.
+      tags: *a5
+  /profile/change-password:
+    put:
+      operationId: changePassword
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequestDto"
+      responses:
+        "200":
+          description: Changes the password for the authenticated user.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Change current user password.
+      tags: *a5
+  /users:
+    post:
+      operationId: createUser
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequestDto"
+      responses:
+        "200":
+          description: Creates a new user with the provided details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateUserResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new user.
+      tags: &a6
+        - Users
+  /users/{id}:
+    put:
+      operationId: updateUser
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: ID of the user to update
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequestDto"
+      responses:
+        "200":
+          description: Updates the details of an existing user by ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateUserResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update an existing user.
+      tags: *a6
 info:
   title: Ecom API
   description: The Ecom API description
@@ -2275,7 +2583,7 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: &a5
+          enum: &a7
             - GET
             - POST
             - PUT
@@ -2283,7 +2591,7 @@ components:
             - PATCH
         roles:
           description: Roles associated with the permission
-          example: &a6
+          example: &a8
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -2318,10 +2626,10 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: *a5
+          enum: *a7
         roles:
           description: Roles associated with the permission
-          example: *a6
+          example: *a8
           type: array
           items:
             type: string
@@ -2463,32 +2771,46 @@ components:
           type: boolean
           description: Is hard delete
           example: true
+    UserStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - BLOCKED
+      description: The user's status
     ProfileResponseDto:
       type: object
       properties:
         id:
           type: string
-          description: Unique identifier of the user
+          description: The user's ID
           example: 123e4567-e89b-12d3-a456-426614174000
           format: uuid
         name:
           type: string
-          description: User's full name
+          description: The user's name
           example: John Doe
         email:
           type: string
-          description: User's email address
-          example: john.doe@example.com
+          description: The user's email address
+          example: user@example.com
           format: email
         phoneNumber:
           type: string
-          description: User's phone number
+          description: The user's phone number
           example: "0987654321"
+          minLength: 10
+          maxLength: 11
         avatar:
           type: string
           description: URL to user's avatar image
           example: https://example.com/avatars/johndoe.jpg
           nullable: true
+        status:
+          description: The user's status
+          example: ACTIVE
+          allOf:
+            - $ref: "#/components/schemas/UserStatus"
         role:
           description: User's role with associated permissions
           allOf:
@@ -2499,4 +2821,276 @@ components:
         - email
         - phoneNumber
         - avatar
+        - status
         - role
+    UpdateProfileRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: User's full name
+          example: John Doe
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+          minLength: 10
+          maxLength: 11
+        status:
+          description: User status
+          example: ACTIVE
+          allOf:
+            - $ref: "#/components/schemas/UserStatus"
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
+        roleId:
+          type: string
+          description: Role ID to assign to the user
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+    UpdateProfileResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user's ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: The user's name
+          example: John Doe
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+          format: email
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+          minLength: 10
+          maxLength: 11
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
+          nullable: true
+        status:
+          description: The user's status
+          example: ACTIVE
+          allOf:
+            - $ref: "#/components/schemas/UserStatus"
+        role:
+          description: The user's role with associated permissions
+          allOf:
+            - $ref: "#/components/schemas/RoleResponseDto"
+        updatedAt:
+          format: date-time
+          type: string
+          description: The user's updated date
+          example: 2025-05-11T00:00:00.000Z
+      required:
+        - id
+        - name
+        - email
+        - phoneNumber
+        - avatar
+        - status
+        - role
+        - updatedAt
+    ChangePasswordRequestDto:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          description: The user's current password
+          example: currentPassword123
+          minLength: 8
+          maxLength: 20
+        newPassword:
+          type: string
+          description: The user's new password
+          example: newPassword123
+        newConfirmPassword:
+          type: string
+          description: The user's new password confirmation
+          example: newPassword123
+      required:
+        - currentPassword
+        - newPassword
+        - newConfirmPassword
+    CreateUserRequestDto:
+      type: object
+      properties:
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+          format: email
+        password:
+          type: string
+          description: The user's password
+          example: securePassword123
+          minLength: 8
+          maxLength: 20
+        name:
+          type: string
+          description: User's full name
+          example: John Doe
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+          minLength: 10
+          maxLength: 11
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
+        status:
+          description: User status
+          example: ACTIVE
+          allOf:
+            - $ref: "#/components/schemas/UserStatus"
+        roleId:
+          type: string
+          description: Role ID to assign to the user
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+      required:
+        - email
+        - password
+        - name
+        - phoneNumber
+    CreateUserResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user's ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: The user's name
+          example: John Doe
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+          format: email
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+          minLength: 10
+          maxLength: 11
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
+          nullable: true
+        status:
+          description: The user's status
+          example: ACTIVE
+          allOf:
+            - $ref: "#/components/schemas/UserStatus"
+        role:
+          description: User's role with associated permissions
+          allOf:
+            - $ref: "#/components/schemas/RoleWithPermissionsResponseDto"
+      required:
+        - id
+        - name
+        - email
+        - phoneNumber
+        - avatar
+        - status
+        - role
+    UpdateUserRequestDto:
+      type: object
+      properties:
+        password:
+          type: string
+          description: The user's password
+          example: securePassword123
+          minLength: 8
+          maxLength: 20
+        name:
+          type: string
+          description: User's full name
+          example: John Doe
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+          minLength: 10
+          maxLength: 11
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
+        status:
+          description: User status
+          example: ACTIVE
+          allOf:
+            - $ref: "#/components/schemas/UserStatus"
+        roleId:
+          type: string
+          description: Role ID to assign to the user
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+    UpdateUserResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user's ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: The user's name
+          example: John Doe
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+          format: email
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+          minLength: 10
+          maxLength: 11
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
+          nullable: true
+        status:
+          description: The user's status
+          example: ACTIVE
+          allOf:
+            - $ref: "#/components/schemas/UserStatus"
+        role:
+          description: The user's role with associated permissions
+          allOf:
+            - $ref: "#/components/schemas/RoleResponseDto"
+        updatedAt:
+          format: date-time
+          type: string
+          description: The user's updated date
+          example: 2025-05-11T00:00:00.000Z
+      required:
+        - id
+        - name
+        - email
+        - phoneNumber
+        - avatar
+        - status
+        - role
+        - updatedAt

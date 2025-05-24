@@ -5,9 +5,9 @@ import { google } from "googleapis";
 import { z } from "zod";
 
 import { AuthService } from "./auth.service";
-import { RoleService } from "./role.service";
 
 import { DeviceRepository } from "@/repositories/device/device.repository";
+import { SharedRoleRepository } from "@/repositories/role/shared-role.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { AppConfigService } from "@/shared/services/app-config.service";
 import { HashingService } from "@/shared/services/hashing.service";
@@ -25,7 +25,7 @@ export class GoogleService {
     private readonly appConfigService: AppConfigService,
     private readonly sharedUserRepository: SharedUserRepository,
     private readonly hashingService: HashingService,
-    private readonly roleService: RoleService,
+    private readonly sharedRoleRepository: SharedRoleRepository,
     private readonly deviceRepository: DeviceRepository,
     private readonly authService: AuthService,
   ) {
@@ -100,7 +100,7 @@ export class GoogleService {
 
       if (!user) {
         // Create new user
-        const clientRoleId = await this.roleService.getClientRoleId();
+        const clientRoleId = await this.sharedRoleRepository.getClientRoleId();
 
         user = await this.sharedUserRepository.createUser({
           data: {

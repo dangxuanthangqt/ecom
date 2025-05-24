@@ -16,7 +16,7 @@ export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(UserRepository.name);
 
-  async createUser(
+  async registerUser(
     data: UserInputData,
   ): Promise<Omit<User, "password" | "totpSecret">> {
     this.logger.log(`Creating user with email: ` + data.email);

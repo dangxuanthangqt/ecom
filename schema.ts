@@ -309,7 +309,59 @@ export type paths = {
     };
     /** Get current user profile. */
     get: operations["getProfile"];
+    /** Update current user profile. */
+    put: operations["updateProfile"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/profile/change-password": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Change current user password. */
+    put: operations["changePassword"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
     put?: never;
+    /** Create a new user. */
+    post: operations["createUser"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/users/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Update an existing user. */
+    put: operations["updateUser"];
     post?: never;
     delete?: never;
     options?: never;
@@ -475,6 +527,7 @@ export type components = {
     };
     SendOTPRequestDto: {
       /**
+       * Format: email
        * @description The user's email address
        * @example user@example.com
        */
@@ -933,26 +986,31 @@ export type components = {
        */
       isHardDelete?: boolean;
     };
+    /**
+     * @description The user's status
+     * @enum {string}
+     */
+    UserStatus: "ACTIVE" | "INACTIVE" | "BLOCKED";
     ProfileResponseDto: {
       /**
        * Format: uuid
-       * @description Unique identifier of the user
+       * @description The user's ID
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       id: string;
       /**
-       * @description User's full name
+       * @description The user's name
        * @example John Doe
        */
       name: string;
       /**
        * Format: email
-       * @description User's email address
-       * @example john.doe@example.com
+       * @description The user's email address
+       * @example user@example.com
        */
       email: string;
       /**
-       * @description User's phone number
+       * @description The user's phone number
        * @example 0987654321
        */
       phoneNumber: string;
@@ -961,8 +1019,250 @@ export type components = {
        * @example https://example.com/avatars/johndoe.jpg
        */
       avatar: string | null;
+      /**
+       * @description The user's status
+       * @example ACTIVE
+       */
+      status: components["schemas"]["UserStatus"];
       /** @description User's role with associated permissions */
       role: components["schemas"]["RoleWithPermissionsResponseDto"];
+    };
+    UpdateProfileRequestDto: {
+      /**
+       * @description User's full name
+       * @example John Doe
+       */
+      name?: string;
+      /**
+       * @description The user's phone number
+       * @example 0987654321
+       */
+      phoneNumber?: string;
+      /**
+       * @description User status
+       * @example ACTIVE
+       */
+      status?: components["schemas"]["UserStatus"];
+      /**
+       * @description URL to user's avatar image
+       * @example https://example.com/avatars/johndoe.jpg
+       */
+      avatar?: string;
+      /**
+       * Format: uuid
+       * @description Role ID to assign to the user
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      roleId?: string;
+    };
+    UpdateProfileResponseDto: {
+      /**
+       * Format: uuid
+       * @description The user's ID
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description The user's name
+       * @example John Doe
+       */
+      name: string;
+      /**
+       * Format: email
+       * @description The user's email address
+       * @example user@example.com
+       */
+      email: string;
+      /**
+       * @description The user's phone number
+       * @example 0987654321
+       */
+      phoneNumber: string;
+      /**
+       * @description URL to user's avatar image
+       * @example https://example.com/avatars/johndoe.jpg
+       */
+      avatar: string | null;
+      /**
+       * @description The user's status
+       * @example ACTIVE
+       */
+      status: components["schemas"]["UserStatus"];
+      /** @description The user's role with associated permissions */
+      role: components["schemas"]["RoleResponseDto"];
+      /**
+       * Format: date-time
+       * @description The user's updated date
+       * @example 2025-05-11T00:00:00.000Z
+       */
+      updatedAt: string;
+    };
+    ChangePasswordRequestDto: {
+      /**
+       * @description The user's current password
+       * @example currentPassword123
+       */
+      currentPassword: string;
+      /**
+       * @description The user's new password
+       * @example newPassword123
+       */
+      newPassword: string;
+      /**
+       * @description The user's new password confirmation
+       * @example newPassword123
+       */
+      newConfirmPassword: string;
+    };
+    CreateUserRequestDto: {
+      /**
+       * Format: email
+       * @description The user's email address
+       * @example user@example.com
+       */
+      email: string;
+      /**
+       * @description The user's password
+       * @example securePassword123
+       */
+      password: string;
+      /**
+       * @description User's full name
+       * @example John Doe
+       */
+      name: string;
+      /**
+       * @description The user's phone number
+       * @example 0987654321
+       */
+      phoneNumber: string;
+      /**
+       * @description URL to user's avatar image
+       * @example https://example.com/avatars/johndoe.jpg
+       */
+      avatar?: string;
+      /**
+       * @description User status
+       * @example ACTIVE
+       */
+      status?: components["schemas"]["UserStatus"];
+      /**
+       * Format: uuid
+       * @description Role ID to assign to the user
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      roleId?: string;
+    };
+    CreateUserResponseDto: {
+      /**
+       * Format: uuid
+       * @description The user's ID
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description The user's name
+       * @example John Doe
+       */
+      name: string;
+      /**
+       * Format: email
+       * @description The user's email address
+       * @example user@example.com
+       */
+      email: string;
+      /**
+       * @description The user's phone number
+       * @example 0987654321
+       */
+      phoneNumber: string;
+      /**
+       * @description URL to user's avatar image
+       * @example https://example.com/avatars/johndoe.jpg
+       */
+      avatar: string | null;
+      /**
+       * @description The user's status
+       * @example ACTIVE
+       */
+      status: components["schemas"]["UserStatus"];
+      /** @description User's role with associated permissions */
+      role: components["schemas"]["RoleWithPermissionsResponseDto"];
+    };
+    UpdateUserRequestDto: {
+      /**
+       * @description The user's password
+       * @example securePassword123
+       */
+      password?: string;
+      /**
+       * @description User's full name
+       * @example John Doe
+       */
+      name?: string;
+      /**
+       * @description The user's phone number
+       * @example 0987654321
+       */
+      phoneNumber?: string;
+      /**
+       * @description URL to user's avatar image
+       * @example https://example.com/avatars/johndoe.jpg
+       */
+      avatar?: string;
+      /**
+       * @description User status
+       * @example ACTIVE
+       */
+      status?: components["schemas"]["UserStatus"];
+      /**
+       * Format: uuid
+       * @description Role ID to assign to the user
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      roleId?: string;
+    };
+    UpdateUserResponseDto: {
+      /**
+       * Format: uuid
+       * @description The user's ID
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description The user's name
+       * @example John Doe
+       */
+      name: string;
+      /**
+       * Format: email
+       * @description The user's email address
+       * @example user@example.com
+       */
+      email: string;
+      /**
+       * @description The user's phone number
+       * @example 0987654321
+       */
+      phoneNumber: string;
+      /**
+       * @description URL to user's avatar image
+       * @example https://example.com/avatars/johndoe.jpg
+       */
+      avatar: string | null;
+      /**
+       * @description The user's status
+       * @example ACTIVE
+       */
+      status: components["schemas"]["UserStatus"];
+      /** @description The user's role with associated permissions */
+      role: components["schemas"]["RoleResponseDto"];
+      /**
+       * Format: date-time
+       * @description The user's updated date
+       * @example 2025-05-11T00:00:00.000Z
+       */
+      updatedAt: string;
     };
   };
   responses: never;
@@ -2710,6 +3010,333 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ProfileResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateProfile: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProfileRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Updates the profile information for the authenticated user including role and permissions */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UpdateProfileResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  changePassword: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ChangePasswordRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Changes the password for the authenticated user. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProfileResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  createUser: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateUserRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Creates a new user with the provided details. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreateUserResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateUser: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description ID of the user to update */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateUserRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Updates the details of an existing user by ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UpdateUserResponseDto"];
         };
       };
       /** @description Bad Request */

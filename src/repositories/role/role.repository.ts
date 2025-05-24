@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Permission, Prisma, Role, User } from "@prisma/client";
+import { roleWithPermissionsSelect } from "src/selectors/role.selector";
 
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -14,26 +15,6 @@ export class RoleRepository {
   private logger = new Logger(RoleRepository.name);
 
   constructor(private readonly prismaService: PrismaService) {}
-
-  // hover mouse over the roleSelect to see the type
-  // this is a Prisma validator that validates the shape of the object
-  readonly roleSelect = Prisma.validator<Prisma.RoleSelect>()({
-    id: true,
-    name: true,
-    description: true,
-    isActive: true,
-    permissions: {
-      where: { deletedAt: null },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        path: true,
-        method: true,
-        module: true,
-      },
-    },
-  });
 
   async findManyRoles({
     where,
@@ -57,7 +38,7 @@ export class RoleRepository {
         take,
         skip,
         orderBy,
-        select: this.roleSelect,
+        select: roleWithPermissionsSelect,
       });
 
       const $rolesCount = this.prismaService.role.count({
@@ -81,7 +62,7 @@ export class RoleRepository {
     try {
       const role = await this.prismaService.role.findUniqueOrThrow({
         where: { id, deletedAt: null },
-        select: this.roleSelect,
+        select: roleWithPermissionsSelect,
       });
 
       return role;
@@ -146,7 +127,7 @@ export class RoleRepository {
             })),
           },
         },
-        select: this.roleSelect,
+        select: roleWithPermissionsSelect,
       });
 
       return role;
@@ -200,7 +181,7 @@ export class RoleRepository {
             })),
           },
         },
-        select: this.roleSelect,
+        select: roleWithPermissionsSelect,
       });
 
       return role;
@@ -250,7 +231,7 @@ export class RoleRepository {
       if (isHardDelete) {
         const deletedRole = await this.prismaService.role.delete({
           where: { id },
-          select: this.roleSelect,
+          select: roleWithPermissionsSelect,
         });
 
         return deletedRole;
@@ -262,7 +243,7 @@ export class RoleRepository {
           deletedAt: new Date(),
           deletedById: userId,
         },
-        select: this.roleSelect,
+        select: roleWithPermissionsSelect,
       });
 
       return updatedRole;

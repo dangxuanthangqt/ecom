@@ -50,7 +50,8 @@ export class RegisterRequestDto {
     description: "The user's name",
     example: "John Doe",
   })
-  @IsString()
+  @IsString({ message: "Name must be a string." })
+  @Length(1, 100, { message: "Name must be between 1 and 100 characters." })
   name: string;
 
   @ApiPropertyOptional({

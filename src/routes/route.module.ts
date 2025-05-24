@@ -5,6 +5,7 @@ import { LanguageModule } from "./language/language.module";
 import { PermissionModule } from "./permission/permission.module";
 import { ProfileModule } from "./profile/profile.module";
 import { RoleModule } from "./role/role.module";
+import { UserModule } from "./user/user.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { RoleModule } from "./role/role.module";
     PermissionModule,
     RoleModule,
     ProfileModule,
+    UserModule,
   ],
 })
 export class RouteModule {}

@@ -26,7 +26,8 @@
       "@/types/*": ["src/types/*"],
       "@/dtos/*": ["src/dtos/*"],
       "@/validations/*": ["src/validations/*"],
-      "@/repositories/*": ["src/repositories/*"]
+      "@/repositories/*": ["src/repositories/*"],
+      "@/selectors/*": ["src/selectors/*"]
     }
   },
   "include": [
