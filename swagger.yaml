@@ -1889,6 +1889,71 @@ paths:
       summary: Change current user password.
       tags: *a5
   /users:
+    get:
+      operationId: getUsers
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: ASC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: name
+            type: string
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a list of users with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/UserItemResponseDto"
+                    required:
+                      - data
+      summary: Get a list of users
+      tags: &a6
+        - Users
     post:
       operationId: createUser
       parameters:
@@ -1962,9 +2027,82 @@ paths:
                   statusCode: 500
                   message: Internal server error.
       summary: Create a new user.
-      tags: &a6
-        - Users
+      tags: *a6
   /users/{id}:
+    get:
+      operationId: getUserById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: ID of the user to retrieve
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieves a specific user by their ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserItemResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a user by ID
+      tags: *a6
     put:
       operationId: updateUser
       parameters:
@@ -2044,6 +2182,80 @@ paths:
                   statusCode: 500
                   message: Internal server error.
       summary: Update an existing user.
+      tags: *a6
+    delete:
+      operationId: deleteUser
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: ID of the user to delete
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deletes a user by their ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserItemResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a user by ID
       tags: *a6
 info:
   title: Ecom API
@@ -2922,6 +3134,51 @@ components:
         - currentPassword
         - newPassword
         - newConfirmPassword
+    UserItemResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user's ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: The user's name
+          example: John Doe
+        email:
+          type: string
+          description: The user's email address
+          example: user@example.com
+          format: email
+        phoneNumber:
+          type: string
+          description: The user's phone number
+          example: "0987654321"
+          minLength: 10
+          maxLength: 11
+        avatar:
+          type: string
+          description: URL to user's avatar image
+          example: https://example.com/avatars/johndoe.jpg
+          nullable: true
+        status:
+          description: The user's status
+          example: ACTIVE
+          allOf:
+            - $ref: "#/components/schemas/UserStatus"
+        role:
+          description: The user's role with associated permissions
+          allOf:
+            - $ref: "#/components/schemas/RoleResponseDto"
+      required:
+        - id
+        - name
+        - email
+        - phoneNumber
+        - avatar
+        - status
+        - role
     CreateUserRequestDto:
       type: object
       properties:

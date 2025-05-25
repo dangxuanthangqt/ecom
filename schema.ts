@@ -342,7 +342,8 @@ export type paths = {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Get a list of users */
+    get: operations["getUsers"];
     put?: never;
     /** Create a new user. */
     post: operations["createUser"];
@@ -359,11 +360,13 @@ export type paths = {
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Get a user by ID */
+    get: operations["getUserById"];
     /** Update an existing user. */
     put: operations["updateUser"];
     post?: never;
-    delete?: never;
+    /** Delete a user by ID */
+    delete: operations["deleteUser"];
     options?: never;
     head?: never;
     patch?: never;
@@ -1113,6 +1116,42 @@ export type components = {
        * @example newPassword123
        */
       newConfirmPassword: string;
+    };
+    UserItemResponseDto: {
+      /**
+       * Format: uuid
+       * @description The user's ID
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description The user's name
+       * @example John Doe
+       */
+      name: string;
+      /**
+       * Format: email
+       * @description The user's email address
+       * @example user@example.com
+       */
+      email: string;
+      /**
+       * @description The user's phone number
+       * @example 0987654321
+       */
+      phoneNumber: string;
+      /**
+       * @description URL to user's avatar image
+       * @example https://example.com/avatars/johndoe.jpg
+       */
+      avatar: string | null;
+      /**
+       * @description The user's status
+       * @example ACTIVE
+       */
+      status: components["schemas"]["UserStatus"];
+      /** @description The user's role with associated permissions */
+      role: components["schemas"]["RoleResponseDto"];
     };
     CreateUserRequestDto: {
       /**
@@ -3230,6 +3269,42 @@ export interface operations {
       };
     };
   };
+  getUsers: {
+    parameters: {
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "ASC" | "DESC";
+        /** @description Field to order by */
+        orderBy?: string;
+        /** @description Search keyword */
+        keyword?: string;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a list of users with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["UserItemResponseDto"][];
+          };
+        };
+      };
+    };
+  };
   createUser: {
     parameters: {
       query?: never;
@@ -3253,6 +3328,86 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["CreateUserResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getUserById: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description ID of the user to retrieve */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieves a specific user by their ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserItemResponseDto"];
         };
       };
       /** @description Bad Request */
@@ -3337,6 +3492,86 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["UpdateUserResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteUser: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description ID of the user to delete */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deletes a user by their ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserItemResponseDto"];
         };
       };
       /** @description Bad Request */
