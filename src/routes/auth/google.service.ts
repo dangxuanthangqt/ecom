@@ -88,7 +88,7 @@ export class GoogleService {
         throw new Error("Invalid email.");
       }
 
-      let user = await this.sharedUserRepository.findUnique({
+      let user = await this.sharedUserRepository.findFirst({
         where: {
           email: data.email,
           deletedAt: null,

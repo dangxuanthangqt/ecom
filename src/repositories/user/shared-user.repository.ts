@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
+  isRecordNotFoundPrismaError,
   isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
@@ -25,6 +26,13 @@ export class SharedUserRepository {
     } catch (error) {
       this.logger.error(error);
 
+      if (isRecordNotFoundPrismaError(error)) {
+        throwHttpException({
+          type: "notFound",
+          message: "User not found.",
+        });
+      }
+
       throwHttpException({
         type: "internal",
         message: "Failed to find user.",
@@ -45,6 +53,47 @@ export class SharedUserRepository {
       throwHttpException({
         type: "internal",
         message: "Failed to find users.",
+      });
+    }
+  }
+
+  async findFirstOrThrow<T extends Prisma.UserFindFirstOrThrowArgs>(
+    args: Prisma.SelectSubset<T, Prisma.UserFindFirstOrThrowArgs>,
+  ): Promise<Prisma.UserGetPayload<T>> {
+    try {
+      const user = await this.prismaService.user.findFirstOrThrow(args);
+
+      return user;
+    } catch (error) {
+      this.logger.error(error);
+
+      if (isRecordNotFoundPrismaError(error)) {
+        throwHttpException({
+          type: "notFound",
+          message: "User not found.",
+        });
+      }
+
+      throwHttpException({
+        type: "internal",
+        message: "Failed to find first user.",
+      });
+    }
+  }
+
+  async findFirst<T extends Prisma.UserFindFirstArgs>(
+    args: Prisma.SelectSubset<T, Prisma.UserFindFirstArgs>,
+  ): Promise<Prisma.UserGetPayload<T> | null> {
+    try {
+      const user = await this.prismaService.user.findFirst(args);
+
+      return user;
+    } catch (error) {
+      this.logger.error(error);
+
+      throwHttpException({
+        type: "internal",
+        message: "Failed to find first user.",
       });
     }
   }

@@ -129,7 +129,7 @@ export class AuthService {
     userAgent: Device["userAgent"];
   }): Promise<LoginResponseDto> {
     // 1. Find User by Email
-    const user = await this.sharedUserRepository.findUnique({
+    const user = await this.sharedUserRepository.findFirst({
       where: {
         email: body.email,
         deletedAt: null,
@@ -341,7 +341,7 @@ export class AuthService {
   }
 
   async sendOTP(data: SendOTPRequestDto) {
-    const user = await this.sharedUserRepository.findUnique({
+    const user = await this.sharedUserRepository.findFirst({
       where: {
         email: data.email,
         deletedAt: null,
@@ -395,7 +395,7 @@ export class AuthService {
     email,
     password,
   }: ForgotPasswordRequestDto): Promise<ForgotPasswordResponseDto> {
-    const user = await this.sharedUserRepository.findUniqueOrThrow({
+    const user = await this.sharedUserRepository.findFirstOrThrow({
       where: {
         email,
         deletedAt: null,

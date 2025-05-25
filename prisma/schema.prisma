@@ -31,14 +31,14 @@ model Language {
 
 model User {
   id          String  @id @default(uuid()) @db.Uuid
-  email       String  @unique
+  email       String // Index width deletedAt is null
   name        String  @db.VarChar(500)
   password    String  @db.VarChar(500)
   phoneNumber String  @db.VarChar(50)
   avatar      String? @db.VarChar(1000)
 
   // Này có thể dùng để thực hiện chức năng quên mật khẩu, đăng nhập 2 bước
-  totpSecret                  String?               @unique @db.VarChar(1000)
+  totpSecret                  String?               @db.VarChar(1000)
   status                      UserStatus            @default(ACTIVE)
   roleId                      String                @db.Uuid
   role                        Role                  @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)

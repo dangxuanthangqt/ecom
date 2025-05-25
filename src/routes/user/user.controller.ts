@@ -80,10 +80,12 @@ export class UserController {
   async createUser(
     @Body() body: CreateUserRequestDto,
     @ActiveRolePermissions("id") activeRoleId: Role["id"],
+    @ActiveUser("userId") activeUserId: User["id"],
   ): Promise<CreateUserResponseDto> {
     const result = await this.userService.createUser({
       body,
       activeRoleId,
+      activeUserId,
     });
 
     return new CreateUserResponseDto(result);

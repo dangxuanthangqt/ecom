@@ -84,9 +84,11 @@ export class UserService {
   async createUser({
     body: { name, email, password, phoneNumber, roleId, avatar, status },
     activeRoleId,
+    activeUserId,
   }: {
     body: CreateUserRequestDto;
     activeRoleId: Role["id"];
+    activeUserId: User["id"];
   }) {
     const adminRoleId = await this.sharedRoleRepository.getAdminRoleId();
 
@@ -112,6 +114,7 @@ export class UserService {
         roleId: validRoleId,
         avatar,
         status,
+        createdById: activeUserId,
       },
       select: userWithRoleAndPermissionsSelect,
     });
@@ -215,6 +218,7 @@ export class UserService {
         avatar,
         status,
         password: hashedPassword,
+        updatedById: activeUserId,
       },
       select: {
         ...userWithRoleSelect,
@@ -268,6 +272,8 @@ export class UserService {
       },
       data: {
         deletedAt: new Date(),
+        deletedById: activeUserId,
+        updatedById: activeUserId,
       },
       select: userSelect,
     });

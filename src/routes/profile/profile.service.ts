@@ -53,7 +53,10 @@ export class ProfileService {
         id: userId,
         deletedAt: null,
       },
-      data,
+      data: {
+        ...data,
+        updatedById: userId, // Set updatedById to the current user
+      },
       select: {
         id: true,
         name: true,
