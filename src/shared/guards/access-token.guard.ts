@@ -12,7 +12,11 @@ import { PrismaService } from "../services/prisma.service";
 import { TokenService } from "../services/token.service";
 import throwHttpException from "../utils/throw-http-exception.util";
 
-import { REQUEST_USER_KEY } from "@/constants/auth.constant";
+import {
+  REQUEST_ROLE_PERMISSIONS_KEY,
+  REQUEST_USER_KEY,
+} from "@/constants/auth.constant";
+import { roleWithPermissionsSelect } from "@/selectors/role.selector";
 import { AccessTokenPayload } from "@/types/jwt-payload.type";
 
 @Injectable()
@@ -64,7 +68,8 @@ export class AccessTokenGuard implements CanActivate {
           id: decodedAccessToken.roleId,
           isActive: true,
         },
-        include: {
+        select: {
+          ...roleWithPermissionsSelect,
           permissions: {
             where: {
               deletedAt: null,
@@ -74,6 +79,8 @@ export class AccessTokenGuard implements CanActivate {
           },
         },
       });
+
+      request[REQUEST_ROLE_PERMISSIONS_KEY] = role;
 
       if (role.permissions.length === 0) {
         throwHttpException({

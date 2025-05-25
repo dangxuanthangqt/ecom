@@ -39,10 +39,10 @@ export class RoleController {
   async getRoles(
     @Query()
     query: PaginationQueryDto,
-  ) {
+  ): Promise<PageDto<RoleWithPermissionsResponseDto>> {
     const result = await this.roleService.getRoles(query);
 
-    return new PageDto(result);
+    return new PageDto<RoleWithPermissionsResponseDto>(result);
   }
 
   @ApiAuth({
@@ -60,7 +60,9 @@ export class RoleController {
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @Get(":id")
-  async getRoleById(@Param("id", ParseUUIDPipe) id: string) {
+  async getRoleById(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<RoleWithPermissionsResponseDto> {
     const result = await this.roleService.getRoleById(id);
 
     return new RoleWithPermissionsResponseDto(result);
@@ -77,7 +79,7 @@ export class RoleController {
   async createRole(
     @Body() body: CreateRoleRequestDto,
     @ActiveUser("userId") userId: User["id"],
-  ) {
+  ): Promise<RoleWithPermissionsResponseDto> {
     const result = await this.roleService.createRole({
       body,
       userId,
@@ -105,7 +107,7 @@ export class RoleController {
     @Param("id", ParseUUIDPipe) id: string,
     @Body() body: UpdateRoleRequestDto,
     @ActiveUser("userId") userId: User["id"],
-  ) {
+  ): Promise<RoleWithPermissionsResponseDto> {
     const result = await this.roleService.updateRole({
       id,
       body,
@@ -134,7 +136,7 @@ export class RoleController {
     @Param("id", ParseUUIDPipe) id: string,
     @ActiveUser("userId") userId: User["id"],
     @Body() body: DeleteRoleRequestDto,
-  ) {
+  ): Promise<RoleWithPermissionsResponseDto> {
     const result = await this.roleService.deleteRole({
       id,
       userId,

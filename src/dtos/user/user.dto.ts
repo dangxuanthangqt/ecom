@@ -21,7 +21,7 @@ import {
   RoleWithPermissionsResponseDto,
 } from "@/dtos/role/role.dto";
 
-export class UserResponseDto {
+export class BaseUserResponseDto {
   @ApiProperty({
     description: "The user's ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
@@ -72,6 +72,12 @@ export class UserResponseDto {
   @Expose()
   status: UserStatusType;
 
+  constructor(data?: BaseUserResponseDto) {
+    if (data) Object.assign(this, data);
+  }
+}
+
+export class UserWithRoleAndPermissionsResponseDto extends BaseUserResponseDto {
   @ApiProperty({
     description: "User's role with associated permissions",
     type: () => RoleWithPermissionsResponseDto,
@@ -80,14 +86,20 @@ export class UserResponseDto {
   @Type(() => RoleWithPermissionsResponseDto)
   role: RoleWithPermissionsResponseDto;
 
-  constructor(partial: Partial<UserResponseDto>) {
-    Object.assign(this, partial);
+  constructor(data?: UserWithRoleAndPermissionsResponseDto) {
+    super();
+    if (data) Object.assign(this, data);
   }
 }
 
-export class CreateUserResponseDto extends UserResponseDto {}
+export class CreateUserResponseDto extends UserWithRoleAndPermissionsResponseDto {
+  constructor(data: CreateUserResponseDto) {
+    super();
+    Object.assign(this, data);
+  }
+}
 
-export class UpdateUserResponseDto extends PickType(UserResponseDto, [
+export class UpdateUserResponseDto extends PickType(BaseUserResponseDto, [
   "id",
   "name",
   "email",
@@ -111,9 +123,9 @@ export class UpdateUserResponseDto extends PickType(UserResponseDto, [
   @Expose()
   updatedAt: Date;
 
-  constructor(partial: Partial<UpdateUserResponseDto>) {
+  constructor(data?: UpdateUserResponseDto) {
     super();
-    Object.assign(this, partial);
+    if (data) Object.assign(this, data);
   }
 }
 
@@ -192,3 +204,25 @@ export class UpdateUserRequestDto extends PickType(
   PartialType(UserRequestDto),
   ["avatar", "name", "phoneNumber", "password", "roleId", "status"] as const,
 ) {}
+
+export class UserItemResponseDto extends PickType(BaseUserResponseDto, [
+  "id",
+  "name",
+  "email",
+  "phoneNumber",
+  "avatar",
+  "status",
+] as const) {
+  @ApiProperty({
+    description: "The user's role with associated permissions",
+    type: () => RoleResponseDto,
+  })
+  @Expose()
+  @Type(() => RoleResponseDto)
+  role: RoleResponseDto;
+
+  constructor(data: UserItemResponseDto) {
+    super();
+    if (data) Object.assign(this, data);
+  }
+}

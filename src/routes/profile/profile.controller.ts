@@ -28,7 +28,9 @@ export class ProfileController {
         "Retrieves the complete profile information for the authenticated user including role and permissions",
     },
   })
-  async getProfile(@ActiveUser("userId") userId: UserSchema["id"]) {
+  async getProfile(
+    @ActiveUser("userId") userId: UserSchema["id"],
+  ): Promise<ProfileResponseDto> {
     const result = await this.profileService.getProfile(userId);
 
     return new ProfileResponseDto(result);
@@ -46,7 +48,7 @@ export class ProfileController {
   async updateProfile(
     @ActiveUser("userId") userId: UserSchema["id"],
     @Body() body: UpdateProfileRequestDto,
-  ) {
+  ): Promise<UpdateProfileResponseDto> {
     const result = await this.profileService.updateProfile({
       userId,
       data: body,
@@ -66,7 +68,7 @@ export class ProfileController {
   async changePassword(
     @ActiveUser("userId") userId: UserSchema["id"],
     @Body() body: ChangePasswordRequestDto,
-  ) {
+  ): Promise<ChangePasswordResponseDto> {
     const result = await this.profileService.changePassword({
       userId,
       data: body,

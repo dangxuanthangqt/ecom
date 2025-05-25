@@ -39,8 +39,8 @@ export class RoleResponseDto {
   @Expose()
   description: string;
 
-  constructor(partial: Partial<RoleResponseDto>) {
-    Object.assign(this, partial);
+  constructor(data?: RoleResponseDto) {
+    if (data) Object.assign(this, data);
   }
 }
 
@@ -63,9 +63,9 @@ export class RoleWithPermissionsResponseDto extends RoleResponseDto {
   @Type(() => PermissionResponseDto)
   permissions: PermissionResponseDto[];
 
-  constructor(partial: Partial<RoleWithPermissionsResponseDto>) {
-    super(partial);
-    Object.assign(this, partial);
+  constructor(data: RoleWithPermissionsResponseDto) {
+    super();
+    Object.assign(this, data);
   }
 }
 

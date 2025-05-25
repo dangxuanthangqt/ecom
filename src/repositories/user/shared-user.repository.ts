@@ -32,6 +32,40 @@ export class SharedUserRepository {
     }
   }
 
+  async findMany<T extends Prisma.UserFindManyArgs>(
+    args: Prisma.SelectSubset<T, Prisma.UserFindManyArgs>,
+  ): Promise<Prisma.UserGetPayload<T>[]> {
+    try {
+      const users = await this.prismaService.user.findMany(args);
+
+      return users;
+    } catch (error) {
+      this.logger.error(error);
+
+      throwHttpException({
+        type: "internal",
+        message: "Failed to find users.",
+      });
+    }
+  }
+
+  async count<T extends Prisma.UserCountArgs>(
+    args: Prisma.SelectSubset<T, Prisma.UserCountArgs>,
+  ): Promise<number> {
+    try {
+      const count = await this.prismaService.user.count(args);
+
+      return count as number;
+    } catch (error) {
+      this.logger.error(error);
+
+      throwHttpException({
+        type: "internal",
+        message: "Failed to count users.",
+      });
+    }
+  }
+
   async findUniqueOrThrow<T extends Prisma.UserFindUniqueOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserFindUniqueOrThrowArgs>,
   ): Promise<Prisma.UserGetPayload<T>> {

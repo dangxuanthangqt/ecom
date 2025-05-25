@@ -39,10 +39,10 @@ export class PermissionController {
   async getPermissions(
     @Query()
     query: PaginationQueryDto,
-  ) {
+  ): Promise<PageDto<PermissionWithRolesResponseDto>> {
     const result = await this.permissionService.getPermissions(query);
 
-    return new PageDto(result);
+    return new PageDto<PermissionWithRolesResponseDto>(result);
   }
 
   @Get(":id")
@@ -60,7 +60,9 @@ export class PermissionController {
     required: true,
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
-  async getPermissionById(@Param("id", ParseUUIDPipe) id: string) {
+  async getPermissionById(
+    @Param("id", ParseUUIDPipe) id: string,
+  ): Promise<PermissionWithRolesResponseDto> {
     const result = await this.permissionService.getPermissionById(id);
 
     return new PermissionWithRolesResponseDto(result);
@@ -77,7 +79,7 @@ export class PermissionController {
   async createPermission(
     @Body() body: CreatePermissionRequestDto,
     @ActiveUser("userId") userId: User["id"],
-  ) {
+  ): Promise<PermissionWithRolesResponseDto> {
     const result = await this.permissionService.createPermission({
       body,
       userId,
@@ -105,7 +107,7 @@ export class PermissionController {
     @Param("id", ParseUUIDPipe) id: string,
     @Body() body: UpdatePermissionRequestDto,
     @ActiveUser("userId") userId: User["id"],
-  ) {
+  ): Promise<PermissionWithRolesResponseDto> {
     const result = await this.permissionService.updatePermission({
       id,
       body,
@@ -134,7 +136,7 @@ export class PermissionController {
     @Param("id", ParseUUIDPipe) id: string,
     @ActiveUser("userId") userId: User["id"],
     @Body() body: DeletePermissionRequestDto,
-  ) {
+  ): Promise<PermissionWithRolesResponseDto> {
     const result = await this.permissionService.deletePermission({
       id,
       userId,

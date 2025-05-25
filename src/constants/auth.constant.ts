@@ -1,5 +1,7 @@
 export const REQUEST_USER_KEY = "user";
 
+export const REQUEST_ROLE_PERMISSIONS_KEY = "role_permissions";
+
 export const SECRET_API_KEY = "x-api-key";
 
 export const AUTHORIZATION_HEADER_KEY = "authorization_header";

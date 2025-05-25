@@ -9,6 +9,7 @@ import {
   UpdateProfileResponseDto,
 } from "@/dtos/profile/profile.dto";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
+import { userWithRoleAndPermissionsSelect } from "@/selectors/user.selector";
 import { HashingService } from "@/shared/services/hashing.service";
 import { PrismaService } from "@/shared/services/prisma.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
@@ -27,16 +28,7 @@ export class ProfileService {
         id: userId,
         deletedAt: null,
       },
-      select: {
-        id: true,
-        avatar: true,
-        name: true,
-        email: true,
-        phoneNumber: true,
-        role: {
-          select: roleWithPermissionsSelect,
-        },
-      },
+      select: userWithRoleAndPermissionsSelect,
     });
 
     if (!result) {

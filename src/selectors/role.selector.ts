@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+import { permissionSelect } from "./permission.selector";
+
 // hover mouse over the roleSelect to see the type
 // this is a Prisma validator that validates the shape of the object
 export const roleWithPermissionsSelect = Prisma.validator<Prisma.RoleSelect>()({
@@ -9,14 +11,7 @@ export const roleWithPermissionsSelect = Prisma.validator<Prisma.RoleSelect>()({
   isActive: true,
   permissions: {
     where: { deletedAt: null },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      path: true,
-      method: true,
-      module: true,
-    },
+    select: permissionSelect,
   },
 });
 

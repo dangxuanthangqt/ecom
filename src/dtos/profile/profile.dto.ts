@@ -9,13 +9,21 @@ import {
   Length,
 } from "class-validator";
 
-import { UserResponseDto } from "../user/user.dto";
+import {
+  BaseUserResponseDto,
+  UserWithRoleAndPermissionsResponseDto,
+} from "../user/user.dto";
 
 import { UserStatus, UserStatusType } from "@/constants/user-status.constant";
 import { RoleResponseDto } from "@/dtos/role/role.dto";
 import { IsPasswordMatch } from "@/validations/decorators/is-password-match.decorator";
 
-export class ProfileResponseDto extends UserResponseDto {}
+export class ProfileResponseDto extends UserWithRoleAndPermissionsResponseDto {
+  constructor(partial: ProfileResponseDto) {
+    super();
+    Object.assign(this, partial);
+  }
+}
 
 export class UpdateProfileRequestDto {
   @ApiPropertyOptional({
@@ -70,7 +78,7 @@ export class UpdateProfileRequestDto {
   roleId?: string;
 }
 
-export class UpdateProfileResponseDto extends PickType(UserResponseDto, [
+export class UpdateProfileResponseDto extends PickType(BaseUserResponseDto, [
   "id",
   "name",
   "email",
@@ -94,83 +102,11 @@ export class UpdateProfileResponseDto extends PickType(UserResponseDto, [
   @Expose()
   updatedAt: Date;
 
-  constructor(partial: Partial<UpdateProfileResponseDto>) {
+  constructor(data: UpdateProfileResponseDto) {
     super();
-    Object.assign(this, partial);
+    Object.assign(this, data);
   }
 }
-
-// export class UpdateProfileResponseDto {
-//   @ApiProperty({
-//     description: "The user's ID",
-//     example: "123e4567-e89b-12d3-a456-426614174000",
-//     format: "uuid",
-//   })
-//   @Expose()
-//   id: string;
-
-//   @ApiProperty({
-//     description: "The user's email address",
-//     example: "user@example.com",
-//     format: "email",
-//   })
-//   @Expose()
-//   email: string;
-
-//   @ApiProperty({
-//     description: "The user's name",
-//     example: "John Doe",
-//   })
-//   @Expose()
-//   name: string;
-
-//   @ApiProperty({
-//     description: "The user's phone number",
-//     example: "0987654321",
-//     minLength: 10,
-//     maxLength: 11,
-//   })
-//   @Expose()
-//   phoneNumber: string;
-
-//   @ApiProperty({
-//     description: "URL to user's avatar image",
-//     example: "https://example.com/avatars/johndoe.jpg",
-//     type: String,
-//     nullable: true,
-//   })
-//   @Expose()
-//   avatar: string | null;
-
-//   @ApiProperty({
-//     description: "The user's status",
-//     example: UserStatus.ACTIVE,
-//     enum: UserStatus,
-//     enumName: "UserStatus",
-//   })
-//   @Expose()
-//   status: UserStatusType;
-
-//   @ApiProperty({
-//     description: "The user's role with associated permissions",
-//     type: () => RoleResponseDto,
-//   })
-//   @Expose()
-//   @Type(() => RoleResponseDto)
-//   role: RoleResponseDto;
-
-//   @ApiProperty({
-//     description: "The user's updated date",
-//     example: "2025-05-11T00:00:00.000Z",
-//     type: Date,
-//   })
-//   @Expose()
-//   updatedAt: Date;
-
-//   constructor(partial: Partial<UpdateProfileResponseDto>) {
-//     Object.assign(this, partial);
-//   }
-// }
 
 export class ChangePasswordRequestDto {
   @ApiProperty({
@@ -218,7 +154,7 @@ export class ChangePasswordResponseDto {
   @Expose()
   message: string;
 
-  constructor(partial: Partial<ChangePasswordResponseDto>) {
-    Object.assign(this, partial);
+  constructor(data: ChangePasswordResponseDto) {
+    Object.assign(this, data);
   }
 }
