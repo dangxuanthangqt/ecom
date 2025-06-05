@@ -6,6 +6,7 @@ import { AppConfigService } from "./services/app-config.service";
 import { EmailService } from "./services/email.service";
 import { HashingService } from "./services/hashing.service";
 import { PrismaService } from "./services/prisma.service";
+import { S3Service } from "./services/s3.service";
 import { TokenService } from "./services/token.service";
 
 const sharedProviders: Provider[] = [
@@ -15,6 +16,7 @@ const sharedProviders: Provider[] = [
   TokenService,
   EmailService,
   TwoFactorAuthenticationService,
+  S3Service,
 ];
 
 @Global()

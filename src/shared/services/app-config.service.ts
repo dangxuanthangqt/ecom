@@ -31,6 +31,12 @@ export class AppConfigService {
       googleClientSecret: this.getString("GOOGLE_CLIENT_SECRET"),
       googleRedirectUri: this.getString("GOOGLE_REDIRECT_URI"),
       googleRedirectClientUri: this.getString("GOOGLE_REDIRECT_CLIENT_URI"),
+
+      // S3
+      s3Region: this.getString("S3_REGION"),
+      s3AccessKey: this.getString("S3_ACCESS_KEY"),
+      s3SecretKey: this.getString("S3_SECRET_KEY"),
+      s3BucketName: this.getString("S3_BUCKET_NAME"),
     };
   }
 

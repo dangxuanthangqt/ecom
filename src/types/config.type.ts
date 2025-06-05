@@ -14,6 +14,12 @@ export type AppConfig = {
   readonly googleClientSecret: string;
   readonly googleRedirectUri: string;
   readonly googleRedirectClientUri: string;
+
+  // S3
+  readonly s3Region: string;
+  readonly s3AccessKey: string;
+  readonly s3SecretKey: string;
+  readonly s3BucketName: string;
 };
 
 export type JwtConfig = {
