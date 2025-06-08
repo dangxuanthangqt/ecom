@@ -29,7 +29,7 @@ import { ArrayFilesValidationPipe } from "@/shared/pipes/array-images-validation
 import { MultipleFilesValidationPipe } from "@/shared/pipes/multiple-images-validation.pipe";
 import {
   createSingleImageDiskInterceptor,
-  createSingleImageMemoryInterceptor,
+  // createSingleImageMemoryInterceptor,
 } from "@/shared/utils/files/single-image-interceptor.util";
 
 @Controller("media")
@@ -37,22 +37,22 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   // Uploading a single image from buffer
-  @ApiAuth({
-    type: UploadFileResponseDto,
-    options: {
-      summary: "Upload a single image from buffer",
-      description:
-        "Upload a single image from buffer to S3. The image data is expected to be in the request body as a file.",
-    },
-  })
-  @Post("upload/image")
-  @UseInterceptors(createSingleImageMemoryInterceptor("image"))
-  async uploadImage(@UploadedFile() image: Express.Multer.File) {
-    // Image data have buffer field, so we can upload it directly to S3
-    const result = await this.mediaService.uploadImageFromDisk(image);
+  // @ApiAuth({
+  //   type: UploadFileResponseDto,
+  //   options: {
+  //     summary: "Upload a single image from buffer",
+  //     description:
+  //       "Upload a single image from buffer to S3. The image data is expected to be in the request body as a file.",
+  //   },
+  // })
+  // @Post("upload/image")
+  // @UseInterceptors(createSingleImageMemoryInterceptor("image"))
+  // async uploadImage(@UploadedFile() image: Express.Multer.File) {
+  //   // Image data have buffer field, so we can upload it directly to S3
+  //   const result = await this.mediaService.uploadImageFromDisk(image);
 
-    return new UploadFileResponseDto(result);
-  }
+  //   return new UploadFileResponseDto(result);
+  // }
 
   /**
   If validate with pipe in @UploadedFile, file size will be available, but it will be after the file is uploaded. Now file is uploaded to disk first, then validated.
@@ -71,6 +71,7 @@ export class MediaController {
   async uploadLargeImageFromDisk(@UploadedFile() image: Express.Multer.File) {
     // Image data does not have buffer field, so we need to read the file from disk
     // and upload it to S3
+
     const result = await this.mediaService.uploadLargeImageFromDisk(image);
 
     return new UploadFileResponseDto(result);
@@ -172,6 +173,7 @@ export class MediaController {
     return new UploadFilesResponseDto(result);
   }
 
+  // Ensure enable CORS permission in S3 bucket policy
   @ApiAuth({
     type: PresignedUrlResponseDto,
     options: {
