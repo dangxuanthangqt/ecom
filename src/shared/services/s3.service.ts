@@ -7,10 +7,12 @@ import {
   GetObjectCommand,
   PutObjectCommand,
   S3,
+  S3ServiceException,
 } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { Injectable, Logger } from "@nestjs/common";
+import { HttpStatus, Injectable, Logger } from "@nestjs/common";
+import * as mime from "mime-types";
 
 import throwHttpException from "../utils/throw-http-exception.util";
 
@@ -560,6 +562,18 @@ export class S3Service {
   }): Promise<{
     downloadUrl: string;
   }> {
+    // Optionally check if file exists first
+    const result = await this.checkFileExists(key);
+
+    if (result) {
+      this.logger.warn(`File already exists in S3: ${key}`);
+
+      throwHttpException({
+        type: "badRequest",
+        message: `File already exists: ${key}`,
+      });
+    }
+
     try {
       const appConfig = this.appConfigService.appConfig;
 
@@ -593,40 +607,66 @@ export class S3Service {
     }
   }
 
-  /**
-   * Check if file exists in S3 before generating download URL
-   */
-  async generateSecureDownloadUrl({
+  async generatePresignedUploadUrl({
     key,
-    expiresIn = 3600,
+    expiresIn = 3600, // 1 hour default
   }: {
     key: string;
-    expiresIn?: number;
+    expiresIn?: number; // Time in seconds
   }): Promise<{
-    downloadUrl: string;
+    uploadUrl: string;
   }> {
     // Optionally check if file exists first
-    await this.checkFileExists(key);
+    const result = await this.checkFileExists(key);
+
+    // If we create presigned URL with mime type is image/jpg but we can upload any file type,
+    // So it is unnecessary to get mime type from file extension. =))
+    const mimeType = mime.lookup(key) || "application/octet-stream";
+
+    if (result) {
+      this.logger.warn(`File already exists in S3: ${key}`);
+
+      throwHttpException({
+        type: "badRequest",
+        message: `File already exists: ${key}`,
+      });
+    }
 
     try {
-      const result = await this.generatePresignedDownloadUrl({
-        key,
+      const appConfig = this.appConfigService.appConfig;
+
+      const command = new PutObjectCommand({
+        Bucket: appConfig.s3BucketName,
+        Key: key,
+        ContentType: mimeType, // If don't set ContentType, it's OK
+        Metadata: {
+          uploadedAt: new Date().toISOString(),
+        },
+      });
+
+      const uploadUrl = await getSignedUrl(this.s3, command, {
         expiresIn,
       });
 
-      return result;
+      this.logger.log(
+        `Generated upload URL for key: ${key}, expires in: ${expiresIn} seconds`,
+      );
+
+      return {
+        uploadUrl,
+      };
     } catch (error) {
       this.logger.error(error);
-
       throwHttpException({
         type: "internal",
-        message: "Failed to generate secure download URL.",
+        message: "Failed to generate upload URL.",
       });
     }
   }
 
   /**
    * Helper method to check if file exists in S3
+   * @returns true if file exists, false if file doesn't exist
    */
   private async checkFileExists(key: string): Promise<boolean> {
     try {
@@ -637,19 +677,32 @@ export class S3Service {
         Key: key,
       });
 
-      // Just check if we can get object metadata
+      // Try to get the object
       await this.s3.send(command);
 
+      // If we reach here, file exists
+      this.logger.log(`File exists in S3: ${key}`);
       return true;
-    } catch (error) {
-      this.logger.error(
-        `Error checking if file exists in S3 for key ${JSON.stringify(error)}`,
-      );
+    } catch (error: any) {
+      if (error instanceof S3ServiceException) {
+        // Check if this is a NoSuchKey error (file not found)
+        if (
+          error.$metadata?.httpStatusCode === HttpStatus.NOT_FOUND ||
+          error.name === "NoSuchKey"
+        ) {
+          // File doesn't exist
+          this.logger.log(`File does not exist in S3: ${key}`);
+          return false;
+        }
+      }
 
-      // For other errors, re-throw
+      // For any other errors (permissions, network issues, etc.)
+      this.logger.error(`Error checking if file exists in S3: ${key}`, error);
+
+      // Re-throw with proper error handling
       throwHttpException({
-        type: "notFound",
-        message: "File not found in S3.",
+        type: "internal",
+        message: `Failed to check if file exists: ${key}`,
       });
     }
   }

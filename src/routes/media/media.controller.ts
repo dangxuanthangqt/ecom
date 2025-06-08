@@ -15,30 +15,65 @@ import {
 
 import { MediaService } from "./media.service";
 
+import {
+  DeleteFileQueryDto,
+  DeleteFileResponseDto,
+  PresignedUrlQueryDto,
+  PresignedUrlResponseDto,
+  UploadFileResponseDto,
+  UploadFilesResponseDto,
+} from "@/dtos/media/media.dto";
+import { ApiAuth } from "@/shared/decorators/http-decorator";
 import { ArrayFilesValidationPipe } from "@/shared/pipes/array-images-validation.pipe";
 // import { ImageValidationPipe } from "@/shared/pipes/image-validation.pipe";
 import { MultipleFilesValidationPipe } from "@/shared/pipes/multiple-images-validation.pipe";
-import { createSingleImageDiskInterceptor } from "@/shared/utils/files/single-image-interceptor.util";
+import {
+  createSingleImageDiskInterceptor,
+  createSingleImageMemoryInterceptor,
+} from "@/shared/utils/files/single-image-interceptor.util";
 
 @Controller("media")
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
-  // Uploading a single image from disk
-  // @Post("upload/image")
-  // @UseInterceptors(createSingleImageDiskInterceptor("image"))
-  // uploadImage(@UploadedFile() image: Express.Multer.File) {
-  //   console.log("image", image);
-  //   const result = this.mediaService.uploadImageFromDisk(image);
-  //   return result;
-  // }
+  // Uploading a single image from buffer
+  @ApiAuth({
+    type: UploadFileResponseDto,
+    options: {
+      summary: "Upload a single image from buffer",
+      description:
+        "Upload a single image from buffer to S3. The image data is expected to be in the request body as a file.",
+    },
+  })
+  @Post("upload/image")
+  @UseInterceptors(createSingleImageMemoryInterceptor("image"))
+  async uploadImage(@UploadedFile() image: Express.Multer.File) {
+    // Image data have buffer field, so we can upload it directly to S3
+    const result = await this.mediaService.uploadImageFromDisk(image);
 
+    return new UploadFileResponseDto(result);
+  }
+
+  /**
+  If validate with pipe in @UploadedFile, file size will be available, but it will be after the file is uploaded. Now file is uploaded to disk first, then validated.
+  */
+  // Uploading a large image from disk
+  @ApiAuth({
+    type: UploadFileResponseDto,
+    options: {
+      summary: "Upload a large image from disk",
+      description:
+        "Upload a large image from disk to S3. The image data is expected to be in the request body as a file. This is useful for large files that cannot be uploaded from memory.",
+    },
+  })
   @Post("upload/image")
   @UseInterceptors(createSingleImageDiskInterceptor("image"))
-  uploadLargeImageFromDisk(@UploadedFile() image: Express.Multer.File) {
-    const result = this.mediaService.uploadLargeImageFromDisk(image);
+  async uploadLargeImageFromDisk(@UploadedFile() image: Express.Multer.File) {
+    // Image data does not have buffer field, so we need to read the file from disk
+    // and upload it to S3
+    const result = await this.mediaService.uploadLargeImageFromDisk(image);
 
-    return result;
+    return new UploadFileResponseDto(result);
   }
 
   // @Post("upload/image")
@@ -49,9 +84,19 @@ export class MediaController {
   //   return result;
   // }
 
+  // Should be use upload file from disk instead of buffer, because
+  // buffer will cause memory issue (OUT OF MEMORY) when uploading large files
+  @ApiAuth({
+    type: UploadFilesResponseDto,
+    options: {
+      summary: "Upload multiple images from buffer",
+      description:
+        "Upload multiple images from buffer to S3. The images data are expected to be in the request body as an array of files.",
+    },
+  })
   @Post("upload/array-of-images")
   @UseInterceptors(FilesInterceptor("files", 10))
-  uploadArrayOfImages(
+  async uploadArrayOfImages(
     @UploadedFiles(
       new ArrayFilesValidationPipe({
         maxCount: 10,
@@ -70,10 +115,21 @@ export class MediaController {
     )
     files: Express.Multer.File[],
   ) {
-    const result = this.mediaService.uploadArrayOfImagesFromBuffer(files);
-    return result;
+    const result = await this.mediaService.uploadArrayOfImagesFromBuffer(files);
+
+    return new UploadFilesResponseDto(result);
   }
 
+  // Should be use upload file from disk instead of buffer, because
+  // buffer will cause memory issue (OUT OF MEMORY) when uploading large files
+  @ApiAuth({
+    type: UploadFilesResponseDto,
+    options: {
+      summary: "Upload multiple images from buffer",
+      description:
+        " Upload multiple images from buffer to S3. The images data are expected to be in the request body as an array of files.",
+    },
+  })
   @Post("upload/multiple-images")
   @UseInterceptors(
     FileFieldsInterceptor([
@@ -86,7 +142,7 @@ export class MediaController {
       { name: "file3", maxCount: 3 },
     ]),
   )
-  uploadMultipleImages(
+  async uploadMultipleImages(
     @UploadedFiles(
       new MultipleFilesValidationPipe({
         file1: {
@@ -110,22 +166,38 @@ export class MediaController {
       file2?: Express.Multer.File[];
     },
   ) {
-    const result = this.mediaService.uploadMultipleImagesFromBuffer(files);
+    const result =
+      await this.mediaService.uploadMultipleImagesFromBuffer(files);
 
-    return result;
+    return new UploadFilesResponseDto(result);
   }
 
+  @ApiAuth({
+    type: PresignedUrlResponseDto,
+    options: {
+      summary: "Get presigned URL for uploading/downloading files",
+      description:
+        "Generate a presigned URL for uploading or downloading files to/from S3. Use this URL to perform the actual upload/download operation.",
+    },
+  })
   @Get("presigned-url")
-  getPresignedUrl(@Query("key") key: string) {
-    const result = this.mediaService.getPresignedUrl(key);
+  async getPresignedUrl(@Query() query: PresignedUrlQueryDto) {
+    const result = await this.mediaService.getPresignedUrl(query);
 
-    return result;
+    return new PresignedUrlResponseDto(result);
   }
 
+  @ApiAuth({
+    type: DeleteFileResponseDto,
+    options: {
+      summary: "Delete a file from S3",
+      description: "Delete a file from S3 using its key/path.",
+    },
+  })
   @Delete("delete")
-  deleteMedia(@Query("key") key: string) {
-    const result = this.mediaService.deleteMedia(key);
+  async deleteMedia(@Query() query: DeleteFileQueryDto) {
+    const result = await this.mediaService.deleteMedia(query);
 
-    return result;
+    return new DeleteFileResponseDto(result);
   }
 }

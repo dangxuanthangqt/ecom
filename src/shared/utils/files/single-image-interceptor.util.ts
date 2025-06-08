@@ -10,41 +10,70 @@ import { UPLOAD_DESTINATIONS } from "@/constants/upload.constant";
 
 export const FILE_SIZE_LIMITS = {
   IMAGE_5MB: 5 * 1024 * 1024,
+  // IMAGE_5MB: 10,
   IMAGE_2MB: 2 * 1024 * 1024,
   IMAGE_10MB: 10 * 1024 * 1024,
   DOCUMENT_20MB: 20 * 1024 * 1024,
 } as const;
 
+const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+
+const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+
+/*
+Trong Multer's fileFilter callback, file.size không có sẵn vì callback này được gọi trước khi file được upload hoàn toàn.
+
+Lý do:
+FileFilter chạy trước: fileFilter được gọi ngay khi multer bắt đầu nhận file, trước khi đọc content
+Stream processing: Multer xử lý file dưới dạng stream, chưa biết được size cho đến khi đọc hết
+Early validation: Mục đích của fileFilter là validate metadata (filename, mimetype) trước khi tốn tài nguyên upload
+File object trong fileFilter chỉ có:
+
+{
+  fieldname: string;     // ✅ Có
+  originalname: string;  // ✅ Có
+  encoding: string;      // ✅ Có
+  mimetype: string;      // ✅ Có
+  size: undefined;       // ❌ Không có
+  buffer: undefined;     // ❌ Không có
+  path: undefined;       // ❌ Không có (chưa lưu)
+}
+
+Do đó, không thể validate file size trong fileFilter callback.
+
+Thay vào đó, bạn có thể sử dụng `limits` trong Multer options để giới hạn kích thước file upload.
+*/
+
 const fileFilter: MulterOptions["fileFilter"] = (req, file, callback) => {
   // Validate file type
-  const allowedMimeTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/webp",
-  ];
 
-  if (!allowedMimeTypes.includes(file.mimetype)) {
+  if (!ALLOWED_MIME_TYPES.includes(file.mimetype)) {
     return callback(
       new BadRequestException(
-        `Invalid file type. Allowed types: ${allowedMimeTypes.join(", ")}`,
+        `Invalid file type. Allowed types: ${ALLOWED_MIME_TYPES.join(", ")}`,
       ),
       false,
     );
   }
 
   // Validate file extension
-  const allowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
   const fileExtension = path.extname(file.originalname).toLowerCase();
 
-  if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
+  if (!fileExtension || !ALLOWED_EXTENSIONS.includes(fileExtension)) {
     return callback(
       new BadRequestException(
-        `Invalid file extension. Allowed extensions: ${allowedExtensions.join(", ")}`,
+        `Invalid file extension. Allowed extensions: ${ALLOWED_EXTENSIONS.join(", ")}`,
       ),
       false,
     );
   }
+
+  // Can't validate file size here because file.size is not available in the fileFilter callback
 
   callback(null, true);
 };

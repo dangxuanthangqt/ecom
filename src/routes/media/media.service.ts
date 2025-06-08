@@ -1,5 +1,11 @@
 import { Injectable } from "@nestjs/common";
 
+import { PRESIGNED_URL_TYPE } from "@/constants/upload.constant";
+import {
+  DeleteFileQueryDto,
+  PresignedUrlQueryDto,
+  PresignedUrlResponseDto,
+} from "@/dtos/media/media.dto";
 import { S3Service } from "@/shared/services/s3.service";
 
 @Injectable()
@@ -105,15 +111,30 @@ export class MediaService {
     return result;
   }
 
-  async getPresignedUrl(key: string): Promise<{ downloadUrl: string }> {
-    const result = await this.s3Service.generateSecureDownloadUrl({
+  async getPresignedUrl({
+    key,
+    type,
+  }: PresignedUrlQueryDto): Promise<PresignedUrlResponseDto> {
+    if (type === PRESIGNED_URL_TYPE.UPLOAD) {
+      const { uploadUrl } = await this.s3Service.generatePresignedUploadUrl({
+        key,
+      });
+
+      return {
+        url: uploadUrl,
+      };
+    }
+
+    const { downloadUrl } = await this.s3Service.generatePresignedDownloadUrl({
       key,
     });
 
-    return result;
+    return {
+      url: downloadUrl,
+    };
   }
 
-  async deleteMedia(key: string): Promise<{ message: string }> {
+  async deleteMedia({ key }: DeleteFileQueryDto): Promise<{ message: string }> {
     const result = await this.s3Service.deleteFile({ key });
 
     return result;
