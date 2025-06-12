@@ -223,6 +223,6 @@ export class UserItemResponseDto extends PickType(BaseUserResponseDto, [
 
   constructor(data: UserItemResponseDto) {
     super();
-    if (data) Object.assign(this, data);
+    Object.assign(this, data);
   }
 }

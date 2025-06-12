@@ -372,6 +372,126 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
+  "/media/upload/image": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Upload a large image from disk */
+    post: operations["uploadLargeImageFromDisk"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/media/upload/array-of-images": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Upload multiple images from buffer */
+    post: operations["uploadArrayOfImages"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/media/upload/multiple-images": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Upload multiple images from buffer */
+    post: operations["uploadMultipleImages"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/media/presigned-url": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get presigned URL for uploading/downloading files */
+    get: operations["getPresignedUrl"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/media/delete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete a file from S3 */
+    delete: operations["deleteMedia"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/brands": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a list of brands */
+    get: operations["getBrands"];
+    put?: never;
+    /** Create a new brand */
+    post: operations["createBrand"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/brands/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a brand by ID */
+    get: operations["getBrandById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 };
 export type webhooks = Record<string, never>;
 export type components = {
@@ -824,7 +944,7 @@ export type components = {
        *       "223e4567-e89b-12d3-a456-426614174001"
        *     ]
        */
-      roles: string[];
+      rolesIds: string[];
     };
     UpdatePermissionRequestDto: {
       /**
@@ -855,7 +975,7 @@ export type components = {
        *       "223e4567-e89b-12d3-a456-426614174001"
        *     ]
        */
-      roles: string[];
+      rolesIds: string[];
     };
     DeletePermissionRequestDto: {
       /**
@@ -955,7 +1075,7 @@ export type components = {
        *       "223e4567-e89b-12d3-a456-426614174001"
        *     ]
        */
-      permissions?: string[];
+      permissionIds?: string[];
     };
     UpdateRoleRequestDto: {
       /**
@@ -980,7 +1100,7 @@ export type components = {
        *       "223e4567-e89b-12d3-a456-426614174001"
        *     ]
        */
-      permissions?: string[];
+      permissionIds?: string[];
     };
     DeleteRoleRequestDto: {
       /**
@@ -1302,6 +1422,117 @@ export type components = {
        * @example 2025-05-11T00:00:00.000Z
        */
       updatedAt: string;
+    };
+    UploadFileResponseDto: {
+      /**
+       * @description The URL of the uploaded file
+       * @example https://bucket-name.s3.region.amazonaws.com/images/profile/avatar.jpg
+       */
+      url: string;
+    };
+    UploadFilesResponseDto: {
+      /**
+       * @description Array of URLs of the uploaded files
+       * @example [
+       *       "https://bucket-name.s3.region.amazonaws.com/images/profile/avatar1.jpg",
+       *       "https://bucket-name.s3.region.amazonaws.com/images/profile/avatar2.jpg"
+       *     ]
+       */
+      urls: string[];
+    };
+    PresignedUrlResponseDto: {
+      /**
+       * @description The generated presigned URL
+       * @example https://bucket-name.s3.region.amazonaws.com/images/profile/avatar.jpg?X-Amz-Algorithm=...
+       */
+      url: string;
+    };
+    DeleteFileResponseDto: {
+      /**
+       * @description Confirmation message after file deletion
+       * @example File deleted successfully.
+       */
+      message: string;
+    };
+    BrandTranslationWithLanguageResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the brand translation
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Language code for the translation
+       * @example en
+       */
+      name: string;
+      /**
+       * @description Name of the brand in the specified language
+       * @example Brand Name
+       */
+      description: string;
+      /** @description Language details for the translation */
+      language: components["schemas"]["LanguageResponseDto"];
+    };
+    BrandItemResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the brand
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * Format: url
+       * @description URL to the brand's logo image
+       * @example https://example.com/logos/brand-logo.png
+       */
+      logo: string;
+      /**
+       * @description Name of the brand
+       * @example Brand Name
+       */
+      name: string;
+      /** @description Translations of the brand in different languages */
+      brandTranslations: components["schemas"]["BrandTranslationWithLanguageResponseDto"][];
+    };
+    CreateBrandRequestDto: {
+      /**
+       * @description URL to the brand's logo image
+       * @example https://example.com/logos/brand-logo.png
+       */
+      logo: string;
+      /**
+       * @description Name of the brand
+       * @example Brand Name
+       */
+      name: string;
+      /**
+       * @description brandTranslationIds
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "223e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      brandTranslationIds?: string[];
+    };
+    CreateBrandResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the brand
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * Format: url
+       * @description URL to the brand's logo image
+       * @example https://example.com/logos/brand-logo.png
+       */
+      logo: string;
+      /**
+       * @description Name of the brand
+       * @example Brand Name
+       */
+      name: string;
     };
   };
   responses: never;
@@ -3594,6 +3825,569 @@ export interface operations {
       };
       /** @description Forbidden */
       403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  uploadLargeImageFromDisk: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Upload a large image from disk to S3. The image data is expected to be in the request body as a file. This is useful for large files that cannot be uploaded from memory. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UploadFileResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  uploadArrayOfImages: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Upload multiple images from buffer to S3. The images data are expected to be in the request body as an array of files. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UploadFilesResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  uploadMultipleImages: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description  Upload multiple images from buffer to S3. The images data are expected to be in the request body as an array of files. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UploadFilesResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getPresignedUrl: {
+    parameters: {
+      query: {
+        /** @description The S3 key/path of the file */
+        key: string;
+        /** @description Type of presigned URL */
+        type: "upload" | "download";
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Generate a presigned URL for uploading or downloading files to/from S3. Use this URL to perform the actual upload/download operation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PresignedUrlResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteMedia: {
+    parameters: {
+      query: {
+        /** @description The S3 key/path of the file */
+        key: string;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Delete a file from S3 using its key/path. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeleteFileResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getBrands: {
+    parameters: {
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "ASC" | "DESC";
+        /** @description Field to order by */
+        orderBy?: string;
+        /** @description Search keyword */
+        keyword?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a list of brands with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["BrandItemResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  createBrand: {
+    parameters: {
+      query: {
+        body: components["schemas"]["CreateBrandRequestDto"];
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Creates a new brand with the provided details. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreateBrandResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getBrandById: {
+    parameters: {
+      query: {
+        id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieves a specific brand by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BrandItemResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
         headers: {
           [name: string]: unknown;
         };

@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 
 import { AuthModule } from "./auth/auth.module";
+import { BrandModule } from "./brand/brand.module";
 import { LanguageModule } from "./language/language.module";
 import { MediaModule } from "./media/media.module";
 import { PermissionModule } from "./permission/permission.module";
@@ -17,6 +18,7 @@ import { UserModule } from "./user/user.module";
     ProfileModule,
     UserModule,
     MediaModule,
+    BrandModule,
   ],
 })
 export class RouteModule {}

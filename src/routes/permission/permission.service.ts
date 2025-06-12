@@ -52,7 +52,7 @@ export class PermissionService {
   }
 
   async createPermission({
-    body: { name, description, path, method, roles },
+    body: { name, description, path, method, rolesIds },
     userId,
   }: {
     body: CreatePermissionRequestDto;
@@ -65,11 +65,9 @@ export class PermissionService {
         path,
         method,
         module: path.split("/")[1].toUpperCase(),
-        roles: {
-          connect: roles?.map((roleId) => ({ id: roleId })),
-        },
         createdById: userId,
       },
+      rolesIds,
     });
 
     return permission;
@@ -77,7 +75,7 @@ export class PermissionService {
 
   async updatePermission({
     id,
-    body: { name, description, path, method, roles },
+    body: { name, description, path, method, rolesIds },
     userId,
   }: {
     userId: User["id"];
@@ -92,7 +90,7 @@ export class PermissionService {
         path,
         method,
         roles: {
-          set: roles?.map((roleId) => ({ id: roleId })),
+          set: rolesIds?.map((roleId) => ({ id: roleId })),
         },
         updatedById: userId,
       },

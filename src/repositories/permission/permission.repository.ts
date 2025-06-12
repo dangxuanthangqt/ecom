@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Permission, Prisma, Role, User } from "@prisma/client";
 
+import { permissionWithRolesSelect } from "@/selectors/permission.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -13,27 +14,6 @@ import throwHttpException from "@/shared/utils/throw-http-exception.util";
 @Injectable()
 export class PermissionRepository {
   private logger = new Logger(PermissionRepository.name);
-
-  private readonly permissionSelect =
-    Prisma.validator<Prisma.PermissionSelect>()({
-      id: true,
-      name: true,
-      description: true,
-      path: true,
-      method: true,
-      module: true,
-      roles: {
-        where: {
-          deletedAt: null,
-        },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          isActive: true,
-        },
-      },
-    });
 
   constructor(private readonly prismaService: PrismaService) {}
 
@@ -64,7 +44,7 @@ export class PermissionRepository {
             take,
             orderBy,
             where: combinedWhere,
-            select: this.permissionSelect,
+            select: permissionWithRolesSelect,
           }),
         ]);
 
@@ -89,7 +69,7 @@ export class PermissionRepository {
           id,
           deletedAt: null,
         },
-        select: this.permissionSelect,
+        select: permissionWithRolesSelect,
       });
 
       return permission;
@@ -135,13 +115,13 @@ export class PermissionRepository {
 
   async createPermission({
     data,
-    roles,
+    rolesIds,
   }: {
     data: Prisma.PermissionCreateArgs["data"];
-    roles?: Role["id"][];
+    rolesIds?: Role["id"][];
   }) {
-    if (roles && roles.length > 0) {
-      await this.validateRoles(roles);
+    if (rolesIds && rolesIds.length > 0) {
+      await this.validateRoles(rolesIds);
     }
 
     try {
@@ -149,10 +129,10 @@ export class PermissionRepository {
         data: {
           ...data,
           roles: {
-            connect: roles?.map((roleId) => ({ id: roleId })),
+            connect: rolesIds?.map((id) => ({ id })),
           },
         },
-        select: this.permissionSelect,
+        select: permissionWithRolesSelect,
       });
 
       return permission;
@@ -183,14 +163,14 @@ export class PermissionRepository {
   async updatePermission({
     id,
     data,
-    roles,
+    rolesIds,
   }: {
     id: Permission["id"];
     data: Prisma.PermissionUpdateArgs["data"];
-    roles?: Role["id"][];
+    rolesIds?: Role["id"][];
   }) {
-    if (roles && roles.length > 0) {
-      await this.validateRoles(roles);
+    if (rolesIds && rolesIds.length > 0) {
+      await this.validateRoles(rolesIds);
     }
 
     try {
@@ -202,10 +182,10 @@ export class PermissionRepository {
         data: {
           ...data,
           roles: {
-            set: roles?.map((roleId) => ({ id: roleId })),
+            set: rolesIds?.map((roleId) => ({ id: roleId })),
           },
         },
-        select: this.permissionSelect,
+        select: permissionWithRolesSelect,
       });
 
       return permission;
@@ -254,8 +234,9 @@ export class PermissionRepository {
         const permission = await this.prismaService.permission.delete({
           where: {
             id,
+            deletedAt: null,
           },
-          select: this.permissionSelect,
+          select: permissionWithRolesSelect,
         });
 
         return permission;
@@ -271,7 +252,7 @@ export class PermissionRepository {
           deletedById: userId,
           updatedById: userId,
         },
-        select: this.permissionSelect,
+        select: permissionWithRolesSelect,
       });
 
       return permission;

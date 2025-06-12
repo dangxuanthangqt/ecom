@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
+import { ORDER, ORDER_BY } from "@/constants/order";
 import { Role } from "@/constants/role.constant";
 import {
   CreateRoleRequestDto,
@@ -20,8 +21,8 @@ export class RoleService {
   async getRoles({
     pageIndex = 1,
     pageSize = 10,
-    order = "ASC",
-    orderBy = "createdAt",
+    order = ORDER.ASC,
+    orderBy = ORDER_BY.CREATED_AT,
   }: PaginationQueryDto) {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
@@ -53,7 +54,7 @@ export class RoleService {
   }
 
   async createRole({
-    body: { name, description, permissions },
+    body: { name, description, permissionIds },
     userId,
   }: {
     body: CreateRoleRequestDto;
@@ -65,7 +66,7 @@ export class RoleService {
         description,
         createdById: userId,
       },
-      permissions,
+      permissionIds,
     });
 
     return role;
@@ -90,7 +91,7 @@ export class RoleService {
   }
 
   async updateRole({
-    body: { name, description, permissions },
+    body: { name, description, permissionIds },
     userId,
     id,
   }: {
@@ -107,7 +108,7 @@ export class RoleService {
         description,
         updatedById: userId,
       },
-      permissions,
+      permissionIds,
     });
 
     return role;

@@ -21,12 +21,7 @@ export class RoleRepository {
     take,
     skip,
     orderBy,
-  }: {
-    where?: Prisma.RoleWhereInput;
-    take?: number;
-    skip?: number;
-    orderBy?: Prisma.RoleOrderByWithRelationInput;
-  }) {
+  }: Pick<Prisma.RoleFindManyArgs, "where" | "take" | "skip" | "orderBy">) {
     const combinedWhere: Prisma.RoleWhereInput = {
       ...where,
       deletedAt: null,
@@ -108,13 +103,13 @@ export class RoleRepository {
 
   async createRole({
     data,
-    permissions,
+    permissionIds,
   }: {
     data: Prisma.RoleCreateArgs["data"];
-    permissions?: Permission["id"][];
+    permissionIds?: Permission["id"][];
   }) {
-    if (permissions && permissions.length > 0) {
-      await this.validatePermissions(permissions);
+    if (permissionIds && permissionIds.length > 0) {
+      await this.validatePermissions(permissionIds);
     }
 
     try {
@@ -122,7 +117,7 @@ export class RoleRepository {
         data: {
           ...data,
           permissions: {
-            connect: permissions?.map((permissionId) => ({
+            connect: permissionIds?.map((permissionId) => ({
               id: permissionId,
             })),
           },
@@ -160,14 +155,14 @@ export class RoleRepository {
   async updateRole({
     id,
     data,
-    permissions,
+    permissionIds,
   }: {
     id: Role["id"];
     data: Prisma.RoleUpdateArgs["data"];
-    permissions?: Permission["id"][];
+    permissionIds?: Permission["id"][];
   }) {
-    if (permissions && permissions.length > 0) {
-      await this.validatePermissions(permissions);
+    if (permissionIds && permissionIds.length > 0) {
+      await this.validatePermissions(permissionIds);
     }
 
     try {
@@ -176,7 +171,7 @@ export class RoleRepository {
         data: {
           ...data,
           permissions: {
-            set: permissions?.map((permissionId) => ({
+            set: permissionIds?.map((permissionId) => ({
               id: permissionId,
             })),
           },

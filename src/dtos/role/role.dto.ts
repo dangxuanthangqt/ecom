@@ -107,7 +107,7 @@ export class CreateRoleRequestDto {
     each: true,
     message: "Permissions must be an array of valid UUIDs",
   })
-  permissions?: string[];
+  permissionIds?: string[];
 }
 
 export class UpdateRoleRequestDto {
@@ -148,7 +148,7 @@ export class UpdateRoleRequestDto {
     each: true,
     message: "Permissions must be an array of valid UUIDs",
   })
-  permissions?: string[];
+  permissionIds?: string[];
 }
 
 export class DeleteRoleRequestDto {

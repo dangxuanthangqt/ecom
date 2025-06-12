@@ -70,7 +70,7 @@ export class PermissionRequestDto {
     each: true,
     message: "Roles must be an array of valid UUIDs.",
   })
-  roles?: string[]; // Array of role UUIDs to associate with the permission
+  rolesIds?: string[]; // Array of role UUIDs to associate with the permission
 }
 
 export class CreatePermissionRequestDto extends PermissionRequestDto {}

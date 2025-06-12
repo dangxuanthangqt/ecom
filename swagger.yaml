@@ -2257,6 +2257,570 @@ paths:
                   message: Internal server error.
       summary: Delete a user by ID
       tags: *a6
+  /media/upload/image:
+    post:
+      operationId: uploadLargeImageFromDisk
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description:
+            Upload a large image from disk to S3. The image data is expected to
+            be in the request body as a file. This is useful for large files
+            that cannot be uploaded from memory.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadFileResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Upload a large image from disk
+      tags: &a7
+        - Media
+  /media/upload/array-of-images:
+    post:
+      operationId: uploadArrayOfImages
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description:
+            Upload multiple images from buffer to S3. The images data are
+            expected to be in the request body as an array of files.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadFilesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Upload multiple images from buffer
+      tags: *a7
+  /media/upload/multiple-images:
+    post:
+      operationId: uploadMultipleImages
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description:
+            " Upload multiple images from buffer to S3. The images data are
+            expected to be in the request body as an array of files."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadFilesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Upload multiple images from buffer
+      tags: *a7
+  /media/presigned-url:
+    get:
+      operationId: getPresignedUrl
+      parameters:
+        - name: key
+          required: true
+          in: query
+          description: The S3 key/path of the file
+          schema:
+            example: images/profile/avatar.jpg
+            type: string
+        - name: type
+          required: true
+          in: query
+          description: Type of presigned URL
+          schema:
+            example: upload
+            type: string
+            enum:
+              - upload
+              - download
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description:
+            Generate a presigned URL for uploading or downloading files to/from
+            S3. Use this URL to perform the actual upload/download operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresignedUrlResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get presigned URL for uploading/downloading files
+      tags: *a7
+  /media/delete:
+    delete:
+      operationId: deleteMedia
+      parameters:
+        - name: key
+          required: true
+          in: query
+          description: The S3 key/path of the file
+          schema:
+            example: images/profile/avatar.jpg
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Delete a file from S3 using its key/path.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteFileResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a file from S3
+      tags: *a7
+  /brands:
+    get:
+      operationId: getBrands
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: ASC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: name
+            type: string
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+      responses:
+        "200":
+          description: Retrieve a list of brands with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/BrandItemResponseDto"
+                    required:
+                      - data
+      summary: Get a list of brands
+      tags: &a8
+        - Brand
+    post:
+      operationId: createBrand
+      parameters:
+        - name: body
+          required: true
+          in: query
+          schema:
+            $ref: "#/components/schemas/CreateBrandRequestDto"
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Creates a new brand with the provided details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateBrandResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new brand
+      tags: *a8
+  /brands/{id}:
+    get:
+      operationId: getBrandById
+      parameters:
+        - name: id
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieves a specific brand by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrandItemResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a brand by ID
+      tags: *a8
 info:
   title: Ecom API
   description: The Ecom API description
@@ -2795,15 +3359,15 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: &a7
+          enum: &a9
             - GET
             - POST
             - PUT
             - DELETE
             - PATCH
-        roles:
+        rolesIds:
           description: Roles associated with the permission
-          example: &a8
+          example: &a10
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -2813,7 +3377,7 @@ components:
         - name
         - path
         - method
-        - roles
+        - rolesIds
     UpdatePermissionRequestDto:
       type: object
       properties:
@@ -2838,10 +3402,10 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: *a7
-        roles:
+          enum: *a9
+        rolesIds:
           description: Roles associated with the permission
-          example: *a8
+          example: *a10
           type: array
           items:
             type: string
@@ -2849,7 +3413,7 @@ components:
         - name
         - path
         - method
-        - roles
+        - rolesIds
     DeletePermissionRequestDto:
       type: object
       properties:
@@ -2941,7 +3505,7 @@ components:
           type: boolean
           description: Is role active
           example: true
-        permissions:
+        permissionIds:
           description: Permissions
           example:
             - 123e4567-e89b-12d3-a456-426614174000
@@ -2966,7 +3530,7 @@ components:
           type: boolean
           description: Is role active
           example: true
-        permissions:
+        permissionIds:
           description: Permissions
           example:
             - 123e4567-e89b-12d3-a456-426614174000
@@ -3351,3 +3915,138 @@ components:
         - status
         - role
         - updatedAt
+    UploadFileResponseDto:
+      type: object
+      properties:
+        url:
+          type: string
+          description: The URL of the uploaded file
+          example: https://bucket-name.s3.region.amazonaws.com/images/profile/avatar.jpg
+      required:
+        - url
+    UploadFilesResponseDto:
+      type: object
+      properties:
+        urls:
+          description: Array of URLs of the uploaded files
+          example:
+            - https://bucket-name.s3.region.amazonaws.com/images/profile/avatar1.jpg
+            - https://bucket-name.s3.region.amazonaws.com/images/profile/avatar2.jpg
+          type: array
+          items:
+            type: string
+      required:
+        - urls
+    PresignedUrlResponseDto:
+      type: object
+      properties:
+        url:
+          type: string
+          description: The generated presigned URL
+          example: https://bucket-name.s3.region.amazonaws.com/images/profile/avatar.jpg?X-Amz-Algorithm=...
+      required:
+        - url
+    DeleteFileResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Confirmation message after file deletion
+          example: File deleted successfully.
+      required:
+        - message
+    BrandTranslationWithLanguageResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the brand translation
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: Language code for the translation
+          example: en
+        description:
+          type: string
+          description: Name of the brand in the specified language
+          example: Brand Name
+        language:
+          description: Language details for the translation
+          allOf:
+            - $ref: "#/components/schemas/LanguageResponseDto"
+      required:
+        - id
+        - name
+        - description
+        - language
+    BrandItemResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the brand
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        logo:
+          type: string
+          description: URL to the brand's logo image
+          example: https://example.com/logos/brand-logo.png
+          format: url
+        name:
+          type: string
+          description: Name of the brand
+          example: Brand Name
+        brandTranslations:
+          description: Translations of the brand in different languages
+          type: array
+          items:
+            $ref: "#/components/schemas/BrandTranslationWithLanguageResponseDto"
+      required:
+        - id
+        - logo
+        - name
+        - brandTranslations
+    CreateBrandRequestDto:
+      type: object
+      properties:
+        logo:
+          type: string
+          description: URL to the brand's logo image
+          example: https://example.com/logos/brand-logo.png
+        name:
+          type: string
+          description: Name of the brand
+          example: Brand Name
+        brandTranslationIds:
+          description: brandTranslationIds
+          example:
+            - 123e4567-e89b-12d3-a456-426614174000
+            - 223e4567-e89b-12d3-a456-426614174001
+          type: array
+          items:
+            type: string
+      required:
+        - logo
+        - name
+    CreateBrandResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the brand
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        logo:
+          type: string
+          description: URL to the brand's logo image
+          example: https://example.com/logos/brand-logo.png
+          format: url
+        name:
+          type: string
+          description: Name of the brand
+          example: Brand Name
+      required:
+        - id
+        - logo
+        - name
