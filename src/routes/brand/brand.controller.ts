@@ -13,7 +13,7 @@ import { BrandService } from "./brand.service";
 
 import {
   BrandIdParamDto,
-  BrandItemResponseDto,
+  BrandWithBrandTranslationsResponseDto,
   CreateBrandRequestDto,
   CreateBrandResponseDto,
   DeleteBrandRequestDto,
@@ -36,7 +36,7 @@ export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
   @ApiPageOkResponse({
-    type: BrandItemResponseDto,
+    type: BrandWithBrandTranslationsResponseDto,
     description: "Retrieve a list of brands with pagination.",
     summary: "Get a list of brands",
     isPublic: true,
@@ -49,11 +49,11 @@ export class BrandController {
   ) {
     const result = await this.brandService.getBrands(query);
 
-    return new PageDto<BrandItemResponseDto>(result);
+    return new PageDto<BrandWithBrandTranslationsResponseDto>(result);
   }
 
   @ApiPublic({
-    type: BrandItemResponseDto,
+    type: BrandWithBrandTranslationsResponseDto,
     options: {
       summary: "Get a brand by ID",
       description: "Retrieves a specific brand by its ID.",
@@ -62,10 +62,10 @@ export class BrandController {
   @Get(":id")
   async getBrandById(
     @Param() param: BrandIdParamDto,
-  ): Promise<BrandItemResponseDto> {
+  ): Promise<BrandWithBrandTranslationsResponseDto> {
     const result = await this.brandService.getBrandById(param.id);
 
-    return new BrandItemResponseDto(result);
+    return new BrandWithBrandTranslationsResponseDto(result);
   }
 
   @Post()

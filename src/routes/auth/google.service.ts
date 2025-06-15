@@ -39,6 +39,13 @@ export class GoogleService {
     });
   }
 
+  /**
+   * Generates the authorization URL for Google OAuth2.
+   *
+   * @param userAgent - The user agent of the device making the request.
+   * @param ip - The IP address of the device making the request.
+   * @returns The authorization URL to redirect the user to for Google login.
+   */
   getAuthorizationUrl({ userAgent, ip }: Pick<Device, "userAgent" | "ip">) {
     const scopes = [
       "https://www.googleapis.com/auth/userinfo.email",
@@ -59,6 +66,13 @@ export class GoogleService {
     return url;
   }
 
+  /**
+   * Handles the callback from Google after the user has authorized the application.
+   *
+   * @param code - The authorization code received from Google.
+   * @param state - The state parameter that was sent in the authorization request.
+   * @returns An object containing the authentication tokens for the user.
+   */
   async googleCallback(code: string, state: string) {
     const StateSchema = z.object({
       userAgent: z.string().min(1),

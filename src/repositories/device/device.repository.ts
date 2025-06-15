@@ -15,6 +15,15 @@ export class DeviceRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
+  /**
+   * Fetches multiple devices based on the provided criteria.
+   *
+   * @param where - The filtering criteria for devices.
+   * @param take - The maximum number of devices to return.
+   * @param skip - The number of devices to skip.
+   * @param orderBy - The ordering criteria for the devices.
+   * @returns An object containing the fetched devices and their count.
+   */
   async createDevice(
     data: Pick<Device, "userId" | "ip" | "isActive" | "userAgent">,
   ): Promise<Device> {

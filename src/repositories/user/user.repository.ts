@@ -16,6 +16,13 @@ export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
   private readonly logger = new Logger(UserRepository.name);
 
+  /**
+   * Registers a new user with the provided data.
+   *
+   * @param data - The input data for creating a new user.
+   * @returns The created user without sensitive fields like password and totpSecret.
+   * @throws HttpException if the email already exists or if there is a foreign key constraint error.
+   */
   async registerUser(
     data: UserInputData,
   ): Promise<Omit<User, "password" | "totpSecret">> {
@@ -55,6 +62,13 @@ export class UserRepository {
     }
   }
 
+  /**
+   * Updates a user based on the provided criteria.
+   *
+   * @param where - The filtering criteria for the user to update.
+   * @param data - The data to update the user with.
+   * @returns The updated user without sensitive fields like password and totpSecret.
+   */
   async updateUser({
     where,
     data,

@@ -6,12 +6,9 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from "@nestjs/common";
-import {
-  ApiInternalServerErrorResponse,
-  ApiParam,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
 import { User } from "@prisma/client";
 
 import { LanguageService } from "./language.service";
@@ -22,13 +19,14 @@ import {
   LanguageDeleteRequestDto,
   LanguageDeleteResponseDto,
   LanguageIdParamDto,
-  LanguageListResponseDto,
   LanguageResponseDto,
   LanguageUpdateRequestDto,
   LanguageUpdateResponseDto,
 } from "@/dtos/language/language.dto";
+import { PageDto } from "@/dtos/shared/page.dto";
+import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
-import { ApiAuth } from "@/shared/decorators/http-decorator";
+import { ApiAuth, ApiPageOkResponse } from "@/shared/decorators/http-decorator";
 
 @ApiTags("Languages")
 @Controller("languages")
@@ -36,18 +34,18 @@ export class LanguageController {
   constructor(private readonly languageService: LanguageService) {}
 
   @Get()
-  @ApiAuth({
-    type: LanguageListResponseDto,
-    options: {
-      summary: "Get a list of languages",
-      description: "Retrieve a list of languages with pagination.",
-    },
+  @ApiPageOkResponse({
+    type: LanguageResponseDto,
+    description: "Retrieve a list of languages with pagination.",
+    summary: "Get a list of languages",
   })
-  @ApiInternalServerErrorResponse({ description: "Internal server error." })
-  async getLanguages() {
-    const result = await this.languageService.getLanguages();
+  async getLanguages(
+    @Query()
+    query: PaginationQueryDto,
+  ) {
+    const result = await this.languageService.getLanguages(query);
 
-    return new LanguageListResponseDto(result);
+    return new PageDto<LanguageResponseDto>(result);
   }
 
   @Get(":id")
@@ -57,12 +55,6 @@ export class LanguageController {
       summary: "Get a language by ID",
       description: "Retrieve a specific language by its ID.",
     },
-  })
-  @ApiParam({
-    name: "id",
-    type: String,
-    required: true,
-    description: "Language ID",
   })
   async getLanguageById(@Param() params: LanguageIdParamDto) {
     const result = await this.languageService.getLanguageById(params.id);
@@ -88,12 +80,6 @@ export class LanguageController {
   }
 
   @Put(":id")
-  @ApiParam({
-    name: "id",
-    type: String,
-    required: true,
-    description: "Language ID",
-  })
   @ApiAuth({
     type: LanguageUpdateResponseDto,
     options: {
@@ -116,7 +102,6 @@ export class LanguageController {
   }
 
   @Delete(":id")
-  @ApiParam({ name: "id", type: String, description: "Language ID" })
   @ApiAuth({
     type: LanguageDeleteResponseDto,
     options: {

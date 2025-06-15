@@ -16,6 +16,11 @@ export class RoleRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
+  /**
+   * Fetches multiple roles that are not deleted.
+   *
+   * @returns An object containing the fetched roles and their count.
+   */
   async findManyRoles({
     where,
     take,
@@ -53,6 +58,12 @@ export class RoleRepository {
     }
   }
 
+  /**
+   * Fetches a unique role by its ID.
+   *
+   * @param id - The ID of the role to fetch.
+   * @returns The role with its permissions.
+   */
   async findUniqueRole(id: Role["id"]) {
     try {
       const role = await this.prismaService.role.findUniqueOrThrow({
@@ -78,6 +89,12 @@ export class RoleRepository {
     }
   }
 
+  /**
+   * Validates the provided permissions against the database.
+   *
+   * @param permissions - The array of permission IDs to validate.
+   * @throws HttpException if any of the permissions are invalid.
+   */
   private async validatePermissions(permissions: Permission["id"][]) {
     const validPermissions = await this.prismaService.permission.findMany({
       where: {
@@ -101,6 +118,13 @@ export class RoleRepository {
     }
   }
 
+  /**
+   * Creates a new role with optional permissions.
+   *
+   * @param data - The data to create the role with.
+   * @param permissionIds - Optional array of permission IDs to connect.
+   * @returns The created role with its permissions.
+   */
   async createRole({
     data,
     permissionIds,
@@ -152,6 +176,14 @@ export class RoleRepository {
     }
   }
 
+  /**
+   * Updates an existing role with optional permissions.
+   *
+   * @param id - The ID of the role to update.
+   * @param data - The data to update the role with.
+   * @param permissionIds - Optional array of permission IDs to connect.
+   * @returns The updated role with its permissions.
+   */
   async updateRole({
     id,
     data,
@@ -213,6 +245,14 @@ export class RoleRepository {
     }
   }
 
+  /**
+   * Deletes a role by its ID.
+   *
+   * @param id - The ID of the role to delete.
+   * @param userId - The ID of the user performing the deletion.
+   * @param isHardDelete - Whether to perform a hard delete (true) or soft delete (false).
+   * @returns The deleted role with its permissions.
+   */
   async deleteRole({
     id,
     userId,

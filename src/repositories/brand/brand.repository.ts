@@ -21,6 +21,15 @@ export class BrandRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
+  /**
+   * Fetches multiple brands based on the provided criteria.
+   *
+   * @param where - The filtering criteria for brands.
+   * @param take - The maximum number of brands to return.
+   * @param skip - The number of brands to skip.
+   * @param orderBy - The ordering criteria for the brands.
+   * @returns An object containing the fetched brands and their count.
+   */
   async findManyBrands({
     where,
     take,
@@ -58,6 +67,12 @@ export class BrandRepository {
     }
   }
 
+  /**
+   * Fetches a unique brand by its ID.
+   *
+   * @param id - The ID of the brand to fetch.
+   * @returns The fetched brand.
+   */
   async findUniqueBrand(id: BrandSchema["id"]) {
     try {
       const brand = await this.prismaService.brand.findUniqueOrThrow({
@@ -83,6 +98,13 @@ export class BrandRepository {
     }
   }
 
+  /**
+   * Creates a new brand with optional translations.
+   *
+   * @param data - The data for the new brand.
+   * @param brandTranslationIds - Optional array of brand translation IDs to connect.
+   * @returns The created brand with translations.
+   */
   async createBrand({
     data,
     brandTranslationIds,
@@ -108,6 +130,7 @@ export class BrandRepository {
       return result;
     } catch (error) {
       this.logger.error(error);
+
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
@@ -131,6 +154,12 @@ export class BrandRepository {
     }
   }
 
+  /**
+   * Validates the provided brand translation IDs.
+   *
+   * @param brandTranslationIds - The array of brand translation IDs to validate.
+   * @throws HttpException if any of the IDs are invalid.
+   */
   private async validateBrandTranslations(
     brandTranslationIds: BrandSchema["id"][],
   ) {
@@ -152,6 +181,14 @@ export class BrandRepository {
     }
   }
 
+  /**
+   * Updates an existing brand with optional translations.
+   *
+   * @param id - The ID of the brand to update.
+   * @param data - The data to update the brand with.
+   * @param brandTranslationIds - Optional array of brand translation IDs to connect.
+   * @returns The updated brand with translations.
+   */
   async updateBrand({
     id,
     data,
@@ -161,6 +198,8 @@ export class BrandRepository {
     data: Prisma.BrandUpdateArgs["data"];
     brandTranslationIds?: BrandTranslationSchema["id"][];
   }) {
+    // Validate brand translation IDs if provided
+    // This is to ensure that the brand translations exist before updating the brand
     if (brandTranslationIds && brandTranslationIds.length > 0) {
       await this.validateBrandTranslations(brandTranslationIds);
     }
@@ -211,6 +250,14 @@ export class BrandRepository {
     }
   }
 
+  /**
+   * Deletes a brand by its ID, either soft or hard delete.
+   *
+   * @param id - The ID of the brand to delete.
+   * @param userId - The ID of the user performing the deletion.
+   * @param isHardDelete - Whether to perform a hard delete (default: false).
+   * @returns A message indicating the result of the deletion.
+   */
   async deleteBrand({
     id,
     userId,

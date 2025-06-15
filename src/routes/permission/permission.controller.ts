@@ -61,7 +61,7 @@ export class PermissionController {
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
   async getPermissionById(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param("id", ParseUUIDPipe) id: string, // use ParseUUidPipe instead of custom PermissionIdParamDto like LanguageIdParamDto, so use @ApiParam to show example docs in Swagger
   ): Promise<PermissionWithRolesResponseDto> {
     const result = await this.permissionService.getPermissionById(id);
 

@@ -484,9 +484,46 @@ export type paths = {
     };
     /** Get a brand by ID */
     get: operations["getBrandById"];
-    put?: never;
+    put: operations["updateBrand"];
     post?: never;
+    delete: operations["deleteBrand"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/brand-translations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a list of brand translations */
+    get: operations["getBrandTranslations"];
+    put?: never;
+    /** Create a new brand translation */
+    post: operations["createBrandTranslation"];
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/brand-translations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a brand translation by ID */
+    get: operations["getBrandTranslationById"];
+    /** Update a brand translation */
+    put: operations["updateBrandTranslation"];
+    post?: never;
+    /** Delete a brand translation */
+    delete: operations["deleteBrandTranslation"];
     options?: never;
     head?: never;
     patch?: never;
@@ -741,6 +778,31 @@ export type components = {
        */
       message: string;
     };
+    PaginationResponseDto: {
+      /**
+       * @description Total number of pages
+       * @example 5
+       */
+      totalPages: number;
+      /**
+       * @description Total number of items
+       * @example 100
+       */
+      totalItems: number;
+      /**
+       * @description Number of items per page
+       * @example 20
+       */
+      pageSize: number;
+      /**
+       * @description Current page index (starts from 0)
+       * @example 0
+       */
+      pageIndex: number;
+    };
+    PageDto: {
+      pagination: components["schemas"]["PaginationResponseDto"];
+    };
     LanguageResponseDto: {
       /**
        * @description Language code (ISO 639-1)
@@ -752,15 +814,6 @@ export type components = {
        * @example English
        */
       name: string;
-    };
-    LanguageListResponseDto: {
-      /** @description List of languages */
-      languages: components["schemas"]["LanguageResponseDto"][];
-      /**
-       * @description Total number of languages
-       * @example 10
-       */
-      total: number;
     };
     LanguageCreateRequestDto: {
       /**
@@ -824,31 +877,6 @@ export type components = {
        * @example English
        */
       name: string;
-    };
-    PaginationResponseDto: {
-      /**
-       * @description Total number of pages
-       * @example 5
-       */
-      totalPages: number;
-      /**
-       * @description Total number of items
-       * @example 100
-       */
-      totalItems: number;
-      /**
-       * @description Number of items per page
-       * @example 20
-       */
-      pageSize: number;
-      /**
-       * @description Current page index (starts from 0)
-       * @example 0
-       */
-      pageIndex: number;
-    };
-    PageDto: {
-      pagination: components["schemas"]["PaginationResponseDto"];
     };
     RoleResponseDto: {
       /**
@@ -1474,7 +1502,7 @@ export type components = {
       /** @description Language details for the translation */
       language: components["schemas"]["LanguageResponseDto"];
     };
-    BrandItemResponseDto: {
+    BrandWithBrandTranslationsResponseDto: {
       /**
        * Format: uuid
        * @description Unique identifier for the brand
@@ -1533,6 +1561,123 @@ export type components = {
        * @example Brand Name
        */
       name: string;
+      /** @description Translations of the brand in different languages */
+      brandTranslations: components["schemas"]["BrandTranslationWithLanguageResponseDto"][];
+    };
+    UpdateBrandRequestDto: {
+      /**
+       * @description URL to the brand's logo image
+       * @example https://example.com/logos/brand-logo.png
+       */
+      logo?: string;
+      /**
+       * @description Name of the brand
+       * @example Brand Name
+       */
+      name?: string;
+      /**
+       * @description brandTranslationIds
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "223e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      brandTranslationIds?: string[];
+    };
+    DeleteBrandRequestDto: {
+      /**
+       * @description Whether to hard delete the brand
+       * @default false
+       * @example false
+       */
+      isHardDelete: boolean;
+    };
+    BaseBrandResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the brand
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * Format: url
+       * @description URL to the brand's logo image
+       * @example https://example.com/logos/brand-logo.png
+       */
+      logo: string;
+      /**
+       * @description Name of the brand
+       * @example Brand Name
+       */
+      name: string;
+    };
+    BrandTranslationWithBrandAndLanguageResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the brand translation
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Language code for the translation
+       * @example en
+       */
+      name: string;
+      /**
+       * @description Name of the brand in the specified language
+       * @example Brand Name
+       */
+      description: string;
+      /** @description Language details for the translation */
+      language: components["schemas"]["LanguageResponseDto"];
+      /** @description Brand details for the translation */
+      brand: components["schemas"]["BaseBrandResponseDto"];
+    };
+    CreateBrandTranslationRequestDto: {
+      /**
+       * @description Name of the brand translation
+       * @example Brand Name
+       */
+      name: string;
+      /**
+       * @description Description of the brand translation
+       * @example This is a brand description.
+       */
+      description: string;
+      /**
+       * @description Language code (ISO 639-1)
+       * @example en
+       */
+      languageId: string;
+      /**
+       * Format: uuid
+       * @description ID of the brand for which the translation is created
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      brandId: string;
+    };
+    UpdateBrandTranslationRequestDto: {
+      /**
+       * @description Name of the brand translation
+       * @example Brand Name
+       */
+      name?: string;
+      /**
+       * @description Description of the brand translation
+       * @example This is a brand description.
+       */
+      description?: string;
+      /**
+       * @description Language code (ISO 639-1)
+       * @example en
+       */
+      languageId?: string;
+      /**
+       * Format: uuid
+       * @description ID of the brand for which the translation is created
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      brandId?: string;
     };
   };
   responses: never;
@@ -2127,7 +2272,18 @@ export interface operations {
   };
   getLanguages: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "ASC" | "DESC";
+        /** @description Field to order by */
+        orderBy?: string;
+        /** @description Search keyword */
+        keyword?: string;
+      };
       header: {
         /** @description Bearer auth token */
         Authorization: string;
@@ -2143,61 +2299,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["LanguageListResponseDto"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Not Found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Unprocessable Entity */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["LanguageResponseDto"][];
+          };
         };
       };
     };
@@ -2210,7 +2314,7 @@ export interface operations {
         Authorization: string;
       };
       path: {
-        /** @description Language ID */
+        /** @description Language ID (ISO 639-1) */
         id: string;
       };
       cookie?: never;
@@ -2290,7 +2394,7 @@ export interface operations {
         Authorization: string;
       };
       path: {
-        /** @description Language ID */
+        /** @description Language ID (ISO 639-1) */
         id: string;
       };
       cookie?: never;
@@ -2374,7 +2478,7 @@ export interface operations {
         Authorization: string;
       };
       path: {
-        /** @description Language ID */
+        /** @description Language ID (ISO 639-1) */
         id: string;
       };
       cookie?: never;
@@ -4281,7 +4385,7 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["PageDto"] & {
-            data: components["schemas"]["BrandItemResponseDto"][];
+            data: components["schemas"]["BrandWithBrandTranslationsResponseDto"][];
           };
         };
       };
@@ -4289,9 +4393,7 @@ export interface operations {
   };
   createBrand: {
     parameters: {
-      query: {
-        body: components["schemas"]["CreateBrandRequestDto"];
-      };
+      query?: never;
       header: {
         /** @description Bearer auth token */
         Authorization: string;
@@ -4299,7 +4401,11 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateBrandRequestDto"];
+      };
+    };
     responses: {
       /** @description Creates a new brand with the provided details. */
       200: {
@@ -4368,11 +4474,12 @@ export interface operations {
   };
   getBrandById: {
     parameters: {
-      query: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Unique identifier for the brand */
         id: string;
       };
-      header?: never;
-      path?: never;
       cookie?: never;
     };
     requestBody?: never;
@@ -4383,11 +4490,417 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["BrandItemResponseDto"];
+          "application/json": components["schemas"]["BrandWithBrandTranslationsResponseDto"];
         };
       };
       /** @description Bad Request */
       400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateBrand: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Unique identifier for the brand */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateBrandRequestDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  deleteBrand: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Unique identifier for the brand */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DeleteBrandRequestDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  getBrandTranslations: {
+    parameters: {
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "ASC" | "DESC";
+        /** @description Field to order by */
+        orderBy?: string;
+        /** @description Search keyword */
+        keyword?: string;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a list of brand translations with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["BrandTranslationWithBrandAndLanguageResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  createBrandTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateBrandTranslationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Creates a new brand translation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreateBrandTranslationRequestDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getBrandTranslationById: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieves a specific brand translation by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BrandTranslationWithBrandAndLanguageResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateBrandTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateBrandTranslationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Updates an existing brand translation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UpdateBrandTranslationRequestDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteBrandTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deletes an existing brand translation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BrandTranslationWithBrandAndLanguageResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
         headers: {
           [name: string]: unknown;
         };

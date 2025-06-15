@@ -18,6 +18,15 @@ export class RoleService {
 
   constructor(private readonly roleRepository: RoleRepository) {}
 
+  /**
+   * Retrieves a paginated list of roles with optional filtering and sorting.
+   *
+   * @param pageIndex - The current page index (default is 1).
+   * @param pageSize - The number of items per page (default is 10).
+   * @param order - The order direction (ASC or DESC, default is ASC).
+   * @param orderBy - The field to order by (default is createdAt).
+   * @returns An object containing the paginated list of roles and pagination metadata.
+   */
   async getRoles({
     pageIndex = 1,
     pageSize = 10,
@@ -47,12 +56,26 @@ export class RoleService {
     };
   }
 
+  /**
+   * Retrieves a specific role by its ID.
+   *
+   * @param id - The ID of the role to retrieve.
+   * @returns The role data if found.
+   * @throws HttpException if the role is not found.
+   */
   async getRoleById(id: RoleSchema["id"]) {
     const role = await this.roleRepository.findUniqueRole(id);
 
     return role;
   }
 
+  /**
+   * Creates a new role with the specified permissions.
+   *
+   * @param body - The request body containing role details and permission IDs.
+   * @param userId - The ID of the user creating the role.
+   * @returns The created role.
+   */
   async createRole({
     body: { name, description, permissionIds },
     userId,
@@ -72,6 +95,12 @@ export class RoleService {
     return role;
   }
 
+  /**
+   * Verifies if the role is forbidden to modify.
+   *
+   * @param id - The ID of the role to verify.
+   * @throws HttpException if the role is forbidden or not found.
+   */
   async verifyForbiddenRole(id: RoleSchema["id"]) {
     const role = await this.roleRepository.findUniqueRole(id);
 
@@ -90,6 +119,14 @@ export class RoleService {
     }
   }
 
+  /**
+   * Updates an existing role by its ID.
+   *
+   * @param body - The request body containing updated role details and permission IDs.
+   * @param userId - The ID of the user updating the role.
+   * @param id - The ID of the role to update.
+   * @returns The updated role.
+   */
   async updateRole({
     body: { name, description, permissionIds },
     userId,
@@ -114,6 +151,14 @@ export class RoleService {
     return role;
   }
 
+  /**
+   * Deletes a role by its ID.
+   *
+   * @param id - The ID of the role to delete.
+   * @param userId - The ID of the user performing the deletion.
+   * @param body - The request body containing deletion options.
+   * @returns The deleted role.
+   */
   async deleteRole({
     id,
     userId,

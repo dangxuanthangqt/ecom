@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Language, User } from "@prisma/client";
+import { Language, Prisma, User } from "@prisma/client";
 
+import { languageSelect } from "@/selectors/language.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -16,29 +17,61 @@ export class LanguageRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findManyLanguages() {
+  /**
+   * Fetches multiple languages that are not deleted.
+   *
+   * @param where - The filtering criteria for languages.
+   * @param take - The maximum number of languages to return.
+   * @param skip - The number of languages to skip.
+   * @param orderBy - The ordering criteria for the languages.
+   * @returns An object containing the fetched languages and their count.
+   */
+  async findManyLanguages({
+    where,
+    take,
+    skip,
+    orderBy,
+  }: Pick<Prisma.LanguageFindManyArgs, "where" | "take" | "skip" | "orderBy">) {
+    const combinedWhere: Prisma.LanguageWhereInput = {
+      ...where,
+      deletedAt: null,
+    };
+
     try {
-      const languages = await this.prismaService.language.findMany({
-        where: {
-          deletedAt: null,
-        },
-        select: {
-          id: true,
-          name: true,
-        },
+      const $languages = this.prismaService.language.findMany({
+        where: combinedWhere,
+        take,
+        skip,
+        orderBy,
+        select: languageSelect,
       });
 
-      return languages;
+      const $languagesCount = this.prismaService.language.count({
+        where: combinedWhere,
+      });
+
+      const [languagesCount, languages] = await Promise.all([
+        $languagesCount,
+        $languages,
+      ]);
+
+      return { languages, languagesCount };
     } catch (error) {
       this.logger.error(error);
 
       throwHttpException({
         type: "internal",
-        message: `Failed to get languages.`,
+        message: "Failed to fetch languages.",
       });
     }
   }
 
+  /**
+   * Fetches a unique language by its ID.
+   *
+   * @param id - The ID of the language to fetch.
+   * @returns The language with its ID and name.
+   */
   async findUniqueLanguage(id: string) {
     try {
       const language = await this.prismaService.language.findUniqueOrThrow({
@@ -46,10 +79,7 @@ export class LanguageRepository {
           id,
           deletedAt: null,
         },
-        select: {
-          id: true,
-          name: true,
-        },
+        select: languageSelect,
       });
 
       return language;
@@ -70,6 +100,14 @@ export class LanguageRepository {
     }
   }
 
+  /**
+   * Creates a new language.
+   *
+   * @param id - The ID of the language to create.
+   * @param name - The name of the language.
+   * @param createdById - The ID of the user creating the language.
+   * @returns The created language with its ID and name.
+   */
   async createLanguage({
     id,
     name,
@@ -82,10 +120,7 @@ export class LanguageRepository {
           name,
           createdById,
         },
-        select: {
-          id: true,
-          name: true,
-        },
+        select: languageSelect,
       });
 
       return language;
@@ -130,10 +165,7 @@ export class LanguageRepository {
           name,
           updatedById,
         },
-        select: {
-          id: true,
-          name: true,
-        },
+        select: languageSelect,
       });
 
       return language;
@@ -183,10 +215,7 @@ export class LanguageRepository {
           where: {
             id,
           },
-          select: {
-            id: true,
-            name: true,
-          },
+          select: languageSelect,
         });
 
         return result;
@@ -200,11 +229,9 @@ export class LanguageRepository {
         data: {
           deletedAt: new Date(),
           deletedById: userId,
+          updatedById: userId,
         },
-        select: {
-          id: true,
-          name: true,
-        },
+        select: languageSelect,
       });
 
       return result;

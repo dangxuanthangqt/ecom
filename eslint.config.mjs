@@ -61,6 +61,7 @@ export default tseslint.config(
           },
         },
       ],
+      "object-shorthand": ["error", "always"],
       "no-console": "error",
       "no-restricted-imports": [
         "error",

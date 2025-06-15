@@ -17,6 +17,15 @@ export class PermissionRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
+  /**
+   * Fetches multiple permissions based on the provided criteria.
+   *
+   * @param where - The filtering criteria for permissions.
+   * @param take - The maximum number of permissions to return.
+   * @param skip - The number of permissions to skip.
+   * @param orderBy - The ordering criteria for the permissions.
+   * @returns An object containing the fetched permissions and their count.
+   */
   async findManyPermissions({
     where,
     take,
@@ -62,6 +71,12 @@ export class PermissionRepository {
     }
   }
 
+  /**
+   * Fetches a unique permission by its ID.
+   *
+   * @param id - The ID of the permission to fetch.
+   * @returns The permission with its roles.
+   */
   async findUniquePermission(id: Permission["id"]) {
     try {
       const permission = await this.prismaService.permission.findUniqueOrThrow({
@@ -90,6 +105,12 @@ export class PermissionRepository {
     }
   }
 
+  /**
+   * Validates the provided roles against the database.
+   *
+   * @param roles - The array of role IDs to validate.
+   * @throws HttpException if any of the roles are invalid.
+   */
   async validateRoles(roles: Permission["id"][]) {
     const validRoles = await this.prismaService.role.findMany({
       where: {
@@ -113,6 +134,13 @@ export class PermissionRepository {
     }
   }
 
+  /**
+   * Creates a new permission with optional roles.
+   *
+   * @param data - The data to create the permission with.
+   * @param rolesIds - Optional array of role IDs to connect.
+   * @returns The created permission with its roles.
+   */
   async createPermission({
     data,
     rolesIds,
@@ -160,6 +188,14 @@ export class PermissionRepository {
     }
   }
 
+  /**
+   * Updates an existing permission with optional roles.
+   *
+   * @param id - The ID of the permission to update.
+   * @param data - The data to update the permission with.
+   * @param rolesIds - Optional array of role IDs to connect.
+   * @returns The updated permission with its roles.
+   */
   async updatePermission({
     id,
     data,
@@ -220,6 +256,14 @@ export class PermissionRepository {
     }
   }
 
+  /**
+   * Deletes a permission by its ID.
+   *
+   * @param id - The ID of the permission to delete.
+   * @param isHardDelete - Whether to perform a hard delete (true) or soft delete (false).
+   * @param userId - The ID of the user performing the deletion.
+   * @returns The deleted permission with its roles.
+   */
   async deletePermission({
     id,
     isHardDelete,

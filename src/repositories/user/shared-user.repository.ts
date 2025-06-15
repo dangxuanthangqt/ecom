@@ -16,6 +16,13 @@ export class SharedUserRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
+  /**
+   * Finds a unique user by the provided arguments.
+   *
+   * @param args - The arguments to find the user.
+   * @returns The found user or null if not found.
+   * @throws HttpException if the user is not found or if an internal error occurs.
+   */
   async findUnique<T extends Prisma.UserFindUniqueArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserFindUniqueArgs>,
   ): Promise<Prisma.UserGetPayload<T> | null> {
@@ -40,6 +47,13 @@ export class SharedUserRepository {
     }
   }
 
+  /**
+   * Finds multiple users based on the provided arguments.
+   *
+   * @param args - The arguments to find the users.
+   * @returns An array of found users.
+   * @throws HttpException if an internal error occurs while finding users.
+   */
   async findMany<T extends Prisma.UserFindManyArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserFindManyArgs>,
   ): Promise<Prisma.UserGetPayload<T>[]> {
@@ -57,6 +71,13 @@ export class SharedUserRepository {
     }
   }
 
+  /**
+   * Finds the first user that matches the provided arguments or throws an error if not found.
+   *
+   * @param args - The arguments to find the user.
+   * @returns The found user.
+   * @throws HttpException if the user is not found or if an internal error occurs.
+   */
   async findFirstOrThrow<T extends Prisma.UserFindFirstOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserFindFirstOrThrowArgs>,
   ): Promise<Prisma.UserGetPayload<T>> {
@@ -81,6 +102,13 @@ export class SharedUserRepository {
     }
   }
 
+  /**
+   * Finds the first user that matches the provided arguments or returns null if not found.
+   *
+   * @param args - The arguments to find the user.
+   * @returns The found user or null if not found.
+   * @throws HttpException if an internal error occurs while finding the user.
+   */
   async findFirst<T extends Prisma.UserFindFirstArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserFindFirstArgs>,
   ): Promise<Prisma.UserGetPayload<T> | null> {
@@ -115,6 +143,13 @@ export class SharedUserRepository {
     }
   }
 
+  /**
+   * Finds a unique user by the provided arguments or throws an error if not found.
+   *
+   * @param args - The arguments to find the user.
+   * @returns The found user.
+   * @throws HttpException if the user is not found or if an internal error occurs.
+   */
   async findUniqueOrThrow<T extends Prisma.UserFindUniqueOrThrowArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserFindUniqueOrThrowArgs>,
   ): Promise<Prisma.UserGetPayload<T>> {
@@ -139,6 +174,13 @@ export class SharedUserRepository {
     }
   }
 
+  /**
+   * Creates a new user with the provided arguments.
+   *
+   * @param args - The arguments to create the user.
+   * @returns The created user.
+   * @throws HttpException if the user creation fails due to unique constraint or foreign key constraint violations.
+   */
   async createUser<T extends Prisma.UserCreateArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserCreateArgs>,
   ): Promise<Prisma.UserGetPayload<T>> {
@@ -170,6 +212,13 @@ export class SharedUserRepository {
     }
   }
 
+  /**
+   * Updates a user based on the provided arguments.
+   *
+   * @param args - The arguments to update the user.
+   * @returns The updated user.
+   * @throws HttpException if the user is not found or if an internal error occurs while updating.
+   */
   async updateUser<T extends Prisma.UserUpdateArgs>(
     args: Prisma.SelectSubset<T, Prisma.UserUpdateArgs>,
   ): Promise<Prisma.UserGetPayload<T>> {

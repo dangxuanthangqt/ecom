@@ -22,6 +22,13 @@ export class ProfileService {
     private readonly hashingService: HashingService,
   ) {}
 
+  /**
+   * Retrieves the profile of a user by their ID.
+   *
+   * @param userId - The ID of the user whose profile is to be retrieved.
+   * @returns The user's profile data including role and permissions.
+   * @throws HttpException if the user is not found or has been deleted.
+   */
   async getProfile(userId: UserSchema["id"]) {
     const result = await this.sharedUserRepository.findUnique({
       where: {
@@ -41,6 +48,14 @@ export class ProfileService {
     return result;
   }
 
+  /**
+   * Updates the profile of a user.
+   *
+   * @param userId - The ID of the user whose profile is to be updated.
+   * @param data - The data to update the user's profile with.
+   * @returns The updated profile data including role and permissions.
+   * @throws HttpException if the user is not found or has been deleted.
+   */
   async updateProfile({
     userId,
     data,
@@ -74,6 +89,14 @@ export class ProfileService {
     return result;
   }
 
+  /**
+   * Changes the password of a user.
+   *
+   * @param userId - The ID of the user whose password is to be changed.
+   * @param data - The data containing current and new passwords.
+   * @returns A message indicating successful password change and logout from all devices.
+   * @throws HttpException if the current password is incorrect or if the user is not found.
+   */
   async changePassword({
     userId,
     data,

@@ -13,6 +13,16 @@ import { BrandRepository } from "@/repositories/brand/brand.repository";
 export class BrandService {
   constructor(private readonly brandRepository: BrandRepository) {}
 
+  /**
+   * Retrieves a paginated list of brands with optional filtering and sorting.
+   *
+   * @param pageIndex - The current page index (default is 1).
+   * @param pageSize - The number of items per page (default is 10).
+   * @param order - The order direction (ASC or DESC, default is ASC).
+   * @param orderBy - The field to order by (default is createdAt).
+   * @param keyword - A keyword to filter brands by name (default is an empty string).
+   * @returns An object containing the paginated list of brands and pagination metadata.
+   */
   async getBrands({
     pageIndex = 1,
     pageSize = 10,
@@ -51,12 +61,24 @@ export class BrandService {
     };
   }
 
+  /**
+   * Retrieves a brand by its ID.
+   *
+   * @param id - The ID of the brand to retrieve.
+   * @returns The brand object if found, or null if not found.
+   */
   async getBrandById(id: BrandSchema["id"]) {
     const brand = await this.brandRepository.findUniqueBrand(id);
 
     return brand;
   }
 
+  /**
+   * Retrieves a brand by its name.
+   *
+   * @param name - The name of the brand to retrieve.
+   * @returns The brand object if found, or null if not found.
+   */
   async createBrand({
     body: { logo, name, brandTranslationIds },
     userId,
@@ -76,6 +98,14 @@ export class BrandService {
     return brand;
   }
 
+  /**
+   * Updates an existing brand by its ID.
+   *
+   * @param id - The ID of the brand to update.
+   * @param userId - The ID of the user performing the update.
+   * @param body - The data to update the brand with.
+   * @returns The updated brand object.
+   */
   async updateBrand({
     id,
     userId,
@@ -96,6 +126,14 @@ export class BrandService {
     return brand;
   }
 
+  /**
+   * Deletes a brand by its ID.
+   *
+   * @param id - The ID of the brand to delete.
+   * @param userId - The ID of the user performing the deletion.
+   * @param isHardDelete - Whether to perform a hard delete (true) or soft delete (false).
+   * @returns The deleted brand object.
+   */
   async deleteBrand({
     id,
     userId,

@@ -58,6 +58,12 @@ export class AuthService {
     private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
   ) {}
 
+  /**
+   * Validates the verification code for a given email and type.
+   *
+   * @param data - The data containing email, code, and type of verification.
+   * @throws HttpException if the verification code is not valid or expired.
+   */
   async validateVerificationCode(data: {
     email: string;
     code: string;
@@ -88,6 +94,13 @@ export class AuthService {
     }
   }
 
+  /**
+   * Registers a new user with the provided data.
+   *
+   * @param data - The registration data containing email, code, password, name, and phone number.
+   * @returns The registered user details.
+   * @throws HttpException if the verification code is invalid or if the email already exists.
+   */
   async register(data: RegisterRequestDto): Promise<RegisterResponseDto> {
     await this.validateVerificationCode({
       email: data.email,
@@ -119,6 +132,15 @@ export class AuthService {
     return user;
   }
 
+  /**
+   * Logs in a user with the provided credentials.
+   *
+   * @param body - The login request data containing email, password, totpCode, or code.
+   * @param ip - The IP address of the device making the request.
+   * @param userAgent - The user agent of the device making the request.
+   * @returns The access and refresh tokens for the logged-in user.
+   * @throws HttpException if the email is not found, password is invalid, or TOTP verification fails.
+   */
   async login({
     body,
     ip,
@@ -210,6 +232,12 @@ export class AuthService {
     return tokens;
   }
 
+  /**
+   * Generates access and refresh tokens for the user.
+   *
+   * @param payload - The payload containing user ID, device ID, role ID, role name, and expiration time.
+   * @returns An object containing the generated access and refresh tokens.
+   */
   async generateTokens(
     payload: AccessTokenPayloadCreate & RefreshTokenPayloadCreate,
   ) {
@@ -243,6 +271,15 @@ export class AuthService {
     };
   }
 
+  /**
+   * Refreshes the access token using the provided refresh token.
+   *
+   * @param body - The request body containing the refresh token.
+   * @param ip - The IP address of the device making the request.
+   * @param userAgent - The user agent of the device making the request.
+   * @returns The new access and refresh tokens.
+   * @throws HttpException if the refresh token is invalid or expired.
+   */
   async refreshToken({
     body,
     ip,
@@ -315,6 +352,12 @@ export class AuthService {
     return tokens;
   }
 
+  /**
+   * Logs out the user by deleting the refresh token and deactivating the device.
+   *
+   * @param refreshToken - The refresh token to be deleted.
+   * @returns A message indicating successful logout.
+   */
   async logout({
     refreshToken,
   }: {
@@ -340,6 +383,13 @@ export class AuthService {
     };
   }
 
+  /**
+   * Sends an OTP to the user's email for verification.
+   *
+   * @param data - The request data containing email and type of verification.
+   * @returns The created verification code.
+   * @throws HttpException if the email already exists for registration or does not exist for forgot password.
+   */
   async sendOTP(data: SendOTPRequestDto) {
     const user = await this.sharedUserRepository.findFirst({
       where: {
@@ -390,6 +440,15 @@ export class AuthService {
     return verificationCode;
   }
 
+  /**
+   * Resets the user's password using the provided verification code.
+   *
+   * @param code - The verification code sent to the user's email.
+   * @param email - The user's email address.
+   * @param password - The new password to be set.
+   * @returns A message indicating successful password update.
+   * @throws HttpException if the verification code is invalid or expired, or if the user does not exist.
+   */
   async forgotPassword({
     code,
     email,
@@ -432,6 +491,13 @@ export class AuthService {
     };
   }
 
+  /**
+   * Sets up two-factor authentication (2FA) for the user.
+   *
+   * @param userid - The ID of the user to set up 2FA for.
+   * @returns An object containing the generated secret and URI for 2FA setup.
+   * @throws HttpException if 2FA is already enabled for the user.
+   */
   async setupTwoFactorAuthentication(userid: User["id"]) {
     // 1: Check user info and 2fa status
     const user = await this.sharedUserRepository.findUniqueOrThrow({
@@ -470,6 +536,15 @@ export class AuthService {
     };
   }
 
+  /**
+   * Disables two-factor authentication (2FA) for the user.
+   *
+   * @param userId - The ID of the user to disable 2FA for.
+   * @param totpCode - The TOTP code provided by the user.
+   * @param code - The verification code provided by the user.
+   * @returns A message indicating successful disabling of 2FA.
+   * @throws HttpException if 2FA is not enabled or if the TOTP code is invalid.
+   */
   async disableTwoFactorAuthentication({
     userId,
     totpCode,
@@ -510,7 +585,7 @@ export class AuthService {
       if (code) {
         await this.validateVerificationCode({
           email: user.email,
-          code: code,
+          code,
           type: VerificationCodeType.DISABLE_2FA,
         });
       }

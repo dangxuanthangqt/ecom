@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PickType } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
+import { Expose } from "class-transformer";
 import {
   IsIn,
   IsOptional,
@@ -91,7 +91,6 @@ export class UpdateProfileResponseDto extends PickType(BaseUserResponseDto, [
     type: () => RoleResponseDto,
   })
   @Expose()
-  @Type(() => RoleResponseDto)
   role: RoleResponseDto;
 
   @ApiProperty({

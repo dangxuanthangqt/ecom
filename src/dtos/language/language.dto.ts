@@ -71,26 +71,6 @@ export class LanguageResponseDto {
   }
 }
 
-export class LanguageListResponseDto {
-  @ApiProperty({
-    description: "List of languages",
-    type: [LanguageResponseDto],
-  })
-  @Expose()
-  languages: LanguageResponseDto[];
-
-  @ApiProperty({
-    description: "Total number of languages",
-    example: 10,
-  })
-  @Expose()
-  total: number;
-
-  constructor(partial: Partial<LanguageListResponseDto>) {
-    Object.assign(this, partial);
-  }
-}
-
 export class LanguageIdParamDto {
   @ApiProperty({
     description: "Language ID (ISO 639-1)",

@@ -16,6 +16,13 @@ export class VerificationCodeRepository {
 
   constructor(private readonly prismaService: PrismaService) {}
 
+  /**
+   * Deletes verification codes based on the provided arguments.
+   *
+   * @param args - The arguments to delete verification codes.
+   * @returns A promise that resolves when the deletion is complete.
+   * @throws HttpException if the deletion fails or if the verification code is not found.
+   */
   async deleteVerificationCode<T extends Prisma.VerificationCodeDeleteManyArgs>(
     args: Prisma.SelectSubset<T, Prisma.VerificationCodeDeleteManyArgs>,
   ): Promise<void> {
@@ -38,6 +45,16 @@ export class VerificationCodeRepository {
     }
   }
 
+  /**
+   * Creates or updates a verification code based on the provided input data.
+   *
+   * @param code - The verification code to create or update.
+   * @param email - The email associated with the verification code.
+   * @param type - The type of verification code (e.g., email verification, password reset).
+   * @param expiresAt - The expiration date and time of the verification code.
+   * @returns The created or updated verification code.
+   * @throws HttpException if the creation or update fails due to unique constraint violations or other errors.
+   */
   async createVerificationCode({
     code,
     email,
@@ -86,6 +103,13 @@ export class VerificationCodeRepository {
     }
   }
 
+  /**
+   * Finds a unique verification code based on the provided arguments.
+   *
+   * @param args - The arguments to find the verification code.
+   * @returns The found verification code or null if not found.
+   * @throws HttpException if an internal error occurs while finding the verification code.
+   */
   async findUnique<T extends Prisma.VerificationCodeFindUniqueArgs>(
     args: Prisma.SelectSubset<T, Prisma.VerificationCodeFindUniqueArgs>,
   ): Promise<Prisma.VerificationCodeGetPayload<T> | null> {
@@ -104,6 +128,13 @@ export class VerificationCodeRepository {
     }
   }
 
+  /**
+   * Finds a unique verification code or throws an error if not found.
+   *
+   * @param args - The arguments to find the verification code.
+   * @returns The found verification code.
+   * @throws HttpException if the verification code is not found or if an internal error occurs.
+   */
   async findUniqueOrThrow<
     T extends Prisma.VerificationCodeFindUniqueOrThrowArgs,
   >(

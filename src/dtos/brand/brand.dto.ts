@@ -43,15 +43,15 @@ export class BaseBrandResponseDto {
   }
 }
 
-export class BrandItemResponseDto extends BaseBrandResponseDto {
+export class BrandWithBrandTranslationsResponseDto extends BaseBrandResponseDto {
   @ApiProperty({
     description: "Translations of the brand in different languages",
-    type: [BrandTranslationWithLanguageResponseDto],
+    type: () => [BrandTranslationWithLanguageResponseDto],
   })
   @Expose()
   brandTranslations: BrandTranslationWithLanguageResponseDto[];
 
-  constructor(data?: BrandItemResponseDto) {
+  constructor(data?: BrandWithBrandTranslationsResponseDto) {
     super(data);
     if (data) Object.assign(this, data);
   }
@@ -102,7 +102,7 @@ export class UpdateBrandRequestDto extends PartialType(BrandRequestDto) {}
 export class CreateBrandResponseDto extends BaseBrandResponseDto {
   @ApiProperty({
     description: "Translations of the brand in different languages",
-    type: [BrandTranslationWithLanguageResponseDto],
+    type: () => [BrandTranslationWithLanguageResponseDto],
   })
   @Expose()
   brandTranslations: BrandTranslationWithLanguageResponseDto[];
@@ -117,7 +117,7 @@ export class CreateBrandResponseDto extends BaseBrandResponseDto {
 export class UpdateBrandResponseDto extends BaseBrandResponseDto {
   @ApiProperty({
     description: "Translations of the brand in different languages",
-    type: [BrandTranslationWithLanguageResponseDto],
+    type: () => [BrandTranslationWithLanguageResponseDto],
   })
   @Expose()
   brandTranslations: BrandTranslationWithLanguageResponseDto[];

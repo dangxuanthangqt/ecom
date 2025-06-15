@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma, Role, User } from "@prisma/client";
 
+import { ORDER, ORDER_BY } from "@/constants/order";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import {
   CreateUserRequestDto,
@@ -24,6 +25,12 @@ export class UserService {
     private readonly hashingService: HashingService,
   ) {}
 
+  /**
+   * Retrieves a specific user by their ID.
+   *
+   * @param id - The ID of the user to retrieve.
+   * @returns The user details including role and permissions.
+   */
   async getUserById(id: User["id"]) {
     const user = await this.sharedUserRepository.findUniqueOrThrow({
       where: {
@@ -36,11 +43,20 @@ export class UserService {
     return user;
   }
 
+  /**
+   * Retrieves a paginated list of users with optional filtering and sorting.
+   *
+   * @param pageIndex - The current page index (default is 1).
+   * @param pageSize - The number of items per page (default is 10).
+   * @param order - The order direction (ASC or DESC, default is ASC).
+   * @param orderBy - The field to order by (default is createdAt).
+   * @returns An object containing the paginated list of users and pagination metadata.
+   */
   async getUsers({
     pageIndex = 1,
     pageSize = 10,
-    order = "ASC",
-    orderBy = "createdAt",
+    order = ORDER.ASC,
+    orderBy = ORDER_BY.CREATED_AT,
   }: PaginationQueryDto) {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
@@ -81,6 +97,14 @@ export class UserService {
     };
   }
 
+  /**
+   * Creates a new user.
+   *
+   * @param body - The details of the user to create.
+   * @param activeRoleId - The role ID of the user creating the new user.
+   * @param activeUserId - The ID of the user creating the new user.
+   * @returns The created user details including role and permissions.
+   */
   async createUser({
     body: { name, email, password, phoneNumber, roleId, avatar, status },
     activeRoleId,
@@ -122,6 +146,13 @@ export class UserService {
     return createdUser;
   }
 
+  /**
+   * Validates that the active user is not trying to update themselves.
+   *
+   * @param activeUserId - The ID of the user performing the update.
+   * @param targetedUserId - The ID of the user being updated.
+   * @throws {HttpException} If the active user is trying to update themselves.
+   */
   private validateYourself({
     activeUserId,
     targetedUserId, // params.id
@@ -137,6 +168,12 @@ export class UserService {
     }
   }
 
+  /**
+   * Retrieves the role of the target user.
+   *
+   * @param userId - The ID of the user whose role is being retrieved.
+   * @returns The role of the target user.
+   */
   private async getRoleOfTargetUser(userId: User["id"]) {
     const targetRole = await this.sharedUserRepository.findUniqueOrThrow({
       where: {
@@ -151,6 +188,15 @@ export class UserService {
     return targetRole;
   }
 
+  /**
+   * Validates the role of the user being updated.
+   *
+   * @param activeRoleId - The role ID of the active user.
+   * @param updatedUserRoleId - The role ID of the user being updated.
+   * @param roleId - The new role ID to be assigned to the user.
+   * @returns {Promise<boolean>} Returns true if validation passes.
+   * @throws {HttpException} If the validation fails.
+   */
   private async validateRole({
     activeRoleId,
     updatedUserRoleId, // params.id
@@ -181,6 +227,15 @@ export class UserService {
     return true;
   }
 
+  /**
+   * Updates an existing user by their ID.
+   *
+   * @param activeUserId - The ID of the user performing the update.
+   * @param activeRoleId - The role ID of the user performing the update.
+   * @param updatedUserId - The ID of the user being updated.
+   * @param body - The updated details of the user.
+   * @returns The updated user details including role and permissions.
+   */
   async updateUser({
     activeUserId,
     activeRoleId,
@@ -229,6 +284,14 @@ export class UserService {
     return updatedUser;
   }
 
+  /**
+   * Deletes a user by their ID.
+   *
+   * @param activeUserId - The ID of the user performing the deletion.
+   * @param activeRoleId - The role ID of the user performing the deletion.
+   * @param deletedUserId - The ID of the user to be deleted.
+   * @returns The deleted user details.
+   */
   async deleteUser({
     activeRoleId,
     activeUserId,

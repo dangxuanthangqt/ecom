@@ -524,6 +524,44 @@ paths:
     get:
       operationId: getLanguages
       parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: ASC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: name
+            type: string
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
         - name: Authorization
           in: header
           description: Bearer auth token
@@ -536,57 +574,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LanguageListResponseDto"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - field: field
-                      message: message
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 401
-                  message: Unauthorized.
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Forbidden.
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Not Found.
-        "422":
-          description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 422
-                  message: Unprocessable content.
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 500
-                  message: Internal server error.
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LanguageResponseDto"
+                    required:
+                      - data
       summary: Get a list of languages
       tags: &a2
         - Languages
@@ -597,7 +593,7 @@ paths:
         - name: id
           required: true
           in: path
-          description: Language ID
+          description: Language ID (ISO 639-1)
           schema:
             minLength: 2
             maxLength: 2
@@ -674,7 +670,7 @@ paths:
         - name: id
           required: true
           in: path
-          description: Language ID
+          description: Language ID (ISO 639-1)
           schema:
             minLength: 2
             maxLength: 2
@@ -757,7 +753,7 @@ paths:
         - name: id
           required: true
           in: path
-          description: Language ID
+          description: Language ID (ISO 639-1)
           schema:
             minLength: 2
             maxLength: 2
@@ -2690,7 +2686,7 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: "#/components/schemas/BrandItemResponseDto"
+                          $ref: "#/components/schemas/BrandWithBrandTranslationsResponseDto"
                     required:
                       - data
       summary: Get a list of brands
@@ -2699,17 +2695,18 @@ paths:
     post:
       operationId: createBrand
       parameters:
-        - name: body
-          required: true
-          in: query
-          schema:
-            $ref: "#/components/schemas/CreateBrandRequestDto"
         - name: Authorization
           in: header
           description: Bearer auth token
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBrandRequestDto"
       responses:
         "200":
           description: Creates a new brand with the provided details.
@@ -2775,8 +2772,11 @@ paths:
       parameters:
         - name: id
           required: true
-          in: query
+          in: path
+          description: Unique identifier for the brand
           schema:
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
             type: string
       responses:
         "200":
@@ -2784,7 +2784,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BrandItemResponseDto"
+                $ref: "#/components/schemas/BrandWithBrandTranslationsResponseDto"
         "400":
           description: Bad Request
           content:
@@ -2821,6 +2821,414 @@ paths:
                   message: Internal server error.
       summary: Get a brand by ID
       tags: *a8
+    put:
+      operationId: updateBrand
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier for the brand
+          schema:
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBrandRequestDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a8
+    delete:
+      operationId: deleteBrand
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Unique identifier for the brand
+          schema:
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteBrandRequestDto"
+      responses:
+        "200":
+          description: ""
+      tags: *a8
+  /brand-translations:
+    get:
+      operationId: getBrandTranslations
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: ASC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: name
+            type: string
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a list of brand translations with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/BrandTranslationWithBrandAndLanguageResponseDto"
+                    required:
+                      - data
+      summary: Get a list of brand translations
+      tags: &a9
+        - BrandTranslation
+    post:
+      operationId: createBrandTranslation
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBrandTranslationRequestDto"
+      responses:
+        "200":
+          description: Creates a new brand translation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateBrandTranslationRequestDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new brand translation
+      tags: *a9
+  /brand-translations/{id}:
+    get:
+      operationId: getBrandTranslationById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieves a specific brand translation by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrandTranslationWithBrandAndLanguageResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a brand translation by ID
+      tags: *a9
+    put:
+      operationId: updateBrandTranslation
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBrandTranslationRequestDto"
+      responses:
+        "200":
+          description: Updates an existing brand translation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateBrandTranslationRequestDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update a brand translation
+      tags: *a9
+    delete:
+      operationId: deleteBrandTranslation
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deletes an existing brand translation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BrandTranslationWithBrandAndLanguageResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a brand translation
+      tags: *a9
 info:
   title: Ecom API
   description: The Ecom API description
@@ -3131,6 +3539,37 @@ components:
           example: 2FA has been disabled.
       required:
         - message
+    PaginationResponseDto:
+      type: object
+      properties:
+        totalPages:
+          type: number
+          description: Total number of pages
+          example: 5
+        totalItems:
+          type: number
+          description: Total number of items
+          example: 100
+        pageSize:
+          type: number
+          description: Number of items per page
+          example: 20
+        pageIndex:
+          type: number
+          description: Current page index (starts from 0)
+          example: 0
+      required:
+        - totalPages
+        - totalItems
+        - pageSize
+        - pageIndex
+    PageDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationResponseDto"
+      required:
+        - pagination
     LanguageResponseDto:
       type: object
       properties:
@@ -3145,21 +3584,6 @@ components:
       required:
         - id
         - name
-    LanguageListResponseDto:
-      type: object
-      properties:
-        languages:
-          description: List of languages
-          type: array
-          items:
-            $ref: "#/components/schemas/LanguageResponseDto"
-        total:
-          type: number
-          description: Total number of languages
-          example: 10
-      required:
-        - languages
-        - total
     LanguageCreateRequestDto:
       type: object
       properties:
@@ -3239,37 +3663,6 @@ components:
       required:
         - id
         - name
-    PaginationResponseDto:
-      type: object
-      properties:
-        totalPages:
-          type: number
-          description: Total number of pages
-          example: 5
-        totalItems:
-          type: number
-          description: Total number of items
-          example: 100
-        pageSize:
-          type: number
-          description: Number of items per page
-          example: 20
-        pageIndex:
-          type: number
-          description: Current page index (starts from 0)
-          example: 0
-      required:
-        - totalPages
-        - totalItems
-        - pageSize
-        - pageIndex
-    PageDto:
-      type: object
-      properties:
-        pagination:
-          $ref: "#/components/schemas/PaginationResponseDto"
-      required:
-        - pagination
     RoleResponseDto:
       type: object
       properties:
@@ -3359,7 +3752,7 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: &a9
+          enum: &a10
             - GET
             - POST
             - PUT
@@ -3367,7 +3760,7 @@ components:
             - PATCH
         rolesIds:
           description: Roles associated with the permission
-          example: &a10
+          example: &a11
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -3402,10 +3795,10 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: *a9
+          enum: *a10
         rolesIds:
           description: Roles associated with the permission
-          example: *a10
+          example: *a11
           type: array
           items:
             type: string
@@ -3980,7 +4373,7 @@ components:
         - name
         - description
         - language
-    BrandItemResponseDto:
+    BrandWithBrandTranslationsResponseDto:
       type: object
       properties:
         id:
@@ -4020,7 +4413,7 @@ components:
           example: Brand Name
         brandTranslationIds:
           description: brandTranslationIds
-          example:
+          example: &a12
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -4046,7 +4439,138 @@ components:
           type: string
           description: Name of the brand
           example: Brand Name
+        brandTranslations:
+          description: Translations of the brand in different languages
+          type: array
+          items:
+            $ref: "#/components/schemas/BrandTranslationWithLanguageResponseDto"
       required:
         - id
         - logo
         - name
+        - brandTranslations
+    UpdateBrandRequestDto:
+      type: object
+      properties:
+        logo:
+          type: string
+          description: URL to the brand's logo image
+          example: https://example.com/logos/brand-logo.png
+        name:
+          type: string
+          description: Name of the brand
+          example: Brand Name
+        brandTranslationIds:
+          description: brandTranslationIds
+          example: *a12
+          type: array
+          items:
+            type: string
+    DeleteBrandRequestDto:
+      type: object
+      properties:
+        isHardDelete:
+          type: boolean
+          description: Whether to hard delete the brand
+          example: false
+          default: false
+    BaseBrandResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the brand
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        logo:
+          type: string
+          description: URL to the brand's logo image
+          example: https://example.com/logos/brand-logo.png
+          format: url
+        name:
+          type: string
+          description: Name of the brand
+          example: Brand Name
+      required:
+        - id
+        - logo
+        - name
+    BrandTranslationWithBrandAndLanguageResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the brand translation
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: Language code for the translation
+          example: en
+        description:
+          type: string
+          description: Name of the brand in the specified language
+          example: Brand Name
+        language:
+          description: Language details for the translation
+          allOf:
+            - $ref: "#/components/schemas/LanguageResponseDto"
+        brand:
+          description: Brand details for the translation
+          allOf:
+            - $ref: "#/components/schemas/BaseBrandResponseDto"
+      required:
+        - id
+        - name
+        - description
+        - language
+        - brand
+    CreateBrandTranslationRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the brand translation
+          example: Brand Name
+        description:
+          type: string
+          description: Description of the brand translation
+          example: This is a brand description.
+        languageId:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+          minLength: 2
+          maxLength: 2
+        brandId:
+          type: string
+          description: ID of the brand for which the translation is created
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+      required:
+        - name
+        - description
+        - languageId
+        - brandId
+    UpdateBrandTranslationRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the brand translation
+          example: Brand Name
+        description:
+          type: string
+          description: Description of the brand translation
+          example: This is a brand description.
+        languageId:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+          minLength: 2
+          maxLength: 2
+        brandId:
+          type: string
+          description: ID of the brand for which the translation is created
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid

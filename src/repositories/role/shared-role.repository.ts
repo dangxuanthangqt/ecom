@@ -14,6 +14,14 @@ export class SharedRoleRepository {
 
   constructor(private prismaService: PrismaService) {}
 
+  /**
+   * Retrieves the ID of the client role.
+   * If the ID is already cached, it returns the cached value.
+   * Otherwise, it queries the database for the client role and caches the ID.
+   *
+   * @returns The ID of the client role.
+   * @throws HttpException if the client role is not found.
+   */
   async getClientRoleId(): Promise<RoleId> {
     if (this.clientRoleId) {
       return this.clientRoleId;
@@ -38,6 +46,14 @@ export class SharedRoleRepository {
     }
   }
 
+  /**
+   * Retrieves the ID of the admin role.
+   * If the ID is already cached, it returns the cached value.
+   * Otherwise, it queries the database for the admin role and caches the ID.
+   *
+   * @returns The ID of the admin role.
+   * @throws HttpException if the admin role is not found.
+   */
   async getAdminRoleId(): Promise<RoleId> {
     if (this.adminRoleId) {
       return this.adminRoleId;
