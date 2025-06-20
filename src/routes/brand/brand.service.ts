@@ -23,30 +23,36 @@ export class BrandService {
    * @param keyword - A keyword to filter brands by name (default is an empty string).
    * @returns An object containing the paginated list of brands and pagination metadata.
    */
-  async getBrands({
-    pageIndex = 1,
-    pageSize = 10,
-    order = ORDER.ASC,
-    orderBy = ORDER_BY.CREATED_AT,
-    keyword = "",
-  }: PaginationQueryDto) {
+  async getBrands(
+    {
+      pageIndex = 1,
+      pageSize = 10,
+      order = ORDER.ASC,
+      orderBy = ORDER_BY.CREATED_AT,
+      keyword = "",
+    }: PaginationQueryDto,
+    languageId: string,
+  ) {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
 
     // Normalize order for Prisma
     const normalizedOrder = order.toLowerCase();
 
-    const { brands, brandsCount } = await this.brandRepository.findManyBrands({
-      where: {
-        name: {
-          contains: keyword,
-          mode: "insensitive", // ← Không phân biệt hoa/thường
+    const { brands, brandsCount } = await this.brandRepository.findManyBrands(
+      {
+        where: {
+          name: {
+            contains: keyword,
+            mode: "insensitive", // ← Không phân biệt hoa/thường
+          },
         },
+        take,
+        skip,
+        orderBy: { [orderBy]: normalizedOrder },
       },
-      take,
-      skip,
-      orderBy: { [orderBy]: normalizedOrder },
-    });
+      languageId,
+    );
 
     const totalPages = Math.ceil(brandsCount / pageSize);
 
@@ -67,8 +73,8 @@ export class BrandService {
    * @param id - The ID of the brand to retrieve.
    * @returns The brand object if found, or null if not found.
    */
-  async getBrandById(id: BrandSchema["id"]) {
-    const brand = await this.brandRepository.findUniqueBrand(id);
+  async getBrandById(id: BrandSchema["id"], languageId: string) {
+    const brand = await this.brandRepository.findUniqueBrand(id, languageId);
 
     return brand;
   }

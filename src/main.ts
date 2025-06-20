@@ -10,8 +10,8 @@ import { Logger } from "nestjs-pino";
 import { AppModule } from "./app.module";
 // import { TransformInterceptor } from "./shared/interceptors/transform.interceptor";
 import { BadRequestErrorDetailDto } from "./dtos/bad-request-exception.dto";
+import { SharedModule } from "./shared/modules/shared.module";
 import { AppConfigService } from "./shared/services/app-config.service";
-import { SharedModule } from "./shared/shared.module";
 import { setupSwagger } from "./shared/utils/setup-swagger.util";
 
 async function bootstrap() {

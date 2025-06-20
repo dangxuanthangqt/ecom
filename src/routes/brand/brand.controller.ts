@@ -25,6 +25,7 @@ import { PageDto } from "@/dtos/shared/page.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/decorators/auth-api.decorator";
+import { CurrentLang } from "@/shared/decorators/current-lang.decorator";
 import {
   ApiAuth,
   ApiPageOkResponse,
@@ -46,8 +47,9 @@ export class BrandController {
   async getBrands(
     @Query()
     query: PaginationQueryDto,
+    @CurrentLang() lang: string, // default language is English
   ) {
-    const result = await this.brandService.getBrands(query);
+    const result = await this.brandService.getBrands(query, lang);
 
     return new PageDto<BrandWithBrandTranslationsResponseDto>(result);
   }
@@ -62,8 +64,9 @@ export class BrandController {
   @Get(":id")
   async getBrandById(
     @Param() param: BrandIdParamDto,
+    @CurrentLang() lang: string,
   ): Promise<BrandWithBrandTranslationsResponseDto> {
-    const result = await this.brandService.getBrandById(param.id);
+    const result = await this.brandService.getBrandById(param.id, lang);
 
     return new BrandWithBrandTranslationsResponseDto(result);
   }

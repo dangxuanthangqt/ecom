@@ -5,6 +5,7 @@ import {
   Prisma,
   User as UserSchema,
 } from "@prisma/client";
+import { I18nService } from "nestjs-i18n";
 
 import { brandWithTranslationsSelect } from "@/selectors/brand.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
@@ -19,7 +20,21 @@ import throwHttpException from "@/shared/utils/throw-http-exception.util";
 export class BrandRepository {
   private logger = new Logger(BrandRepository.name);
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly i18n: I18nService,
+  ) {}
+
+  private translateMessage(
+    languageId: string,
+    key: string,
+    args?: Record<string, any>,
+  ): string {
+    return this.i18n.t(key, {
+      lang: languageId,
+      args,
+    });
+  }
 
   /**
    * Fetches multiple brands based on the provided criteria.
@@ -30,12 +45,15 @@ export class BrandRepository {
    * @param orderBy - The ordering criteria for the brands.
    * @returns An object containing the fetched brands and their count.
    */
-  async findManyBrands({
-    where,
-    take,
-    skip,
-    orderBy,
-  }: Pick<Prisma.BrandFindManyArgs, "where" | "take" | "skip" | "orderBy">) {
+  async findManyBrands(
+    {
+      where,
+      take,
+      skip,
+      orderBy,
+    }: Pick<Prisma.BrandFindManyArgs, "where" | "take" | "skip" | "orderBy">,
+    languageId: string,
+  ) {
     const combinedWhere: Prisma.BrandWhereInput = {
       ...where,
       deletedAt: null,
@@ -47,7 +65,7 @@ export class BrandRepository {
         take,
         skip,
         orderBy,
-        select: brandWithTranslationsSelect,
+        select: brandWithTranslationsSelect({ languageId }),
       });
 
       const $brandsCount = this.prismaService.brand.count({
@@ -68,16 +86,18 @@ export class BrandRepository {
   }
 
   /**
-   * Fetches a unique brand by its ID.
    *
-   * @param id - The ID of the brand to fetch.
-   * @returns The fetched brand.
+   * @param id - The ID of the brand to find.
+   * @param languageId - The ID of the language for translations.
+   *
+   * Finds a unique brand by its ID and includes translations based on the provided language ID.
+   * @returns The found brand with translations.
    */
-  async findUniqueBrand(id: BrandSchema["id"]) {
+  async findUniqueBrand(id: BrandSchema["id"], languageId: string) {
     try {
       const brand = await this.prismaService.brand.findUniqueOrThrow({
         where: { id, deletedAt: null },
-        select: brandWithTranslationsSelect,
+        select: brandWithTranslationsSelect({ languageId }),
       });
 
       return brand;
@@ -85,9 +105,11 @@ export class BrandRepository {
       this.logger.error(error);
 
       if (isRecordNotFoundPrismaError(error)) {
+        const message = this.translateMessage(languageId, "message.NOT_FOUND");
+
         throwHttpException({
           type: "notFound",
-          message: "Brand not found.",
+          message,
         });
       }
 
@@ -124,7 +146,7 @@ export class BrandRepository {
             connect: brandTranslationIds?.map((id) => ({ id })),
           },
         },
-        select: brandWithTranslationsSelect,
+        select: brandWithTranslationsSelect(),
       });
 
       return result;
@@ -213,7 +235,7 @@ export class BrandRepository {
             connect: brandTranslationIds?.map((id) => ({ id })),
           },
         },
-        select: brandWithTranslationsSelect,
+        select: brandWithTranslationsSelect(),
       });
 
       return brand;
@@ -271,7 +293,7 @@ export class BrandRepository {
       if (isHardDelete) {
         await this.prismaService.brand.delete({
           where: { id, deletedAt: null },
-          select: brandWithTranslationsSelect,
+          select: brandWithTranslationsSelect(),
         });
       } else {
         await this.prismaService.brand.update({
@@ -281,7 +303,7 @@ export class BrandRepository {
             deletedById: userId,
             updatedById: userId,
           },
-          select: brandWithTranslationsSelect,
+          select: brandWithTranslationsSelect(),
         });
       }
 

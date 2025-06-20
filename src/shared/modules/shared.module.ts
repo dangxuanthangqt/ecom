@@ -1,13 +1,13 @@
 import { Global, Module, Provider } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 
-import { TwoFactorAuthenticationService } from "./services/2fa.service";
-import { AppConfigService } from "./services/app-config.service";
-import { EmailService } from "./services/email.service";
-import { HashingService } from "./services/hashing.service";
-import { PrismaService } from "./services/prisma.service";
-import { S3Service } from "./services/s3.service";
-import { TokenService } from "./services/token.service";
+import { TwoFactorAuthenticationService } from "../services/2fa.service";
+import { AppConfigService } from "../services/app-config.service";
+import { EmailService } from "../services/email.service";
+import { HashingService } from "../services/hashing.service";
+import { PrismaService } from "../services/prisma.service";
+import { S3Service } from "../services/s3.service";
+import { TokenService } from "../services/token.service";
 
 const sharedProviders: Provider[] = [
   AppConfigService,
