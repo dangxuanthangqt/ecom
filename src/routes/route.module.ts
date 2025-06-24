@@ -3,6 +3,8 @@ import { Module } from "@nestjs/common";
 import { AuthModule } from "./auth/auth.module";
 import { BrandModule } from "./brand/brand.module";
 import { BrandTranslationModule } from "./brand-translation/brand-translation.module";
+import { CategoryModule } from "./category/category.module";
+import { CategoryTranslationModule } from "./category-translation/category-translation.module";
 import { LanguageModule } from "./language/language.module";
 import { MediaModule } from "./media/media.module";
 import { PermissionModule } from "./permission/permission.module";
@@ -21,6 +23,8 @@ import { UserModule } from "./user/user.module";
     MediaModule,
     BrandModule,
     BrandTranslationModule,
+    CategoryModule,
+    CategoryTranslationModule,
   ],
 })
 export class RouteModule {}

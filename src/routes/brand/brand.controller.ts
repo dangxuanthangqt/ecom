@@ -8,6 +8,7 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 
 import { BrandService } from "./brand.service";
 
@@ -32,6 +33,7 @@ import {
   ApiPublic,
 } from "@/shared/decorators/http-decorator";
 
+@ApiTags("Brands")
 @Controller("brands")
 export class BrandController {
   constructor(private readonly brandService: BrandService) {}

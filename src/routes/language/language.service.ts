@@ -5,7 +5,6 @@ import { ORDER, ORDER_BY } from "@/constants/order";
 import {
   LanguageCreateRequestDto,
   LanguageCreateResponseDto,
-  LanguageDeleteRequestDto,
   LanguageResponseDto,
   LanguageUpdateRequestDto,
   LanguageUpdateResponseDto,
@@ -131,17 +130,11 @@ export class LanguageService {
 
   async deleteLanguage({
     id,
-    userId,
-    body: { isHardDelete },
   }: {
     id: Language["id"];
-    userId: User["id"];
-    body: LanguageDeleteRequestDto;
   }): Promise<LanguageUpdateResponseDto> {
     const language = await this.languageRepository.deleteLanguageById({
       id,
-      isHardDelete,
-      userId,
     });
 
     return language;

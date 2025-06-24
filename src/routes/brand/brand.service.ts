@@ -80,10 +80,11 @@ export class BrandService {
   }
 
   /**
-   * Retrieves a brand by its name.
+   * Creates a new brand with the provided data.
    *
-   * @param name - The name of the brand to retrieve.
-   * @returns The brand object if found, or null if not found.
+   * @param body - The data to create the brand with.
+   * @param userId - The ID of the user creating the brand.
+   * @returns The created brand object.
    */
   async createBrand({
     body: { logo, name, brandTranslationIds },
@@ -115,7 +116,7 @@ export class BrandService {
   async updateBrand({
     id,
     userId,
-    body,
+    body: { brandTranslationIds, ...rest },
   }: {
     id: BrandSchema["id"];
     userId: UserSchema["id"];
@@ -124,9 +125,10 @@ export class BrandService {
     const brand = await this.brandRepository.updateBrand({
       id,
       data: {
-        ...body,
+        ...rest,
         updatedById: userId, // Set updatedById to the current user
       },
+      brandTranslationIds,
     });
 
     return brand;

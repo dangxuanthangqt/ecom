@@ -200,39 +200,37 @@ export class LanguageRepository {
     }
   }
 
-  async deleteLanguageById({
-    id,
-    userId,
-    isHardDelete = false,
-  }: {
-    id: string;
-    userId: User["id"];
-    isHardDelete?: boolean;
-  }) {
+  async deleteLanguageById({ id }: { id: string }) {
     try {
-      if (isHardDelete) {
-        const result = await this.prismaService.language.delete({
-          where: {
-            id,
-          },
-          select: languageSelect,
-        });
+      // Nếu thiết kế DB như hiện tại thì không thể soft delete được, phải hard delete, bởi vì soft delete sẽ không tạo record mới trong bảng Language, vì không thể partial unique index cho Primary key được
 
-        return result;
-      }
+      // model Language {
+      //   id                   String                @id @db.VarChar(10) // example: "en", "vi", "fr" not UUID
+      //   name                 String                @db.VarChar(500)
 
-      const result = await this.prismaService.language.update({
+      // Thiết kế như hiện tại thực sự có vấn đề
+
+      const result = await this.prismaService.language.delete({
         where: {
           id,
-          deletedAt: null,
-        },
-        data: {
-          deletedAt: new Date(),
-          deletedById: userId,
-          updatedById: userId,
         },
         select: languageSelect,
       });
+
+      return result;
+
+      // const result = await this.prismaService.language.update({
+      //   where: {
+      //     id,
+      //     deletedAt: null,
+      //   },
+      //   data: {
+      //     deletedAt: new Date(),
+      //     deletedById: userId,
+      //     updatedById: userId,
+      //   },
+      //   select: languageSelect,
+      // });
 
       return result;
     } catch (error) {

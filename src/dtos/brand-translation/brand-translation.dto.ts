@@ -1,4 +1,4 @@
-import { ApiProperty, PartialType } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 import { IsString, IsUUID, Length } from "class-validator";
 
@@ -15,15 +15,15 @@ export class BaseBrandTranslationDto {
   id: string;
 
   @ApiProperty({
-    description: "Language code for the translation",
-    example: "en",
+    description: "Name of the brand in the specified language",
+    example: "Brand Name",
   })
   @Expose()
   name: string;
 
   @ApiProperty({
-    description: "Name of the brand in the specified language",
-    example: "Brand Name",
+    description: "Description of the brand in the specified language",
+    example: "This is a brand description.",
   })
   @Expose()
   description: string;
@@ -36,7 +36,7 @@ export class BaseBrandTranslationDto {
 export class BrandTranslationWithLanguageResponseDto extends BaseBrandTranslationDto {
   @ApiProperty({
     description: "Language details for the translation",
-    type: LanguageResponseDto,
+    type: () => LanguageResponseDto,
   })
   @Expose()
   language: LanguageResponseDto;
@@ -55,12 +55,13 @@ export class BrandTranslationWithBrandAndLanguageResponseDto extends BaseBrandTr
   @Expose()
   language: LanguageResponseDto;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: "Brand details for the translation",
     type: () => BaseBrandResponseDto,
+    nullable: true,
   })
   @Expose()
-  brand: BaseBrandResponseDto;
+  brand: BaseBrandResponseDto | null;
 
   constructor(data: BrandTranslationWithBrandAndLanguageResponseDto) {
     super(data);

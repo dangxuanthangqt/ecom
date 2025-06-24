@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import {
+  Brand as BrandSchema,
   BrandTranslation as BrandTranslationSchema,
   Language as LanguageSchema,
   Prisma,
@@ -112,7 +113,7 @@ export class BrandTranslationRepository {
    * @param id - The ID of the brand to validate.
    * @returns The validated brand object.
    */
-  async validateBrand(id: BrandTranslationSchema["brandId"]) {
+  async validateBrand(id: BrandSchema["id"]) {
     try {
       const brand = await this.prismaService.brand.findUniqueOrThrow({
         where: { id, deletedAt: null },
@@ -293,6 +294,7 @@ export class BrandTranslationRepository {
           where: { id, deletedAt: null },
           data: {
             deletedAt: new Date(),
+            deletedById: userId,
             updatedById: userId,
           },
           select: brandTranslationSelect,

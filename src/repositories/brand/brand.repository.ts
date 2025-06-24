@@ -7,7 +7,7 @@ import {
 } from "@prisma/client";
 import { I18nService } from "nestjs-i18n";
 
-import { brandWithTranslationsSelect } from "@/selectors/brand.selector";
+import { createBrandWithTranslationsSelect } from "@/selectors/brand.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -65,7 +65,7 @@ export class BrandRepository {
         take,
         skip,
         orderBy,
-        select: brandWithTranslationsSelect({ languageId }),
+        select: createBrandWithTranslationsSelect({ languageId }),
       });
 
       const $brandsCount = this.prismaService.brand.count({
@@ -97,7 +97,7 @@ export class BrandRepository {
     try {
       const brand = await this.prismaService.brand.findUniqueOrThrow({
         where: { id, deletedAt: null },
-        select: brandWithTranslationsSelect({ languageId }),
+        select: createBrandWithTranslationsSelect({ languageId }),
       });
 
       return brand;
@@ -132,7 +132,7 @@ export class BrandRepository {
     brandTranslationIds,
   }: {
     data: Prisma.BrandCreateArgs["data"];
-    brandTranslationIds?: BrandSchema["id"][];
+    brandTranslationIds?: BrandTranslationSchema["id"][];
   }) {
     if (brandTranslationIds && brandTranslationIds.length > 0) {
       await this.validateBrandTranslations(brandTranslationIds);
@@ -146,7 +146,7 @@ export class BrandRepository {
             connect: brandTranslationIds?.map((id) => ({ id })),
           },
         },
-        select: brandWithTranslationsSelect(),
+        select: createBrandWithTranslationsSelect(),
       });
 
       return result;
@@ -196,9 +196,8 @@ export class BrandRepository {
 
     if (validBrandTranslations.length !== brandTranslationIds.length) {
       throwHttpException({
-        type: "unprocessable",
-        message: "Invalid brand translations.",
-        field: "brandTranslationIds",
+        type: "badRequest",
+        message: "Some brand translations do not exist.",
       });
     }
   }
@@ -235,7 +234,7 @@ export class BrandRepository {
             connect: brandTranslationIds?.map((id) => ({ id })),
           },
         },
-        select: brandWithTranslationsSelect(),
+        select: createBrandWithTranslationsSelect(),
       });
 
       return brand;
@@ -293,7 +292,7 @@ export class BrandRepository {
       if (isHardDelete) {
         await this.prismaService.brand.delete({
           where: { id, deletedAt: null },
-          select: brandWithTranslationsSelect(),
+          select: createBrandWithTranslationsSelect(),
         });
       } else {
         await this.prismaService.brand.update({
@@ -303,7 +302,7 @@ export class BrandRepository {
             deletedById: userId,
             updatedById: userId,
           },
-          select: brandWithTranslationsSelect(),
+          select: createBrandWithTranslationsSelect(),
         });
       }
 

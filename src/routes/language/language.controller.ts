@@ -16,7 +16,6 @@ import { LanguageService } from "./language.service";
 import {
   LanguageCreateRequestDto,
   LanguageCreateResponseDto,
-  LanguageDeleteRequestDto,
   LanguageDeleteResponseDto,
   LanguageIdParamDto,
   LanguageResponseDto,
@@ -109,15 +108,9 @@ export class LanguageController {
       description: "Delete a specific language by its ID.",
     },
   })
-  async deleteLanguage(
-    @Param() params: LanguageIdParamDto,
-    @Body() body: LanguageDeleteRequestDto,
-    @ActiveUser("userId") userId: User["id"],
-  ) {
+  async deleteLanguage(@Param() params: LanguageIdParamDto) {
     const result = await this.languageService.deleteLanguage({
       id: params.id,
-      userId,
-      body,
     });
 
     return new LanguageDeleteResponseDto(result);

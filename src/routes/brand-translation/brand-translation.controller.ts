@@ -9,6 +9,7 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
+import { ApiParam } from "@nestjs/swagger";
 import { User } from "@prisma/client";
 
 import { BrandTranslationService } from "./brand-translation.service";
@@ -48,6 +49,13 @@ export class BrandTranslationController {
       summary: "Get a brand translation by ID",
       description: "Retrieves a specific brand translation by its ID.",
     },
+  })
+  @ApiParam({
+    name: "id",
+    description: "The ID of the brand translation to retrieve",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    required: true,
+    type: String,
   })
   @Get(":id")
   async getBrandTranslationById(@Param("id", ParseUUIDPipe) id: string) {

@@ -272,6 +272,8 @@ model ProductTranslation {
 
 model Category {
   id                   String                @id @default(uuid()) @db.Uuid
+  name                 String                @db.VarChar(500)
+  logo                 String?
   products             Product[]
   parentCategoryId     String?               @db.Uuid
   parentCategory       Category?             @relation("ParentCategoryCategories", fields: [parentCategoryId], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -293,12 +295,12 @@ model Category {
 }
 
 model CategoryTranslation {
-  id          String   @id @default(uuid()) @db.Uuid
-  categoryId  String   @db.Uuid
-  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id          String    @id @default(uuid()) @db.Uuid
+  categoryId  String?   @db.Uuid
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   languageId  String
-  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  name        String   @db.VarChar(500)
+  language    Language  @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  name        String    @db.VarChar(500)
   description String
 
   createdById String? @db.Uuid
@@ -406,8 +408,8 @@ model Brand {
 
 model BrandTranslation {
   id          String   @id @default(uuid()) @db.Uuid
-  brandId     String   @db.Uuid
-  brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  brandId     String?  @db.Uuid
+  brand       Brand?   @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   languageId  String
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String   @db.VarChar(500)

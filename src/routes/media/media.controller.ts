@@ -12,6 +12,7 @@ import {
   FileFieldsInterceptor,
   FilesInterceptor,
 } from "@nestjs/platform-express";
+import { ApiTags } from "@nestjs/swagger";
 
 import { MediaService } from "./media.service";
 
@@ -32,6 +33,7 @@ import {
   // createSingleImageMemoryInterceptor,
 } from "@/shared/utils/files/single-image-interceptor.util";
 
+@ApiTags("Media")
 @Controller("media")
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
