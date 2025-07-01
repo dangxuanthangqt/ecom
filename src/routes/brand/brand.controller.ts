@@ -24,14 +24,14 @@ import {
 } from "@/dtos/brand/brand.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
-import ActiveUser from "@/shared/decorators/active-user.decorator";
-import { IsPublicApi } from "@/shared/decorators/auth-api.decorator";
-import { CurrentLang } from "@/shared/decorators/current-lang.decorator";
+import ActiveUser from "@/shared/param-decorators/active-user.decorator";
+import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
+import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
 import {
   ApiAuth,
   ApiPageOkResponse,
   ApiPublic,
-} from "@/shared/decorators/http-decorator";
+} from "@/shared/param-decorators/http-decorator";
 
 @ApiTags("Brands")
 @Controller("brands")
@@ -50,7 +50,7 @@ export class BrandController {
     @Query()
     query: PaginationQueryDto,
     @CurrentLang() lang: string, // default language is English
-  ) {
+  ): Promise<PageDto<BrandWithBrandTranslationsResponseDto>> {
     const result = await this.brandService.getBrands(query, lang);
 
     return new PageDto<BrandWithBrandTranslationsResponseDto>(result);

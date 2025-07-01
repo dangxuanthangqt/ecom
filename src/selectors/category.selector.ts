@@ -11,7 +11,7 @@ export const categorySelect = Prisma.validator<Prisma.CategorySelect>()({
 });
 
 export const createCategoryWithTranslationsSelect = ({
-  languageId,
+  languageId = ALL_LANGUAGES,
 }: {
   languageId?: string;
 } = {}) =>

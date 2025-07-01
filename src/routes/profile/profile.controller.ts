@@ -11,8 +11,8 @@ import {
   UpdateProfileRequestDto,
   UpdateProfileResponseDto,
 } from "@/dtos/profile/profile.dto";
-import ActiveUser from "@/shared/decorators/active-user.decorator";
-import { ApiAuth } from "@/shared/decorators/http-decorator";
+import ActiveUser from "@/shared/param-decorators/active-user.decorator";
+import { ApiAuth } from "@/shared/param-decorators/http-decorator";
 
 @ApiTags("Profile")
 @Controller("profile")

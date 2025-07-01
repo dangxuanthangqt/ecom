@@ -1,17 +1,14 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  ValidationPipe,
-} from "@nestjs/common";
+import { HttpStatus, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule } from "@nestjs/swagger";
 import { Logger } from "nestjs-pino";
 
 import { AppModule } from "./app.module";
 // import { TransformInterceptor } from "./shared/interceptors/transform.interceptor";
-import { BadRequestErrorDetailDto } from "./dtos/bad-request-exception.dto";
+import { ValidateException } from "./shared/exceptions/validate.exception";
 import { SharedModule } from "./shared/modules/shared.module";
 import { AppConfigService } from "./shared/services/app-config.service";
+import { transformValidateObject } from "./shared/utils/app.util";
 import { setupSwagger } from "./shared/utils/setup-swagger.util";
 
 async function bootstrap() {
@@ -38,21 +35,10 @@ async function bootstrap() {
       transform: true,
 
       errorHttpStatusCode: HttpStatus.BAD_REQUEST,
-      // exceptionFactory: (errors) => {
-      //   const transformedErrors = transformValidateObject(errors);
-
-      //   return new ValidateException(transformedErrors);
-      // },
-
       exceptionFactory: (errors) => {
-        return new BadRequestException(
-          errors.map((error) => {
-            return new BadRequestErrorDetailDto({
-              field: error.property,
-              message: Object.values(error.constraints as object).join(", "),
-            });
-          }),
-        );
+        const transformedErrors = transformValidateObject(errors);
+
+        return new ValidateException(transformedErrors);
       },
     }),
   );

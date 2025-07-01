@@ -25,9 +25,9 @@ import {
   GetAllCategoriesResponseDto,
   UpdateCategoryRequestDto,
 } from "@/dtos/category/category.dto";
-import ActiveUser from "@/shared/decorators/active-user.decorator";
-import { CurrentLang } from "@/shared/decorators/current-lang.decorator";
-import { ApiAuth } from "@/shared/decorators/http-decorator";
+import ActiveUser from "@/shared/param-decorators/active-user.decorator";
+import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
+import { ApiAuth } from "@/shared/param-decorators/http-decorator";
 
 @ApiTags("Categories")
 @Controller("categories")

@@ -24,9 +24,12 @@ import {
   UpdateUserResponseDto,
   UserItemResponseDto,
 } from "@/dtos/user/user.dto";
-import ActiveRolePermissions from "@/shared/decorators/active-role-permissions.decorator";
-import ActiveUser from "@/shared/decorators/active-user.decorator";
-import { ApiAuth, ApiPageOkResponse } from "@/shared/decorators/http-decorator";
+import ActiveRolePermissions from "@/shared/param-decorators/active-role-permissions.decorator";
+import ActiveUser from "@/shared/param-decorators/active-user.decorator";
+import {
+  ApiAuth,
+  ApiPageOkResponse,
+} from "@/shared/param-decorators/http-decorator";
 
 @ApiTags("Users")
 @Controller("users")

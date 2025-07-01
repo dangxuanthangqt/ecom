@@ -24,7 +24,7 @@ import {
   UploadFileResponseDto,
   UploadFilesResponseDto,
 } from "@/dtos/media/media.dto";
-import { ApiAuth } from "@/shared/decorators/http-decorator";
+import { ApiAuth } from "@/shared/param-decorators/http-decorator";
 import { ArrayFilesValidationPipe } from "@/shared/pipes/array-images-validation.pipe";
 // import { ImageValidationPipe } from "@/shared/pipes/image-validation.pipe";
 import { MultipleFilesValidationPipe } from "@/shared/pipes/multiple-images-validation.pipe";

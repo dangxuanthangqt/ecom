@@ -38,7 +38,7 @@ export function IsOnlyOneExists(
     registerDecorator({
       name: "IsOnlyOneExists",
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       constraints: [property],
       options: validationOptions,
       validator: OnlyOneExistsConstraint,

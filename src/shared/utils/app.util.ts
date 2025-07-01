@@ -5,6 +5,7 @@ export const transformValidateObject = (
   errors: ValidationError[],
 ): ErrorDetailDto[] => {
   const details: ErrorDetailDto[] = extractErrorDetails(errors);
+
   return details;
 };
 
@@ -18,9 +19,9 @@ function extractErrorDetails(errors: ValidationError[]): ErrorDetailDto[] {
     if (error.constraints) {
       for (const constraint in error.constraints) {
         errorDetails.push({
-          property: property ? `${property}.${error.property}` : error.property,
-          errorCode: constraint,
-          errorMessage: error.constraints[constraint],
+          field: property ? `${property}.${error.property}` : error.property,
+          // errorCode: constraint,
+          message: error.constraints[constraint],
         });
       }
     }

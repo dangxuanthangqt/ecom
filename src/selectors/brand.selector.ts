@@ -11,7 +11,7 @@ const brandSelect = Prisma.validator<Prisma.BrandSelect>()({
 });
 
 const createBrandWithTranslationsSelect = ({
-  languageId,
+  languageId = ALL_LANGUAGES,
 }: {
   languageId?: string;
 } = {}) =>

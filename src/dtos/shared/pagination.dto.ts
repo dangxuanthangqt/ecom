@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
+import { Expose } from "class-transformer";
 import {
   IsIn,
   IsInt,
@@ -41,7 +41,6 @@ export class PaginationQueryDto {
   @IsInt({ message: "pageSize must be an integer" })
   @IsPositive({ message: "pageSize must be greater than 0" })
   @IsOptional()
-  @Type(() => Number)
   pageSize?: number;
 
   @ApiPropertyOptional({
@@ -51,7 +50,6 @@ export class PaginationQueryDto {
   @IsInt({ message: "pageIndex must be an integer" })
   @Min(0, { message: "pageIndex must be 0 or greater." })
   @IsOptional()
-  @Type(() => Number)
   pageIndex?: number;
 
   @ApiPropertyOptional({

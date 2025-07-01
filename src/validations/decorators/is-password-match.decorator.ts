@@ -12,7 +12,7 @@ export function IsPasswordMatch(
     registerDecorator({
       name: "matchPassword",
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       constraints: [property],
       options: validationOptions,
       validator: {

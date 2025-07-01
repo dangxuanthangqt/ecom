@@ -24,8 +24,11 @@ import {
 } from "@/dtos/language/language.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
-import ActiveUser from "@/shared/decorators/active-user.decorator";
-import { ApiAuth, ApiPageOkResponse } from "@/shared/decorators/http-decorator";
+import ActiveUser from "@/shared/param-decorators/active-user.decorator";
+import {
+  ApiAuth,
+  ApiPageOkResponse,
+} from "@/shared/param-decorators/http-decorator";
 
 @ApiTags("Languages")
 @Controller("languages")

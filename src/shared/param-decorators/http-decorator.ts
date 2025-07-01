@@ -92,7 +92,7 @@ export function ApiAuth({
 
   arrDecorator.push(
     ApiOkResponse({
-      type: type,
+      type,
       description: options?.description ?? "OK",
       isArray: options?.isArray,
     }),
@@ -127,7 +127,7 @@ export function ApiPublic({
 }): MethodDecorator {
   return applyDecorators(
     ApiOkResponse({
-      type: type,
+      type,
       description: options?.description ?? "OK",
     }),
     ApiInternalServerErrorResponse({

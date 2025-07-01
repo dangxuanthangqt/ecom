@@ -4,7 +4,7 @@ import {
   PartialType,
   PickType,
 } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
+import { Expose } from "class-transformer";
 import {
   IsEmail,
   IsIn,
@@ -83,7 +83,6 @@ export class UserWithRoleAndPermissionsResponseDto extends BaseUserResponseDto {
     type: () => RoleWithPermissionsResponseDto,
   })
   @Expose()
-  @Type(() => RoleWithPermissionsResponseDto)
   role: RoleWithPermissionsResponseDto;
 
   constructor(data?: UserWithRoleAndPermissionsResponseDto) {
@@ -112,7 +111,6 @@ export class UpdateUserResponseDto extends PickType(BaseUserResponseDto, [
     type: () => RoleResponseDto,
   })
   @Expose()
-  @Type(() => RoleResponseDto)
   role: RoleResponseDto;
 
   @ApiProperty({
@@ -218,7 +216,6 @@ export class UserItemResponseDto extends PickType(BaseUserResponseDto, [
     type: () => RoleResponseDto,
   })
   @Expose()
-  @Type(() => RoleResponseDto)
   role: RoleResponseDto;
 
   constructor(data: UserItemResponseDto) {

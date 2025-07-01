@@ -42,10 +42,10 @@ import {
   SendOTPRequestDto,
   SendOTPResponseDto,
 } from "@/dtos/auth/send-otp.dto";
-import ActiveUser from "@/shared/decorators/active-user.decorator";
-import { IsPublicApi } from "@/shared/decorators/auth-api.decorator";
-import { ApiAuth, ApiPublic } from "@/shared/decorators/http-decorator";
-import { UserAgent } from "@/shared/decorators/user-agent.decorator";
+import ActiveUser from "@/shared/param-decorators/active-user.decorator";
+import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
+import { ApiAuth, ApiPublic } from "@/shared/param-decorators/http-decorator";
+import { UserAgent } from "@/shared/param-decorators/user-agent.decorator";
 import { AppConfigService } from "@/shared/services/app-config.service";
 
 @Controller("auth")

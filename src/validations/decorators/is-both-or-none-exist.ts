@@ -39,7 +39,7 @@ export function IsBothOrNoneExist(
     registerDecorator({
       name: "IsBothOrNoneExist",
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       constraints: [property],
       options: validationOptions,
       validator: BothOrNoneExistConstraint,

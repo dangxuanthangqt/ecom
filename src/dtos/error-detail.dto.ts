@@ -1,7 +1,5 @@
 export class ErrorDetailDto {
-  property?: string;
+  field: string;
 
-  errorCode: string;
-
-  errorMessage: string;
+  message: string;
 }

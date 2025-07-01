@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import {
   Brand as BrandSchema,
   BrandTranslation as BrandTranslationSchema,
+  Language,
   Prisma,
   User as UserSchema,
 } from "@prisma/client";
@@ -52,7 +53,7 @@ export class BrandRepository {
       skip,
       orderBy,
     }: Pick<Prisma.BrandFindManyArgs, "where" | "take" | "skip" | "orderBy">,
-    languageId: string,
+    languageId: Language["id"],
   ) {
     const combinedWhere: Prisma.BrandWhereInput = {
       ...where,
@@ -93,7 +94,7 @@ export class BrandRepository {
    * Finds a unique brand by its ID and includes translations based on the provided language ID.
    * @returns The found brand with translations.
    */
-  async findUniqueBrand(id: BrandSchema["id"], languageId: string) {
+  async findUniqueBrand(id: BrandSchema["id"], languageId: Language["id"]) {
     try {
       const brand = await this.prismaService.brand.findUniqueOrThrow({
         where: { id, deletedAt: null },
