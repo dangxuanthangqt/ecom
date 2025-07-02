@@ -1,4 +1,10 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+  IntersectionType,
+  PartialType,
+  PickType,
+} from "@nestjs/swagger";
 import { Expose, Type } from "class-transformer";
 import {
   ArrayMaxSize,
@@ -19,7 +25,7 @@ import {
   BrandWithBrandTranslationsResponseDto,
 } from "../brand/brand.dto";
 import { BaseCategoryResponseDto } from "../category/category.dto";
-import { BaseSKUResponseDto, UpsertKURequestDto } from "../sku/sku.dto";
+import { BaseSKUResponseDto, UpsertSKURequestDto } from "../sku/sku.dto";
 
 import { IsUniqueVariant, IsValidSKUs } from "./product.validation";
 
@@ -123,6 +129,7 @@ export class ProductRequestDto {
   @Type(() => VariantRequestDto)
   @IsUniqueVariant()
   @IsArray({ message: "Variants must be an array." })
+  @ArrayMinSize(1, { message: "At least one variant is required." })
   variants: VariantRequestDto[];
 
   @ApiProperty({
@@ -138,19 +145,37 @@ export class ProductRequestDto {
     message: "Each category ID must be a valid UUID.",
   })
   @IsArray({ message: "Category IDs must be an array." })
+  @ArrayMinSize(1, { message: "At least one category ID is required." })
   categoryIds: string[];
 
   @ApiProperty({
     description: "List of SKUs for the product",
-    type: [UpsertKURequestDto],
+    type: [UpsertSKURequestDto],
   })
   @ValidateNested({ each: true })
-  @Type(() => UpsertKURequestDto)
+  @Type(() => UpsertSKURequestDto)
+  @IsArray({ message: "SKUs must be an array." })
+  @ArrayMinSize(1, { message: "At least one SKU is required." })
   @IsValidSKUs()
-  skus: UpsertKURequestDto[];
+  skus: UpsertSKURequestDto[];
 }
 
 export class CreateProductRequestDto extends ProductRequestDto {}
+
+export class UpdateProductRequestDto extends IntersectionType(
+  PartialType(
+    PickType(ProductRequestDto, [
+      "publishAt",
+      "name",
+      "basePrice",
+      "virtualPrice",
+      "images",
+      "brandId",
+      "categoryIds",
+    ]),
+  ),
+  PickType(ProductRequestDto, ["variants", "skus"]),
+) {}
 
 export class VariantResponseDto {
   @ApiProperty({
@@ -197,6 +222,7 @@ export class ProductResponseDto {
     description: "Name of the product",
     example: "Sample Product",
   })
+  @Expose()
   name: string;
 
   @ApiProperty({
@@ -248,7 +274,6 @@ export class ProductDetailResponseDto extends ProductResponseDto {
     description: " Categories associated with the product",
     type: () => [BaseCategoryResponseDto],
     isArray: true,
-    nullable: true,
   })
   @Expose()
   categories: BaseCategoryResponseDto[];
@@ -274,6 +299,7 @@ export class DeleteProductResponseDto {
     description: "Message indicating the result of the delete operation",
     example: "Product deleted successfully",
   })
+  @Expose()
   message: string;
 
   constructor(data?: DeleteProductResponseDto) {

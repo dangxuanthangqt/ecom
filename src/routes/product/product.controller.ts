@@ -6,6 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
@@ -22,6 +23,7 @@ import {
   DeleteProductResponseDto,
   ProductDetailResponseDto,
   ProductResponseDto,
+  UpdateProductRequestDto,
 } from "@/dtos/product/product.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
@@ -92,6 +94,28 @@ export class ProductController {
     @ActiveUser("userId") userId: UserSchema["id"],
   ) {
     const result = await this.productService.createProduct({
+      data,
+      userId,
+    });
+
+    return new ProductDetailResponseDto(result);
+  }
+
+  @ApiAuth({
+    options: {
+      description: "Update an existing product by its ID.",
+      summary: "Update product by ID",
+    },
+    type: ProductDetailResponseDto,
+  })
+  @Put(":id")
+  async updateProduct(
+    @Body() data: UpdateProductRequestDto,
+    @Param("id", ParseUUIDPipe) id: ProductSchema["id"],
+    @ActiveUser("userId") userId: UserSchema["id"],
+  ): Promise<ProductDetailResponseDto> {
+    const result = await this.productService.updateProduct({
+      id,
       data,
       userId,
     });

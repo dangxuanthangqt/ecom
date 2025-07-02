@@ -1,5 +1,5 @@
 import { ApiProperty, PartialType, PickType } from "@nestjs/swagger";
-import { Expose } from "class-transformer";
+import { Expose, Transform } from "class-transformer";
 import {
   IsInt,
   IsNumber,
@@ -54,6 +54,7 @@ export class BaseSKURequestDto {
     example: "SKU-12345",
   })
   @IsString({ message: "SKU value must be a string." })
+  @Transform(({ value }) => String(value).toLowerCase().trim())
   value: string;
 
   @ApiProperty({
@@ -79,20 +80,30 @@ export class BaseSKURequestDto {
   image: string;
 
   @ApiProperty({
-    description: "Property ID associated with the SKU",
+    description: "Product ID to which this SKU belongs",
     example: "123e4567-e89b-12d3-a456-426614174000",
     format: "uuid",
   })
-  @IsUUID("4", { message: "Property ID must be a valid UUID." })
-  propertyId: string;
+  @IsUUID("4", { message: "Product ID must be a valid UUID." })
+  productId: string;
 }
 
-export class UpsertKURequestDto extends PickType(BaseSKURequestDto, [
+export class UpsertSKURequestDto extends PickType(BaseSKURequestDto, [
   "value",
   "price",
   "stock",
   "image",
 ] as const) {}
+
+export class UpsertSKUWithIdRequestDto extends UpsertSKURequestDto {
+  @ApiProperty({
+    description: "Unique identifier for the SKU",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    format: "uuid",
+  })
+  @IsUUID("4", { message: "SKU ID must be a valid UUID." })
+  id: string;
+}
 
 export class CreateSKURequestDto extends BaseSKURequestDto {}
 

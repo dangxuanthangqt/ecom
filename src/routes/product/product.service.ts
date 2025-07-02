@@ -6,7 +6,10 @@ import {
 } from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
-import { CreateProductRequestDto } from "@/dtos/product/product.dto";
+import {
+  CreateProductRequestDto,
+  UpdateProductRequestDto,
+} from "@/dtos/product/product.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import { ProductRepository } from "@/repositories/product/product.repository";
 
@@ -74,6 +77,29 @@ export class ProductService {
     return product;
   }
 
+  async updateProduct({
+    id,
+    data,
+    userId,
+  }: {
+    id: ProductSchema["id"];
+    data: UpdateProductRequestDto;
+    userId: UserSchema["id"];
+  }) {
+    // Validate categories
+    if (data.categoryIds) {
+      await this.productRepository.validateCategories(data.categoryIds);
+    }
+
+    const product = await this.productRepository.updateProduct({
+      id,
+      data,
+      userId,
+    });
+
+    return product;
+  }
+
   async createProduct({
     data: {
       basePrice,
@@ -91,6 +117,9 @@ export class ProductService {
     data: CreateProductRequestDto;
     userId: UserSchema["id"];
   }) {
+    // Validate categories
+    await this.productRepository.validateCategories(categoryIds);
+
     const product = await this.productRepository.createProduct({
       data: {
         basePrice,
@@ -107,7 +136,10 @@ export class ProductService {
         },
         skus: {
           createMany: {
-            data: skus,
+            data: skus.map((sku, index) => ({
+              ...sku,
+              order: index,
+            })),
           },
         },
         createdById: userId,

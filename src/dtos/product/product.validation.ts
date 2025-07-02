@@ -6,7 +6,7 @@ import {
   ValidatorConstraintInterface,
 } from "class-validator";
 
-import { UpsertKURequestDto } from "../sku/sku.dto";
+import { UpsertSKURequestDto } from "../sku/sku.dto";
 
 import { ProductRequestDto, VariantRequestDto } from "./product.dto";
 
@@ -61,13 +61,15 @@ export function IsUniqueVariant(validationOptions?: ValidationOptions) {
 
 @ValidatorConstraint({ name: "IsValidSKUs", async: false })
 export class IsValidSKUsConstraint implements ValidatorConstraintInterface {
-  validate(skuFromClients: UpsertKURequestDto[], args: ValidationArguments) {
+  validate(skuFromClients: UpsertSKURequestDto[], args: ValidationArguments) {
     const productObject = args.object as ProductRequestDto;
     const variants = productObject.variants || [];
 
     const generatedSKUValues = generateSKUs(variants).map((sku) =>
       sku.value.toLowerCase(),
     );
+
+    // console.log("generateSKUs(variants)", generateSKUs(variants));
 
     if (skuFromClients.length !== generatedSKUValues.length) {
       args.constraints[0] =

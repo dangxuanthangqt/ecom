@@ -258,7 +258,7 @@ model Product {
 model ProductTranslation {
   id          String   @id @default(uuid()) @db.Uuid
   productId   String   @db.Uuid
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   languageId  String
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   name        String   @db.VarChar(500)
@@ -304,7 +304,7 @@ model Category {
 
 model CategoryTranslation {
   id          String    @id @default(uuid()) @db.Uuid
-  categoryId  String?   @db.Uuid
+  categoryId  String    @db.Uuid
   category    Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   languageId  String
   language    Language  @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
@@ -369,6 +369,7 @@ model CategoryTranslation {
 
 model SKU {
   id                  String               @id @default(uuid()) @db.Uuid
+  order               Int                  @default(0)
   value               String               @db.VarChar(500)
   price               Float
   stock               Int
@@ -416,7 +417,7 @@ model Brand {
 
 model BrandTranslation {
   id          String   @id @default(uuid()) @db.Uuid
-  brandId     String?  @db.Uuid
+  brandId     String   @db.Uuid
   brand       Brand?   @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   languageId  String
   language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
