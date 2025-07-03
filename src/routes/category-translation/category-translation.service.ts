@@ -72,10 +72,7 @@ export class CategoryTranslationService {
     data: CreateCategoryTranslationRequestDto;
     userId: string;
   }) {
-    await Promise.all([
-      this.categoryTranslationRepository.validateCategory(data.categoryId),
-      this.categoryTranslationRepository.validateLanguage(data.languageId),
-    ]);
+    await this.categoryTranslationRepository.validateCategory(data.categoryId);
 
     const result =
       await this.categoryTranslationRepository.createCategoryTranslation({
@@ -97,16 +94,10 @@ export class CategoryTranslationService {
     data: UpdateCategoryTranslationRequestDto;
     userId: UserSchema["id"];
   }) {
-    // Validate the category and language IDs before updating the translation
+    // Validate the category before updating the translation
     if (data.categoryId) {
       await this.categoryTranslationRepository.validateCategory(
         data.categoryId,
-      );
-    }
-
-    if (data.languageId) {
-      await this.categoryTranslationRepository.validateLanguage(
-        data.languageId,
       );
     }
 

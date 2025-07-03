@@ -2,7 +2,6 @@ import { Injectable, Logger } from "@nestjs/common";
 import {
   Category as CategorySchema,
   CategoryTranslation as CategoryTranslationSchema,
-  Language as LanguageSchema,
   Prisma,
   User as UserSchema,
 } from "@prisma/client";
@@ -135,37 +134,6 @@ export class CategoryTranslationRepository {
       throwHttpException({
         type: "internal",
         message: "Failed to validate category",
-      });
-    }
-  }
-
-  /**
-   * Validates the existence of a language by its ID.
-   *
-   * @param id - The ID of the language to validate.
-   * @returns The validated language object.
-   */
-  async validateLanguage(id: LanguageSchema["id"]) {
-    try {
-      const language = await this.prismaService.language.findUniqueOrThrow({
-        where: { id, deletedAt: null },
-        select: { id: true },
-      });
-
-      return language;
-    } catch (error) {
-      this.logger.error(error);
-
-      if (isRecordNotFoundPrismaError(error)) {
-        throwHttpException({
-          type: "notFound",
-          message: `Language with ID ${id} not found.`,
-        });
-      }
-
-      throwHttpException({
-        type: "internal",
-        message: `Failed to validate language with ID ${id}.`,
       });
     }
   }

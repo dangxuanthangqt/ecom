@@ -1,13 +1,6 @@
 import { ApiProperty, PartialType, PickType } from "@nestjs/swagger";
 import { Expose, Transform } from "class-transformer";
-import {
-  IsInt,
-  IsNumber,
-  IsPositive,
-  IsString,
-  IsUrl,
-  IsUUID,
-} from "class-validator";
+import { IsInt, IsNumber, IsString, IsUrl, IsUUID, Min } from "class-validator";
 
 export class BaseSKUResponseDto {
   @ApiProperty({
@@ -62,12 +55,12 @@ export class BaseSKURequestDto {
     example: 19.99,
   })
   @IsNumber({}, { message: "Price must be a number." })
-  @IsPositive({ message: "Price must be a positive number." })
+  @Min(0, { message: "Price must be a non-negative number." })
   price: number;
 
   @ApiProperty({ description: "Stock quantity of the SKU", example: 100 })
   @IsNumber({}, { message: "Stock must be a number." })
-  @IsPositive({ message: "Stock must be a positive number." })
+  @Min(0, { message: "Stock must be a non-negative number." })
   @IsInt({ message: "Stock must be an integer." })
   stock: number;
 

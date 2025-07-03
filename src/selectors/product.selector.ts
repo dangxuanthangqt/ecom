@@ -2,7 +2,7 @@ import { Language as LanguageSchema, Prisma } from "@prisma/client";
 
 import { createBrandWithTranslationsSelect } from "./brand.selector";
 import { categorySelect } from "./category.selector";
-import { baseProductTranslationSelect } from "./product-translation.selector";
+import { productTranslationSelect } from "./product-translation.selector";
 import { skuSelect } from "./sku.selector";
 
 import { ALL_LANGUAGES } from "@/constants/language";
@@ -50,7 +50,7 @@ export const createProductSelect = ({
         deletedAt: null,
         languageId: languageId === ALL_LANGUAGES ? undefined : languageId,
       },
-      select: baseProductTranslationSelect,
+      select: productTranslationSelect,
     },
     skus: {
       where: { deletedAt: null },

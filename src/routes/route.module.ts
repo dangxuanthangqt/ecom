@@ -9,6 +9,7 @@ import { LanguageModule } from "./language/language.module";
 import { MediaModule } from "./media/media.module";
 import { PermissionModule } from "./permission/permission.module";
 import { ProductModule } from "./product/product.module";
+import { ProductTranslationModule } from "./product-translation/product-translation.module";
 import { ProfileModule } from "./profile/profile.module";
 import { RoleModule } from "./role/role.module";
 import { UserModule } from "./user/user.module";
@@ -27,6 +28,7 @@ import { UserModule } from "./user/user.module";
     CategoryModule,
     CategoryTranslationModule,
     ProductModule,
+    ProductTranslationModule,
   ],
 })
 export class RouteModule {}

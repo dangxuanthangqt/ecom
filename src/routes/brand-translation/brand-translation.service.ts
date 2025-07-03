@@ -25,11 +25,8 @@ export class BrandTranslationService {
     data: BrandTranslationRequestDto;
     userId: UserSchema["id"];
   }) {
-    // Validate the brand and language IDs before creating the translation
-    await Promise.all([
-      this.brandTranslationRepository.validateBrand(data.brandId),
-      this.brandTranslationRepository.validateLanguage(data.languageId),
-    ]);
+    // Validate the brand before creating the translation
+    await this.brandTranslationRepository.validateBrand(data.brandId);
 
     const result = this.brandTranslationRepository.createBrandTranslation({
       data: {
@@ -101,10 +98,6 @@ export class BrandTranslationService {
     // Validate the brand and language IDs before updating the translation
     if (data.brandId) {
       await this.brandTranslationRepository.validateBrand(data.brandId);
-    }
-
-    if (data.languageId) {
-      await this.brandTranslationRepository.validateLanguage(data.languageId);
     }
 
     const result = this.brandTranslationRepository.updateBrandTranslation({

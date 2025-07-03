@@ -28,10 +28,12 @@ import {
 import { PageDto } from "@/dtos/shared/page.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
+import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
 import {
   ApiAuth,
   ApiPageOkResponse,
+  ApiPublic,
 } from "@/shared/param-decorators/http-decorator";
 
 @ApiTags("Products")
@@ -43,7 +45,9 @@ export class ProductController {
     type: ProductResponseDto,
     description: "Retrieve a list of products with pagination.",
     summary: "Get a list of products",
+    isPublic: true,
   })
+  @IsPublicApi()
   @Get()
   async getProducts(
     @Query()
@@ -55,13 +59,14 @@ export class ProductController {
     return new PageDto<ProductResponseDto>(result);
   }
 
-  @ApiAuth({
+  @ApiPublic({
     options: {
       description: "Retrieve a product by its ID.",
       summary: "Get product by ID",
     },
     type: ProductDetailResponseDto,
   })
+  @IsPublicApi()
   @ApiParam({
     name: "id",
     description: "The unique identifier of the product to retrieve.",

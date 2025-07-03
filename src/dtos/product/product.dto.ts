@@ -12,11 +12,11 @@ import {
   IsArray,
   IsDateString,
   IsNumber,
-  IsPositive,
   IsString,
   IsUrl,
   IsUUID,
   Length,
+  Min,
   ValidateNested,
 } from "class-validator";
 
@@ -78,7 +78,7 @@ export class ProductRequestDto {
     example: 100.0,
   })
   @IsNumber({}, { message: "Base price must be a number" })
-  @IsPositive({ message: "Base price must be a positive number" })
+  @Min(0, { message: "Base price must be a non-negative number" })
   basePrice: number;
 
   @ApiProperty({
@@ -86,7 +86,7 @@ export class ProductRequestDto {
     example: 90.0,
   })
   @IsNumber({}, { message: "Virtual price must be a number" })
-  @IsPositive({ message: "Virtual price must be a positive number" })
+  @Min(0, { message: "Virtual price must be a non-negative number" })
   virtualPrice: number;
 
   @ApiProperty({
