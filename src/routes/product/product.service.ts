@@ -4,13 +4,14 @@ import {
   Product as ProductSchema,
   User as UserSchema,
 } from "@prisma/client";
+import { isDefined } from "class-validator";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import {
   CreateProductRequestDto,
+  ProductListQueryDto,
   UpdateProductRequestDto,
 } from "@/dtos/product/product.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import { ProductRepository } from "@/repositories/product/product.repository";
 
 @Injectable()
@@ -23,8 +24,13 @@ export class ProductService {
       pageSize = 10,
       order = ORDER.ASC,
       orderBy = ORDER_BY.CREATED_AT,
-      keyword = "",
-    }: PaginationQueryDto,
+      name,
+      brandIds,
+      categoryIds,
+      minPrice,
+      maxPrice,
+      isPublic,
+    }: ProductListQueryDto,
     languageId: LanguageSchema["id"],
   ) {
     const skip = (pageIndex - 1) * pageSize;
@@ -37,10 +43,30 @@ export class ProductService {
       await this.productRepository.findManyProducts(
         {
           where: {
-            name: {
-              contains: keyword,
-              mode: "insensitive", // ← Không phân biệt hoa/thường
-            },
+            brandId: brandIds?.length ? { in: brandIds } : undefined,
+            categories: categoryIds?.length
+              ? { some: { id: { in: categoryIds } } }
+              : undefined,
+            basePrice:
+              isDefined(minPrice) || isDefined(maxPrice)
+                ? {
+                    ...(isDefined(minPrice) ? { gte: minPrice } : {}),
+                    ...(isDefined(maxPrice) ? { lte: maxPrice } : {}),
+                  }
+                : undefined,
+            publishAt: isDefined(isPublic)
+              ? isPublic
+                ? { not: null }
+                : { equals: null }
+              : undefined,
+
+            name: isDefined(name)
+              ? {
+                  contains: name,
+                  mode: "insensitive", // ← Không phân biệt hoa/thường
+                }
+              : undefined,
+            deletedAt: null, // Ensure we only get non-deleted products
           },
           take,
           skip,
@@ -138,7 +164,7 @@ export class ProductService {
           createMany: {
             data: skus.map((sku, index) => ({
               ...sku,
-              order: index,
+              order: index, // Ensure order is set based on index
             })),
           },
         },

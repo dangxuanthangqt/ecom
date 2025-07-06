@@ -10,8 +10,10 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsDateString,
   IsNumber,
+  IsOptional,
   IsString,
   IsUrl,
   IsUUID,
@@ -25,11 +27,98 @@ import {
   BrandWithBrandTranslationsResponseDto,
 } from "../brand/brand.dto";
 import { BaseCategoryResponseDto } from "../category/category.dto";
+import { PaginationQueryDto } from "../shared/pagination.dto";
 import { BaseSKUResponseDto, UpsertSKURequestDto } from "../sku/sku.dto";
 
 import { IsUniqueVariant, IsValidSKUs } from "./product.validation";
 
 import { IsUniqueStringArray } from "@/validations/decorators/is-unique-string-array";
+
+export class ProductListQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: "Filter products by brand IDs",
+    type: [String],
+    example: ["123e4567-e89b-12d3-a456-426614174000"],
+    isArray: true,
+  })
+  @IsUUID("4", {
+    each: true,
+    message: "Each brand ID must be a valid UUID.",
+  })
+  @IsOptional()
+  @IsArray({ message: "Brand IDs must be an array." })
+  brandIds?: string[];
+
+  @ApiPropertyOptional({
+    description: "Filter products by category IDs",
+    type: [String],
+    example: ["123e4567-e89b-12d3-a456-426614174000"],
+    isArray: true,
+  })
+  @IsUUID("4", {
+    each: true,
+    message: "Each category ID must be a valid UUID.",
+  })
+  @IsArray({ message: "Category IDs must be an array." })
+  @IsOptional()
+  categoryIds?: string[];
+
+  @ApiPropertyOptional({
+    description: "Search term to filter products by name",
+    example: "Sample Product",
+    type: String,
+  })
+  @IsString({ message: "Search term must be a string." })
+  @IsOptional()
+  @Length(1, 255, {
+    message: "Search term must be between 1 and 255 characters.",
+  })
+  name?: string;
+
+  @ApiPropertyOptional({
+    description: "Filter products by minimum price",
+    example: 10.0,
+    type: Number,
+  })
+  @IsNumber({}, { message: "Minimum price must be a number." })
+  @IsOptional()
+  @Min(0, { message: "Minimum price must be a non-negative number." })
+  @Type(() => Number)
+  minPrice?: number;
+
+  @ApiPropertyOptional({
+    description: "Filter products by maximum price",
+    example: 100.0,
+    type: Number,
+  })
+  @IsNumber({}, { message: "Maximum price must be a number." })
+  @IsOptional()
+  @Min(0, { message: "Maximum price must be a non-negative number." })
+  @Type(() => Number)
+  maxPrice?: number;
+
+  @ApiPropertyOptional({
+    description: "Filter product by created by user ID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+    format: "uuid",
+  })
+  @IsUUID("4", {
+    message: "Created by ID must be a valid UUID.",
+  })
+  @IsOptional()
+  @IsString({ message: "Created by ID must be a string." })
+  createdById?: string;
+
+  @ApiPropertyOptional({
+    description: "Filter products by publication status",
+    example: true,
+    type: Boolean,
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean({ message: "isPublic must be a boolean." })
+  isPublic?: boolean;
+}
 
 export class VariantRequestDto {
   @ApiProperty({
