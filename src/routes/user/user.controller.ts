@@ -10,7 +10,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import { Role, User } from "@prisma/client";
+import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
 import { UserService } from "./user.service";
 
@@ -24,7 +24,7 @@ import {
   UpdateUserResponseDto,
   UserItemResponseDto,
 } from "@/dtos/user/user.dto";
-import ActiveRolePermissions from "@/shared/param-decorators/active-role-permissions.decorator";
+import ActiveUserRole from "@/shared/param-decorators/active-user-role.decorator";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,
@@ -65,7 +65,7 @@ export class UserController {
     type: String,
   })
   async getUserById(
-    @Param("id", ParseUUIDPipe) userId: User["id"],
+    @Param("id", ParseUUIDPipe) userId: UserSchema["id"],
   ): Promise<UserItemResponseDto> {
     const result = await this.userService.getUserById(userId);
 
@@ -82,8 +82,8 @@ export class UserController {
   })
   async createUser(
     @Body() body: CreateUserRequestDto,
-    @ActiveRolePermissions("id") activeRoleId: Role["id"],
-    @ActiveUser("userId") activeUserId: User["id"],
+    @ActiveUserRole("id") activeRoleId: RoleSchema["id"],
+    @ActiveUser("userId") activeUserId: UserSchema["id"],
   ): Promise<CreateUserResponseDto> {
     const result = await this.userService.createUser({
       body,
@@ -109,9 +109,9 @@ export class UserController {
   })
   async updateUser(
     @Body() body: UpdateUserRequestDto,
-    @Param("id", ParseUUIDPipe) updatedUserId: User["id"],
-    @ActiveUser("userId") activeUserId: User["id"],
-    @ActiveRolePermissions("id") activeRoleId: Role["id"],
+    @Param("id", ParseUUIDPipe) updatedUserId: UserSchema["id"],
+    @ActiveUser("userId") activeUserId: UserSchema["id"],
+    @ActiveUserRole("id") activeRoleId: RoleSchema["id"],
   ): Promise<UpdateUserResponseDto> {
     const result = await this.userService.updateUser({
       body,
@@ -137,9 +137,9 @@ export class UserController {
     type: String,
   })
   async deleteUser(
-    @Param("id", ParseUUIDPipe) deletedUserId: User["id"],
-    @ActiveUser("userId") activeUserId: User["id"],
-    @ActiveRolePermissions("id") activeRoleId: Role["id"],
+    @Param("id", ParseUUIDPipe) deletedUserId: UserSchema["id"],
+    @ActiveUser("userId") activeUserId: UserSchema["id"],
+    @ActiveUserRole("id") activeRoleId: RoleSchema["id"],
   ): Promise<BaseUserResponseDto> {
     const result = await this.userService.deleteUser({
       activeRoleId,

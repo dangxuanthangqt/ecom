@@ -72,6 +72,7 @@ export class AuthService {
     const verificationCode = await this.verificationCodeRepository.findUnique({
       where: {
         email_code_type: {
+          // Dùng fined unique mới có thể dùng được field này, find first, find many không dùng được
           email: data.email,
           code: data.code,
           type: data.type,

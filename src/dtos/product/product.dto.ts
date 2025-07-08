@@ -5,7 +5,7 @@ import {
   PartialType,
   PickType,
 } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -34,7 +34,7 @@ import { IsUniqueVariant, IsValidSKUs } from "./product.validation";
 
 import { IsUniqueStringArray } from "@/validations/decorators/is-unique-string-array";
 
-export class ProductListQueryDto extends PaginationQueryDto {
+export class ProductQueryDto {
   @ApiPropertyOptional({
     description: "Filter products by brand IDs",
     type: [String],
@@ -96,8 +96,15 @@ export class ProductListQueryDto extends PaginationQueryDto {
   @Min(0, { message: "Maximum price must be a non-negative number." })
   @Type(() => Number)
   maxPrice?: number;
+}
 
-  @ApiPropertyOptional({
+export class ProductPaginationQueryDto extends IntersectionType(
+  PaginationQueryDto,
+  ProductQueryDto,
+) {}
+
+export class ProductManageQueryDto extends ProductQueryDto {
+  @ApiProperty({
     description: "Filter product by created by user ID",
     example: "123e4567-e89b-12d3-a456-426614174000",
     format: "uuid",
@@ -105,9 +112,7 @@ export class ProductListQueryDto extends PaginationQueryDto {
   @IsUUID("4", {
     message: "Created by ID must be a valid UUID.",
   })
-  @IsOptional()
-  @IsString({ message: "Created by ID must be a string." })
-  createdById?: string;
+  createdById: string; // This field is required for managing products
 
   @ApiPropertyOptional({
     description: "Filter products by publication status",
@@ -115,10 +120,22 @@ export class ProductListQueryDto extends PaginationQueryDto {
     type: Boolean,
   })
   @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => {
+    if (typeof value === "string") {
+      if (value.toLowerCase() === "true") return true;
+      if (value.toLowerCase() === "false") return false;
+    }
+
+    return false; // get all products if not specified
+  })
   @IsBoolean({ message: "isPublic must be a boolean." })
   isPublic?: boolean;
 }
+
+export class ManageProductPaginationQueryDto extends IntersectionType(
+  ProductManageQueryDto,
+  PaginationQueryDto,
+) {}
 
 export class VariantRequestDto {
   @ApiProperty({
@@ -151,8 +168,8 @@ export class ProductRequestDto {
     format: "date-time",
     default: new Date().toISOString(),
   })
-  @IsDateString({}, { message: "Invalid date format for publishAt" })
-  publishAt: Date;
+  @IsDateString({}, { message: "Invalid date format for publishedAt" })
+  publishedAt: Date;
 
   @ApiProperty({
     description: "The name of the product",
@@ -254,7 +271,7 @@ export class CreateProductRequestDto extends ProductRequestDto {}
 export class UpdateProductRequestDto extends IntersectionType(
   PartialType(
     PickType(ProductRequestDto, [
-      "publishAt",
+      "publishedAt",
       "name",
       "basePrice",
       "virtualPrice",
@@ -305,7 +322,7 @@ export class ProductResponseDto {
     nullable: true,
   })
   @Expose()
-  publishAt: Date | null;
+  publishedAt: Date | null;
 
   @ApiProperty({
     description: "Name of the product",

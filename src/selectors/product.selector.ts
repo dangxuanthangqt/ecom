@@ -13,7 +13,7 @@ export const productSelect = Prisma.validator<Prisma.ProductSelect>()({
   images: true,
   basePrice: true,
   virtualPrice: true,
-  publishAt: true,
+  publishedAt: true,
   brand: {
     select: createBrandWithTranslationsSelect(),
     where: { deletedAt: null },

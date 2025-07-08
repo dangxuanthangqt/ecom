@@ -2,24 +2,19 @@ import { Injectable } from "@nestjs/common";
 import {
   Language as LanguageSchema,
   Product as ProductSchema,
-  User as UserSchema,
 } from "@prisma/client";
-import { isDefined } from "class-validator";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
-import {
-  CreateProductRequestDto,
-  ProductListQueryDto,
-  UpdateProductRequestDto,
-} from "@/dtos/product/product.dto";
+import { ProductPaginationQueryDto } from "@/dtos/product/product.dto";
 import { ProductRepository } from "@/repositories/product/product.repository";
+import { createProductSelect } from "@/selectors/product.selector";
 
 @Injectable()
 export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
 
-  async findManyProducts(
-    {
+  async getProducts({
+    query: {
       pageIndex = 1,
       pageSize = 10,
       order = ORDER.ASC,
@@ -29,10 +24,12 @@ export class ProductService {
       categoryIds,
       minPrice,
       maxPrice,
-      isPublic,
-    }: ProductListQueryDto,
-    languageId: LanguageSchema["id"],
-  ) {
+    },
+    languageId,
+  }: {
+    query: ProductPaginationQueryDto;
+    languageId: LanguageSchema["id"];
+  }) {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
 
@@ -42,31 +39,13 @@ export class ProductService {
     const { products, productsCount } =
       await this.productRepository.findManyProducts(
         {
-          where: {
-            brandId: brandIds?.length ? { in: brandIds } : undefined,
-            categories: categoryIds?.length
-              ? { some: { id: { in: categoryIds } } }
-              : undefined,
-            basePrice:
-              isDefined(minPrice) || isDefined(maxPrice)
-                ? {
-                    ...(isDefined(minPrice) ? { gte: minPrice } : {}),
-                    ...(isDefined(maxPrice) ? { lte: maxPrice } : {}),
-                  }
-                : undefined,
-            publishAt: isDefined(isPublic)
-              ? isPublic
-                ? { not: null }
-                : { equals: null }
-              : undefined,
-
-            name: isDefined(name)
-              ? {
-                  contains: name,
-                  mode: "insensitive", // ← Không phân biệt hoa/thường
-                }
-              : undefined,
-            deletedAt: null, // Ensure we only get non-deleted products
+          query: {
+            name,
+            brandIds,
+            categoryIds,
+            minPrice,
+            maxPrice,
+            isPublic: true, // Only public products
           },
           take,
           skip,
@@ -88,105 +67,24 @@ export class ProductService {
     };
   }
 
-  async findUniqueProduct({
-    id,
+  async getProductById({
+    productId,
     languageId,
   }: {
-    id: ProductSchema["id"];
+    productId: ProductSchema["id"];
     languageId: LanguageSchema["id"];
   }) {
     const product = await this.productRepository.findUniqueProduct({
-      id,
-      languageId,
-    });
-
-    return product;
-  }
-
-  async updateProduct({
-    id,
-    data,
-    userId,
-  }: {
-    id: ProductSchema["id"];
-    data: UpdateProductRequestDto;
-    userId: UserSchema["id"];
-  }) {
-    // Validate categories
-    if (data.categoryIds) {
-      await this.productRepository.validateCategories(data.categoryIds);
-    }
-
-    const product = await this.productRepository.updateProduct({
-      id,
-      data,
-      userId,
-    });
-
-    return product;
-  }
-
-  async createProduct({
-    data: {
-      basePrice,
-      virtualPrice,
-      name,
-      brandId,
-      images,
-      publishAt,
-      categoryIds,
-      variants,
-      skus,
-    },
-    userId,
-  }: {
-    data: CreateProductRequestDto;
-    userId: UserSchema["id"];
-  }) {
-    // Validate categories
-    await this.productRepository.validateCategories(categoryIds);
-
-    const product = await this.productRepository.createProduct({
-      data: {
-        basePrice,
-        virtualPrice,
-        variants,
-        name,
-        brandId,
-        images,
-        publishAt,
-        categories: {
-          connect: categoryIds.map((id) => ({
-            id,
-          })),
-        },
-        skus: {
-          createMany: {
-            data: skus.map((sku, index) => ({
-              ...sku,
-              order: index, // Ensure order is set based on index
-            })),
-          },
-        },
-        createdById: userId,
+      where: {
+        id: productId,
+        deletedAt: null,
+        publishedAt: { lte: new Date(), not: null },
       },
+      select: createProductSelect({
+        languageId,
+      }),
     });
 
     return product;
-  }
-
-  async deleteProduct({
-    id,
-    userId,
-  }: {
-    id: ProductSchema["id"];
-    userId: UserSchema["id"];
-  }) {
-    const result = await this.productRepository.deleteProduct({
-      id,
-      userId,
-    });
-
-    return result;
   }
 }

@@ -66,6 +66,7 @@ export class VerificationCodeRepository {
         {
           where: {
             email_code_type: {
+              // dùng find unique or upsert mới có thể dùng được field kết hợp này
               email,
               code,
               type,

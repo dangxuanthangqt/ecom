@@ -6,8 +6,12 @@ import {
   Product as ProductSchema,
   User as UserSchema,
 } from "@prisma/client";
+import { isDefined } from "class-validator";
 
-import { UpdateProductRequestDto } from "@/dtos/product/product.dto";
+import {
+  ProductManageQueryDto,
+  UpdateProductRequestDto,
+} from "@/dtos/product/product.dto";
 import {
   UpsertSKURequestDto,
   UpsertSKUWithIdRequestDto,
@@ -28,29 +32,70 @@ export class ProductRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Fetches a list of products with pagination and filtering options.
-   * @param where - Filter conditions for the products.
-   * @param take - Number of products to return.
-   * @param skip - Number of products to skip (for pagination).
-   * @param orderBy - Sorting options for the products.
-   * @param languageId - The ID of the language for product translations.
-   * @returns An object containing the list of products and the total count.
-   * @throws Throws an HTTP exception if the operation fails.
+   * Finds multiple products based on the provided query parameters and pagination options.
+   *
+   * @param params - The parameters for finding products
+   * @param params.query - The query parameters for filtering products
+   * @param params.take - The maximum number of products to return
+   * @param params.skip - The number of products to skip for pagination
+   * @param params.orderBy - The ordering criteria for the products
+   * @param languageId - The language ID for localized content
+   * @returns Promise that resolves to an object containing the products and their count
+   * @throws {HttpException} Throws a 500 "internal" exception if the database operation fails
    */
   async findManyProducts(
     {
-      where,
+      query: {
+        brandIds,
+        categoryIds,
+        minPrice,
+        maxPrice,
+        isPublic,
+        name,
+        createdById,
+      },
       take,
       skip,
       orderBy,
-    }: Pick<Prisma.ProductFindManyArgs, "where" | "take" | "skip" | "orderBy">,
+    }: Pick<Prisma.ProductFindManyArgs, "take" | "skip" | "orderBy"> & {
+      query: Partial<ProductManageQueryDto>;
+    },
     languageId: LanguageSchema["id"],
   ) {
     try {
-      const combinedWhere: Prisma.ProductWhereInput = {
-        ...where,
-        deletedAt: null,
+      let combinedWhere: Prisma.ProductWhereInput = {
+        brandId: brandIds?.length ? { in: brandIds } : undefined,
+        categories: categoryIds?.length
+          ? { some: { id: { in: categoryIds } } }
+          : undefined,
+        basePrice:
+          isDefined(minPrice) || isDefined(maxPrice)
+            ? {
+                ...(isDefined(minPrice) ? { gte: minPrice } : {}),
+                ...(isDefined(maxPrice) ? { lte: maxPrice } : {}),
+              }
+            : undefined,
+        name: isDefined(name)
+          ? {
+              contains: name,
+              mode: "insensitive", // ← Không phân biệt hoa/thường
+            }
+          : undefined,
+        createdById,
+        deletedAt: null, // Ensure we only get non-deleted products
       };
+
+      if (isPublic) {
+        combinedWhere = {
+          ...combinedWhere,
+          publishedAt: { lte: new Date(), not: null },
+        };
+      } else if (isPublic === false) {
+        combinedWhere = {
+          ...combinedWhere,
+          OR: [{ publishedAt: { gt: new Date() } }, { publishedAt: null }],
+        };
+      }
 
       const $products = this.prisma.product.findMany({
         where: combinedWhere,
@@ -87,39 +132,40 @@ export class ProductRepository {
   }
 
   /**
-   * Finds a unique product by ID with localized content and associated categories.
+   * Finds a unique product by its ID and includes translations based on the provided language ID.
    *
-   * @param params - The parameters for finding the product
-   * @param params.id - The unique identifier of the product
-   * @param params.languageId - The language ID for localized content
-   * @returns Promise that resolves to the product with localized content and categories
+   * @param where - The conditions to find the product
+   * @param languageId - The ID of the language for translations
+   * @param select - Optional select object to specify fields to return
+   * @returns Promise that resolves to the found product with translations
    * @throws {HttpException} Throws a 404 "notFound" exception if the product is not found
-   * @throws {HttpException} Throws a 500 "internal" exception if the database operation fails
+   * @throws {HttpException} Throws a 500 "internal" exception for other database errors
    */
-  async findUniqueProduct({
-    id,
-    languageId,
+  async findUniqueProduct<
+    S extends Prisma.ProductSelect,
+    T = Prisma.ProductGetPayload<{ select: S }>,
+  >({
+    where,
+    select,
   }: {
-    id: ProductSchema["id"];
-    languageId: LanguageSchema["id"];
-  }) {
+    where: Prisma.ProductFindUniqueOrThrowArgs["where"];
+    select?: S;
+  }): Promise<T> {
     try {
       const product = await this.prisma.product.findUniqueOrThrow({
-        where: { id, deletedAt: null },
-        select: createProductSelect({ languageId }),
+        where,
+        select,
       });
 
-      return product;
+      return product as T;
     } catch (error) {
       this.logger.error(error);
-
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
           message: "Product not found",
         });
       }
-
       throwHttpException({
         type: "internal",
         message: "Failed to fetch product",
@@ -194,7 +240,7 @@ export class ProductRepository {
   /**
    * Updates an existing product by its ID with the provided data.
    * This method handles updating product details, SKUs, and categories in a single transaction.
-   * @param id - The unique identifier of the product to update.
+   * @param productId - The unique identifier of the product to update.
    * @param data - The data to update the product with, including SKUs and category IDs.
    * @param userId - The ID of the user performing the update, used for tracking changes.
    * @returns The updated product with its translations and SKUs.
@@ -202,11 +248,11 @@ export class ProductRepository {
    *         unique constraint violations, foreign key violations, or other database errors.
    */
   async updateProduct({
-    id: productId,
+    productId,
     data: { skus: skuFromClientData, categoryIds, ...productData },
     userId,
   }: {
-    id: ProductSchema["id"];
+    productId: ProductSchema["id"];
     data: UpdateProductRequestDto;
     userId: UserSchema["id"];
   }) {
@@ -377,7 +423,7 @@ export class ProductRepository {
    * timestamps and user information for audit purposes.
    *
    * @param params - The deletion parameters
-   * @param params.id - The unique identifier of the product to delete
+   * @param params.productId - The unique identifier of the product to delete
    * @param params.userId - The ID of the user performing the deletion operation
    *
    * @returns Promise that resolves to a success message object
@@ -388,24 +434,34 @@ export class ProductRepository {
    *
    */
   async deleteProduct({
-    id,
+    productId,
     userId,
   }: {
-    id: ProductSchema["id"];
+    productId: ProductSchema["id"];
     userId: UserSchema["id"];
   }) {
     try {
       const $updateProduct = this.prisma.product.update({
-        where: { id, deletedAt: null },
+        where: { id: productId, deletedAt: null },
         data: {
           deletedAt: new Date(),
           updatedById: userId,
           deletedById: userId,
         },
       });
+
+      const $updateProductTranslation =
+        this.prisma.productTranslation.updateMany({
+          where: { productId, deletedAt: null },
+          data: {
+            deletedAt: new Date(),
+            updatedById: userId,
+            deletedById: userId,
+          },
+        });
 
       const $updateSKUs = this.prisma.sKU.updateMany({
-        where: { productId: id, deletedAt: null },
+        where: { productId, deletedAt: null },
         data: {
           deletedAt: new Date(),
           updatedById: userId,
@@ -413,7 +469,11 @@ export class ProductRepository {
         },
       });
 
-      await this.prisma.$transaction([$updateProduct, $updateSKUs]);
+      await this.prisma.$transaction([
+        $updateProduct,
+        $updateProductTranslation,
+        $updateSKUs,
+      ]);
 
       return {
         message: "Product deleted successfully",
