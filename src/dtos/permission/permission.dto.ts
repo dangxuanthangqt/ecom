@@ -11,8 +11,27 @@ import {
 } from "class-validator";
 
 import { RoleResponseDto } from "../role/role.dto";
+import { PaginationQueryDto } from "../shared/pagination.dto";
+
+import {
+  PermissionOrderByFields,
+  PermissionOrderByFieldsType,
+} from "./constant";
 
 import { HTTPMethod, HTTPMethodType } from "@/constants/http-method.constant";
+
+export class PermissionPaginationQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: "Field to order by",
+    example: PermissionOrderByFields.CREATED_AT,
+    enum: Object.values(PermissionOrderByFields),
+  })
+  @IsIn(Object.values(PermissionOrderByFields), {
+    message: `orderBy must be one of: ${Object.values(PermissionOrderByFields).join(", ")}`,
+  })
+  @IsOptional()
+  orderBy?: PermissionOrderByFieldsType;
+}
 
 export class PermissionRequestDto {
   @ApiProperty({

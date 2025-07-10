@@ -529,6 +529,188 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
+  "/categories": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all categories */
+    get: operations["getAllCategories"];
+    put?: never;
+    /** Create a new category */
+    post: operations["createCategory"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/categories/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get category by ID */
+    get: operations["getCategoryById"];
+    /** Update an existing category */
+    put: operations["updateCategory"];
+    post?: never;
+    /** Delete a category */
+    delete: operations["deleteCategory"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/category-translations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a list of category translations */
+    get: operations["getCategoryTranslations"];
+    put?: never;
+    /** Create a new category translation */
+    post: operations["createCategoryTranslation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/category-translations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a category translation by ID */
+    get: operations["getCategoryTranslationById"];
+    /** Update an existing category translation */
+    put: operations["updateCategoryTranslation"];
+    post?: never;
+    /** Delete a category translation */
+    delete: operations["deleteCategoryTranslation"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/products": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a list of products */
+    get: operations["getProducts"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/products/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get product by ID */
+    get: operations["getProductById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage-product/products": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a list of products */
+    get: operations["getManageProducts"];
+    put?: never;
+    /** Create a new product */
+    post: operations["createProduct"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage-product/products/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get product by ID */
+    get: operations["getManageProductById"];
+    /** Update product by ID */
+    put: operations["updateProduct"];
+    post?: never;
+    /** Delete product by ID */
+    delete: operations["deleteProduct"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/product-translations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a list of product translations */
+    get: operations["getProductTranslations"];
+    put?: never;
+    /** Create a new product translation */
+    post: operations["createProductTranslation"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/product-translations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a product translation by ID */
+    get: operations["getProductTranslationById"];
+    /** Update a product translation */
+    put: operations["updateProductTranslation"];
+    post?: never;
+    /** Delete a product translation */
+    delete: operations["deleteProductTranslation"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 };
 export type webhooks = Record<string, never>;
 export type components = {
@@ -857,14 +1039,6 @@ export type components = {
        * @example English
        */
       name: string;
-    };
-    LanguageDeleteRequestDto: {
-      /**
-       * @description Whether to hard delete the language
-       * @default false
-       * @example false
-       */
-      isHardDelete: boolean;
     };
     LanguageDeleteResponseDto: {
       /**
@@ -1490,13 +1664,13 @@ export type components = {
        */
       id: string;
       /**
-       * @description Language code for the translation
-       * @example en
+       * @description Name of the brand in the specified language
+       * @example Brand Name
        */
       name: string;
       /**
-       * @description Name of the brand in the specified language
-       * @example Brand Name
+       * @description Description of the brand in the specified language
+       * @example This is a brand description.
        */
       description: string;
       /** @description Language details for the translation */
@@ -1522,6 +1696,14 @@ export type components = {
       name: string;
       /** @description Translations of the brand in different languages */
       brandTranslations: components["schemas"]["BrandTranslationWithLanguageResponseDto"][];
+    };
+    BrandIdParamDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the brand
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
     };
     CreateBrandRequestDto: {
       /**
@@ -1619,19 +1801,19 @@ export type components = {
        */
       id: string;
       /**
-       * @description Language code for the translation
-       * @example en
+       * @description Name of the brand in the specified language
+       * @example Brand Name
        */
       name: string;
       /**
-       * @description Name of the brand in the specified language
-       * @example Brand Name
+       * @description Description of the brand in the specified language
+       * @example This is a brand description.
        */
       description: string;
       /** @description Language details for the translation */
       language: components["schemas"]["LanguageResponseDto"];
       /** @description Brand details for the translation */
-      brand: components["schemas"]["BaseBrandResponseDto"];
+      brand?: components["schemas"]["BaseBrandResponseDto"] | null;
     };
     CreateBrandTranslationRequestDto: {
       /**
@@ -1678,6 +1860,545 @@ export type components = {
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       brandId?: string;
+    };
+    BaseCategoryResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the category
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Name of the category
+       * @example Electronics
+       */
+      name: string;
+      /**
+       * Format: url
+       * @description URL to the category's logo image
+       * @example https://example.com/logos/category-logo.png
+       */
+      logo?: Record<string, never> | null;
+    };
+    CategoryTranslationWithLanguageResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the category translation
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Name of the category translation in the specified language
+       * @example Electronics
+       */
+      name: string;
+      /**
+       * @description Description of the category translation in the specified language
+       * @example This is a category description.
+       */
+      description: string;
+      /** @description Language details for the translation */
+      language: components["schemas"]["LanguageResponseDto"];
+    };
+    CategoryWithChildrenCategoriesResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the category
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Name of the category
+       * @example Electronics
+       */
+      name: string;
+      /**
+       * Format: url
+       * @description URL to the category's logo image
+       * @example https://example.com/logos/category-logo.png
+       */
+      logo?: Record<string, never> | null;
+      /** @description Parent category details */
+      parentCategory?: components["schemas"]["BaseCategoryResponseDto"] | null;
+      /** @description Translations of the category in different languages */
+      categoryTranslations: components["schemas"]["CategoryTranslationWithLanguageResponseDto"][];
+      /** @description List of child categories */
+      childrenCategories: components["schemas"]["BaseCategoryResponseDto"][];
+    };
+    GetAllCategoriesResponseDto: {
+      /** @description List of all categories with their translations and children */
+      data: components["schemas"]["CategoryWithChildrenCategoriesResponseDto"][];
+      /**
+       * @description Total number of categories
+       * @example 100
+       */
+      totalCount: number;
+    };
+    CreateCategoryRequestDto: {
+      /**
+       * @description Name of the category
+       * @example Electronics
+       */
+      name: string;
+      /**
+       * @description URL to the category's logo image
+       * @example https://example.com/logos/category-logo.png
+       */
+      logo?: string;
+      /**
+       * @description List of category translation IDs to associate with the category
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      categoryTranslationIds?: string[];
+      /**
+       * Format: uuid
+       * @description ID of the parent category
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      parentCategoryId?: string;
+    };
+    UpdateCategoryRequestDto: {
+      /**
+       * @description Name of the category
+       * @example Electronics
+       */
+      name?: string;
+      /**
+       * @description URL to the category's logo image
+       * @example https://example.com/logos/category-logo.png
+       */
+      logo?: string;
+      /**
+       * @description List of category translation IDs to associate with the category
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      categoryTranslationIds?: string[];
+      /**
+       * Format: uuid
+       * @description ID of the parent category
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      parentCategoryId?: string;
+    };
+    CategoryTranslationWithCategoryAndLanguageResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the category translation
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Name of the category translation in the specified language
+       * @example Electronics
+       */
+      name: string;
+      /**
+       * @description Description of the category translation in the specified language
+       * @example This is a category description.
+       */
+      description: string;
+      /** @description Language details for the translation */
+      language: components["schemas"]["LanguageResponseDto"];
+      /** @description Category details for the translation */
+      category?: components["schemas"]["BaseCategoryResponseDto"] | null;
+    };
+    CreateCategoryTranslationRequestDto: {
+      /**
+       * @description Name of the category translation in the specified language
+       * @example Electronics
+       */
+      name: string;
+      /**
+       * @description Description of the category translation in the specified language
+       * @example This is a category description.
+       */
+      description: string;
+      /**
+       * @description Language code (ISO 639-1)
+       * @example en
+       */
+      languageId: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for the category
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      categoryId: string;
+    };
+    UpdateCategoryTranslationRequestDto: {
+      /**
+       * @description Name of the category translation in the specified language
+       * @example Electronics
+       */
+      name?: string;
+      /**
+       * @description Description of the category translation in the specified language
+       * @example This is a category description.
+       */
+      description?: string;
+      /**
+       * @description Language code (ISO 639-1)
+       * @example en
+       */
+      languageId?: string;
+      /**
+       * Format: uuid
+       * @description Unique identifier for the category
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      categoryId?: string;
+    };
+    VariantResponseDto: {
+      /**
+       * @description Name of the variant
+       * @example Color
+       */
+      value: string;
+      /**
+       * @description List of options for the variant
+       * @example [
+       *       "Red",
+       *       "Blue",
+       *       "Green"
+       *     ]
+       */
+      options: string[];
+    };
+    ProductTranslationResponseDto: {
+      /**
+       * Format: uuid
+       * @description The unique identifier of the product translation.
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description The name of the product in the specified language.
+       * @example Product Name
+       */
+      name: string;
+      /**
+       * @description The description of the product in the specified language.
+       * @example This is a product description.
+       */
+      description: string;
+      /** @description The language of the product translation. */
+      language: components["schemas"]["LanguageResponseDto"];
+    };
+    ProductResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the product
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * Format: date-time
+       * @description  Publish date of the product
+       * @example 2023-10-01T00:00:00Z
+       */
+      publishedAt: Record<string, never> | null;
+      /**
+       * @description Name of the product
+       * @example Sample Product
+       */
+      name: string;
+      /**
+       * @description Base price of the product
+       * @example 100
+       */
+      basePrice: number;
+      /**
+       * @description Virtual price of the product
+       * @example 90
+       */
+      virtualPrice: number;
+      /**
+       * @description Array of product image URLs
+       * @example [
+       *       "https://example.com/image1.jpg",
+       *       "https://example.com/image2.png",
+       *       "https://example.com/image3.webp"
+       *     ]
+       */
+      images: string[];
+      /** @description Brand details associated with the product */
+      brand?: components["schemas"]["BaseBrandResponseDto"] | null;
+      /** @description List of variants for the product */
+      variants: components["schemas"]["VariantResponseDto"][];
+      /** @description List of product translations in different languages */
+      productTranslations: components["schemas"]["ProductTranslationResponseDto"][];
+    };
+    BaseSKUResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier for the SKU
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /** @description SKU value */
+      value: string;
+      /**
+       * @description Price of the SKU
+       * @example 19.99
+       */
+      price: number;
+      /**
+       * @description Stock quantity of the SKU
+       * @example 100
+       */
+      stock: number;
+      /**
+       * Format: url
+       * @description Image URL of the SKU
+       * @example https://example.com/images/sku-image.png
+       */
+      image: string;
+    };
+    ProductDetailResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the product
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * Format: date-time
+       * @description  Publish date of the product
+       * @example 2023-10-01T00:00:00Z
+       */
+      publishedAt: Record<string, never> | null;
+      /**
+       * @description Name of the product
+       * @example Sample Product
+       */
+      name: string;
+      /**
+       * @description Base price of the product
+       * @example 100
+       */
+      basePrice: number;
+      /**
+       * @description Virtual price of the product
+       * @example 90
+       */
+      virtualPrice: number;
+      /**
+       * @description Array of product image URLs
+       * @example [
+       *       "https://example.com/image1.jpg",
+       *       "https://example.com/image2.png",
+       *       "https://example.com/image3.webp"
+       *     ]
+       */
+      images: string[];
+      /** @description Brand details associated with the product */
+      brand?: components["schemas"]["BaseBrandResponseDto"] | null;
+      /** @description List of variants for the product */
+      variants: components["schemas"]["VariantResponseDto"][];
+      /** @description List of product translations in different languages */
+      productTranslations: components["schemas"]["ProductTranslationResponseDto"][];
+      /** @description  Categories associated with the product */
+      categories: components["schemas"]["BaseCategoryResponseDto"][];
+      /** @description List of product translations in different languages */
+      skus: components["schemas"]["BaseSKUResponseDto"][];
+    };
+    VariantRequestDto: {
+      /**
+       * @description Name of the variant
+       * @example Color
+       */
+      value: string;
+      /**
+       * @description List of options for the variant
+       * @example [
+       *       "Red",
+       *       "Blue",
+       *       "Green"
+       *     ]
+       */
+      options: string[];
+    };
+    UpsertSKURequestDto: {
+      /**
+       * @description SKU value
+       * @example SKU-12345
+       */
+      value: string;
+      /**
+       * @description Price of the SKU
+       * @example 19.99
+       */
+      price: number;
+      /**
+       * @description Stock quantity of the SKU
+       * @example 100
+       */
+      stock: number;
+      /**
+       * Format: url
+       * @description Image URL of the SKU
+       * @example https://example.com/images/sku-image.png
+       */
+      image: string;
+    };
+    CreateProductRequestDto: {
+      /**
+       * Format: date-time
+       * @description The date when the product will be published
+       * @default 2025-07-10T15:54:38.209Z
+       * @example 2023-10-01T00:00:00Z
+       */
+      publishedAt: string;
+      /**
+       * @description The name of the product
+       * @example Sample Product
+       */
+      name: string;
+      /**
+       * @description Base price of the product
+       * @example 100
+       */
+      basePrice: number;
+      /**
+       * @description Virtual price of the product
+       * @example 90
+       */
+      virtualPrice: number;
+      /**
+       * @description Array of product image URLs
+       * @example [
+       *       "https://example.com/image1.jpg",
+       *       "https://example.com/image2.png",
+       *       "https://example.com/image3.webp"
+       *     ]
+       */
+      images: string[];
+      /**
+       * Format: uuid
+       * @description ID of the brand associated with the product
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      brandId: string;
+      /** @description List of variants for the product */
+      variants: components["schemas"]["VariantRequestDto"][];
+      /**
+       * @description List of category IDs associated with the product
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "123e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      categoryIds: string[];
+      /** @description List of SKUs for the product */
+      skus: components["schemas"]["UpsertSKURequestDto"][];
+    };
+    UpdateProductRequestDto: {
+      /**
+       * Format: date-time
+       * @description The date when the product will be published
+       * @default 2025-07-10T15:54:38.209Z
+       * @example 2023-10-01T00:00:00Z
+       */
+      publishedAt: string;
+      /**
+       * @description The name of the product
+       * @example Sample Product
+       */
+      name?: string;
+      /**
+       * @description Base price of the product
+       * @example 100
+       */
+      basePrice?: number;
+      /**
+       * @description Virtual price of the product
+       * @example 90
+       */
+      virtualPrice?: number;
+      /**
+       * @description Array of product image URLs
+       * @example [
+       *       "https://example.com/image1.jpg",
+       *       "https://example.com/image2.png",
+       *       "https://example.com/image3.webp"
+       *     ]
+       */
+      images?: string[];
+      /**
+       * Format: uuid
+       * @description ID of the brand associated with the product
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      brandId?: string;
+      /**
+       * @description List of category IDs associated with the product
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "123e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      categoryIds?: string[];
+      /** @description List of variants for the product */
+      variants: components["schemas"]["VariantRequestDto"][];
+      /** @description List of SKUs for the product */
+      skus: components["schemas"]["UpsertSKURequestDto"][];
+    };
+    DeleteProductResponseDto: {
+      /**
+       * @description Message indicating the result of the delete operation
+       * @example Product deleted successfully
+       */
+      message: string;
+    };
+    CreateProductTranslationRequestDto: {
+      /**
+       * @description The name of the product translation.
+       * @example Product Name
+       */
+      name: string;
+      /**
+       * @description The description of the product translation.
+       * @example This is a product description.
+       */
+      description: string;
+      /**
+       * @description The language code for the product translation.
+       * @example en
+       */
+      languageId: string;
+      /**
+       * Format: uuid
+       * @description The unique identifier of the product.
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      productId: string;
+    };
+    UpdateProductTranslationRequestDto: {
+      /**
+       * @description The name of the product translation.
+       * @example Product Name
+       */
+      name?: string;
+      /**
+       * @description The description of the product translation.
+       * @example This is a product description.
+       */
+      description?: string;
+      /**
+       * @description The language code for the product translation.
+       * @example en
+       */
+      languageId?: string;
+      /**
+       * Format: uuid
+       * @description The unique identifier of the product.
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      productId?: string;
     };
   };
   responses: never;
@@ -2278,9 +2999,9 @@ export interface operations {
         /** @description Page index (starts from 0) */
         pageIndex?: number;
         /** @description Sort order */
-        order?: "ASC" | "DESC";
+        order?: "asc" | "desc";
         /** @description Field to order by */
-        orderBy?: string;
+        orderBy?: "createdAt" | "name" | "updatedAt";
         /** @description Search keyword */
         keyword?: string;
       };
@@ -2483,11 +3204,7 @@ export interface operations {
       };
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["LanguageDeleteRequestDto"];
-      };
-    };
+    requestBody?: never;
     responses: {
       /** @description Delete a specific language by its ID. */
       200: {
@@ -2643,9 +3360,9 @@ export interface operations {
         /** @description Page index (starts from 0) */
         pageIndex?: number;
         /** @description Sort order */
-        order?: "ASC" | "DESC";
+        order?: "asc" | "desc";
         /** @description Field to order by */
-        orderBy?: string;
+        orderBy?: "createdAt" | "description" | "name" | "updatedAt";
         /** @description Search keyword */
         keyword?: string;
       };
@@ -3008,7 +3725,7 @@ export interface operations {
         /** @description Page index (starts from 0) */
         pageIndex?: number;
         /** @description Sort order */
-        order?: "ASC" | "DESC";
+        order?: "asc" | "desc";
         /** @description Field to order by */
         orderBy?: string;
         /** @description Search keyword */
@@ -3612,9 +4329,9 @@ export interface operations {
         /** @description Page index (starts from 0) */
         pageIndex?: number;
         /** @description Sort order */
-        order?: "ASC" | "DESC";
+        order?: "asc" | "desc";
         /** @description Field to order by */
-        orderBy?: string;
+        orderBy?: "createdAt" | "email" | "name" | "updatedAt";
         /** @description Search keyword */
         keyword?: string;
       };
@@ -4366,9 +5083,9 @@ export interface operations {
         /** @description Page index (starts from 0) */
         pageIndex?: number;
         /** @description Sort order */
-        order?: "ASC" | "DESC";
+        order?: "asc" | "desc";
         /** @description Field to order by */
-        orderBy?: string;
+        orderBy?: "createdAt" | "name" | "updatedAt";
         /** @description Search keyword */
         keyword?: string;
       };
@@ -4477,8 +5194,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        /** @description Unique identifier for the brand */
-        id: string;
+        id: components["schemas"]["BrandIdParamDto"];
       };
       cookie?: never;
     };
@@ -4587,9 +5303,9 @@ export interface operations {
         /** @description Page index (starts from 0) */
         pageIndex?: number;
         /** @description Sort order */
-        order?: "ASC" | "DESC";
+        order?: "asc" | "desc";
         /** @description Field to order by */
-        orderBy?: string;
+        orderBy?: "createdAt" | "name" | "updatedAt";
         /** @description Search keyword */
         keyword?: string;
       };
@@ -4704,6 +5420,7 @@ export interface operations {
         Authorization: string;
       };
       path: {
+        /** @description The ID of the brand translation to retrieve */
         id: string;
       };
       cookie?: never;
@@ -4879,6 +5596,1618 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["BrandTranslationWithBrandAndLanguageResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getAllCategories: {
+    parameters: {
+      query?: {
+        /** @description Page number for pagination */
+        parentCategoryId?: number;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve all categories with optional filtering by language and parent category. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["GetAllCategoriesResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  createCategory: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateCategoryRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Create a new category with translations and children. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoryWithChildrenCategoriesResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getCategoryById: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description Category ID (UUID) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a single category by its ID, including its translations in the specified language. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoryWithChildrenCategoriesResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateCategory: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description Category ID (UUID) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCategoryRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Update a category by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoryWithChildrenCategoriesResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteCategory: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description Category ID (UUID) */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Delete a category by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoryWithChildrenCategoriesResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getCategoryTranslations: {
+    parameters: {
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "asc" | "desc";
+        /** @description Field to order by */
+        orderBy?: "createdAt" | "name" | "updatedAt";
+        /** @description Search keyword */
+        keyword?: string;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a list of category translations with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["CategoryTranslationWithCategoryAndLanguageResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  createCategoryTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateCategoryTranslationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Creates a new category translation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoryTranslationWithCategoryAndLanguageResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getCategoryTranslationById: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieves a specific category translation by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoryTranslationWithCategoryAndLanguageResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateCategoryTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The ID of the category translation to update */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCategoryTranslationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Updates a category translation by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoryTranslationWithCategoryAndLanguageResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteCategoryTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The ID of the category translation to delete */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deletes a category translation by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoryTranslationWithCategoryAndLanguageResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getProducts: {
+    parameters: {
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "asc" | "desc";
+        /** @description Field to order by */
+        orderBy?:
+          | "createdAt"
+          | "name"
+          | "basePrice"
+          | "publishedAt"
+          | "updatedAt"
+          | "virtualPrice"
+          | "sale";
+        /** @description Search keyword */
+        keyword?: string;
+        /** @description Filter products by brand IDs */
+        brandIds?: string[];
+        /** @description Filter products by category IDs */
+        categoryIds?: string[];
+        /** @description Search term to filter products by name */
+        name?: string;
+        /** @description Filter products by minimum price */
+        minPrice?: number;
+        /** @description Filter products by maximum price */
+        maxPrice?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a list of products with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["ProductResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  getProductById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The unique identifier of the product to retrieve. */
+        id: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a product by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getManageProducts: {
+    parameters: {
+      query: {
+        /** @description Filter products by brand IDs */
+        brandIds?: string[];
+        /** @description Filter products by category IDs */
+        categoryIds?: string[];
+        /** @description Search term to filter products by name */
+        name?: string;
+        /** @description Filter products by minimum price */
+        minPrice?: number;
+        /** @description Filter products by maximum price */
+        maxPrice?: number;
+        /** @description Field to order by */
+        orderBy?:
+          | "createdAt"
+          | "name"
+          | "basePrice"
+          | "publishedAt"
+          | "updatedAt"
+          | "virtualPrice"
+          | "sale";
+        /** @description Filter product by created by user ID */
+        createdById: string;
+        /** @description Filter products by publication status */
+        isPublic?: boolean;
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "asc" | "desc";
+        /** @description Search keyword */
+        keyword?: string;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a list of products with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["ProductResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  createProduct: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProductRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Create a new product. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getManageProductById: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the product to retrieve. */
+        id: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a product by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateProduct: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProductRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Update an existing product by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteProduct: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the product to delete. */
+        id: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Delete a product by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeleteProductResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getProductTranslations: {
+    parameters: {
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "asc" | "desc";
+        /** @description Field to order by */
+        orderBy?: "createdAt" | "name" | "updatedAt";
+        /** @description Search keyword */
+        keyword?: string;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve a list of product translations with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["ProductTranslationResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  createProductTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProductTranslationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Creates a new product translation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductTranslationResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getProductTranslationById: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The ID of the product translation to retrieve */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieves a specific product translation by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductTranslationResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateProductTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The ID of the product translation to update */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProductTranslationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Updates an existing product translation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductTranslationResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteProductTranslation: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The ID of the product translation to delete */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deletes an existing product translation. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProductTranslationResponseDto"];
         };
       };
       /** @description Bad Request */

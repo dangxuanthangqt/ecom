@@ -15,11 +15,28 @@ import {
   Length,
 } from "class-validator";
 
+import { PaginationQueryDto } from "../shared/pagination.dto";
+
+import { UserOrderByFields, UserOrderByFieldsType } from "./constants";
+
 import { UserStatus, UserStatusType } from "@/constants/user-status.constant";
 import {
   RoleResponseDto,
   RoleWithPermissionsResponseDto,
 } from "@/dtos/role/role.dto";
+
+export class UserPaginationQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: "Field to order by",
+    example: UserOrderByFields.CREATED_AT,
+    enum: Object.values(UserOrderByFields),
+  })
+  @IsIn(Object.values(UserOrderByFields), {
+    message: `orderBy must be one of: ${Object.values(UserOrderByFields).join(", ")}`,
+  })
+  @IsOptional()
+  orderBy?: UserOrderByFieldsType;
+}
 
 export class BaseUserResponseDto {
   @ApiProperty({

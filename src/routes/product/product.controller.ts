@@ -36,7 +36,7 @@ export class ProductController {
   async getProducts(
     @Query()
     query: ProductPaginationQueryDto,
-    @CurrentLang() languageId: LanguageSchema["id"], // default language is English
+    @CurrentLang() languageId: LanguageSchema["id"],
   ): Promise<PageDto<ProductResponseDto>> {
     const result = await this.productService.getProducts({ query, languageId });
 

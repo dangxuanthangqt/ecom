@@ -18,12 +18,12 @@ import {
 import { CategoryTranslationService } from "./category-translation.service";
 
 import {
+  CategoryTranslationPaginationQueryDto,
   CategoryTranslationWithCategoryAndLanguageResponseDto,
   CreateCategoryTranslationRequestDto,
   UpdateCategoryTranslationRequestDto,
 } from "@/dtos/category-translation/category-translation.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,
@@ -43,7 +43,9 @@ export class CategoryTranslationController {
     type: CategoryTranslationWithCategoryAndLanguageResponseDto,
   })
   @Get()
-  async getCategoryTranslations(@Query() query: PaginationQueryDto) {
+  async getCategoryTranslations(
+    @Query() query: CategoryTranslationPaginationQueryDto,
+  ) {
     const result =
       await this.categoryTranslationService.getCategoryTranslations(query);
 

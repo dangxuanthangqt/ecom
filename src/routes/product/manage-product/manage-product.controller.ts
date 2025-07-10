@@ -14,6 +14,7 @@ import {
   Product as ProductSchema,
   Language as LanguageSchema,
   User as UserSchema,
+  Role as RoleSchema,
 } from "@prisma/client";
 
 import { ManageProductService } from "./manage-product.service";
@@ -46,12 +47,12 @@ export class ManageProductController {
     summary: "Get a list of products",
   })
   @Get()
-  async getProducts(
+  async getManageProducts(
     @Query()
     query: ManageProductPaginationQueryDto,
-    @CurrentLang() languageId: string, // default language is English
-    @ActiveUser("userId") userId: string,
-    @ActiveUserRole("name") roleName: string,
+    @CurrentLang() languageId: LanguageSchema["id"],
+    @ActiveUser("userId") userId: UserSchema["id"],
+    @ActiveUserRole("name") roleName: RoleSchema["name"],
   ): Promise<PageDto<ProductResponseDto>> {
     const result = await this.manageProductService.getProducts({
       query,
@@ -77,11 +78,11 @@ export class ManageProductController {
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
   @Get(":id")
-  async getProductById(
+  async getManageProductById(
     @Param("id", ParseUUIDPipe) productId: ProductSchema["id"],
     @CurrentLang() languageId: LanguageSchema["id"],
-    @ActiveUser("userId") userId: string,
-    @ActiveUserRole("name") roleName: string,
+    @ActiveUser("userId") userId: UserSchema["id"],
+    @ActiveUserRole("name") roleName: RoleSchema["name"],
   ): Promise<ProductDetailResponseDto> {
     const result = await this.manageProductService.getProductById({
       productId,
@@ -125,7 +126,7 @@ export class ManageProductController {
     @Body() data: UpdateProductRequestDto,
     @Param("id", ParseUUIDPipe) productId: ProductSchema["id"],
     @ActiveUser("userId") userId: UserSchema["id"],
-    @ActiveUserRole("name") roleName: string,
+    @ActiveUserRole("name") roleName: RoleSchema["name"],
   ): Promise<ProductDetailResponseDto> {
     const result = await this.manageProductService.updateProduct({
       productId,
@@ -153,8 +154,8 @@ export class ManageProductController {
   @Delete(":id")
   async deleteProduct(
     @Param("id", ParseUUIDPipe) productId: ProductSchema["id"],
-    @ActiveUser("userId") userId: string,
-    @ActiveUserRole("name") roleName: string,
+    @ActiveUser("userId") userId: UserSchema["id"],
+    @ActiveUserRole("name") roleName: RoleSchema["name"],
   ): Promise<DeleteProductResponseDto> {
     const result = await this.manageProductService.deleteProduct({
       productId,

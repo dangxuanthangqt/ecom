@@ -30,13 +30,7 @@
       "@/selectors/*": ["src/selectors/*"]
     }
   },
-  "include": [
-    "initial-scripts/**/*.ts",
-    "src/**/*.ts",
-    "test/**/*.ts",
-    "initialS",
-    "*.ts"
-  ],
+  "include": ["initial-scripts/**/*.ts", "src/**/*.ts", "test/**/*.ts", "*.ts"],
   "ts-node": {
     "require": ["tsconfig-paths/register"] // Configuring for seeding data
   }

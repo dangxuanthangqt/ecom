@@ -15,7 +15,6 @@ import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 import { UserService } from "./user.service";
 
 import { PageDto } from "@/dtos/shared/page.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import {
   BaseUserResponseDto,
   CreateUserRequestDto,
@@ -23,6 +22,7 @@ import {
   UpdateUserRequestDto,
   UpdateUserResponseDto,
   UserItemResponseDto,
+  UserPaginationQueryDto,
 } from "@/dtos/user/user.dto";
 import ActiveUserRole from "@/shared/param-decorators/active-user-role.decorator";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
@@ -44,7 +44,7 @@ export class UserController {
   })
   async getUsers(
     @Query()
-    query: PaginationQueryDto,
+    query: UserPaginationQueryDto,
   ) {
     const result = await this.userService.getUsers(query);
 

@@ -9,7 +9,7 @@ import {
   Min,
 } from "class-validator";
 
-import { ORDER } from "@/constants/order";
+import { ORDER, OrderType } from "@/constants/order";
 
 export class PaginationResponseDto {
   @ApiProperty({ description: "Total number of pages", example: 5 })
@@ -64,7 +64,7 @@ export class PaginationQueryDto {
   @IsIn([ORDER.ASC, ORDER.DESC], {
     message: `order must be one of the following values: ${ORDER.ASC}, ${ORDER.DESC}`,
   })
-  order?: "ASC" | "DESC";
+  order?: OrderType;
 
   @ApiPropertyOptional({ description: "Field to order by", example: "name" })
   @IsString({ message: "orderBy must be a string." })

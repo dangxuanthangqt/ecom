@@ -1,5 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { Brand as BrandSchema, User as UserSchema } from "@prisma/client";
+import {
+  Brand as BrandSchema,
+  Language as LanguageSchema,
+  User as UserSchema,
+} from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import {
@@ -31,7 +35,7 @@ export class BrandService {
       orderBy = ORDER_BY.CREATED_AT,
       keyword = "",
     }: PaginationQueryDto,
-    languageId: string,
+    languageId: LanguageSchema["id"],
   ) {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
@@ -68,13 +72,23 @@ export class BrandService {
   }
 
   /**
-   * Retrieves a brand by its ID.
+   * Retrieves a brand by its ID, including translations in the specified language.
    *
    * @param id - The ID of the brand to retrieve.
-   * @returns The brand object if found, or null if not found.
+   * @param languageId - The ID of the language for translations.
+   * @returns The brand object with translations.
    */
-  async getBrandById(id: BrandSchema["id"], languageId: string) {
-    const brand = await this.brandRepository.findUniqueBrand(id, languageId);
+  async getBrandById({
+    brandId,
+    languageId,
+  }: {
+    brandId: BrandSchema["id"];
+    languageId: LanguageSchema["id"];
+  }) {
+    const brand = await this.brandRepository.findUniqueBrand({
+      brandId,
+      languageId,
+    });
 
     return brand;
   }

@@ -19,8 +19,7 @@ export class BadRequestExceptionDto {
   statusCode: HttpStatus;
 
   @ApiProperty({
-    isArray: true,
-    type: BadRequestErrorDetailDto,
+    type: () => [BadRequestErrorDetailDto],
   })
   message: BadRequestErrorDetailDto[];
 

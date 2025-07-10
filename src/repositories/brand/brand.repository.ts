@@ -87,17 +87,22 @@ export class BrandRepository {
   }
 
   /**
+   * Retrieves a unique brand by its ID, including translations in the specified language.
    *
-   * @param id - The ID of the brand to find.
+   * @param brandId - The ID of the brand to retrieve.
    * @param languageId - The ID of the language for translations.
-   *
-   * Finds a unique brand by its ID and includes translations based on the provided language ID.
-   * @returns The found brand with translations.
+   * @returns The brand object with translations.
    */
-  async findUniqueBrand(id: BrandSchema["id"], languageId: Language["id"]) {
+  async findUniqueBrand({
+    brandId,
+    languageId,
+  }: {
+    brandId: BrandSchema["id"];
+    languageId: Language["id"];
+  }) {
     try {
       const brand = await this.prismaService.brand.findUniqueOrThrow({
-        where: { id, deletedAt: null },
+        where: { id: brandId, deletedAt: null },
         select: createBrandWithTranslationsSelect({ languageId }),
       });
 

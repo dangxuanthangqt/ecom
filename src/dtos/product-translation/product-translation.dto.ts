@@ -1,8 +1,27 @@
-import { ApiProperty, PartialType } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
-import { IsString, IsUUID, Length } from "class-validator";
+import { IsIn, IsOptional, IsString, IsUUID, Length } from "class-validator";
 
 import { LanguageResponseDto } from "../language/language.dto";
+import { PaginationQueryDto } from "../shared/pagination.dto";
+
+import {
+  ProductTranslationOrderByFields,
+  ProductTranslationOrderByFieldsType,
+} from "./constants";
+
+export class ProductTranslationPaginationQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: "Field to order by",
+    example: ProductTranslationOrderByFields.CREATED_AT,
+    enum: Object.values(ProductTranslationOrderByFields),
+  })
+  @IsIn(Object.values(ProductTranslationOrderByFields), {
+    message: `orderBy must be one of: ${Object.values(ProductTranslationOrderByFields).join(", ")}`,
+  })
+  @IsOptional()
+  orderBy?: ProductTranslationOrderByFieldsType;
+}
 
 export class ProductTranslationResponseDto {
   @ApiProperty({

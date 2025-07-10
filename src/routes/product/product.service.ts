@@ -1,10 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import {
   Language as LanguageSchema,
+  Prisma,
   Product as ProductSchema,
 } from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
+import { ProductOrderByFields } from "@/dtos/product/constant";
 import { ProductPaginationQueryDto } from "@/dtos/product/product.dto";
 import { ProductRepository } from "@/repositories/product/product.repository";
 import { createProductSelect } from "@/selectors/product.selector";
@@ -33,8 +35,17 @@ export class ProductService {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
 
-    // Normalize order for Prisma
-    const normalizedOrder = order.toLowerCase();
+    let composedOrderBy: Prisma.ProductOrderByWithRelationInput = {
+      [orderBy]: order,
+    };
+
+    if (orderBy === ProductOrderByFields.SALE) {
+      composedOrderBy = {
+        orders: {
+          _count: order,
+        },
+      };
+    }
 
     const { products, productsCount } =
       await this.productRepository.findManyProducts(
@@ -49,7 +60,7 @@ export class ProductService {
           },
           take,
           skip,
-          orderBy: { [orderBy]: normalizedOrder },
+          orderBy: composedOrderBy,
         },
         languageId,
       );

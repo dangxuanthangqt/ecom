@@ -12,6 +12,7 @@ import {
   IsArray,
   IsBoolean,
   IsDateString,
+  IsIn,
   IsNumber,
   IsOptional,
   IsString,
@@ -27,9 +28,11 @@ import {
   BrandWithBrandTranslationsResponseDto,
 } from "../brand/brand.dto";
 import { BaseCategoryResponseDto } from "../category/category.dto";
+import { ProductTranslationResponseDto } from "../product-translation/product-translation.dto";
 import { PaginationQueryDto } from "../shared/pagination.dto";
 import { BaseSKUResponseDto, UpsertSKURequestDto } from "../sku/sku.dto";
 
+import { ProductOrderByFields, ProductOrderByFieldsType } from "./constant";
 import { IsUniqueVariant, IsValidSKUs } from "./product.validation";
 
 import { IsUniqueStringArray } from "@/validations/decorators/is-unique-string-array";
@@ -38,8 +41,10 @@ export class ProductQueryDto {
   @ApiPropertyOptional({
     description: "Filter products by brand IDs",
     type: [String],
-    example: ["123e4567-e89b-12d3-a456-426614174000"],
-    isArray: true,
+    example: [
+      "123e4567-e89b-12d3-a456-426614174000",
+      "123e4567-e89b-12d3-a456-426614174001",
+    ],
   })
   @IsUUID("4", {
     each: true,
@@ -52,8 +57,10 @@ export class ProductQueryDto {
   @ApiPropertyOptional({
     description: "Filter products by category IDs",
     type: [String],
-    example: ["123e4567-e89b-12d3-a456-426614174000"],
-    isArray: true,
+    example: [
+      "123e4567-e89b-12d3-a456-426614174000",
+      "123e4567-e89b-12d3-a456-426614174001",
+    ],
   })
   @IsUUID("4", {
     each: true,
@@ -96,6 +103,17 @@ export class ProductQueryDto {
   @Min(0, { message: "Maximum price must be a non-negative number." })
   @Type(() => Number)
   maxPrice?: number;
+
+  @ApiPropertyOptional({
+    description: "Field to order by",
+    example: ProductOrderByFields.CREATED_AT,
+    enum: Object.values(ProductOrderByFields),
+  })
+  @IsIn(Object.values(ProductOrderByFields), {
+    message: `orderBy must be one of: ${Object.values(ProductOrderByFields).join(", ")}`,
+  })
+  @IsOptional()
+  orderBy?: ProductOrderByFieldsType;
 }
 
 export class ProductPaginationQueryDto extends IntersectionType(
@@ -109,10 +127,11 @@ export class ProductManageQueryDto extends ProductQueryDto {
     example: "123e4567-e89b-12d3-a456-426614174000",
     format: "uuid",
   })
+  @IsOptional()
   @IsUUID("4", {
     message: "Created by ID must be a valid UUID.",
   })
-  createdById: string; // This field is required for managing products
+  createdById?: string; // This field is required for managing products
 
   @ApiPropertyOptional({
     description: "Filter products by publication status",
@@ -168,8 +187,9 @@ export class ProductRequestDto {
     format: "date-time",
     default: new Date().toISOString(),
   })
+  @IsOptional()
   @IsDateString({}, { message: "Invalid date format for publishedAt" })
-  publishedAt: Date;
+  publishedAt?: Date;
 
   @ApiProperty({
     description: "The name of the product",
@@ -203,7 +223,6 @@ export class ProductRequestDto {
       "https://example.com/image3.webp",
     ],
     type: [String],
-    isArray: true,
   })
   @IsArray({ message: "Images must be an array" })
   @ArrayMinSize(1, { message: "At least one image URL is required" })
@@ -353,7 +372,6 @@ export class ProductResponseDto {
       "https://example.com/image3.webp",
     ],
     type: [String],
-    isArray: true,
   })
   @Expose()
   images: string[];
@@ -369,17 +387,28 @@ export class ProductResponseDto {
   @ApiProperty({
     description: "List of variants for the product",
     type: () => [VariantResponseDto],
-    isArray: true,
   })
   @Expose()
   variants: VariantResponseDto[];
+
+  @ApiProperty({
+    description: "List of product translations in different languages",
+    type: () => [ProductTranslationResponseDto],
+  })
+  @Expose()
+  productTranslations: ProductTranslationResponseDto[];
+
+  constructor(data?: ProductResponseDto) {
+    if (data) {
+      Object.assign(this, data);
+    }
+  }
 }
 
 export class ProductDetailResponseDto extends ProductResponseDto {
   @ApiProperty({
     description: " Categories associated with the product",
     type: () => [BaseCategoryResponseDto],
-    isArray: true,
   })
   @Expose()
   categories: BaseCategoryResponseDto[];
@@ -387,16 +416,13 @@ export class ProductDetailResponseDto extends ProductResponseDto {
   @ApiProperty({
     description: "List of product translations in different languages",
     type: () => [BaseSKUResponseDto],
-    isArray: true,
   })
   @Expose()
   skus: BaseSKUResponseDto[];
 
-  constructor(data?: ProductDetailResponseDto) {
+  constructor(data: ProductDetailResponseDto) {
     super();
-    if (data) {
-      Object.assign(this, data);
-    }
+    Object.assign(this, data);
   }
 }
 

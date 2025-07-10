@@ -9,11 +9,13 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { Language as LanguageSchema, User as UserSchema } from "@prisma/client";
 
 import { BrandService } from "./brand.service";
 
 import {
   BrandIdParamDto,
+  BrandPaginationQueryDto,
   BrandWithBrandTranslationsResponseDto,
   CreateBrandRequestDto,
   CreateBrandResponseDto,
@@ -23,7 +25,6 @@ import {
   UpdateBrandResponseDto,
 } from "@/dtos/brand/brand.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
@@ -48,10 +49,10 @@ export class BrandController {
   @IsPublicApi()
   async getBrands(
     @Query()
-    query: PaginationQueryDto,
-    @CurrentLang() lang: string, // default language is English
+    query: BrandPaginationQueryDto,
+    @CurrentLang() languageId: LanguageSchema["id"],
   ): Promise<PageDto<BrandWithBrandTranslationsResponseDto>> {
-    const result = await this.brandService.getBrands(query, lang);
+    const result = await this.brandService.getBrands(query, languageId);
 
     return new PageDto<BrandWithBrandTranslationsResponseDto>(result);
   }
@@ -65,10 +66,13 @@ export class BrandController {
   })
   @Get(":id")
   async getBrandById(
-    @Param() param: BrandIdParamDto,
-    @CurrentLang() lang: string,
+    @Param("id") param: BrandIdParamDto,
+    @CurrentLang() languageId: LanguageSchema["id"],
   ): Promise<BrandWithBrandTranslationsResponseDto> {
-    const result = await this.brandService.getBrandById(param.id, lang);
+    const result = await this.brandService.getBrandById({
+      brandId: param.id,
+      languageId,
+    });
 
     return new BrandWithBrandTranslationsResponseDto(result);
   }
@@ -83,7 +87,7 @@ export class BrandController {
   })
   async createBrand(
     @Body() body: CreateBrandRequestDto,
-    @ActiveUser("userId") userId: string,
+    @ActiveUser("userId") userId: UserSchema["id"],
   ) {
     const result = await this.brandService.createBrand({
       body,
@@ -97,7 +101,7 @@ export class BrandController {
   async updateBrand(
     @Param() param: BrandIdParamDto,
     @Body() body: UpdateBrandRequestDto,
-    @ActiveUser("userId") userId: string,
+    @ActiveUser("userId") userId: UserSchema["id"],
   ) {
     const result = await this.brandService.updateBrand({
       id: param.id,
@@ -111,7 +115,7 @@ export class BrandController {
   @Delete(":id")
   async deleteBrand(
     @Param() param: BrandIdParamDto,
-    @ActiveUser("userId") userId: string,
+    @ActiveUser("userId") userId: UserSchema["id"],
     @Body() body: DeleteBrandRequestDto,
   ) {
     const { isHardDelete = false } = body;

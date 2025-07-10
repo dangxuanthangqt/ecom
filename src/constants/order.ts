@@ -1,9 +1,9 @@
 export const ORDER = {
-  ASC: "ASC",
-  DESC: "DESC",
+  ASC: "asc",
+  DESC: "desc",
 } as const;
 
-export type Order = (typeof ORDER)[keyof typeof ORDER];
+export type OrderType = (typeof ORDER)[keyof typeof ORDER];
 
 export const ORDER_BY = {
   CREATED_AT: "createdAt",

@@ -14,13 +14,13 @@ import { User } from "@prisma/client";
 
 import { BrandTranslationService } from "./brand-translation.service";
 
+import { BrandPaginationQueryDto } from "@/dtos/brand/brand.dto";
 import {
   BrandTranslationWithBrandAndLanguageResponseDto,
   CreateBrandTranslationRequestDto,
   UpdateBrandTranslationRequestDto,
 } from "@/dtos/brand-translation/brand-translation.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,
@@ -39,7 +39,7 @@ export class BrandTranslationController {
     summary: "Get a list of brand translations",
   })
   @Get()
-  async getBrandTranslations(@Query() query: PaginationQueryDto) {
+  async getBrandTranslations(@Query() query: BrandPaginationQueryDto) {
     const result =
       await this.brandTranslationService.getBrandTranslations(query);
 

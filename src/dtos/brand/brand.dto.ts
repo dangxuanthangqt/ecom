@@ -3,6 +3,7 @@ import { Expose } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsOptional,
   IsString,
   IsUrl,
@@ -11,6 +12,22 @@ import {
 } from "class-validator";
 
 import { BrandTranslationWithLanguageResponseDto } from "../brand-translation/brand-translation.dto";
+import { PaginationQueryDto } from "../shared/pagination.dto";
+
+import { BrandOrderByFields, BrandOrderByFieldsType } from "./constants";
+
+export class BrandPaginationQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: "Field to order by",
+    example: BrandOrderByFields.CREATED_AT,
+    enum: Object.values(BrandOrderByFields),
+  })
+  @IsIn(Object.values(BrandOrderByFields), {
+    message: `orderBy must be one of: ${Object.values(BrandOrderByFields).join(", ")}`,
+  })
+  @IsOptional()
+  orderBy?: BrandOrderByFieldsType;
+}
 
 export class BaseBrandResponseDto {
   @ApiProperty({

@@ -16,11 +16,11 @@ import { ProductTranslationService } from "./product-translation.service";
 
 import {
   CreateProductTranslationRequestDto,
+  ProductTranslationPaginationQueryDto,
   ProductTranslationResponseDto,
   UpdateProductTranslationRequestDto,
 } from "@/dtos/product-translation/product-translation.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,
@@ -40,7 +40,9 @@ export class ProductTranslationController {
     summary: "Get a list of product translations",
   })
   @Get()
-  async getProductTranslations(@Query() query: PaginationQueryDto) {
+  async getProductTranslations(
+    @Query() query: ProductTranslationPaginationQueryDto,
+  ) {
     const result =
       await this.productTranslationService.getProductTranslations(query);
 

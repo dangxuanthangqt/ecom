@@ -543,18 +543,22 @@ paths:
           in: query
           description: Sort order
           schema:
-            example: ASC
+            example: asc
             type: string
             enum:
-              - ASC
-              - DESC
+              - asc
+              - desc
         - name: orderBy
           required: false
           in: query
           description: Field to order by
           schema:
-            example: name
+            example: createdAt
             type: string
+            enum:
+              - createdAt
+              - name
+              - updatedAt
         - name: keyword
           required: false
           in: query
@@ -765,12 +769,6 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LanguageDeleteRequestDto"
       responses:
         "200":
           description: Delete a specific language by its ID.
@@ -928,18 +926,23 @@ paths:
           in: query
           description: Sort order
           schema:
-            example: ASC
+            example: asc
             type: string
             enum:
-              - ASC
-              - DESC
+              - asc
+              - desc
         - name: orderBy
           required: false
           in: query
           description: Field to order by
           schema:
-            example: name
+            example: createdAt
             type: string
+            enum:
+              - createdAt
+              - description
+              - name
+              - updatedAt
         - name: keyword
           required: false
           in: query
@@ -1306,11 +1309,11 @@ paths:
           in: query
           description: Sort order
           schema:
-            example: ASC
+            example: asc
             type: string
             enum:
-              - ASC
-              - DESC
+              - asc
+              - desc
         - name: orderBy
           required: false
           in: query
@@ -1907,18 +1910,23 @@ paths:
           in: query
           description: Sort order
           schema:
-            example: ASC
+            example: asc
             type: string
             enum:
-              - ASC
-              - DESC
+              - asc
+              - desc
         - name: orderBy
           required: false
           in: query
           description: Field to order by
           schema:
-            example: name
+            example: createdAt
             type: string
+            enum:
+              - createdAt
+              - email
+              - name
+              - updatedAt
         - name: keyword
           required: false
           in: query
@@ -2655,18 +2663,22 @@ paths:
           in: query
           description: Sort order
           schema:
-            example: ASC
+            example: asc
             type: string
             enum:
-              - ASC
-              - DESC
+              - asc
+              - desc
         - name: orderBy
           required: false
           in: query
           description: Field to order by
           schema:
-            example: name
+            example: createdAt
             type: string
+            enum:
+              - createdAt
+              - name
+              - updatedAt
         - name: keyword
           required: false
           in: query
@@ -2691,7 +2703,7 @@ paths:
                       - data
       summary: Get a list of brands
       tags: &a8
-        - Brand
+        - Brands
     post:
       operationId: createBrand
       parameters:
@@ -2773,11 +2785,8 @@ paths:
         - name: id
           required: true
           in: path
-          description: Unique identifier for the brand
           schema:
-            format: uuid
-            example: 123e4567-e89b-12d3-a456-426614174000
-            type: string
+            $ref: "#/components/schemas/BrandIdParamDto"
       responses:
         "200":
           description: Retrieves a specific brand by its ID.
@@ -2886,18 +2895,22 @@ paths:
           in: query
           description: Sort order
           schema:
-            example: ASC
+            example: asc
             type: string
             enum:
-              - ASC
-              - DESC
+              - asc
+              - desc
         - name: orderBy
           required: false
           in: query
           description: Field to order by
           schema:
-            example: name
+            example: createdAt
             type: string
+            enum:
+              - createdAt
+              - name
+              - updatedAt
         - name: keyword
           required: false
           in: query
@@ -3010,7 +3023,9 @@ paths:
         - name: id
           required: true
           in: path
+          description: The ID of the brand translation to retrieve
           schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
             type: string
         - name: Authorization
           in: header
@@ -3229,6 +3244,1744 @@ paths:
                   message: Internal server error.
       summary: Delete a brand translation
       tags: *a9
+  /categories:
+    get:
+      operationId: getAllCategories
+      parameters:
+        - name: parentCategoryId
+          required: false
+          in: query
+          description: Page number for pagination
+          schema:
+            example: 1
+            type: number
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description:
+            Retrieve all categories with optional filtering by language and
+            parent category.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllCategoriesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get all categories
+      tags: &a10
+        - Categories
+    post:
+      operationId: createCategory
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequestDto"
+      responses:
+        "200":
+          description: Create a new category with translations and children.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryWithChildrenCategoriesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new category
+      tags: *a10
+  /categories/{id}:
+    get:
+      operationId: getCategoryById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Category ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description:
+            Retrieve a single category by its ID, including its translations in
+            the specified language.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryWithChildrenCategoriesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get category by ID
+      tags: *a10
+    put:
+      operationId: updateCategory
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Category ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCategoryRequestDto"
+      responses:
+        "200":
+          description: Update a category by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryWithChildrenCategoriesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update an existing category
+      tags: *a10
+    delete:
+      operationId: deleteCategory
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Category ID (UUID)
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Delete a category by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryWithChildrenCategoriesResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a category
+      tags: *a10
+  /category-translations:
+    get:
+      operationId: getCategoryTranslations
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: asc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - createdAt
+              - name
+              - updatedAt
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a list of category translations with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref:
+                            "#/components/schemas/CategoryTranslationWithCategoryAndLanguageResponseD\
+                            to"
+                    required:
+                      - data
+      summary: Get a list of category translations
+      tags: &a11
+        - Category Translations
+    post:
+      operationId: createCategoryTranslation
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryTranslationRequestDto"
+      responses:
+        "200":
+          description: Creates a new category translation.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  "#/components/schemas/CategoryTranslationWithCategoryAndLanguageResponseD\
+                  to"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new category translation
+      tags: *a11
+  /category-translations/{id}:
+    get:
+      operationId: getCategoryTranslationById
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieves a specific category translation by its ID.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  "#/components/schemas/CategoryTranslationWithCategoryAndLanguageResponseD\
+                  to"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a category translation by ID
+      tags: *a11
+    put:
+      operationId: updateCategoryTranslation
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the category translation to update
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCategoryTranslationRequestDto"
+      responses:
+        "200":
+          description: Updates a category translation by its ID.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  "#/components/schemas/CategoryTranslationWithCategoryAndLanguageResponseD\
+                  to"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update an existing category translation
+      tags: *a11
+    delete:
+      operationId: deleteCategoryTranslation
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the category translation to delete
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deletes a category translation by its ID.
+          content:
+            application/json:
+              schema:
+                $ref:
+                  "#/components/schemas/CategoryTranslationWithCategoryAndLanguageResponseD\
+                  to"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a category translation
+      tags: *a11
+  /products:
+    get:
+      operationId: getProducts
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: asc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - createdAt
+              - name
+              - basePrice
+              - publishedAt
+              - updatedAt
+              - virtualPrice
+              - sale
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: brandIds
+          required: false
+          in: query
+          description: Filter products by brand IDs
+          schema:
+            example:
+              - 123e4567-e89b-12d3-a456-426614174000
+              - 123e4567-e89b-12d3-a456-426614174001
+            type: array
+            items:
+              type: string
+        - name: categoryIds
+          required: false
+          in: query
+          description: Filter products by category IDs
+          schema:
+            example:
+              - 123e4567-e89b-12d3-a456-426614174000
+              - 123e4567-e89b-12d3-a456-426614174001
+            type: array
+            items:
+              type: string
+        - name: name
+          required: false
+          in: query
+          description: Search term to filter products by name
+          schema:
+            example: Sample Product
+            type: string
+        - name: minPrice
+          required: false
+          in: query
+          description: Filter products by minimum price
+          schema:
+            example: 10
+            type: number
+        - name: maxPrice
+          required: false
+          in: query
+          description: Filter products by maximum price
+          schema:
+            example: 100
+            type: number
+      responses:
+        "200":
+          description: Retrieve a list of products with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ProductResponseDto"
+                    required:
+                      - data
+      summary: Get a list of products
+      tags: &a12
+        - Products
+  /products/{id}:
+    get:
+      operationId: getProductById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The unique identifier of the product to retrieve.
+          schema:
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        "200":
+          description: Retrieve a product by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get product by ID
+      tags: *a12
+  /manage-product/products:
+    get:
+      operationId: getManageProducts
+      parameters:
+        - name: brandIds
+          required: false
+          in: query
+          description: Filter products by brand IDs
+          schema:
+            example:
+              - 123e4567-e89b-12d3-a456-426614174000
+              - 123e4567-e89b-12d3-a456-426614174001
+            type: array
+            items:
+              type: string
+        - name: categoryIds
+          required: false
+          in: query
+          description: Filter products by category IDs
+          schema:
+            example:
+              - 123e4567-e89b-12d3-a456-426614174000
+              - 123e4567-e89b-12d3-a456-426614174001
+            type: array
+            items:
+              type: string
+        - name: name
+          required: false
+          in: query
+          description: Search term to filter products by name
+          schema:
+            example: Sample Product
+            type: string
+        - name: minPrice
+          required: false
+          in: query
+          description: Filter products by minimum price
+          schema:
+            example: 10
+            type: number
+        - name: maxPrice
+          required: false
+          in: query
+          description: Filter products by maximum price
+          schema:
+            example: 100
+            type: number
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: name
+            type: string
+            enum:
+              - createdAt
+              - name
+              - basePrice
+              - publishedAt
+              - updatedAt
+              - virtualPrice
+              - sale
+        - name: createdById
+          required: true
+          in: query
+          description: Filter product by created by user ID
+          schema:
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: isPublic
+          required: false
+          in: query
+          description: Filter products by publication status
+          schema:
+            example: true
+            type: boolean
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: asc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a list of products with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ProductResponseDto"
+                    required:
+                      - data
+      summary: Get a list of products
+      tags: &a13
+        - Manage Products
+    post:
+      operationId: createProduct
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRequestDto"
+      responses:
+        "200":
+          description: Create a new product.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new product
+      tags: *a13
+  /manage-product/products/{id}:
+    get:
+      operationId: getManageProductById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The unique identifier of the product to retrieve.
+          schema:
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a product by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get product by ID
+      tags: *a13
+    put:
+      operationId: updateProduct
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductRequestDto"
+      responses:
+        "200":
+          description: Update an existing product by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update product by ID
+      tags: *a13
+    delete:
+      operationId: deleteProduct
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The unique identifier of the product to delete.
+          schema:
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Delete a product by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteProductResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete product by ID
+      tags: *a13
+  /product-translations:
+    get:
+      operationId: getProductTranslations
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: asc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - createdAt
+              - name
+              - updatedAt
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve a list of product translations with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ProductTranslationResponseDto"
+                    required:
+                      - data
+      summary: Get a list of product translations
+      tags: &a14
+        - Product Translations
+    post:
+      operationId: createProductTranslation
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductTranslationRequestDto"
+      responses:
+        "200":
+          description: Creates a new product translation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductTranslationResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a new product translation
+      tags: *a14
+  /product-translations/{id}:
+    get:
+      operationId: getProductTranslationById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the product translation to retrieve
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieves a specific product translation by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductTranslationResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get a product translation by ID
+      tags: *a14
+    put:
+      operationId: updateProductTranslation
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the product translation to update
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProductTranslationRequestDto"
+      responses:
+        "200":
+          description: Updates an existing product translation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductTranslationResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Update a product translation
+      tags: *a14
+    delete:
+      operationId: deleteProductTranslation
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The ID of the product translation to delete
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deletes an existing product translation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductTranslationResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete a product translation
+      tags: *a14
 info:
   title: Ecom API
   description: The Ecom API description
@@ -3641,14 +5394,6 @@ components:
       required:
         - id
         - name
-    LanguageDeleteRequestDto:
-      type: object
-      properties:
-        isHardDelete:
-          type: boolean
-          description: Whether to hard delete the language
-          example: false
-          default: false
     LanguageDeleteResponseDto:
       type: object
       properties:
@@ -3752,7 +5497,7 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: &a10
+          enum: &a15
             - GET
             - POST
             - PUT
@@ -3760,7 +5505,7 @@ components:
             - PATCH
         rolesIds:
           description: Roles associated with the permission
-          example: &a11
+          example: &a16
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -3795,10 +5540,10 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: *a10
+          enum: *a15
         rolesIds:
           description: Roles associated with the permission
-          example: *a11
+          example: *a16
           type: array
           items:
             type: string
@@ -4358,12 +6103,12 @@ components:
           format: uuid
         name:
           type: string
-          description: Language code for the translation
-          example: en
-        description:
-          type: string
           description: Name of the brand in the specified language
           example: Brand Name
+        description:
+          type: string
+          description: Description of the brand in the specified language
+          example: This is a brand description.
         language:
           description: Language details for the translation
           allOf:
@@ -4400,6 +6145,16 @@ components:
         - logo
         - name
         - brandTranslations
+    BrandIdParamDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the brand
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+      required:
+        - id
     CreateBrandRequestDto:
       type: object
       properties:
@@ -4413,7 +6168,7 @@ components:
           example: Brand Name
         brandTranslationIds:
           description: brandTranslationIds
-          example: &a12
+          example: &a17
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -4462,7 +6217,7 @@ components:
           example: Brand Name
         brandTranslationIds:
           description: brandTranslationIds
-          example: *a12
+          example: *a17
           type: array
           items:
             type: string
@@ -4505,18 +6260,19 @@ components:
           format: uuid
         name:
           type: string
-          description: Language code for the translation
-          example: en
-        description:
-          type: string
           description: Name of the brand in the specified language
           example: Brand Name
+        description:
+          type: string
+          description: Description of the brand in the specified language
+          example: This is a brand description.
         language:
           description: Language details for the translation
           allOf:
             - $ref: "#/components/schemas/LanguageResponseDto"
         brand:
           description: Brand details for the translation
+          nullable: true
           allOf:
             - $ref: "#/components/schemas/BaseBrandResponseDto"
       required:
@@ -4524,7 +6280,6 @@ components:
         - name
         - description
         - language
-        - brand
     CreateBrandTranslationRequestDto:
       type: object
       properties:
@@ -4572,5 +6327,642 @@ components:
         brandId:
           type: string
           description: ID of the brand for which the translation is created
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+    BaseCategoryResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the category
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: Name of the category
+          example: Electronics
+        logo:
+          type: object
+          description: URL to the category's logo image
+          example: https://example.com/logos/category-logo.png
+          format: url
+          nullable: true
+      required:
+        - id
+        - name
+    CategoryTranslationWithLanguageResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the category translation
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: Name of the category translation in the specified language
+          example: Electronics
+        description:
+          type: string
+          description: Description of the category translation in the specified language
+          example: This is a category description.
+        language:
+          description: Language details for the translation
+          allOf:
+            - $ref: "#/components/schemas/LanguageResponseDto"
+      required:
+        - id
+        - name
+        - description
+        - language
+    CategoryWithChildrenCategoriesResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the category
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: Name of the category
+          example: Electronics
+        logo:
+          type: object
+          description: URL to the category's logo image
+          example: https://example.com/logos/category-logo.png
+          format: url
+          nullable: true
+        parentCategory:
+          description: Parent category details
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/BaseCategoryResponseDto"
+        categoryTranslations:
+          description: Translations of the category in different languages
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryTranslationWithLanguageResponseDto"
+        childrenCategories:
+          description: List of child categories
+          type: array
+          items:
+            $ref: "#/components/schemas/BaseCategoryResponseDto"
+      required:
+        - id
+        - name
+        - categoryTranslations
+        - childrenCategories
+    GetAllCategoriesResponseDto:
+      type: object
+      properties:
+        data:
+          description: List of all categories with their translations and children
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryWithChildrenCategoriesResponseDto"
+        totalCount:
+          type: number
+          description: Total number of categories
+          example: 100
+      required:
+        - data
+        - totalCount
+    CreateCategoryRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the category
+          example: Electronics
+        logo:
+          type: string
+          description: URL to the category's logo image
+          example: https://example.com/logos/category-logo.png
+        categoryTranslationIds:
+          description: List of category translation IDs to associate with the category
+          example: &a18
+            - 123e4567-e89b-12d3-a456-426614174000
+          type: array
+          items:
+            type: string
+        parentCategoryId:
+          type: string
+          description: ID of the parent category
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+      required:
+        - name
+    UpdateCategoryRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the category
+          example: Electronics
+        logo:
+          type: string
+          description: URL to the category's logo image
+          example: https://example.com/logos/category-logo.png
+        categoryTranslationIds:
+          description: List of category translation IDs to associate with the category
+          example: *a18
+          type: array
+          items:
+            type: string
+        parentCategoryId:
+          type: string
+          description: ID of the parent category
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+    CategoryTranslationWithCategoryAndLanguageResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the category translation
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: Name of the category translation in the specified language
+          example: Electronics
+        description:
+          type: string
+          description: Description of the category translation in the specified language
+          example: This is a category description.
+        language:
+          description: Language details for the translation
+          allOf:
+            - $ref: "#/components/schemas/LanguageResponseDto"
+        category:
+          description: Category details for the translation
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/BaseCategoryResponseDto"
+      required:
+        - id
+        - name
+        - description
+        - language
+    CreateCategoryTranslationRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the category translation in the specified language
+          example: Electronics
+        description:
+          type: string
+          description: Description of the category translation in the specified language
+          example: This is a category description.
+        languageId:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+          minLength: 2
+          maxLength: 2
+        categoryId:
+          type: string
+          description: Unique identifier for the category
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+      required:
+        - name
+        - description
+        - languageId
+        - categoryId
+    UpdateCategoryTranslationRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the category translation in the specified language
+          example: Electronics
+        description:
+          type: string
+          description: Description of the category translation in the specified language
+          example: This is a category description.
+        languageId:
+          type: string
+          description: Language code (ISO 639-1)
+          example: en
+          minLength: 2
+          maxLength: 2
+        categoryId:
+          type: string
+          description: Unique identifier for the category
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+    VariantResponseDto:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Name of the variant
+          example: Color
+        options:
+          description: List of options for the variant
+          example:
+            - Red
+            - Blue
+            - Green
+          type: array
+          items:
+            type: string
+      required:
+        - value
+        - options
+    ProductTranslationResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the product translation.
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        name:
+          type: string
+          description: The name of the product in the specified language.
+          example: Product Name
+        description:
+          type: string
+          description: The description of the product in the specified language.
+          example: This is a product description.
+        language:
+          description: The language of the product translation.
+          allOf:
+            - $ref: "#/components/schemas/LanguageResponseDto"
+      required:
+        - id
+        - name
+        - description
+        - language
+    ProductResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the product
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        publishedAt:
+          type: object
+          description: " Publish date of the product"
+          example: 2023-10-01T00:00:00Z
+          format: date-time
+          nullable: true
+        name:
+          type: string
+          description: Name of the product
+          example: Sample Product
+        basePrice:
+          type: number
+          description: Base price of the product
+          example: 100
+        virtualPrice:
+          type: number
+          description: Virtual price of the product
+          example: 90
+        images:
+          description: Array of product image URLs
+          example: &a19
+            - https://example.com/image1.jpg
+            - https://example.com/image2.png
+            - https://example.com/image3.webp
+          type: array
+          items:
+            type: string
+        brand:
+          description: Brand details associated with the product
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/BaseBrandResponseDto"
+        variants:
+          description: List of variants for the product
+          type: array
+          items:
+            $ref: "#/components/schemas/VariantResponseDto"
+        productTranslations:
+          description: List of product translations in different languages
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductTranslationResponseDto"
+      required:
+        - id
+        - publishedAt
+        - name
+        - basePrice
+        - virtualPrice
+        - images
+        - variants
+        - productTranslations
+    BaseSKUResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the SKU
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        value:
+          type: string
+          description: SKU value
+        price:
+          type: number
+          description: Price of the SKU
+          example: 19.99
+        stock:
+          type: number
+          description: Stock quantity of the SKU
+          example: 100
+        image:
+          type: string
+          description: Image URL of the SKU
+          example: https://example.com/images/sku-image.png
+          format: url
+      required:
+        - id
+        - value
+        - price
+        - stock
+        - image
+    ProductDetailResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the product
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        publishedAt:
+          type: object
+          description: " Publish date of the product"
+          example: 2023-10-01T00:00:00Z
+          format: date-time
+          nullable: true
+        name:
+          type: string
+          description: Name of the product
+          example: Sample Product
+        basePrice:
+          type: number
+          description: Base price of the product
+          example: 100
+        virtualPrice:
+          type: number
+          description: Virtual price of the product
+          example: 90
+        images:
+          description: Array of product image URLs
+          example: *a19
+          type: array
+          items:
+            type: string
+        brand:
+          description: Brand details associated with the product
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/BaseBrandResponseDto"
+        variants:
+          description: List of variants for the product
+          type: array
+          items:
+            $ref: "#/components/schemas/VariantResponseDto"
+        productTranslations:
+          description: List of product translations in different languages
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductTranslationResponseDto"
+        categories:
+          description: " Categories associated with the product"
+          type: array
+          items:
+            $ref: "#/components/schemas/BaseCategoryResponseDto"
+        skus:
+          description: List of product translations in different languages
+          type: array
+          items:
+            $ref: "#/components/schemas/BaseSKUResponseDto"
+      required:
+        - id
+        - publishedAt
+        - name
+        - basePrice
+        - virtualPrice
+        - images
+        - variants
+        - productTranslations
+        - categories
+        - skus
+    VariantRequestDto:
+      type: object
+      properties:
+        value:
+          type: string
+          description: Name of the variant
+          example: Color
+        options:
+          description: List of options for the variant
+          example:
+            - Red
+            - Blue
+            - Green
+          type: array
+          items:
+            type: string
+      required:
+        - value
+        - options
+    UpsertSKURequestDto:
+      type: object
+      properties:
+        value:
+          type: string
+          description: SKU value
+          example: SKU-12345
+        price:
+          type: number
+          description: Price of the SKU
+          example: 19.99
+        stock:
+          type: number
+          description: Stock quantity of the SKU
+          example: 100
+        image:
+          type: string
+          description: Image URL of the SKU
+          example: https://example.com/images/sku-image.png
+          format: url
+      required:
+        - value
+        - price
+        - stock
+        - image
+    CreateProductRequestDto:
+      type: object
+      properties:
+        publishedAt:
+          format: date-time
+          type: string
+          description: The date when the product will be published
+          example: 2023-10-01T00:00:00Z
+          default: 2025-07-10T15:54:38.209Z
+        name:
+          type: string
+          description: The name of the product
+          example: Sample Product
+        basePrice:
+          type: number
+          description: Base price of the product
+          example: 100
+        virtualPrice:
+          type: number
+          description: Virtual price of the product
+          example: 90
+        images:
+          description: Array of product image URLs
+          example: &a20
+            - https://example.com/image1.jpg
+            - https://example.com/image2.png
+            - https://example.com/image3.webp
+          type: array
+          items:
+            type: string
+        brandId:
+          type: string
+          description: ID of the brand associated with the product
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        variants:
+          description: List of variants for the product
+          type: array
+          items:
+            $ref: "#/components/schemas/VariantRequestDto"
+        categoryIds:
+          description: List of category IDs associated with the product
+          example: &a21
+            - 123e4567-e89b-12d3-a456-426614174000
+            - 123e4567-e89b-12d3-a456-426614174001
+          type: array
+          items:
+            type: string
+        skus:
+          description: List of SKUs for the product
+          type: array
+          items:
+            $ref: "#/components/schemas/UpsertSKURequestDto"
+      required:
+        - name
+        - basePrice
+        - virtualPrice
+        - images
+        - brandId
+        - variants
+        - categoryIds
+        - skus
+    UpdateProductRequestDto:
+      type: object
+      properties:
+        publishedAt:
+          format: date-time
+          type: string
+          description: The date when the product will be published
+          example: 2023-10-01T00:00:00Z
+          default: 2025-07-10T15:54:38.209Z
+        name:
+          type: string
+          description: The name of the product
+          example: Sample Product
+        basePrice:
+          type: number
+          description: Base price of the product
+          example: 100
+        virtualPrice:
+          type: number
+          description: Virtual price of the product
+          example: 90
+        images:
+          description: Array of product image URLs
+          example: *a20
+          type: array
+          items:
+            type: string
+        brandId:
+          type: string
+          description: ID of the brand associated with the product
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+        categoryIds:
+          description: List of category IDs associated with the product
+          example: *a21
+          type: array
+          items:
+            type: string
+        variants:
+          description: List of variants for the product
+          type: array
+          items:
+            $ref: "#/components/schemas/VariantRequestDto"
+        skus:
+          description: List of SKUs for the product
+          type: array
+          items:
+            $ref: "#/components/schemas/UpsertSKURequestDto"
+      required:
+        - variants
+        - skus
+    DeleteProductResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message indicating the result of the delete operation
+          example: Product deleted successfully
+      required:
+        - message
+    CreateProductTranslationRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the product translation.
+          example: Product Name
+        description:
+          type: string
+          description: The description of the product translation.
+          example: This is a product description.
+        languageId:
+          type: string
+          description: The language code for the product translation.
+          example: en
+        productId:
+          type: string
+          description: The unique identifier of the product.
+          example: 123e4567-e89b-12d3-a456-426614174000
+          format: uuid
+      required:
+        - name
+        - description
+        - languageId
+        - productId
+    UpdateProductTranslationRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the product translation.
+          example: Product Name
+        description:
+          type: string
+          description: The description of the product translation.
+          example: This is a product description.
+        languageId:
+          type: string
+          description: The language code for the product translation.
+          example: en
+        productId:
+          type: string
+          description: The unique identifier of the product.
           example: 123e4567-e89b-12d3-a456-426614174000
           format: uuid

@@ -18,12 +18,12 @@ import {
   LanguageCreateResponseDto,
   LanguageDeleteResponseDto,
   LanguageIdParamDto,
+  LanguagePaginationQueryDto,
   LanguageResponseDto,
   LanguageUpdateRequestDto,
   LanguageUpdateResponseDto,
 } from "@/dtos/language/language.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,
@@ -43,7 +43,7 @@ export class LanguageController {
   })
   async getLanguages(
     @Query()
-    query: PaginationQueryDto,
+    query: LanguagePaginationQueryDto,
   ) {
     const result = await this.languageService.getLanguages(query);
 

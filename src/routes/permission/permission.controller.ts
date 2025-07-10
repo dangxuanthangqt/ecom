@@ -17,11 +17,11 @@ import { PermissionService } from "./permission.service";
 import {
   CreatePermissionRequestDto,
   DeletePermissionRequestDto,
+  PermissionPaginationQueryDto,
   PermissionWithRolesResponseDto,
   UpdatePermissionRequestDto,
 } from "@/dtos/permission/permission.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,
@@ -41,7 +41,7 @@ export class PermissionController {
   })
   async getPermissions(
     @Query()
-    query: PaginationQueryDto,
+    query: PermissionPaginationQueryDto,
   ): Promise<PageDto<PermissionWithRolesResponseDto>> {
     const result = await this.permissionService.getPermissions(query);
 

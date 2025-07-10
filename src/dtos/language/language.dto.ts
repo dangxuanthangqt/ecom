@@ -1,6 +1,23 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
-import { IsBoolean, IsOptional, IsString, Length } from "class-validator";
+import { IsBoolean, IsIn, IsOptional, IsString, Length } from "class-validator";
+
+import { PaginationQueryDto } from "../shared/pagination.dto";
+
+import { LanguageOrderByFields, LanguageOrderByFieldsType } from "./constants";
+
+export class LanguagePaginationQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: "Field to order by",
+    example: LanguageOrderByFields.CREATED_AT,
+    enum: Object.values(LanguageOrderByFields),
+  })
+  @IsIn(Object.values(LanguageOrderByFields), {
+    message: `orderBy must be one of: ${Object.values(LanguageOrderByFields).join(", ")}`,
+  })
+  @IsOptional()
+  orderBy?: LanguageOrderByFieldsType;
+}
 
 export class LanguageCreateRequestDto {
   @ApiProperty({

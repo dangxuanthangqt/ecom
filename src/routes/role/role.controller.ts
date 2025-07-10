@@ -10,7 +10,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import { User } from "@prisma/client";
+import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
 import { RoleService } from "./role.service";
 
@@ -64,7 +64,7 @@ export class RoleController {
   })
   @Get(":id")
   async getRoleById(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param("id", ParseUUIDPipe) id: RoleSchema["id"],
   ): Promise<RoleWithPermissionsResponseDto> {
     const result = await this.roleService.getRoleById(id);
 
@@ -81,7 +81,7 @@ export class RoleController {
   @Post()
   async createRole(
     @Body() body: CreateRoleRequestDto,
-    @ActiveUser("userId") userId: User["id"],
+    @ActiveUser("userId") userId: UserSchema["id"],
   ): Promise<RoleWithPermissionsResponseDto> {
     const result = await this.roleService.createRole({
       body,
@@ -107,9 +107,9 @@ export class RoleController {
   })
   @Put(":id")
   async updateRole(
-    @Param("id", ParseUUIDPipe) id: string,
+    @Param("id", ParseUUIDPipe) id: RoleSchema["id"],
     @Body() body: UpdateRoleRequestDto,
-    @ActiveUser("userId") userId: User["id"],
+    @ActiveUser("userId") userId: UserSchema["id"],
   ): Promise<RoleWithPermissionsResponseDto> {
     const result = await this.roleService.updateRole({
       id,
@@ -136,8 +136,8 @@ export class RoleController {
   })
   @Delete(":id")
   async deleteRole(
-    @Param("id", ParseUUIDPipe) id: string,
-    @ActiveUser("userId") userId: User["id"],
+    @Param("id", ParseUUIDPipe) id: RoleSchema["id"],
+    @ActiveUser("userId") userId: UserSchema["id"],
     @Body() body: DeleteRoleRequestDto,
   ): Promise<RoleWithPermissionsResponseDto> {
     const result = await this.roleService.deleteRole({

@@ -240,6 +240,7 @@ model Product {
   skus                SKU[]
   reviews             Review[]
   productTranslations ProductTranslation[]
+  orders              Order[]
 
   createdById String? @db.Uuid
   createdBy   User?   @relation("ProductCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -465,11 +466,12 @@ model ProductSKUSnapshot {
 }
 
 model Order {
-  id     String               @id @default(uuid()) @db.Uuid
-  userId String               @db.Uuid
-  user   User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  status OrderStatus
-  items  ProductSKUSnapshot[]
+  id       String               @id @default(uuid()) @db.Uuid
+  userId   String               @db.Uuid
+  user     User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  status   OrderStatus
+  items    ProductSKUSnapshot[]
+  products Product[]
 
   createdById String? @db.Uuid
   createdBy   User?   @relation("OrderCreatedBy", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)
@@ -483,6 +485,7 @@ model Order {
   updatedAt DateTime  @updatedAt
 
   @@index([deletedAt])
+  @@index([deletedAt, status])
 }
 
 model Review {

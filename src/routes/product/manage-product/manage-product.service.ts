@@ -48,6 +48,9 @@ export class ManageProductService {
   }
 
   async getProducts({
+    languageId,
+    userId,
+    roleName,
     query: {
       pageIndex = 1,
       pageSize = 10,
@@ -59,11 +62,8 @@ export class ManageProductService {
       minPrice,
       maxPrice,
       isPublic,
-      createdById,
+      createdById = userId, // Default to the user's own products
     },
-    languageId,
-    userId,
-    roleName,
   }: {
     query: ManageProductPaginationQueryDto;
     languageId: LanguageSchema["id"];
@@ -96,7 +96,7 @@ export class ManageProductService {
 
             // -- manage product filters
             isPublic,
-            createdById,
+            createdById, // Allow user to see their own products
           },
           take,
           skip,

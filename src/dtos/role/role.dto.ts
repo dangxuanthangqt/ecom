@@ -3,13 +3,29 @@ import { Expose } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
+  IsIn,
   IsOptional,
   IsString,
   IsUUID,
 } from "class-validator";
 
 import { PermissionResponseDto } from "../permission/permission.dto";
+import { PaginationQueryDto } from "../shared/pagination.dto";
 
+import { RoleOrderByFields, RoleOrderByFieldsType } from "./constants";
+
+export class RolePaginationQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: "Field to order by",
+    example: RoleOrderByFields.CREATED_AT,
+    enum: Object.values(RoleOrderByFields),
+  })
+  @IsIn(Object.values(RoleOrderByFields), {
+    message: `orderBy must be one of: ${Object.values(RoleOrderByFields).join(", ")}`,
+  })
+  @IsOptional()
+  orderBy?: RoleOrderByFieldsType;
+}
 export class RoleResponseDto {
   @ApiProperty({
     description: "Role ID",
@@ -47,7 +63,7 @@ export class RoleResponseDto {
 export class RoleWithPermissionsResponseDto extends RoleResponseDto {
   @ApiProperty({
     description: "Permissions associated with the role",
-    type: () => PermissionResponseDto,
+    type: () => [PermissionResponseDto],
     example: [
       {
         id: "123e4567-e89b-12d3-a456-426614174000",
@@ -57,7 +73,6 @@ export class RoleWithPermissionsResponseDto extends RoleResponseDto {
         method: "POST",
       },
     ],
-    isArray: true,
   })
   @Expose()
   permissions: PermissionResponseDto[];
