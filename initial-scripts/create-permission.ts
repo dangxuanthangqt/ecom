@@ -3,11 +3,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { NestFactory } from "@nestjs/core";
-import { AppModule } from "src/app.module";
-import { PrismaService } from "src/shared/services/prisma.service";
 
 import { HTTPMethod } from "@/constants/http-method.constant";
 import { Role, RoleType } from "@/constants/role.constant";
+import { AppModule } from "src/app.module";
+import { PrismaService } from "src/shared/services/prisma.service";
 
 const prisma = new PrismaService();
 

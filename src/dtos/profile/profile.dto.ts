@@ -9,14 +9,14 @@ import {
   Length,
 } from "class-validator";
 
+import { UserStatus, UserStatusType } from "@/constants/user-status.constant";
+import { RoleResponseDto } from "@/dtos/role/role.dto";
+import { IsPasswordMatch } from "@/validations/decorators/is-password-match.decorator";
+
 import {
   BaseUserResponseDto,
   UserWithRoleAndPermissionsResponseDto,
 } from "../user/user.dto";
-
-import { UserStatus, UserStatusType } from "@/constants/user-status.constant";
-import { RoleResponseDto } from "@/dtos/role/role.dto";
-import { IsPasswordMatch } from "@/validations/decorators/is-password-match.decorator";
 
 export class ProfileResponseDto extends UserWithRoleAndPermissionsResponseDto {
   constructor(partial: ProfileResponseDto) {

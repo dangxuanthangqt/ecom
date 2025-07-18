@@ -1,8 +1,8 @@
 import { Prisma } from "@prisma/client";
 
-import { brandTranslationSelect } from "./brand-translation.selector";
-
 import { ALL_LANGUAGES } from "@/constants/language";
+
+import { brandTranslationSelect } from "./brand-translation.selector";
 
 const brandSelect = Prisma.validator<Prisma.BrandSelect>()({
   id: true,

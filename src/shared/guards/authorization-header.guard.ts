@@ -6,17 +6,17 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
-import throwHttpException from "../utils/throw-http-exception.util";
-
-import { AccessTokenGuard } from "./access-token.guard";
-import { ApiKeyGuard } from "./api-key.guard";
-
 import {
   AUTHORIZATION_HEADER_KEY,
   AuthorizationHeaderMetadata,
   AuthorizationType,
   CombinedAuthorizationCondition,
 } from "@/constants/auth.constant";
+
+import throwHttpException from "../utils/throw-http-exception.util";
+
+import { AccessTokenGuard } from "./access-token.guard";
+import { ApiKeyGuard } from "./api-key.guard";
 
 @Injectable()
 export class AuthorizationHeaderGuard implements CanActivate {

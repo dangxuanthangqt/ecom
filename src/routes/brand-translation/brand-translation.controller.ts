@@ -12,8 +12,6 @@ import {
 import { ApiParam } from "@nestjs/swagger";
 import { User } from "@prisma/client";
 
-import { BrandTranslationService } from "./brand-translation.service";
-
 import { BrandPaginationQueryDto } from "@/dtos/brand/brand.dto";
 import {
   BrandTranslationWithBrandAndLanguageResponseDto,
@@ -26,6 +24,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+
+import { BrandTranslationService } from "./brand-translation.service";
 
 @Controller("brand-translations")
 export class BrandTranslationController {

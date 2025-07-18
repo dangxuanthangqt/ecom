@@ -7,6 +7,7 @@ import {
 } from "@nestjs/common";
 import { Response } from "express";
 import { ZodSerializationException, ZodValidationException } from "nestjs-zod";
+
 import { DefaultExceptionDto } from "src/dtos/default-exception.dto";
 
 interface HttpExceptionResponse {

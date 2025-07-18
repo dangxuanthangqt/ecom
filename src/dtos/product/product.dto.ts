@@ -23,6 +23,8 @@ import {
   ValidateNested,
 } from "class-validator";
 
+import { IsUniqueStringArray } from "@/validations/decorators/is-unique-string-array";
+
 import {
   BaseBrandResponseDto,
   BrandWithBrandTranslationsResponseDto,
@@ -34,8 +36,6 @@ import { BaseSKUResponseDto, UpsertSKURequestDto } from "../sku/sku.dto";
 
 import { ProductOrderByFields, ProductOrderByFieldsType } from "./constant";
 import { IsUniqueVariant, IsValidSKUs } from "./product.validation";
-
-import { IsUniqueStringArray } from "@/validations/decorators/is-unique-string-array";
 
 export class ProductQueryDto {
   @ApiPropertyOptional({

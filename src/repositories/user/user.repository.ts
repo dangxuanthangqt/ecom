@@ -1,8 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Prisma, User } from "@prisma/client";
 
-import { UserInputData } from "./user.repository.type";
-
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -10,6 +8,8 @@ import {
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
+
+import { UserInputData } from "./user.repository.type";
 
 @Injectable()
 export class UserRepository {

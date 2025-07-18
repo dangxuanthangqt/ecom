@@ -12,8 +12,6 @@ import {
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
-import { UserService } from "./user.service";
-
 import { PageDto } from "@/dtos/shared/page.dto";
 import {
   BaseUserResponseDto,
@@ -30,6 +28,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+
+import { UserService } from "./user.service";
 
 @ApiTags("Users")
 @Controller("users")

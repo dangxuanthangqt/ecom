@@ -4,14 +4,14 @@ import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { z } from "zod";
 
-import { AuthService } from "./auth.service";
-
 import { DeviceRepository } from "@/repositories/device/device.repository";
 import { SharedRoleRepository } from "@/repositories/role/shared-role.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { AppConfigService } from "@/shared/services/app-config.service";
 import { HashingService } from "@/shared/services/hashing.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
+
+import { AuthService } from "./auth.service";
 
 const DEFAULT_PASSWORD = "changeme";
 

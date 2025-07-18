@@ -5,8 +5,6 @@ import {
   Product as ProductSchema,
 } from "@prisma/client";
 
-import { ProductService } from "./product.service";
-
 import {
   ProductDetailResponseDto,
   ProductPaginationQueryDto,
@@ -19,6 +17,8 @@ import {
   ApiPageOkResponse,
   ApiPublic,
 } from "@/shared/param-decorators/http-decorator";
+
+import { ProductService } from "./product.service";
 
 @ApiTags("Products")
 @Controller("products")

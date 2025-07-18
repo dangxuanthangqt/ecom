@@ -14,8 +14,6 @@ import {
 } from "@nestjs/platform-express";
 import { ApiTags } from "@nestjs/swagger";
 
-import { MediaService } from "./media.service";
-
 import {
   DeleteFileQueryDto,
   DeleteFileResponseDto,
@@ -32,6 +30,8 @@ import {
   createSingleImageDiskInterceptor,
   // createSingleImageMemoryInterceptor,
 } from "@/shared/utils/files/single-image-interceptor.util";
+
+import { MediaService } from "./media.service";
 
 @ApiTags("Media")
 @Controller("media")

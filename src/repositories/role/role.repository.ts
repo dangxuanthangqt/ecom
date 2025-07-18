@@ -1,6 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Permission, Prisma, Role, User } from "@prisma/client";
-import { roleWithPermissionsSelect } from "src/selectors/role.selector";
 
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -9,6 +8,7 @@ import {
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
+import { roleWithPermissionsSelect } from "src/selectors/role.selector";
 
 @Injectable()
 export class RoleRepository {

@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 
+import { CategoryTranslationRepository } from "@/repositories/category-translation/category-translation.repository";
+
 import { CategoryTranslationController } from "./category-translation.controller";
 import { CategoryTranslationService } from "./category-translation.service";
-
-import { CategoryTranslationRepository } from "@/repositories/category-translation/category-translation.repository";
 
 @Module({
   imports: [],

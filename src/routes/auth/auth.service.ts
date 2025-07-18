@@ -2,11 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { Device, User } from "@prisma/client";
 import { addMilliseconds } from "date-fns";
 import ms from "ms";
-import { LoginRequestDto, LoginResponseDto } from "src/dtos/auth/login.dto";
-import {
-  RegisterRequestDto,
-  RegisterResponseDto,
-} from "src/dtos/auth/register.dto";
 
 import {
   VerificationCodeType,
@@ -41,6 +36,11 @@ import {
   AccessTokenPayloadCreate,
   RefreshTokenPayloadCreate,
 } from "@/types/jwt-payload.type";
+import { LoginRequestDto, LoginResponseDto } from "src/dtos/auth/login.dto";
+import {
+  RegisterRequestDto,
+  RegisterResponseDto,
+} from "src/dtos/auth/register.dto";
 
 @Injectable()
 export class AuthService {

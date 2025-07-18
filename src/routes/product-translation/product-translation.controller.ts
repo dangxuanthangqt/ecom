@@ -12,8 +12,6 @@ import {
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { ProductTranslation, User } from "@prisma/client";
 
-import { ProductTranslationService } from "./product-translation.service";
-
 import {
   CreateProductTranslationRequestDto,
   ProductTranslationPaginationQueryDto,
@@ -26,6 +24,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+
+import { ProductTranslationService } from "./product-translation.service";
 
 @ApiTags("Product Translations")
 @Controller("product-translations")

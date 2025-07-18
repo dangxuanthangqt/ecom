@@ -16,8 +16,6 @@ import {
   User as UserSchema,
 } from "@prisma/client";
 
-import { CategoryService } from "./category.service";
-
 import {
   CategoryWithChildrenCategoriesResponseDto,
   CreateCategoryRequestDto,
@@ -28,6 +26,8 @@ import {
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
 import { ApiAuth } from "@/shared/param-decorators/http-decorator";
+
+import { CategoryService } from "./category.service";
 
 @ApiTags("Categories")
 @Controller("categories")

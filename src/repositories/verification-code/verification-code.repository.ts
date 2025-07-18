@@ -1,14 +1,14 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
-import { VerificationCodeInputData } from "./verification-code.repository.type";
-
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isRecordToUpdateOrDeleteNotFoundPrismaError,
   isUniqueConstraintPrismaError,
 } from "@/shared/utils/prisma-error";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
+
+import { VerificationCodeInputData } from "./verification-code.repository.type";
 
 @Injectable()
 export class VerificationCodeRepository {

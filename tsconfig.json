@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "allowJs": true,
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -30,7 +31,15 @@
       "@/selectors/*": ["src/selectors/*"]
     }
   },
-  "include": ["initial-scripts/**/*.ts", "src/**/*.ts", "test/**/*.ts", "*.ts"],
+  "include": [
+    "initial-scripts/**/*.ts",
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "*.config.ts",
+    "*.config.mts",
+    "*.config.js",
+    "*.config.mjs"
+  ],
   "ts-node": {
     "require": ["tsconfig-paths/register"] // Configuring for seeding data
   }

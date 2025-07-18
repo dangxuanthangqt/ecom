@@ -14,11 +14,11 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { HttpStatus, Injectable, Logger } from "@nestjs/common";
 import * as mime from "mime-types";
 
+import { UPLOAD_S3_DESTINATIONS } from "@/constants/upload.constant";
+
 import throwHttpException from "../utils/throw-http-exception.util";
 
 import { AppConfigService } from "./app-config.service";
-
-import { UPLOAD_S3_DESTINATIONS } from "@/constants/upload.constant";
 
 @Injectable()
 export class S3Service {

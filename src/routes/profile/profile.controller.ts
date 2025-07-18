@@ -2,8 +2,6 @@ import { Body, Controller, Get, Put } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { User as UserSchema } from "@prisma/client";
 
-import { ProfileService } from "./profile.service";
-
 import {
   ChangePasswordRequestDto,
   ChangePasswordResponseDto,
@@ -13,6 +11,8 @@ import {
 } from "@/dtos/profile/profile.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { ApiAuth } from "@/shared/param-decorators/http-decorator";
+
+import { ProfileService } from "./profile.service";
 
 @ApiTags("Profile")
 @Controller("profile")

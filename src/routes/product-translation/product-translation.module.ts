@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 
+import { ProductTranslationRepository } from "@/repositories/product-translation/product-translation.repository";
+
 import { ProductTranslationController } from "./product-translation.controller";
 import { ProductTranslationService } from "./product-translation.service";
-
-import { ProductTranslationRepository } from "@/repositories/product-translation/product-translation.repository";
 
 @Module({
   imports: [],

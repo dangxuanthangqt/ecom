@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { User as UserSchema } from "@prisma/client";
-import { roleWithPermissionsSelect } from "src/selectors/role.selector";
 
 import {
   ChangePasswordRequestDto,
@@ -13,6 +12,7 @@ import { userWithRoleAndPermissionsSelect } from "@/selectors/user.selector";
 import { HashingService } from "@/shared/services/hashing.service";
 import { PrismaService } from "@/shared/services/prisma.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
+import { roleWithPermissionsSelect } from "src/selectors/role.selector";
 
 @Injectable()
 export class ProfileService {

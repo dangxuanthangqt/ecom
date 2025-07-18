@@ -11,18 +11,6 @@ import {
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { Device, User } from "@prisma/client";
 import { Response } from "express";
-import {
-  LoginRequestDto,
-  //   LoginRequestZodDto,
-  LoginResponseDto,
-} from "src/dtos/auth/login.dto";
-import {
-  RegisterRequestDto,
-  RegisterResponseDto,
-} from "src/dtos/auth/register.dto";
-
-import { AuthService } from "./auth.service";
-import { GoogleService } from "./google.service";
 
 import {
   Disable2faRequestDto,
@@ -47,6 +35,18 @@ import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
 import { ApiAuth, ApiPublic } from "@/shared/param-decorators/http-decorator";
 import { UserAgent } from "@/shared/param-decorators/user-agent.decorator";
 import { AppConfigService } from "@/shared/services/app-config.service";
+import {
+  LoginRequestDto,
+  //   LoginRequestZodDto,
+  LoginResponseDto,
+} from "src/dtos/auth/login.dto";
+import {
+  RegisterRequestDto,
+  RegisterResponseDto,
+} from "src/dtos/auth/register.dto";
+
+import { AuthService } from "./auth.service";
+import { GoogleService } from "./google.service";
 
 @Controller("auth")
 export class AuthController {

@@ -8,16 +8,16 @@ import { TokenExpiredError } from "@nestjs/jwt";
 import { HTTPMethod } from "@prisma/client";
 import { Request } from "express";
 
-import { PrismaService } from "../services/prisma.service";
-import { TokenService } from "../services/token.service";
-import throwHttpException from "../utils/throw-http-exception.util";
-
 import {
   REQUEST_ROLE_PERMISSIONS_KEY,
   REQUEST_USER_KEY,
 } from "@/constants/auth.constant";
 import { roleWithPermissionsSelect } from "@/selectors/role.selector";
 import { AccessTokenPayload } from "@/types/jwt-payload.type";
+
+import { PrismaService } from "../services/prisma.service";
+import { TokenService } from "../services/token.service";
+import throwHttpException from "../utils/throw-http-exception.util";
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {

@@ -9,6 +9,7 @@ import {
 } from "@nestjs/core";
 import { LoggerModule } from "nestjs-pino";
 import { ZodSerializerInterceptor, ZodValidationPipe } from "nestjs-zod";
+
 import { validateEnv } from "src/validations/env.validation";
 
 import { ExternalExceptionFilter } from "./filters/external-exception.filter";

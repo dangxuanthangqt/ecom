@@ -12,8 +12,6 @@ import {
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
-import { RoleService } from "./role.service";
-
 import {
   CreateRoleRequestDto,
   DeleteRoleRequestDto,
@@ -27,6 +25,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+
+import { RoleService } from "./role.service";
 
 @ApiTags("Roles")
 @Controller("roles")

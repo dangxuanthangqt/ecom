@@ -11,8 +11,6 @@ import {
 import { ApiTags } from "@nestjs/swagger";
 import { Language as LanguageSchema, User as UserSchema } from "@prisma/client";
 
-import { BrandService } from "./brand.service";
-
 import {
   BrandIdParamDto,
   BrandPaginationQueryDto,
@@ -33,6 +31,8 @@ import {
   ApiPageOkResponse,
   ApiPublic,
 } from "@/shared/param-decorators/http-decorator";
+
+import { BrandService } from "./brand.service";
 
 @ApiTags("Brands")
 @Controller("brands")

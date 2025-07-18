@@ -17,8 +17,6 @@ import {
   Role as RoleSchema,
 } from "@prisma/client";
 
-import { ManageProductService } from "./manage-product.service";
-
 import {
   ProductDetailResponseDto,
   ManageProductPaginationQueryDto,
@@ -35,6 +33,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+
+import { ManageProductService } from "./manage-product.service";
 
 @ApiTags("Manage Products")
 @Controller("manage-product/products")

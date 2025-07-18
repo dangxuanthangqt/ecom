@@ -10,6 +10,8 @@ import {
   Length,
 } from "class-validator";
 
+import { HTTPMethod, HTTPMethodType } from "@/constants/http-method.constant";
+
 import { RoleResponseDto } from "../role/role.dto";
 import { PaginationQueryDto } from "../shared/pagination.dto";
 
@@ -17,8 +19,6 @@ import {
   PermissionOrderByFields,
   PermissionOrderByFieldsType,
 } from "./constant";
-
-import { HTTPMethod, HTTPMethodType } from "@/constants/http-method.constant";
 
 export class PermissionPaginationQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({

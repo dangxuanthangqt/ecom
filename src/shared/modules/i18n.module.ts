@@ -7,9 +7,9 @@ import {
   I18nModule as NestI18nModule,
 } from "nestjs-i18n";
 
-import { AppConfigService } from "../services/app-config.service";
-
 import { ALL_LANGUAGES } from "@/constants/language";
+
+import { AppConfigService } from "../services/app-config.service";
 
 @Module({
   imports: [

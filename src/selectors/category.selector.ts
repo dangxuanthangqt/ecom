@@ -1,8 +1,8 @@
 import { Prisma } from "@prisma/client";
 
-import { categoryTranslationSelect } from "./category-translation.selector";
-
 import { ALL_LANGUAGES } from "@/constants/language";
+
+import { categoryTranslationSelect } from "./category-translation.selector";
 
 export const categorySelect = Prisma.validator<Prisma.CategorySelect>()({
   id: true,

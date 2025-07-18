@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 
+import { BrandRepository } from "@/repositories/brand/brand.repository";
+
 import { BrandController } from "./brand.controller";
 import { BrandService } from "./brand.service";
-
-import { BrandRepository } from "@/repositories/brand/brand.repository";
 
 @Module({
   imports: [],

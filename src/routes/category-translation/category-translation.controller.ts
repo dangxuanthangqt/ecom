@@ -15,8 +15,6 @@ import {
   User as UserSchema,
 } from "@prisma/client";
 
-import { CategoryTranslationService } from "./category-translation.service";
-
 import {
   CategoryTranslationPaginationQueryDto,
   CategoryTranslationWithCategoryAndLanguageResponseDto,
@@ -29,6 +27,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+
+import { CategoryTranslationService } from "./category-translation.service";
 
 @ApiTags("Category Translations")
 @Controller("category-translations")

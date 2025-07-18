@@ -12,8 +12,6 @@ import {
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { User } from "@prisma/client";
 
-import { PermissionService } from "./permission.service";
-
 import {
   CreatePermissionRequestDto,
   DeletePermissionRequestDto,
@@ -27,6 +25,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+
+import { PermissionService } from "./permission.service";
 
 @ApiTags("Permissions")
 @Controller("permissions")

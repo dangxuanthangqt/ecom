@@ -6,11 +6,11 @@ import {
   ValidatorConstraintInterface,
 } from "class-validator";
 
+import generateSKUs from "@/shared/utils/generate-skus.utils";
+
 import { UpsertSKURequestDto } from "../sku/sku.dto";
 
 import { ProductRequestDto, VariantRequestDto } from "./product.dto";
-
-import generateSKUs from "@/shared/utils/generate-skus.utils";
 
 @ValidatorConstraint({ name: "IsUniqueVariant", async: false })
 export class IsUniqueVariantConstraint implements ValidatorConstraintInterface {

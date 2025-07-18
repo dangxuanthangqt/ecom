@@ -1,11 +1,11 @@
 import { Language as LanguageSchema, Prisma } from "@prisma/client";
 
+import { ALL_LANGUAGES } from "@/constants/language";
+
 import { createBrandWithTranslationsSelect } from "./brand.selector";
 import { categorySelect } from "./category.selector";
 import { productTranslationSelect } from "./product-translation.selector";
 import { skuSelect } from "./sku.selector";
-
-import { ALL_LANGUAGES } from "@/constants/language";
 
 export const productSelect = Prisma.validator<Prisma.ProductSelect>()({
   id: true,

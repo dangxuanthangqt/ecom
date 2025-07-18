@@ -1,7 +1,7 @@
 import { BadRequestException } from "@nestjs/common";
-import { ErrorDetailDto } from "src/dtos/error-detail.dto";
 
 import { ErrorMessage } from "@/constants/error-message.constant";
+import { ErrorDetailDto } from "@/dtos/error-detail.dto";
 
 export class ValidateException extends BadRequestException {
   constructor(error: ErrorDetailDto[] | ErrorDetailDto, errorMessage?: string) {

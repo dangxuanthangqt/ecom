@@ -15,15 +15,15 @@ import {
   Length,
 } from "class-validator";
 
-import { PaginationQueryDto } from "../shared/pagination.dto";
-
-import { UserOrderByFields, UserOrderByFieldsType } from "./constants";
-
 import { UserStatus, UserStatusType } from "@/constants/user-status.constant";
 import {
   RoleResponseDto,
   RoleWithPermissionsResponseDto,
 } from "@/dtos/role/role.dto";
+
+import { PaginationQueryDto } from "../shared/pagination.dto";
+
+import { UserOrderByFields, UserOrderByFieldsType } from "./constants";
 
 export class UserPaginationQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({

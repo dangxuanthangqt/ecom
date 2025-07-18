@@ -6,9 +6,9 @@ import {
 } from "@nestjs/common";
 import { Request } from "express";
 
-import { AppConfigService } from "../services/app-config.service";
-
 import { SECRET_API_KEY } from "@/constants/auth.constant";
+
+import { AppConfigService } from "../services/app-config.service";
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {

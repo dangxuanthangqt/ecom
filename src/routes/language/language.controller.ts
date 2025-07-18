@@ -11,8 +11,6 @@ import {
 import { ApiTags } from "@nestjs/swagger";
 import { User } from "@prisma/client";
 
-import { LanguageService } from "./language.service";
-
 import {
   LanguageCreateRequestDto,
   LanguageCreateResponseDto,
@@ -29,6 +27,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+
+import { LanguageService } from "./language.service";
 
 @ApiTags("Languages")
 @Controller("languages")
