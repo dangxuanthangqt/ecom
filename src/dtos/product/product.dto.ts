@@ -13,6 +13,7 @@ import {
   IsBoolean,
   IsDateString,
   IsIn,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -178,6 +179,7 @@ export class VariantRequestDto {
     message: "All options must be unique. Duplicate options are not allowed.",
   })
   @ArrayMinSize(1, { message: "At least one option is required." })
+  @IsNotEmpty({ each: true, message: "Each option must not be empty." })
   options: string[];
 }
 export class ProductRequestDto {
