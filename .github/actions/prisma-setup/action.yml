@@ -1,0 +1,20 @@
+name: "Setup Prisma Client"
+description: "Cache and generate Prisma client if needed"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Cache Prisma client
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules/@prisma/client
+          node_modules/.pnpm/**/@prisma/client/**
+          prisma/generated
+        key: ${{ runner.os }}-prisma-${{ hashFiles('**/schema.prisma') }}
+        restore-keys: |
+          ${{ runner.os }}-prisma-
+
+    - name: Generate Prisma client
+      shell: bash
+      run: pnpm prisma:generate
