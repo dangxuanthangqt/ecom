@@ -1,0 +1,38 @@
+name: "PNPM install"
+description: "Setup pnpm cache and install dependencies"
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install Node.js v20.17.0
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.17.0
+
+    - name: Install pnpm v9.14.0
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9.14.0
+        run_install: false
+
+    - name: Expose pnpm config through "$GITHUB_OUTPUT"
+      id: pnpm-config
+      shell: bash
+      run: |
+        echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+    - name: Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.pnpm-config.outputs.PNPM_STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile --prefer-offline
