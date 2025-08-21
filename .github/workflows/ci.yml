@@ -30,6 +30,10 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/pnpm-install
 
+      - name: Generate Prisma client
+        shell: bash
+        run: pnpm prisma:generate
+
       - name: Lint
         shell: bash
         run: pnpm lint
