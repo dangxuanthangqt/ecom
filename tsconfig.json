@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "resolveJsonModule": true,
     "allowJs": true,
     "declaration": true,
     "removeComments": true,
@@ -34,6 +35,7 @@
   "include": [
     "initial-scripts/**/*.ts",
     "src/**/*.ts",
+    "src/**/*.json",
     "test/**/*.ts",
     "*.config.ts",
     "*.config.mts",

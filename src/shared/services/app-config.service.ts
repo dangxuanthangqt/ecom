@@ -14,7 +14,7 @@ export class AppConfigService {
 
   private getAppConfig(): AppConfig {
     return {
-      appEnv: this.getString("APP_ENV"), // for specifying the file name of the environment variables
+      appEnv: this.getString("NODE_ENV"), // for specifying the file name of the environment variables
       port: this.getNumber("PORT"),
       accessTokenConfig: this.accessTokenConfig,
       refreshTokenConfig: this.refreshTokenConfig,
@@ -55,7 +55,7 @@ export class AppConfigService {
   }
 
   get appEnv(): string {
-    return this.getString("APP_ENV");
+    return this.getString("NODE_ENV");
   }
 
   get isDevelopment(): boolean {

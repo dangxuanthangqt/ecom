@@ -17,7 +17,9 @@ import { AppConfigService } from "../services/app-config.service";
       useFactory: (_appConfigService: AppConfigService) => ({
         fallbackLanguage: ALL_LANGUAGES,
         loaderOptions: {
-          path: path.resolve("src", "i18n"),
+          path: _appConfigService.isDevelopment
+            ? path.resolve("src", "i18n")
+            : path.resolve("dist", "i18n"),
           watch: true,
         },
       }),

@@ -14,7 +14,10 @@ import { AppEnv } from "@/constants/env.constant";
 class EnvSchema {
   @IsString()
   @IsIn([AppEnv.DEVELOPMENT, AppEnv.PRODUCTION])
-  APP_ENV: string;
+  NODE_ENV: string;
+
+  @IsString()
+  DATABASE_URL: string;
 
   @IsNumber()
   @Min(0)

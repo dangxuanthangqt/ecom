@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  # Database
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecom_prod
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ecom-network
+
+  # Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.local
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+    networks:
+      - ecom-network
+
+volumes:
+  postgres_data:
+
+networks:
+  ecom-network:
+    driver: bridge
