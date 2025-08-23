@@ -8,7 +8,14 @@ import tseslint from "typescript-eslint";
 /** @type {import('eslint').Linter.Config} */
 const config = [
   {
-    ignores: ["dist", "node_modules", "coverage", "schema.ts", "prisma"],
+    ignores: [
+      "dist",
+      "node_modules",
+      "coverage",
+      "schema.ts",
+      "prisma",
+      ".husky",
+    ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
