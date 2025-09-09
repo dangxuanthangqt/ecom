@@ -74,7 +74,7 @@ const providers: Provider[] = [
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // This is important to make the configuration available in the whole application
+      isGlobal: true, // This is important to make the configuration available in the whole application , register ConfigService as global
       validate: validateEnv,
       envFilePath: [`.env.${process.env.NODE_ENV}`, ".env"],
     }),
