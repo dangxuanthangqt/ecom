@@ -7,7 +7,6 @@ import {
   CUSTOM_ROLE_ID,
   containing,
   expectForbidden,
-  expectNotFound,
   makeRole,
   PERM_ID_1,
   PERM_ID_2,

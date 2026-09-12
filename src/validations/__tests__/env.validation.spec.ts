@@ -4,6 +4,12 @@ import { AppEnv } from "@/constants/env.constant";
 
 import { validateEnv } from "../env.validation";
 
+/**
+ * A deliberately ill-typed value, for the tests that check validation rejects
+ * input TypeScript would never allow.
+ */
+const invalid = <T = never>(value: unknown): T => value as T;
+
 describe("validateEnv", () => {
   const createValidConfig = () => ({
     NODE_ENV: AppEnv.DEVELOPMENT,
@@ -242,7 +248,7 @@ describe("validateEnv", () => {
     // Arrange
     const config = {
       ...createValidConfig(),
-      NODE_ENV: 123 as any,
+      NODE_ENV: invalid(123),
     };
 
     // Act & Assert
@@ -271,7 +277,7 @@ describe("validateEnv", () => {
     // Arrange
     const config = {
       ...createValidConfig(),
-      PORT: "3000" as any,
+      PORT: invalid("3000"),
     };
 
     // Act

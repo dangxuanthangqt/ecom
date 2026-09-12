@@ -16,13 +16,15 @@ import {
   CREATOR_USER_ID,
   expectForbiddenPermission,
   makeProduct,
-  makeSku,
   ManageProductServiceMocks,
   PRODUCT_ID,
   SELLER_USER_ID,
   setupManageProductService,
   stubCategoryValidation,
 } from "./manage-product-service-test-harness";
+
+/** `expect.any(Date)` typed as a Date, to keep `any` out of assertions. */
+const anyDate = (): Date => expect.any(Date) as unknown as Date;
 
 describe("ManageProductService - createProduct", () => {
   let service: ManageProductService;
@@ -107,7 +109,7 @@ describe("ManageProductService - createProduct", () => {
           basePrice: 100,
           virtualPrice: 150,
           brandId: BRAND_ID,
-          publishedAt: expect.any(Date),
+          publishedAt: anyDate(),
           createdById: SELLER_USER_ID,
           skus: containing({
             createMany: containing({

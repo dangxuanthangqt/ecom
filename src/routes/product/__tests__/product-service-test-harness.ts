@@ -10,8 +10,11 @@ import { ProductService } from "../product.service";
  */
 export const createProductServiceMocks = () => ({
   productRepository: {
-    findManyProducts: jest.fn(),
-    findUniqueProduct: jest.fn(),
+    findManyProducts: jest.fn() as jest.Mock<
+      Promise<{ products: unknown; productsCount: number }>,
+      [unknown]
+    >,
+    findUniqueProduct: jest.fn() as jest.Mock<Promise<unknown>, [unknown]>,
   },
 });
 

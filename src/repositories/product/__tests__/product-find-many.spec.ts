@@ -1,17 +1,37 @@
-import { HttpException } from "@nestjs/common";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
 import { ProductRepository } from "@/repositories/product/product.repository";
 
 import {
   CATEGORY_ID_1,
   LANGUAGE_ID,
-  PRODUCT_ID,
+  anyDate,
   containing,
   makeProduct,
   setupProductRepository,
   ProductMocks,
 } from "./product-test-harness";
+
+/** Shape of the argument passed to prisma.product.findMany. */
+interface FindManyCallArgs {
+  where: {
+    publishedAt?: Record<string, unknown>;
+    OR?: unknown[];
+    [key: string]: unknown;
+  };
+  select?: unknown;
+  take?: number;
+  skip?: number;
+  orderBy?: unknown;
+}
+
+/** Typed accessor for calls to findMany mock. */
+const findManyCallArgOf = (
+  mocks: ProductMocks,
+  callIndex = 0,
+): FindManyCallArgs => {
+  const mockedFn = jest.mocked(mocks.prismaService.product.findMany);
+  const calls = mockedFn.mock.calls as unknown[][];
+  return calls[callIndex]?.[0] as FindManyCallArgs;
+};
 
 describe("ProductRepository - findManyProducts", () => {
   let repository: ProductRepository;
@@ -209,9 +229,9 @@ describe("ProductRepository - findManyProducts", () => {
       );
 
       // Assert
-      const callArgs = mocks.prismaService.product.findMany.mock.calls[0][0];
+      const callArgs = findManyCallArgOf(mocks);
       expect(callArgs.where.publishedAt).toEqual({
-        lte: expect.any(Date),
+        lte: anyDate(),
         not: null,
       });
     });
@@ -235,9 +255,9 @@ describe("ProductRepository - findManyProducts", () => {
       );
 
       // Assert
-      const callArgs = mocks.prismaService.product.findMany.mock.calls[0][0];
+      const callArgs = findManyCallArgOf(mocks);
       expect(callArgs.where.OR).toEqual([
-        { publishedAt: { gt: expect.any(Date) } },
+        { publishedAt: { gt: anyDate() } },
         { publishedAt: null },
       ]);
     });

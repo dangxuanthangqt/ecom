@@ -4,7 +4,6 @@ import {
   CATEGORY_ID,
   LANGUAGE_ID,
   PARENT_CATEGORY_ID,
-  containing,
   makeCategory,
   setupCategoryService,
   CategoryServiceMocks,

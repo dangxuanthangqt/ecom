@@ -9,7 +9,6 @@ import {
   ACTIVE_USER_ID,
   LANGUAGE_ID,
   LanguageControllerMocks,
-  containing,
   makeLanguage,
   makePaginatedLanguages,
   setupLanguageController,

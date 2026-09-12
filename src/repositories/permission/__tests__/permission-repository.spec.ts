@@ -9,6 +9,8 @@ import {
   makePermission,
   containing,
   stringContaining,
+  anyDate,
+  arrayContaining,
   PermissionRepositoryMocks,
   createPrismaUniqueError,
   createPrismaNotFoundError,
@@ -189,7 +191,7 @@ describe("PermissionRepository - createPermission", () => {
     await expect(promise).rejects.toThrow(BadRequestException);
     await expect(promise).rejects.toMatchObject({
       response: containing({
-        message: expect.arrayContaining([
+        message: arrayContaining([
           containing({
             message: "Invalid roles provided.",
           }),
@@ -313,7 +315,7 @@ describe("PermissionRepository - updatePermission", () => {
     await expect(promise).rejects.toThrow(BadRequestException);
     await expect(promise).rejects.toMatchObject({
       response: containing({
-        message: expect.arrayContaining([
+        message: arrayContaining([
           containing({
             message: "Invalid roles provided.",
           }),
@@ -347,7 +349,7 @@ describe("PermissionRepository - deletePermission", () => {
       containing({
         where: { id: PERMISSION_ID, deletedAt: null },
         data: containing({
-          deletedAt: expect.any(Date),
+          deletedAt: anyDate(),
           deletedById: "user-123",
         }),
       }),

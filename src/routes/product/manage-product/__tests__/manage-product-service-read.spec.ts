@@ -17,6 +17,22 @@ import {
   setupManageProductService,
 } from "./manage-product-service-test-harness";
 
+/** Shape of the argument passed to findUniqueProduct, for typed assertions. */
+interface FindUniqueProductCall {
+  where?: Record<string, unknown>;
+  select?: unknown;
+}
+
+/** Typed accessor for calls to findUniqueProduct mock. */
+const findUniqueProductCallArgOf = (
+  mocks: ManageProductServiceMocks,
+  callIndex = 0,
+): FindUniqueProductCall => {
+  const mockedFn = jest.mocked(mocks.productRepository.findUniqueProduct);
+  const calls = mockedFn.mock.calls as unknown[][];
+  return calls[callIndex]?.[0] as FindUniqueProductCall;
+};
+
 describe("ManageProductService - getProducts", () => {
   let service: ManageProductService;
   let mocks: ManageProductServiceMocks;
@@ -333,7 +349,7 @@ describe("ManageProductService - getProductById", () => {
     });
 
     // Assert
-    const callArg = mocks.productRepository.findUniqueProduct.mock.calls[0][0];
+    const callArg = findUniqueProductCallArgOf(mocks);
     expect(callArg).toEqual(
       containing({
         select: containing({
@@ -359,7 +375,7 @@ describe("ManageProductService - getProductById", () => {
     });
 
     // Assert
-    const callArg = mocks.productRepository.findUniqueProduct.mock.calls[0][0];
+    const callArg = findUniqueProductCallArgOf(mocks);
     expect(callArg.select).toHaveProperty("createdById", true);
   });
 });

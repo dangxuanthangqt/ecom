@@ -41,7 +41,9 @@ export const buildBrandController = async (
 export const setupBrandController = async () => {
   const mocks = createBrandControllerMocks();
   const { BrandController } = await import("../brand.controller");
-  const controller = new BrandController(mocks.brandService as any);
+  const controller = new BrandController(
+    mocks.brandService as unknown as BrandService,
+  );
 
   return { mocks, controller };
 };

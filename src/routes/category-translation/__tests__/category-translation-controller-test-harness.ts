@@ -1,4 +1,4 @@
-import { CategoryTranslationService } from "../category-translation.service";
+import type { CategoryTranslationService } from "../category-translation.service";
 
 /**
  * Test doubles for every collaborator CategoryTranslationController depends on.
@@ -25,7 +25,7 @@ export const setupCategoryTranslationController = async () => {
     "../category-translation.controller"
   );
   const controller = new CategoryTranslationController(
-    mocks.categoryTranslationService as any,
+    mocks.categoryTranslationService as unknown as CategoryTranslationService,
   );
 
   return { mocks, controller };

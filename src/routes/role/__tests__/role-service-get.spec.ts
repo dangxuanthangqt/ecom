@@ -3,7 +3,6 @@ import { RoleService } from "../role.service";
 import {
   CUSTOM_ROLE_ID,
   containing,
-  expectNotFound,
   makeRole,
   RoleServiceMocks,
   setupRoleService,

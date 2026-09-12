@@ -9,7 +9,6 @@ import { MediaController } from "../media.controller";
 
 import {
   MediaControllerMocks,
-  makeDeleteResponse,
   makeMullerFile,
   makeUploadResponse,
   setupMediaController,

@@ -7,6 +7,12 @@ import {
   setupAuthController,
 } from "./auth-controller-test-harness";
 
+/** Typed accessor for the redirect mock call argument. */
+const redirectCallArgOf = (mockRes: Response, callIndex = 0): string => {
+  const redirectFn = (mockRes as unknown as Record<string, jest.Mock>).redirect;
+  return (redirectFn.mock.calls as unknown[][])[callIndex]?.[0] as string;
+};
+
 describe("AuthController - getAuthorizationUrl", () => {
   let controller: AuthController;
   let mocks: AuthControllerMocks;
@@ -23,7 +29,7 @@ describe("AuthController - getAuthorizationUrl", () => {
     mocks.googleService.getAuthorizationUrl.mockReturnValue({ url });
 
     // Act
-    const result = controller.getAuthorizationUrl(ip, userAgent);
+    controller.getAuthorizationUrl(ip, userAgent);
 
     // Assert
     expect(mocks.googleService.getAuthorizationUrl).toHaveBeenCalledWith({
@@ -92,7 +98,7 @@ describe("AuthController - googleCallback", () => {
     await controller.googleCallback("code", "state", mockRes);
 
     // Assert
-    const redirectUrl = (mockRes.redirect as jest.Mock).mock.calls[0][0];
+    const redirectUrl = redirectCallArgOf(mockRes);
     expect(redirectUrl).toContain("http://localhost:3000/auth/callback");
     expect(redirectUrl).toContain("accessToken=token-123");
     expect(redirectUrl).toContain("refreshToken=refresh-456");
@@ -111,7 +117,7 @@ describe("AuthController - googleCallback", () => {
     await controller.googleCallback("bad-code", "state", mockRes);
 
     // Assert
-    const redirectUrl = (mockRes.redirect as jest.Mock).mock.calls[0][0];
+    const redirectUrl = redirectCallArgOf(mockRes);
     expect(redirectUrl).toContain("http://localhost:3000/auth/callback");
     expect(redirectUrl).toContain("errorMessage=Failed+to+google+login");
   });

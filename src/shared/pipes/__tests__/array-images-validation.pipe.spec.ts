@@ -1,6 +1,14 @@
+import { Readable } from "stream";
+
 import { BadRequestException } from "@nestjs/common";
 
 import { ArrayFilesValidationPipe } from "../array-images-validation.pipe";
+
+/**
+ * A deliberately ill-typed value, for the tests that exercise the pipe's
+ * runtime guards against input TypeScript would never allow.
+ */
+const invalid = <T = never>(value: unknown): T => value as T;
 
 /** Assert that a BadRequestException contains an expected message in its response details. */
 const expectBadRequest = (fn: () => void, expectedMessage: string) => {
@@ -13,7 +21,9 @@ const expectBadRequest = (fn: () => void, expectedMessage: string) => {
       let message: string;
 
       if (Array.isArray(response.message)) {
-        message = response.message.map((m: any) => m.message || m).join(" ");
+        message = response.message
+          .map((m) => (m as { message?: string }).message ?? String(m))
+          .join(" ");
       } else if (typeof response.message === "string") {
         message = response.message;
       } else {
@@ -46,7 +56,7 @@ describe("ArrayFilesValidationPipe", () => {
     filename: "test_123456.jpg",
     path: "/uploads/test_123456.jpg",
     buffer: Buffer.alloc(1024 * 1024),
-    stream: null as any,
+    stream: null as unknown as Readable,
     ...overrides,
   });
 
@@ -423,7 +433,7 @@ describe("ArrayFilesValidationPipe", () => {
   describe("edge cases", () => {
     it("handles null files array gracefully", () => {
       // Arrange
-      const files = null as any;
+      const files = invalid(null);
 
       // Act & Assert
       expectBadRequest(
@@ -434,7 +444,7 @@ describe("ArrayFilesValidationPipe", () => {
 
     it("handles undefined files array gracefully", () => {
       // Arrange
-      const files = undefined as any;
+      const files = invalid(undefined);
 
       // Act & Assert
       expectBadRequest(
@@ -447,7 +457,7 @@ describe("ArrayFilesValidationPipe", () => {
       // Arrange
       const files = [
         createMockFile({
-          originalname: null as any,
+          originalname: invalid(null),
         }),
       ];
 

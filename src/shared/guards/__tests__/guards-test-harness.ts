@@ -138,3 +138,10 @@ export const makeRoleWithPermissions = (
   ],
   ...overrides,
 });
+
+/**
+ * `expect.objectContaining` typed back to the shape it matches, so nesting one
+ * matcher inside another stays free of `any` leaking into the assertion.
+ */
+export const containing = <T extends Record<string, unknown>>(shape: T): T =>
+  expect.objectContaining(shape) as unknown as T;

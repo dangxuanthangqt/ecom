@@ -79,6 +79,5 @@ export const anyDate = (): Date => expect.any(Date) as unknown as Date;
 export const stringContaining = (substring: string): string =>
   expect.stringContaining(substring) as unknown as string;
 
-
 export const anyObject = (): Record<string, unknown> =>
   expect.any(Object) as unknown as Record<string, unknown>;

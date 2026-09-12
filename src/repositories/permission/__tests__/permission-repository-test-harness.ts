@@ -77,6 +77,9 @@ export const stringContaining = (substring: string): string =>
 export const anyObject = (): Record<string, unknown> =>
   expect.any(Object) as unknown as Record<string, unknown>;
 
+export const arrayContaining = <T>(items: T[]): T[] =>
+  expect.arrayContaining(items) as unknown as T[];
+
 export const createPrismaUniqueError = () =>
   new PrismaClientKnownRequestError("Unique constraint failed", {
     code: "P2002",

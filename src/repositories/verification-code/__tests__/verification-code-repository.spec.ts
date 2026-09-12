@@ -10,7 +10,6 @@ import {
   VerificationCodeRepositoryMocks,
   createPrismaUniqueError,
   createPrismaNotFoundError,
-  anyDate,
 } from "./verification-code-repository-test-harness";
 
 describe("VerificationCodeRepository - deleteVerificationCode", () => {

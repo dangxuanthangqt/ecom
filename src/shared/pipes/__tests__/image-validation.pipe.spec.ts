@@ -1,6 +1,14 @@
+import { Readable } from "stream";
+
 import { BadRequestException } from "@nestjs/common";
 
 import { ImageValidationPipe } from "../image-validation.pipe";
+
+/**
+ * A deliberately ill-typed value, for the tests that exercise the pipe's
+ * runtime guards against input TypeScript would never allow.
+ */
+const invalid = <T = never>(value: unknown): T => value as T;
 
 describe("ImageValidationPipe", () => {
   let pipe: ImageValidationPipe;
@@ -17,7 +25,7 @@ describe("ImageValidationPipe", () => {
     filename: "test_123456.jpg",
     path: "/uploads/test_123456.jpg",
     buffer: Buffer.alloc(1024),
-    stream: null as any,
+    stream: null as unknown as Readable,
     ...overrides,
   });
 
@@ -141,17 +149,17 @@ describe("ImageValidationPipe", () => {
   describe("file presence validation", () => {
     it("throws BadRequestException when file is undefined", () => {
       // Arrange & Act & Assert
-      expect(() => pipe.transform(undefined as any)).toThrow(
+      expect(() => pipe.transform(invalid(undefined))).toThrow(
         BadRequestException,
       );
-      expect(() => pipe.transform(undefined as any)).toThrow(
+      expect(() => pipe.transform(invalid(undefined))).toThrow(
         "File is required",
       );
     });
 
     it("throws BadRequestException when file is null", () => {
       // Arrange & Act & Assert
-      expect(() => pipe.transform(null as any)).toThrow(BadRequestException);
+      expect(() => pipe.transform(invalid(null))).toThrow(BadRequestException);
     });
   });
 
@@ -248,7 +256,7 @@ describe("ImageValidationPipe", () => {
     it("throws BadRequestException when originalname is null", () => {
       // Arrange
       const file = createMockFile({
-        originalname: null as any,
+        originalname: invalid(null),
       });
 
       // Act & Assert

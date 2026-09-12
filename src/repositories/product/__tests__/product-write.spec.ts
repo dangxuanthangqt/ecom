@@ -227,9 +227,9 @@ describe("ProductRepository - updateProduct", () => {
         updatedById: USER_ID,
       });
       const existingSKUs = [makeSKU()];
-      mocks.prismaService.$transaction.mockImplementation(async (fn) => {
+      mocks.prismaService.$transaction.mockImplementation((fn: unknown) => {
         if (typeof fn === "function") {
-          return fn({
+          return (fn as (tx: unknown) => unknown)({
             product: { update: jest.fn() },
             sKU: {
               findMany: jest.fn().mockResolvedValue(existingSKUs),
@@ -265,7 +265,7 @@ describe("ProductRepository - updateProduct", () => {
       const existingSKU = makeSKU({ id: SKU_ID_1, value: "SKU-1" });
       const txMock = jest.fn();
 
-      mocks.prismaService.$transaction.mockImplementation(async (fn) => {
+      mocks.prismaService.$transaction.mockImplementation((fn: unknown) => {
         if (typeof fn === "function") {
           const tx = {
             product: {
@@ -278,7 +278,7 @@ describe("ProductRepository - updateProduct", () => {
               update: txMock.mockResolvedValue(existingSKU),
             },
           };
-          return fn(tx);
+          return (fn as (tx: unknown) => unknown)(tx);
         }
       });
       mocks.prismaService.$transaction.mockResolvedValue(updatedProduct);
@@ -310,7 +310,7 @@ describe("ProductRepository - updateProduct", () => {
       const updatedProduct = makeProduct();
       const existingSKU = makeSKU({ id: SKU_ID_1, value: "OLD-SKU" });
 
-      mocks.prismaService.$transaction.mockImplementation(async (fn) => {
+      mocks.prismaService.$transaction.mockImplementation((fn: unknown) => {
         if (typeof fn === "function") {
           const deleteManySpy = jest.fn();
           const tx = {
@@ -324,7 +324,7 @@ describe("ProductRepository - updateProduct", () => {
               update: jest.fn(),
             },
           };
-          fn(tx);
+          (fn as (tx: unknown) => unknown)(tx);
           return updatedProduct;
         }
       });

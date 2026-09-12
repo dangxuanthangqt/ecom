@@ -42,7 +42,9 @@ jest.mock("@aws-sdk/lib-storage", () => {
   const createMockUpload = () => {
     const mockUpload = {
       done: jest.fn().mockResolvedValue({ Location: "s3://bucket/file" }),
-      on: jest.fn(function () {
+      on: jest.fn<Record<string, unknown>, []>(function (
+        this: Record<string, unknown>,
+      ) {
         return this;
       }),
     };
@@ -251,12 +253,12 @@ describe("S3Service - uploadSimpleFileFromDisk", () => {
 
 describe("S3Service - uploadLargeFileFromDisk", () => {
   let service: S3Service;
-  let mocks: S3ServiceMocks;
+  let _mocks: S3ServiceMocks;
 
   beforeEach(async () => {
     jest.clearAllMocks();
     mockUploadInstances.length = 0;
-    ({ service, mocks } = await setupS3Service());
+    ({ service, mocks: _mocks } = await setupS3Service());
   });
 
   it.skip("uploads a large file from disk using multipart upload", async () => {
@@ -294,12 +296,16 @@ describe("S3Service - uploadLargeFileFromDisk", () => {
     (createReadStream as jest.Mock).mockReturnValue(makeReadStream());
     (fs.unlink as jest.Mock).mockResolvedValue(undefined);
 
-    Upload.mockImplementation(() => ({
+    const mockUpload = {
       done: jest.fn().mockRejectedValue(new Error("Multipart upload failed")),
-      on: jest.fn(function () {
+      on: jest.fn<
+        Record<string, unknown>,
+        [string, () => Record<string, unknown>]
+      >(function (this: Record<string, unknown>) {
         return this;
       }),
-    }));
+    };
+    Upload.mockImplementation(() => mockUpload);
 
     // Act & Assert
     await expect(
@@ -414,10 +420,10 @@ describe("S3Service - uploadFileFromBuffer", () => {
 
 describe("S3Service - uploadLargeFileFromBuffer", () => {
   let service: S3Service;
-  let mocks: S3ServiceMocks;
+  let _mocks: S3ServiceMocks;
 
   beforeEach(async () => {
-    ({ service, mocks } = await setupS3Service());
+    ({ service, mocks: _mocks } = await setupS3Service());
     jest.clearAllMocks();
   });
 
@@ -426,7 +432,9 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
     const buffer = makeBuffer(150 * 1024 * 1024);
     const mockUpload = {
       done: jest.fn().mockResolvedValue({ Location: "s3://bucket/file" }),
-      on: jest.fn(function () {
+      on: jest.fn<Record<string, unknown>, []>(function (
+        this: Record<string, unknown>,
+      ) {
         return this;
       }),
     };
@@ -449,7 +457,9 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
     const buffer = makeBuffer(50 * 1024 * 1024);
     const mockUpload = {
       done: jest.fn().mockResolvedValue({ Location: "s3://bucket/file" }),
-      on: jest.fn(function () {
+      on: jest.fn<Record<string, unknown>, []>(function (
+        this: Record<string, unknown>,
+      ) {
         return this;
       }),
     };
@@ -465,7 +475,14 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
     });
 
     // Assert
-    const uploadCall = Upload.mock.calls[0][0];
+    interface UploadCallOptions {
+      partSize: number;
+      queueSize: number;
+    }
+    const mockFn = jest.mocked(Upload);
+    const uploadCall = (
+      mockFn.mock.calls as unknown[][]
+    )?.[0]?.[0] as UploadCallOptions;
     expect(uploadCall.partSize).toBe(10 * 1024 * 1024);
     expect(uploadCall.queueSize).toBe(8);
   });
@@ -474,10 +491,14 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
     // Arrange
     const buffer = makeBuffer(30 * 1024 * 1024);
     const progressCallback = jest.fn();
-    let onCallback: any = null;
+    let onCallback: unknown = null;
     const mockUpload = {
       done: jest.fn().mockResolvedValue({ Location: "s3://bucket/file" }),
-      on: jest.fn(function (event: string, cb: any) {
+      on: jest.fn(function (
+        this: Record<string, unknown>,
+        event: string,
+        cb: unknown,
+      ) {
         if (event === "httpUploadProgress") {
           onCallback = cb;
         }
@@ -494,7 +515,8 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
       progressCallback,
     });
 
-    if (onCallback) {
+    if (typeof onCallback === "function") {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       onCallback({ loaded: 15728640, total: 31457280, part: 2 });
     }
 
@@ -512,7 +534,9 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
     const buffer = makeBuffer(40 * 1024 * 1024);
     const mockUpload = {
       done: jest.fn().mockRejectedValue(new Error("Multipart failed")),
-      on: jest.fn(function () {
+      on: jest.fn<Record<string, unknown>, []>(function (
+        this: Record<string, unknown>,
+      ) {
         return this;
       }),
     };
@@ -560,7 +584,9 @@ describe("S3Service - smartUploadFromBuffer", () => {
     const buffer = makeBuffer(150 * 1024 * 1024); // 150MB
     const mockUpload = {
       done: jest.fn().mockResolvedValue({ Location: "s3://bucket/file" }),
-      on: jest.fn(function () {
+      on: jest.fn<Record<string, unknown>, []>(function (
+        this: Record<string, unknown>,
+      ) {
         return this;
       }),
     };
@@ -582,10 +608,14 @@ describe("S3Service - smartUploadFromBuffer", () => {
     // Arrange
     const buffer = makeBuffer(120 * 1024 * 1024);
     const progressCallback = jest.fn();
-    let onCallback: any = null;
+    let onCallback: unknown = null;
     const mockUpload = {
       done: jest.fn().mockResolvedValue({ Location: "s3://bucket/file" }),
-      on: jest.fn(function (event: string, cb: any) {
+      on: jest.fn(function (
+        this: Record<string, unknown>,
+        event: string,
+        cb: unknown,
+      ) {
         if (event === "httpUploadProgress") {
           onCallback = cb;
         }
@@ -602,7 +632,8 @@ describe("S3Service - smartUploadFromBuffer", () => {
       progressCallback,
     });
 
-    if (onCallback) {
+    if (typeof onCallback === "function") {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       onCallback({ loaded: 60 * 1024 * 1024, total: 120 * 1024 * 1024 });
     }
 

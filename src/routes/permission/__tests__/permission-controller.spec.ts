@@ -13,7 +13,6 @@ import {
   ACTIVE_USER_ID,
   PERMISSION_ID,
   PermissionControllerMocks,
-  containing,
   makePaginatedPermissions,
   makePermissionWithRoles,
   setupPermissionController,

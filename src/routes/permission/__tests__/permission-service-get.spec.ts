@@ -2,7 +2,6 @@ import { PermissionService } from "../permission.service";
 
 import {
   containing,
-  expectNotFound,
   makePermission,
   PERMISSION_ID,
   PermissionServiceMocks,

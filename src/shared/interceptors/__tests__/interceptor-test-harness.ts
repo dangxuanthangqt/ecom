@@ -1,6 +1,6 @@
 import { ServerResponse } from "http";
 
-import { ExecutionContext } from "@nestjs/common";
+import { CallHandler, ExecutionContext } from "@nestjs/common";
 import { Observable } from "rxjs";
 
 export interface TransformedResponse<T> {
@@ -9,15 +9,24 @@ export interface TransformedResponse<T> {
 }
 
 export const makeCallHandler = (
-  responseData: any,
-): { handle: jest.Mock; handleObservable: Observable<any> } => {
+  responseData: unknown,
+): {
+  handler: CallHandler;
+  handle: jest.Mock<Observable<unknown>, []>;
+  handleObservable: Observable<unknown>;
+} => {
   const handleObservable = new Observable((subscriber) => {
     subscriber.next(responseData);
     subscriber.complete();
   });
 
+  const handle = jest
+    .fn<Observable<unknown>, []>()
+    .mockReturnValue(handleObservable);
+
   return {
-    handle: jest.fn().mockReturnValue(handleObservable),
+    handler: { handle },
+    handle,
     handleObservable,
   };
 };

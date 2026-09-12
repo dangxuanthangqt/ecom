@@ -1,4 +1,4 @@
-import { ProductTranslationService } from "../product-translation.service";
+import type { ProductTranslationService } from "../product-translation.service";
 
 /**
  * Test doubles for every collaborator ProductTranslationController depends on.
@@ -25,7 +25,7 @@ export const setupProductTranslationController = async () => {
     "../product-translation.controller"
   );
   const controller = new ProductTranslationController(
-    mocks.productTranslationService as any,
+    mocks.productTranslationService as unknown as ProductTranslationService,
   );
 
   return { mocks, controller };

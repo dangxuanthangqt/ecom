@@ -1,3 +1,5 @@
+import { Readable } from "stream";
+
 import { Test } from "@nestjs/testing";
 
 import { S3Service } from "@/shared/services/s3.service";
@@ -51,7 +53,6 @@ export const setupMediaService = async () => {
 export const makeFile = (
   overrides: Partial<Express.Multer.File> = {},
 ): Express.Multer.File => {
-  const { Readable } = require("stream");
   return {
     fieldname: "file",
     originalname: "test.jpg",

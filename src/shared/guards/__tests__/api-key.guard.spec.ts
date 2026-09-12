@@ -2,20 +2,18 @@ import { SECRET_API_KEY } from "@/constants/auth.constant";
 
 import { ApiKeyGuard } from "../api-key.guard";
 
-import {
-  GuardMocks,
-  makeExecutionContext,
-  setupGuards,
-} from "./guards-test-harness";
+import { makeExecutionContext, setupGuards } from "./guards-test-harness";
 
 describe("ApiKeyGuard - canActivate", () => {
+  /** An objectContaining matcher typed as Error, which is what toThrow takes. */
+  const throwingLike = (shape: Record<string, unknown>): Error =>
+    expect.objectContaining(shape) as unknown as Error;
+
   let guard: ApiKeyGuard;
-  let mocks: GuardMocks;
 
   beforeEach(async () => {
     const setup = await setupGuards();
     guard = setup.apiKeyGuard;
-    mocks = setup.mocks;
   });
 
   it("throws UnauthorizedException when x-api-key header is missing", () => {
@@ -25,7 +23,7 @@ describe("ApiKeyGuard - canActivate", () => {
     // Act & Assert
     expect(() => guard.canActivate(context)).toThrow();
     expect(() => guard.canActivate(context)).toThrow(
-      expect.objectContaining({
+      throwingLike({
         status: 401,
         message: "API key is invalid.",
       }),
@@ -40,7 +38,7 @@ describe("ApiKeyGuard - canActivate", () => {
 
     // Act & Assert
     expect(() => guard.canActivate(context)).toThrow(
-      expect.objectContaining({
+      throwingLike({
         status: 401,
         message: "API key is invalid.",
       }),
@@ -55,7 +53,7 @@ describe("ApiKeyGuard - canActivate", () => {
 
     // Act & Assert
     expect(() => guard.canActivate(context)).toThrow(
-      expect.objectContaining({
+      throwingLike({
         status: 401,
         message: "API key is invalid.",
       }),

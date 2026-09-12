@@ -19,10 +19,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = { id: 1, name: "Test" };
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -38,10 +38,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = { test: "data" };
     const context = makeInterceptorExecutionContext();
-    const { handle } = makeCallHandler(responseData);
+    const { handler, handle } = makeCallHandler(responseData);
 
     // Act
-    await firstValueFrom(interceptor.intercept(context, { handle } as any));
+    await firstValueFrom(interceptor.intercept(context, handler));
 
     // Assert
     expect(handle).toHaveBeenCalledTimes(1);
@@ -51,10 +51,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = { id: 1, email: "user@example.com" };
     const context = makeInterceptorExecutionContext();
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -66,10 +66,10 @@ describe("TransformInterceptor - intercept", () => {
   it("includes 200 status code in response", async () => {
     // Arrange
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler({ result: "success" });
+    const { handler } = makeCallHandler({ result: "success" });
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<any>;
 
     // Assert
@@ -79,10 +79,10 @@ describe("TransformInterceptor - intercept", () => {
   it("includes 201 status code in response", async () => {
     // Arrange
     const context = makeInterceptorExecutionContext(201);
-    const { handle } = makeCallHandler({ created: true });
+    const { handler } = makeCallHandler({ created: true });
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<any>;
 
     // Assert
@@ -92,10 +92,10 @@ describe("TransformInterceptor - intercept", () => {
   it("includes 400 status code in response", async () => {
     // Arrange
     const context = makeInterceptorExecutionContext(400);
-    const { handle } = makeCallHandler({ error: "Bad request" });
+    const { handler } = makeCallHandler({ error: "Bad request" });
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<any>;
 
     // Assert
@@ -105,10 +105,10 @@ describe("TransformInterceptor - intercept", () => {
   it("includes 404 status code in response", async () => {
     // Arrange
     const context = makeInterceptorExecutionContext(404);
-    const { handle } = makeCallHandler(null);
+    const { handler } = makeCallHandler(null);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<any>;
 
     // Assert
@@ -118,10 +118,10 @@ describe("TransformInterceptor - intercept", () => {
   it("includes 500 status code in response", async () => {
     // Arrange
     const context = makeInterceptorExecutionContext(500);
-    const { handle } = makeCallHandler({ error: "Internal server error" });
+    const { handler } = makeCallHandler({ error: "Internal server error" });
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<any>;
 
     // Assert
@@ -132,10 +132,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = [{ id: 1 }, { id: 2 }];
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -149,10 +149,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = "String response";
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -165,10 +165,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = null;
     const context = makeInterceptorExecutionContext(204);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -181,10 +181,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = undefined;
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -197,10 +197,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = 42;
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -213,10 +213,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = true;
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -228,10 +228,10 @@ describe("TransformInterceptor - intercept", () => {
   it("returns an Observable", () => {
     // Arrange
     const context = makeInterceptorExecutionContext();
-    const { handle } = makeCallHandler({ test: "data" });
+    const { handler } = makeCallHandler({ test: "data" });
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
 
     // Assert
     expect(result$).toHaveProperty("subscribe");
@@ -242,10 +242,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = { value: "test" };
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result1 = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -263,10 +263,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = { message: "success" };
     const context = makeInterceptorExecutionContext(201);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;
@@ -280,10 +280,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = { id: 1 };
     const context = makeInterceptorExecutionContext();
-    const { handle } = makeCallHandler(responseData);
+    const { handler, handle } = makeCallHandler(responseData);
 
     // Act
-    await firstValueFrom(interceptor.intercept(context, { handle } as any));
+    await firstValueFrom(interceptor.intercept(context, handler));
 
     // Assert
     expect(handle).toHaveBeenCalledWith();
@@ -293,10 +293,10 @@ describe("TransformInterceptor - intercept", () => {
     // Arrange
     const responseData = { original: "data" };
     const context = makeInterceptorExecutionContext(200);
-    const { handle } = makeCallHandler(responseData);
+    const { handler } = makeCallHandler(responseData);
 
     // Act
-    const result$ = interceptor.intercept(context, { handle } as any);
+    const result$ = interceptor.intercept(context, handler);
     const result = (await firstValueFrom(result$)) as TransformedResponse<
       typeof responseData
     >;

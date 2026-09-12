@@ -7,6 +7,7 @@ import {
   makeLanguage,
   containing,
   stringContaining,
+  anyObject,
   LanguageRepositoryMocks,
   createPrismaUniqueError,
   createPrismaNotFoundError,
@@ -102,7 +103,7 @@ describe("LanguageRepository - findUniqueLanguage", () => {
     expect(mocks.prismaService.language.findUniqueOrThrow).toHaveBeenCalledWith(
       {
         where: { id: LANGUAGE_ID, deletedAt: null },
-        select: expect.any(Object),
+        select: anyObject(),
       },
     );
     expect(result).toEqual(language);
@@ -154,7 +155,7 @@ describe("LanguageRepository - createLanguage", () => {
         name: "French",
         createdById: USER_ID,
       },
-      select: expect.any(Object),
+      select: anyObject(),
     });
     expect(result).toEqual(language);
   });
@@ -222,7 +223,7 @@ describe("LanguageRepository - updateLanguageById", () => {
     expect(mocks.prismaService.language.update).toHaveBeenCalledWith({
       where: { id: LANGUAGE_ID, deletedAt: null },
       data: { name: "English (Updated)", updatedById: USER_ID },
-      select: expect.any(Object),
+      select: anyObject(),
     });
     expect(result).toEqual(updated);
   });
@@ -300,7 +301,7 @@ describe("LanguageRepository - deleteLanguageById", () => {
     // Assert
     expect(mocks.prismaService.language.delete).toHaveBeenCalledWith({
       where: { id: LANGUAGE_ID },
-      select: expect.any(Object),
+      select: anyObject(),
     });
     expect(result).toEqual(deletedLanguage);
   });

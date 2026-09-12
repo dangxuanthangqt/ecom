@@ -1,6 +1,5 @@
 import { UnprocessableEntityException } from "@nestjs/common";
 
-import { RefreshTokenResponseDto } from "@/dtos/auth/refresh-token.dto";
 import { SendOTPResponseDto } from "@/dtos/auth/send-otp.dto";
 import { LoginResponseDto, LoginRequestDto } from "src/dtos/auth/login.dto";
 import {

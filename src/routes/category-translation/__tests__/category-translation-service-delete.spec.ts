@@ -5,7 +5,6 @@ import { CategoryTranslationService } from "../category-translation.service";
 import {
   TRANSLATION_ID,
   USER_ID,
-  containing,
   makeCategoryTranslation,
   setupCategoryTranslationService,
   CategoryTranslationServiceMocks,

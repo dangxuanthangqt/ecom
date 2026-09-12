@@ -1,5 +1,3 @@
-import { NotFoundException } from "@nestjs/common";
-
 import { ProductService } from "../product.service";
 
 import {
@@ -10,6 +8,22 @@ import {
   ProductServiceMocks,
   setupProductService,
 } from "./product-service-test-harness";
+
+/** Shape of the argument passed to findUniqueProduct, for typed assertions. */
+interface FindUniqueProductCall {
+  where: { id: string; deletedAt: null; publishedAt?: unknown };
+  select?: unknown;
+}
+
+/** Typed accessor for calls to findUniqueProduct mock. */
+const callArgOf = (
+  mocks: ProductServiceMocks,
+  callIndex = 0,
+): FindUniqueProductCall => {
+  const mockedFn = jest.mocked(mocks.productRepository.findUniqueProduct);
+  const calls = mockedFn.mock.calls as unknown[][];
+  return calls[callIndex]?.[0] as FindUniqueProductCall;
+};
 
 describe("ProductService - getProductById", () => {
   let service: ProductService;
@@ -72,7 +86,7 @@ describe("ProductService - getProductById", () => {
     });
 
     // Assert
-    const callArg = mocks.productRepository.findUniqueProduct.mock.calls[0][0];
+    const callArg = callArgOf(mocks);
     const publishedAtCondition = callArg.where.publishedAt;
     expect(publishedAtCondition).toHaveProperty("lte");
     expect(publishedAtCondition).toHaveProperty("not", null);
@@ -104,7 +118,7 @@ describe("ProductService - getProductById", () => {
     });
 
     // Assert
-    const callArg = mocks.productRepository.findUniqueProduct.mock.calls[0][0];
+    const callArg = callArgOf(mocks);
     expect(callArg.select).toBeDefined();
     // Verify that the select includes productTranslations with the custom languageId
     expect(callArg).toEqual(
@@ -135,7 +149,6 @@ describe("ProductService - getProductById", () => {
 
   it("excludes unpublished future products", async () => {
     // Arrange
-    const futureProduct = makeProduct({ publishedAt: null });
     mocks.productRepository.findUniqueProduct.mockResolvedValue(null);
 
     // Act
@@ -145,7 +158,7 @@ describe("ProductService - getProductById", () => {
     });
 
     // Assert
-    const callArg = mocks.productRepository.findUniqueProduct.mock.calls[0][0];
-    expect(callArg.where.publishedAt.not).toBe(null);
+    const callArg = callArgOf(mocks);
+    expect(callArg.where.publishedAt).toHaveProperty("not", null);
   });
 });

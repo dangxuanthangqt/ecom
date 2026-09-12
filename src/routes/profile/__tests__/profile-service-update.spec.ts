@@ -8,6 +8,10 @@ import {
   ProfileServiceMocks,
 } from "./profile-service-test-harness";
 
+/** `expect.any(Object)` typed, to keep `any` out of assertions. */
+const anyObject = (): Record<string, unknown> =>
+  expect.any(Object) as unknown as Record<string, unknown>;
+
 describe("ProfileService - updateProfile", () => {
   let service: ProfileService;
   let mocks: ProfileServiceMocks;
@@ -40,7 +44,7 @@ describe("ProfileService - updateProfile", () => {
         phoneNumber: "0123456789",
         updatedById: USER_ID,
       }),
-      select: expect.any(Object),
+      select: anyObject(),
     });
   });
 

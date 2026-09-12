@@ -2,7 +2,6 @@ import { UnprocessableEntityException } from "@nestjs/common";
 
 import { RoleWithPermissionsResponseDto } from "@/dtos/role/role.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 
 import { RoleController } from "../role.controller";
 

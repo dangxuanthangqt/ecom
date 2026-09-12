@@ -12,7 +12,7 @@ describe("ProfileService - changePassword", () => {
   let service: ProfileService;
   let mocks: ProfileServiceMocks;
 
-  const setupPasswordChange = async (currentPasswordValid: boolean) => {
+  const setupPasswordChange = (currentPasswordValid: boolean) => {
     const user = makeUser({
       id: USER_ID,
       password: "hashed-old-password",
@@ -20,8 +20,8 @@ describe("ProfileService - changePassword", () => {
     mocks.sharedUserRepository.findUniqueOrThrow.mockResolvedValue(user);
     mocks.hashingService.compare.mockReturnValue(currentPasswordValid);
     mocks.hashingService.hash.mockReturnValue("hashed-new-password");
-    mocks.prismaService.$transaction.mockImplementation(async (fn) =>
-      fn({
+    mocks.prismaService.$transaction.mockImplementation((fn: unknown) =>
+      (fn as (tx: unknown) => unknown)({
         user: {
           update: jest.fn().mockResolvedValue({}),
         },
@@ -41,7 +41,7 @@ describe("ProfileService - changePassword", () => {
 
   it("changes the password and invalidates all refresh tokens when current password is correct", async () => {
     // Arrange
-    await setupPasswordChange(true);
+    setupPasswordChange(true);
 
     // Act
     const result = await service.changePassword({
@@ -68,7 +68,7 @@ describe("ProfileService - changePassword", () => {
 
   it("verifies the current password against the stored hash", async () => {
     // Arrange
-    await setupPasswordChange(true);
+    setupPasswordChange(true);
 
     // Act
     await service.changePassword({
@@ -89,7 +89,7 @@ describe("ProfileService - changePassword", () => {
 
   it("rejects when the current password is incorrect and persists nothing", async () => {
     // Arrange
-    await setupPasswordChange(false);
+    setupPasswordChange(false);
 
     // Act
     const promise = service.changePassword({
@@ -111,7 +111,7 @@ describe("ProfileService - changePassword", () => {
 
   it("hashes the new password before storing", async () => {
     // Arrange
-    await setupPasswordChange(true);
+    setupPasswordChange(true);
 
     // Act
     await service.changePassword({
@@ -129,7 +129,7 @@ describe("ProfileService - changePassword", () => {
 
   it("executes the transaction when password validation succeeds", async () => {
     // Arrange
-    await setupPasswordChange(true);
+    setupPasswordChange(true);
 
     // Act
     await service.changePassword({
@@ -168,7 +168,7 @@ describe("ProfileService - changePassword", () => {
 
   it("only finds deleted-at null users", async () => {
     // Arrange
-    await setupPasswordChange(true);
+    setupPasswordChange(true);
 
     // Act
     await service.changePassword({
@@ -190,7 +190,7 @@ describe("ProfileService - changePassword", () => {
 
   it("propagates transaction errors", async () => {
     // Arrange
-    await setupPasswordChange(true);
+    setupPasswordChange(true);
     const transactionError = new Error("Transaction failed");
     mocks.prismaService.$transaction.mockRejectedValue(transactionError);
 

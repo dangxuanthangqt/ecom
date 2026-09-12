@@ -13,8 +13,8 @@ import {
   makeExecutionContext,
   makeRoleWithPermissions,
   MOCK_ROLE_ID,
-  MOCK_USER_ID,
   setupGuards,
+  containing,
 } from "./guards-test-harness";
 
 describe("AccessTokenGuard - canActivate", () => {
@@ -246,8 +246,8 @@ describe("AccessTokenGuard - canActivate", () => {
 
     // Assert
     expect(mocks.prismaService.role.findUniqueOrThrow).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: expect.objectContaining({
+      containing({
+        where: containing({
           id: MOCK_ROLE_ID,
         }),
       }),
@@ -273,10 +273,10 @@ describe("AccessTokenGuard - canActivate", () => {
 
     // Assert
     expect(mocks.prismaService.role.findUniqueOrThrow).toHaveBeenCalledWith(
-      expect.objectContaining({
-        select: expect.objectContaining({
-          permissions: expect.objectContaining({
-            where: expect.objectContaining({
+      containing({
+        select: containing({
+          permissions: containing({
+            where: containing({
               path: "/api/products/:id",
               method: "DELETE",
             }),
@@ -305,10 +305,10 @@ describe("AccessTokenGuard - canActivate", () => {
 
     // Assert
     expect(mocks.prismaService.role.findUniqueOrThrow).toHaveBeenCalledWith(
-      expect.objectContaining({
-        select: expect.objectContaining({
-          permissions: expect.objectContaining({
-            where: expect.objectContaining({
+      containing({
+        select: containing({
+          permissions: containing({
+            where: containing({
               method: "POST",
             }),
           }),

@@ -8,7 +8,6 @@ import { CategoryTranslationService } from "../category-translation.service";
 import {
   TRANSLATION_ID,
   CATEGORY_ID,
-  LANGUAGE_ID,
   USER_ID,
   containing,
   makeCategoryTranslation,

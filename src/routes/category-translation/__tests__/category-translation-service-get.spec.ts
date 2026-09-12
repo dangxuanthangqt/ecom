@@ -1,9 +1,6 @@
-import { ORDER, ORDER_BY } from "@/constants/order";
-
 import { CategoryTranslationService } from "../category-translation.service";
 
 import {
-  LANGUAGE_ID,
   containing,
   makeCategoryTranslation,
   setupCategoryTranslationService,

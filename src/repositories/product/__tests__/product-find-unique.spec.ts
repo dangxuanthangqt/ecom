@@ -3,9 +3,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { ProductRepository } from "@/repositories/product/product.repository";
 
 import {
-  LANGUAGE_ID,
   PRODUCT_ID,
-  containing,
   makeProduct,
   setupProductRepository,
   ProductMocks,

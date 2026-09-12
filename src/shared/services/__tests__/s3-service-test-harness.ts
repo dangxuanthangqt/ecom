@@ -61,7 +61,9 @@ export const buildS3Service = async (
   mocks: S3ServiceMocks,
 ): Promise<S3Service> => {
   // Mock the S3 constructor
+  // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-assignment
   const { S3 } = require("@aws-sdk/client-s3");
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
   S3.mockImplementation(() => mocks.s3Client);
 
   const moduleRef = await Test.createTestingModule({

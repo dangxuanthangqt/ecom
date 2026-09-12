@@ -5,7 +5,6 @@ import { CategoryService } from "../category.service";
 import {
   CATEGORY_ID,
   LANGUAGE_ID,
-  containing,
   makeCategory,
   setupCategoryService,
   CategoryServiceMocks,

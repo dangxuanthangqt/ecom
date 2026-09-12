@@ -1,4 +1,4 @@
-import { ProductService } from "../product.service";
+import type { ProductService } from "../product.service";
 
 /**
  * Test doubles for every collaborator ProductController depends on.
@@ -19,7 +19,9 @@ export type ProductControllerMocks = ReturnType<
 export const setupProductController = async () => {
   const mocks = createProductControllerMocks();
   const { ProductController } = await import("../product.controller");
-  const controller = new ProductController(mocks.productService as any);
+  const controller = new ProductController(
+    mocks.productService as unknown as ProductService,
+  );
 
   return { mocks, controller };
 };

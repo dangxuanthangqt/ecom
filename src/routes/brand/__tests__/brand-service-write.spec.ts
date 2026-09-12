@@ -15,6 +15,16 @@ import {
   BrandServiceMocks,
 } from "./brand-service-test-harness";
 
+/** Typed accessor for updateBrand mock calls. */
+const updateBrandCallArgOf = (mocks: BrandServiceMocks, callIndex = 0) => {
+  const mockedFn = jest.mocked(mocks.brandRepository.updateBrand);
+  const calls = mockedFn.mock.calls as unknown[][];
+  return calls[callIndex]?.[0] as {
+    data?: unknown;
+    brandTranslationIds?: unknown;
+  };
+};
+
 describe("BrandService - createBrand", () => {
   let service: BrandService;
   let mocks: BrandServiceMocks;
@@ -168,7 +178,7 @@ describe("BrandService - updateBrand", () => {
     });
 
     // Assert
-    const call = mocks.brandRepository.updateBrand.mock.calls[0][0];
+    const call = updateBrandCallArgOf(mocks);
     expect(call.data).not.toHaveProperty("brandTranslationIds");
     expect(call.brandTranslationIds).toEqual(["trans-1"]);
   });

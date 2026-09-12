@@ -292,9 +292,10 @@ describe("PrismaClientExceptionFilter - catch", () => {
 
   it("handles exception without code property by returning 500", () => {
     // Arrange
+
     const error = new Prisma.PrismaClientValidationError(
       "Validation error occurred",
-      { clientVersion: "5.0.0" } as any,
+      { clientVersion: "5.0.0" },
     );
     const host = makeArgumentsHost();
     const httpHost = host.switchToHttp() as unknown as MockHttpContext;

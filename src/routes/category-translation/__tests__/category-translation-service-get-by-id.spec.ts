@@ -6,7 +6,6 @@ import {
   TRANSLATION_ID,
   CATEGORY_ID,
   LANGUAGE_ID,
-  containing,
   makeCategoryTranslation,
   setupCategoryTranslationService,
   CategoryTranslationServiceMocks,

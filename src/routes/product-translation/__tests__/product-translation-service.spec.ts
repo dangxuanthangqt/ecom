@@ -8,7 +8,6 @@ import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import { ProductTranslationService } from "../product-translation.service";
 
 import {
-  anyDate,
   containing,
   LANGUAGE_ID,
   makeProductTranslation,

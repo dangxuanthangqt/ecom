@@ -3,7 +3,6 @@ import { PRESIGNED_URL_TYPE } from "@/constants/upload.constant";
 import { MediaService } from "../media.service";
 
 import {
-  containing,
   setupMediaService,
   MediaServiceMocks,
 } from "./media-service-test-harness";

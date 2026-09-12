@@ -1,6 +1,5 @@
 import { Test } from "@nestjs/testing";
 
-import { Role } from "@/constants/role.constant";
 import { ProductRepository } from "@/repositories/product/product.repository";
 
 import { ManageProductService } from "../manage-product.service";

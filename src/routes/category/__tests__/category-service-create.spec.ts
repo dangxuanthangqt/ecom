@@ -3,7 +3,6 @@ import { UnprocessableEntityException } from "@nestjs/common";
 import { CategoryService } from "../category.service";
 
 import {
-  CATEGORY_ID,
   TRANSLATION_ID,
   USER_ID,
   containing,

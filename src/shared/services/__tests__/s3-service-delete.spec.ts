@@ -1,27 +1,31 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  NotFoundException,
-} from "@nestjs/common";
+import { HttpStatus } from "@nestjs/common";
 
 import { S3Service } from "../s3.service";
 
 import {
   setupS3Service,
   S3ServiceMocks,
-  containing,
   makeS3Error,
 } from "./s3-service-test-harness";
 
 jest.mock("@aws-sdk/client-s3", () => ({
   S3: jest.fn(),
-  DeleteObjectCommand: jest.fn(function (input) {
+  DeleteObjectCommand: jest.fn(function (
+    this: Record<string, unknown>,
+    input: unknown,
+  ) {
     this.input = input;
   }),
-  GetObjectCommand: jest.fn(function (input) {
+  GetObjectCommand: jest.fn(function (
+    this: Record<string, unknown>,
+    input: unknown,
+  ) {
     this.input = input;
   }),
-  PutObjectCommand: jest.fn(function (input) {
+  PutObjectCommand: jest.fn(function (
+    this: Record<string, unknown>,
+    input: unknown,
+  ) {
     this.input = input;
   }),
   S3ServiceException: Error,
@@ -36,7 +40,9 @@ jest.mock("@aws-sdk/s3-request-presigner", () => ({
 }));
 
 jest.mock("fs", () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const realFs = jest.requireActual("fs");
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return {
     ...realFs,
     promises: {

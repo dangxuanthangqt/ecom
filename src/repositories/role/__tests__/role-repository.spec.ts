@@ -9,6 +9,9 @@ import {
   PERMISSION_ID,
   makeRole,
   containing,
+  anyObject,
+  anyDate,
+  arrayContaining,
   RoleRepositoryMocks,
   createPrismaUniqueError,
   createPrismaNotFoundError,
@@ -108,7 +111,7 @@ describe("RoleRepository - findUniqueRole", () => {
     // Assert
     expect(mocks.prismaService.role.findUniqueOrThrow).toHaveBeenCalledWith({
       where: { id: ADMIN_ROLE_ID, deletedAt: null },
-      select: expect.any(Object),
+      select: anyObject(),
     });
     expect(result).toEqual(role);
   });
@@ -205,7 +208,7 @@ describe("RoleRepository - createRole", () => {
     await expect(promise).rejects.toThrow(BadRequestException);
     await expect(promise).rejects.toMatchObject({
       response: containing({
-        message: expect.arrayContaining([
+        message: arrayContaining([
           containing({
             message: "Invalid permissions provided.",
           }),
@@ -329,7 +332,7 @@ describe("RoleRepository - updateRole", () => {
     await expect(promise).rejects.toThrow(BadRequestException);
     await expect(promise).rejects.toMatchObject({
       response: containing({
-        message: expect.arrayContaining([
+        message: arrayContaining([
           containing({
             message: "Invalid permissions provided.",
           }),
@@ -363,7 +366,7 @@ describe("RoleRepository - deleteRole", () => {
       containing({
         where: { id: ADMIN_ROLE_ID, deletedAt: null },
         data: containing({
-          deletedAt: expect.any(Date),
+          deletedAt: anyDate(),
           deletedById: "user-123",
         }),
       }),

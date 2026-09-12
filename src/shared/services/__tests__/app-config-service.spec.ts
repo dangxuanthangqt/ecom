@@ -144,21 +144,21 @@ describe("AppConfigService", () => {
     it("throws error when PORT is missing", async () => {
       // Arrange & Act & Assert
       await expect(
-        setupAppConfigService({ PORT: undefined as any }),
+        setupAppConfigService({ PORT: undefined as never }),
       ).rejects.toThrow("PORT is not defined");
     });
 
     it("throws error when ACCESS_TOKEN_SECRET is missing", async () => {
       // Arrange & Act & Assert
       await expect(
-        setupAppConfigService({ ACCESS_TOKEN_SECRET: undefined as any }),
+        setupAppConfigService({ ACCESS_TOKEN_SECRET: undefined as never }),
       ).rejects.toThrow("ACCESS_TOKEN_SECRET is not defined");
     });
 
     it("throws error when S3 configuration is missing", async () => {
       // Arrange & Act & Assert
       await expect(
-        setupAppConfigService({ S3_REGION: undefined as any }),
+        setupAppConfigService({ S3_REGION: undefined as never }),
       ).rejects.toThrow("S3_REGION is not defined");
     });
   });

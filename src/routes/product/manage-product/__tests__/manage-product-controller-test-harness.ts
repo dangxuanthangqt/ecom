@@ -1,4 +1,4 @@
-import { ManageProductService } from "../manage-product.service";
+import type { ManageProductService } from "../manage-product.service";
 
 /**
  * Test doubles for every collaborator ManageProductController depends on.
@@ -25,7 +25,7 @@ export const setupManageProductController = async () => {
     "../manage-product.controller"
   );
   const controller = new ManageProductController(
-    mocks.manageProductService as any,
+    mocks.manageProductService as unknown as ManageProductService,
   );
 
   return { mocks, controller };

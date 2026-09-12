@@ -9,7 +9,9 @@ import {
 import { Disable2faRequestDto } from "@/dtos/auth/2fa.dto";
 
 @ValidatorConstraint({ name: "exactlyOneExists", async: false })
-export class ExactlyOneExistsConstraint implements ValidatorConstraintInterface {
+export class ExactlyOneExistsConstraint
+  implements ValidatorConstraintInterface
+{
   validate(value: string | undefined, args: ValidationArguments) {
     const object = args.object as Disable2faRequestDto;
     const relatedPropertyName = args

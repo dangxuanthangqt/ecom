@@ -1,6 +1,14 @@
+import { Readable } from "stream";
+
 import { BadRequestException } from "@nestjs/common";
 
 import { MultipleFilesValidationPipe } from "../multiple-images-validation.pipe";
+
+/**
+ * A deliberately ill-typed value, for the tests that exercise the pipe's
+ * runtime guards against input TypeScript would never allow.
+ */
+const invalid = <T = never>(value: unknown): T => value as T;
 
 /** Assert that a BadRequestException contains an expected message in its response details. */
 const expectBadRequest = (fn: () => void, expectedMessage: string) => {
@@ -13,7 +21,9 @@ const expectBadRequest = (fn: () => void, expectedMessage: string) => {
       let message: string;
 
       if (Array.isArray(response.message)) {
-        message = response.message.map((m: any) => m.message || m).join(" ");
+        message = response.message
+          .map((m) => (m as { message?: string }).message ?? String(m))
+          .join(" ");
       } else if (typeof response.message === "string") {
         message = response.message;
       } else {
@@ -46,7 +56,7 @@ describe("MultipleFilesValidationPipe", () => {
     filename: "test_123456.jpg",
     path: "/uploads/test_123456.jpg",
     buffer: Buffer.alloc(1024 * 1024),
-    stream: null as any,
+    stream: null as unknown as Readable,
     ...overrides,
   });
 
@@ -516,7 +526,7 @@ describe("MultipleFilesValidationPipe", () => {
         },
       });
       const files = {
-        avatar: null as any,
+        avatar: invalid(null),
       };
 
       // Act & Assert
@@ -526,7 +536,7 @@ describe("MultipleFilesValidationPipe", () => {
     it("handles undefined field files array", () => {
       // Arrange
       const files = {
-        avatar: undefined as any,
+        avatar: invalid(undefined),
       };
 
       // Act & Assert

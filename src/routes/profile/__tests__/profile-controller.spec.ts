@@ -11,7 +11,6 @@ import { ProfileController } from "../profile.controller";
 import {
   ACTIVE_USER_ID,
   ProfileControllerMocks,
-  containing,
   makeProfileResponse,
   setupProfileController,
 } from "./profile-controller-test-harness";

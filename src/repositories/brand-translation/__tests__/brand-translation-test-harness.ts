@@ -81,4 +81,3 @@ export const stringContaining = (substring: string): string =>
 
 export const anyObject = (): Record<string, unknown> =>
   expect.any(Object) as unknown as Record<string, unknown>;
-

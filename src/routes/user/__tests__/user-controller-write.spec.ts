@@ -2,7 +2,6 @@ import { UnprocessableEntityException } from "@nestjs/common";
 
 import {
   CreateUserResponseDto,
-  UpdateUserResponseDto,
   BaseUserResponseDto,
   CreateUserRequestDto,
   UpdateUserRequestDto,

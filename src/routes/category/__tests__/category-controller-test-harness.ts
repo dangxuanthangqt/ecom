@@ -1,4 +1,4 @@
-import { CategoryService } from "../category.service";
+import type { CategoryService } from "../category.service";
 
 /**
  * Test doubles for every collaborator CategoryController depends on.
@@ -22,7 +22,9 @@ export type CategoryControllerMocks = ReturnType<
 export const setupCategoryController = async () => {
   const mocks = createCategoryControllerMocks();
   const { CategoryController } = await import("../category.controller");
-  const controller = new CategoryController(mocks.categoryService as any);
+  const controller = new CategoryController(
+    mocks.categoryService as unknown as CategoryService,
+  );
 
   return { mocks, controller };
 };
