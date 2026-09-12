@@ -73,10 +73,12 @@ jobs:
 
       # --ci fails instead of writing new snapshots; the run is sequential-ish
       # on a 2-core runner, so cap workers to keep the suite from thrashing.
+      # No `--` separator: pnpm forwards these to jest directly, whereas with
+      # `--` they arrive as test path patterns and match zero tests.
       - name: Unit tests
         shell: bash
         run: |
-          pnpm test:cov -- --ci --maxWorkers=2 \
+          pnpm test:cov --ci --maxWorkers=2 \
             --coverageReporters=text --coverageReporters=json-summary
 
       - name: Coverage summary
