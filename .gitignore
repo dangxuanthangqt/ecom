@@ -38,6 +38,7 @@ lerna-debug.log*
 # dotenv environment variable files
 .env*
 !.env.example
+!.env.test.example
 
 
 # temp directory
@@ -68,6 +69,8 @@ plans/
 
 # Claude Code local state (per-machine settings + agent working notes)
 .claude/
+!.claude/skills/
+!.claude/skills/**
 
 # SunLint generates this temp ESLint config with an absolute, machine-specific path
 .sunlint-eslint.config.js
