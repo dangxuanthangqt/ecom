@@ -23,10 +23,12 @@ the **conservative reading** — BRANDS/CATEGORIES create/update/delete stories 
 with `admin` as the sole actor; `client` write-access to those two modules is `[UNVERIFIED]` and
 intentionally NOT asserted as a story to avoid inventing an unconfirmed capability.
 
-**Unexposed schema-only models** — `Order`, `Review`, `CartItem`, `Message`, `PaymentTransaction`,
-`Device` exist in `prisma/schema.prisma` but have **no controller/route**. No user stories are
-written for ordering, reviewing, cart, or messaging — these capabilities are not exposed by the
-API today.
+**Unexposed schema-only models (pre-2026-09-12)** — `Order`, `Review`, `CartItem`, `Message`, `PaymentTransaction`,
+`Device` existed in `prisma/schema.prisma` but had **no controller/route**. **As of 2026-09-12,
+`CartItem`, `Order` (+`ProductSKUSnapshot`), and `Review` are exposed via F011 Shopping Cart, F012
+Order Placement & Fulfilment, and F013 Product Reviews** — US070–US084 below cover their routes.
+`Message` and `PaymentTransaction` remain unexposed (deferred per `clarifications.md`); no user
+stories are written for messaging or payment.
 
 ## Route → US Map (also serves as Interaction Inventory + US Index)
 
@@ -101,11 +103,30 @@ API today.
 | ROUTE068 | POST /users | admin | P2 | US067 | Create User |
 | ROUTE069 | PUT /users/:id | admin | P1 | US068 | Update User And Promote Role |
 | ROUTE070 | DELETE /users/:id | admin | P2 | US069 | Delete User |
+| ROUTE071 | GET /cart | client | P0 | US070 | View Cart List |
+| ROUTE072 | POST /cart | client | P0 | US071 | Add Cart Item |
+| ROUTE073 | PUT /cart/:cartItemId | client | P0 | US072 | Update Cart Item Quantity |
+| ROUTE074 | DELETE /cart/:cartItemId | client | P0 | US073 | Remove Cart Item |
+| ROUTE075 | GET /orders | client | P0 | US074 | View Own Order List |
+| ROUTE076 | GET /orders/:orderId | client | P0 | US075 | View Own Order Detail |
+| ROUTE077 | POST /orders | client | P0 | US076 | Checkout Cart |
+| ROUTE078 | PUT /orders/:orderId/cancel | client | P0 | US077 | Cancel Own Order |
+| ROUTE079 | GET /manage-order/orders | seller | P0 | US078 | View Manage Order List |
+| ROUTE080 | GET /manage-order/orders/:orderId | seller | P0 | US079 | View Manage Order Detail |
+| ROUTE081 | PUT /manage-order/orders/:orderId/status | seller | P0 | US080 | Update Order Status |
+| ROUTE082 | GET /reviews | client | P1 | US081 | View Product Reviews |
+| ROUTE083 | POST /reviews | client | P1 | US082 | Create Review |
+| ROUTE084 | PUT /reviews/:reviewId | client | P1 | US083 | Update Review |
+| ROUTE085 | DELETE /reviews/:reviewId | client | P1 | US084 | Delete Review |
 
 > Every route maps to exactly one US (1:1), except ROUTE006+ROUTE007 which merge into US006 —
 > both steps of one Google-login click, same actor, no branching between them, no independently
 > meaningful user intent for "get authorization URL" alone (merge exception, Step 3).
 > No `[IPE_ZERO]` rows — every route has ≥1 mapped US.
+> ROUTE071–085 added 2026-09-12 (F011/F012/F013). `manage-order/orders` rows are written with
+> `seller` as the primary actor since MANAGE-ORDER is the seller's own-product order queue
+> (PERM011); `admin` shares the same routes with an unrestricted visibility scope
+> (`ManageOrderService.buildActorScope`) rather than a separate US.
 
 ---
 
@@ -479,6 +500,98 @@ API today.
 > As an admin, I want to delete a user account so that it's removed from the system.
 - AC: Deletes the user matching `:id`. Route: ROUTE070, DELETE /users/:id, Bearer.
 
+## Cart
+
+### US070_ViewCartList
+> As a client, I want to view my own cart lines so that I can see what I've added before checking out.
+- AC: Returns only the caller's own `CartItem` rows (BR-C01), paginated.
+- Route: ROUTE071, GET /cart, Bearer.
+
+### US071_AddCartItem
+> As a client, I want to add a SKU to my cart so that I can buy it later.
+- AC: Adding a SKU already in the cart increments the existing line's quantity instead of creating a second one (BR-C04, DB-enforced by `@@unique([userId, skuId])`).
+- AC: Rejected with 400 if the resulting quantity exceeds `SKU.stock` (BR-C03); rejected with 404 if the SKU is missing, deleted, or its product isn't published (BR-C02).
+- Route: ROUTE072, POST /cart, Bearer.
+
+### US072_UpdateCartItemQuantity
+> As a client, I want to set the quantity of one cart line so that it reflects how many I actually want.
+- AC: Rejected with 400 if the new quantity exceeds `SKU.stock`; rejected with 404 if the line belongs to another user (BR-C01) or doesn't exist.
+- Route: ROUTE073, PUT /cart/:cartItemId, Bearer.
+
+### US073_RemoveCartItem
+> As a client, I want to remove a cart line so that it's no longer part of what I might buy.
+- AC: Always a hard delete — `CartItem` carries no `deletedAt` (BR-C05). Another user's line is a 404, never a 403.
+- Route: ROUTE074, DELETE /cart/:cartItemId, Bearer.
+
+## Orders (buyer)
+
+### US074_ViewOwnOrderList
+> As a client, I want to view my own orders so that I can track what I've bought.
+- AC: Returns only orders where `userId` is the caller's (BR-O06), optionally filtered by status, paginated.
+- Route: ROUTE075, GET /orders, Bearer.
+
+### US075_ViewOwnOrderDetail
+> As a client, I want to view one of my own orders in detail so that I can see its frozen snapshot items.
+- AC: Returns the order's `ProductSKUSnapshot` lines (product name/price/image/SKU value/quantity as they were at purchase time, BR-O03), not the live product. Another buyer's `orderId` is a 404.
+- Route: ROUTE076, GET /orders/:orderId, Bearer.
+
+### US076_CheckoutCart
+> As a client, I want to check out selected cart lines so that they become a real, trackable order.
+- AC: The selected cart lines are grouped by seller (`product.createdById`) — one `Order` per seller (BR-O01).
+- AC: One transaction validates stock, decrements it, creates the order(s) and their snapshot lines, and deletes the consumed cart lines; any failure rolls the whole checkout back (BR-O02).
+- AC: A cart item id not owned by the caller fails the whole request, not just that line (BR-O07).
+- Route: ROUTE077, POST /orders, Bearer.
+
+### US077_CancelOwnOrder
+> As a client, I want to cancel my own order while it's still pending confirmation so that I get my money/commitment back.
+- AC: Only the owning buyer, and only while `status = PENDING_CONFIRMATION` (BR-O04); rejected with 400 otherwise.
+- AC: Cancelling restores the stock the order's snapshot lines had decremented.
+- Route: ROUTE078, PUT /orders/:orderId/cancel, Bearer.
+
+## Manage Orders (seller/admin)
+
+### US078_ViewManageOrderList
+> As a seller, I want to view the orders containing my products so that I can fulfil them.
+- AC: A seller sees only orders whose snapshot items reference products they created; an admin sees all (BR-O06, PERM011). A `client` caller is rejected with 403 before this logic runs (MANAGE-ORDER not in their module allowlist).
+- Route: ROUTE079, GET /manage-order/orders, Bearer.
+
+### US079_ViewManageOrderDetail
+> As a seller, I want to view one order's full detail so that I can check what to fulfil.
+- AC: Same visibility scope as US078; an order outside the caller's scope is a 404, never a 403.
+- Route: ROUTE080, GET /manage-order/orders/:orderId, Bearer.
+
+### US080_UpdateOrderStatus
+> As a seller, I want to advance an order's status so that its fulfilment progress is tracked.
+- AC: Only the linear progression `PENDING_CONFIRMATION → PENDING_PICKUP → PENDING_DELIVERY → DELIVERED`, plus `DELIVERED → RETURNED`, is legal (BR-O05); any other transition is rejected with 400 naming the current and requested status.
+- AC: Setting `CANCELLED` through this route is always rejected — cancellation is buyer-only (BR-O04).
+- AC: A concurrent status write by someone else (the caller's observed `currentStatus` no longer matches) is rejected with 409, not silently overwritten.
+- Route: ROUTE081, PUT /manage-order/orders/:orderId/status, Bearer.
+
+## Reviews
+
+### US081_ViewProductReviews
+> As a guest or any caller, I want to read a product's reviews so that I can judge it before buying.
+- AC: Public — no auth required (BR-R05, PERM002). Newest first, paginated, scoped to one `productId`.
+- AC: The author projection exposes only display name and avatar — never email, phone, or account status.
+- Route: ROUTE082, GET /reviews, public.
+
+### US082_CreateReview
+> As a client, I want to review a product I've received so that other buyers benefit from my experience.
+- AC: Requires a `DELIVERED`, non-deleted order of the caller's whose snapshot items reference the product (BR-R01) — otherwise 403.
+- AC: One review per (user, product), DB-enforced by `@@unique([userId, productId])` (BR-R02) — a second attempt is 409, not a silent overwrite.
+- AC: `rating` must be an integer 1–5; `content` must be non-empty (BR-R04).
+- Route: ROUTE083, POST /reviews, Bearer.
+
+### US083_UpdateReview
+> As a client, I want to edit my own review so that I can correct or update my opinion.
+- AC: Ownership enforced in the `where` clause (BR-R03) — another user's review is a 404, never a 403.
+- Route: ROUTE084, PUT /reviews/:reviewId, Bearer.
+
+### US084_DeleteReview
+> As a client, I want to delete my own review so that it's no longer visible.
+- AC: Always a hard delete — `Review` carries no `deletedAt` (BR-R06). Another user's review is a 404.
+- Route: ROUTE085, DELETE /reviews/:reviewId, Bearer.
+
 ---
 
 ## System-Initiated Behavior (excluded from US### by design)
@@ -497,11 +610,11 @@ system-typed entry.
 
 ## Cross-Reference Validation
 
-- [x] All US### codes are unique (US001–US069, sequential, no gaps/dupes)
+- [x] All US### codes are unique (US001–US084, sequential, no gaps/dupes)
 - [x] Every US has exactly one named human actor (`admin`/`seller`/`client`) — no "system"/"platform"/"application" actor used
 - [x] Every US title carries exactly one action verb (no CRUD-compound titles)
 - [x] Every US has a "so that" outcome clause
-- [x] Every route (70) maps to ≥1 US; every US maps to ≥1 route (Route→US Map above)
+- [x] Every route (85) maps to ≥1 US; every US maps to ≥1 route (Route→US Map above)
 - [x] BL003/004/005/009/011/012 referenced inline in their triggering US; BL001/002/006/007/008/010/013 explicitly excluded with reason (System-Initiated Behavior section)
-- [ ] Referenced in FeatureList.md — not yet generated at this wave (pending Wave 3+ per `_session-context.md`)
-- Open contradiction: client write-access to BRANDS/CATEGORIES (permissions-matrix.md PERM005 vs. permissions.md curated text) — flagged at top, not asserted either way.
+- [x] Referenced in feature-list.md — F011/F012/F013 list US070–US084 under "Related User Stories"
+- Open contradiction: client write-access to BRANDS/CATEGORIES (permissions-matrix.md PERM005 vs. permissions.md curated text) — flagged at top, not asserted either way; unrelated to the 2026-09-12 cart/order/review addition.

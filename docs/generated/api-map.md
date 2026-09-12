@@ -151,9 +151,44 @@
 | PUT | /users/:id | [UNMAPPED] | Bearer |
 | DELETE | /users/:id | [UNMAPPED] | Bearer |
 
+### Cart (`src/routes/cart/cart.controller.ts`, prefix `cart`)
+
+| Method | Path | Handler BL### | Auth |
+|--------|------|---------------|------|
+| GET | /cart | [UNMAPPED] | Bearer |
+| POST | /cart | [UNMAPPED] | Bearer |
+| PUT | /cart/:cartItemId | [UNMAPPED] | Bearer |
+| DELETE | /cart/:cartItemId | [UNMAPPED] | Bearer |
+
+### Order — buyer (`src/routes/order/order.controller.ts`, prefix `orders`)
+
+| Method | Path | Handler BL### | Auth |
+|--------|------|---------------|------|
+| GET | /orders | [UNMAPPED] | Bearer |
+| GET | /orders/:orderId | [UNMAPPED] | Bearer |
+| POST | /orders | [UNMAPPED] | Bearer |
+| PUT | /orders/:orderId/cancel | [UNMAPPED] | Bearer |
+
+### Manage Order — seller/admin (`src/routes/order/manage-order/manage-order.controller.ts`, prefix `manage-order/orders`)
+
+| Method | Path | Handler BL### | Auth |
+|--------|------|---------------|------|
+| GET | /manage-order/orders | [UNMAPPED] | Bearer |
+| GET | /manage-order/orders/:orderId | [UNMAPPED] | Bearer |
+| PUT | /manage-order/orders/:orderId/status | [UNMAPPED] | Bearer |
+
+### Review (`src/routes/review/review.controller.ts`, prefix `reviews`)
+
+| Method | Path | Handler BL### | Auth |
+|--------|------|---------------|------|
+| GET | /reviews | [UNMAPPED] | public |
+| POST | /reviews | [UNMAPPED] | Bearer |
+| PUT | /reviews/:reviewId | [UNMAPPED] | Bearer |
+| DELETE | /reviews/:reviewId | [UNMAPPED] | Bearer |
+
 ## Mapping Summary
 
-- 70 routes total. 8 mapped to a specific BL### (ROUTE005–BL005 intended-but-dead, ROUTE006/007–BL003, ROUTE036–BL004+BL012, ROUTE037–BL004+BL009, ROUTE038–BL004+BL011, ROUTE039–BL004, ROUTE040–BL004). 62 routes `[UNMAPPED]` — standard CRUD with no distinct business-logic file surfaced in the 13-item BL inventory.
+- 85 routes total (70 original + 15 added 2026-09-12 for cart/order/review). 8 mapped to a specific BL### (ROUTE005–BL005 intended-but-dead, ROUTE006/007–BL003, ROUTE036–BL004+BL012, ROUTE037–BL004+BL009, ROUTE038–BL004+BL011, ROUTE039–BL004, ROUTE040–BL004). 77 routes `[UNMAPPED]` — standard CRUD/business-service routes with no distinct entry in the 13-item BL inventory (`behavior-logic.md` was not re-generated in this pass; the new cart/order/review business rules — stock decrement, snapshot freezing, status transitions — are documented as BR-C##/BR-O##/BR-R## in the F011/F012/F013 feature specs instead of as BL### items).
 - BL001_SyncRoutePermissionsScript and BL002_SeedAdminUserScript have `Related Routes: N/A` in behavior-logic.md (standalone scripts, not tied to any HTTP route) — correctly excluded from all route rows above.
 - BL010_ImageValidationPipe is dead code (no live route references it per behavior-logic.md) — correctly excluded from all route rows above.
 - BL006/BL007/BL008/BL013 apply globally to all 70 routes as cross-cutting middleware/lifecycle — documented once above rather than duplicated into every row (see "Cross-cutting note").

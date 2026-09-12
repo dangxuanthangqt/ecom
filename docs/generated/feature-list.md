@@ -2,7 +2,9 @@
 
 **Project**: ecom (NestJS + Prisma + PostgreSQL headless backend API)
 **Generated**: 2026-09-12
-**Analysis Scope**: 69 user stories (US001–US069), 70 routes, 13 background-logic items, 10 permission items, 21 Prisma models — headless API, zero screens (`screen-list.md`: "No data").
+**Analysis Scope**: 84 user stories (US001–US084), 85 routes, 13 background-logic items, 11 permission items, 21 Prisma models — headless API, zero screens (`screen-list.md`: "No data").
+
+**2026-09-12 update**: F011 Shopping Cart, F012 Order Placement & Fulfilment, and F013 Product Reviews added — three previously-unexposed Prisma models (`CartItem`, `Order`+`ProductSKUSnapshot`, `Review`) now have live routes. 15 new routes (ROUTE071–ROUTE085), 15 new user stories (US070–US084), 1 new permission item (PERM011). See each feature's `docs/features/F0##_*/functional-spec.md` for full detail.
 
 **Deviation note**: no SCR### codes exist or are referenced anywhere in this artifact. "Related Screens" rows are omitted from every Feature Detail block below (not applicable to a headless API), per Wave-5 brief instruction to skip the SCR coverage gate for this repo.
 
@@ -22,6 +24,9 @@
 | F008 | Seller Product Management | ui | TypeScript | backend (single) | P1 |
 | F009 | Own Profile Management | ui | TypeScript | backend (single) | P1 |
 | F010 | User Account Administration | ui | TypeScript | backend (single) | P2 |
+| F011 | Shopping Cart | ui | TypeScript | backend (single) | P0 |
+| F012 | Order Placement & Fulfilment | mixed | TypeScript | backend (single) | P0 |
+| F013 | Product Reviews | ui | TypeScript | backend (single) | P1 |
 ## Feature Details
 
 ### F001: Authentication
@@ -391,6 +396,115 @@
 
 ---
 
+### F011: Shopping Cart
+
+**Type**: ui
+**Description**: A caller (any authenticated role) holds SKUs they intend to buy in a per-user cart — list own lines, add a SKU (incrementing an existing line for the same SKU), set a line's quantity, or remove a line. One outcome: give the sole input to F012's checkout somewhere to live between visits, with no guest-cart support (`CartItem.userId` is non-nullable).
+
+**Workspace**: backend (single)
+**Languages**: TypeScript
+**Components**: N/A (headless API)
+
+**Related User Stories**:
+- US070_ViewCartList
+- US071_AddCartItem
+- US072_UpdateCartItemQuantity
+- US073_RemoveCartItem
+
+**Related APIs/Routes**:
+- (GET) /cart
+- (POST) /cart
+- (PUT) /cart/:cartItemId
+- (DELETE) /cart/:cartItemId
+
+**Related Data Models**:
+- CartItem (MODEL016)
+- SKU (MODEL013) — read-only, for addability/stock checks
+- Product (MODEL009) — read-only, via SKU's parent, for publish-visibility
+
+**Related Background Logic**: none
+
+**Related Permissions**:
+- PERM005_ModuleBasedRoleGrant
+
+---
+
+### F012: Order Placement & Fulfilment
+
+**Type**: mixed
+**Description**: A buyer converts selected cart lines into one order per seller — freezing product/SKU data into `ProductSKUSnapshot` rows and decrementing stock in one transaction — then lists/views/cancels their own orders. Separately, a seller or admin lists/views the orders visible to them and advances an order along its status lifecycle. One outcome spanning two actor sets: turning a cart into a fulfilled (or cancelled) commitment, and letting the fulfilling side track it.
+
+**Workspace**: backend (single)
+**Languages**: TypeScript
+**Components**: N/A (headless API)
+
+**Related User Stories**:
+- US074_ViewOwnOrderList
+- US075_ViewOwnOrderDetail
+- US076_CheckoutCart
+- US077_CancelOwnOrder
+- US078_ViewManageOrderList
+- US079_ViewManageOrderDetail
+- US080_UpdateOrderStatus
+
+**Related APIs/Routes**:
+- (GET) /orders
+- (GET) /orders/:orderId
+- (POST) /orders
+- (PUT) /orders/:orderId/cancel
+- (GET) /manage-order/orders
+- (GET) /manage-order/orders/:orderId
+- (PUT) /manage-order/orders/:orderId/status
+
+**Related Data Models**:
+- Order (MODEL018)
+- ProductSKUSnapshot (MODEL017)
+- CartItem (MODEL016) — consumed (deleted) at checkout
+- SKU (MODEL013) — stock read/write
+- Product (MODEL009) — read, and the `Order.products` m-n relation populated at checkout
+
+**Related Background Logic**: none
+
+**Related Permissions**:
+- PERM005_ModuleBasedRoleGrant
+- PERM011_ManageOrderRoleGate
+
+---
+
+### F013: Product Reviews
+
+**Type**: ui
+**Description**: Anyone can read a product's reviews (public, newest first); a buyer whose order for that product was actually delivered can write, edit, or delete their own single review of it. One outcome: purchase-verified social proof for prospective buyers, distinct from F007's read-only browsing and F012's order lifecycle (which it depends on for eligibility).
+
+**Workspace**: backend (single)
+**Languages**: TypeScript
+**Components**: N/A (headless API)
+
+**Related User Stories**:
+- US081_ViewProductReviews
+- US082_CreateReview
+- US083_UpdateReview
+- US084_DeleteReview
+
+**Related APIs/Routes**:
+- (GET) /reviews
+- (POST) /reviews
+- (PUT) /reviews/:reviewId
+- (DELETE) /reviews/:reviewId
+
+**Related Data Models**:
+- Review (MODEL019)
+- Order (MODEL018) — read, for purchase-verification (BR-R01)
+- Product (MODEL009) — read, for review-target visibility
+
+**Related Background Logic**: none
+
+**Related Permissions**:
+- PERM002_IsPublicApiOverride
+- PERM005_ModuleBasedRoleGrant
+
+---
+
 ## Cross-Cutting Technical Concerns (not assigned to any Feature)
 
 These background-logic items are global request/response plumbing with **no human actor, no user
@@ -413,33 +527,33 @@ decision, not an oversight. (Ruled at the Wave 5.6 gate: `feature-list-review.md
 
 ## Unexposed Schema-Only Models (not assigned to any Feature)
 
-Per Wave-5 brief and `user-stories.md`, these Prisma models have no controller/route and are **not** turned into features: `Order`, `Review`, `CartItem`, `Message`, `PaymentTransaction`, `Device`, `UserTranslation`. Of these, `Device` is the one exception worth flagging precisely: it has no dedicated CRUD route, but it IS written to by `BL003_GoogleOAuthLogin` as part of the Authentication flow — so it appears once, above, as a **related data model** under F001, not as a feature of its own.
+Per Wave-5 brief and `user-stories.md` (pre-2026-09-12), these Prisma models had no controller/route and were not turned into features: `Order`, `Review`, `CartItem`, `Message`, `PaymentTransaction`, `Device`, `UserTranslation`. **As of 2026-09-12, `Order` (+`ProductSKUSnapshot`), `Review`, and `CartItem` are exposed via F011/F012/F013 above and are removed from this list.** `Message` and `PaymentTransaction` remain unexposed — `clarifications.md` (`plans/260912-2042-cart-order-review-api/clarifications.md`) explicitly defers both to a later phase (chat: plain REST, no WebSocket; payment: SePay-style webhook reconciliation). `Device` is the one exception worth flagging precisely: it has no dedicated CRUD route, but it IS written to by `BL003_GoogleOAuthLogin` as part of the Authentication flow — so it appears once, above, as a **related data model** under F001, not as a feature of its own.
 
 `UserTranslation` (MODEL003) joins this list as of the feature-specs pass. Wave 5 had tentatively attributed it to F009 as `[UNVERIFIED]` on the grounds that it is schema-adjacent to the Profile domain. The F009 feature-spec researcher resolved it from source: a full grep of `src/` returns **zero** references to `UserTranslation` outside the Prisma schema and migrations — `ProfileService`/`ProfileController` never touch it. It is therefore unexposed schema-only, on the same footing as the six models above, and is no longer attributed to any feature.
 
 ## Summary
 
-- **Total Features**: 10
+- **Total Features**: 13 (F001–F013; F011/F012/F013 added 2026-09-12)
 - **Total Screens**: 0 (headless backend API — screen-list.md: "No data")
-- **Total User Stories**: 69 (US001–US069, all assigned)
-- **Total Routes**: 70 (all 70 covered across F001–F010)
-- **Total Data Models**: 21 (15 referenced above across F001–F010; 6 explicitly excluded as unexposed schema-only)
+- **Total User Stories**: 84 (US001–US084, all assigned)
+- **Total Routes**: 85 (all 85 covered across F001–F013)
+- **Total Data Models**: 21 (18 referenced above across F001–F013; 3 explicitly excluded as unexposed schema-only: `Message`, `PaymentTransaction`, `UserTranslation`)
 - **Total Background Logic**: 13 (9 assigned: BL001/002→F006, BL003/005→F001, BL004/009/010/011/012→F005; 4 explicitly excluded as cross-cutting: BL006/007/008/013 — see Cross-Cutting Technical Concerns)
-- **Total Permissions**: 10 (all 10 referenced across F001–F010)
+- **Total Permissions**: 11 (all 11 referenced across F001–F013)
 - **Languages Detected**: TypeScript
 
 ## Cross-Reference Validation
 
-- [x] All F### codes are unique (F001–F010)
+- [x] All F### codes are unique (F001–F013)
 - [x] All F### codes will be referenced in UserStories.md once this file is consumed downstream (US###→F### is a forward link resolved by the orchestrator)
 - [x] Screen references: not applicable — 0 screens in this repo (see Deviation note above)
-- [x] All user story references are valid (US001–US069 all exist in user-stories.md; every one assigned to exactly one Feature)
-- [x] All route references are valid (ROUTE001–ROUTE070 all exist in route-list.md)
-- [x] All data model references are valid (names cross-checked against data-model.md ERD/entities)
+- [x] All user story references are valid (US001–US084 all exist in user-stories.md; every one assigned to exactly one Feature)
+- [x] All route references are valid (ROUTE001–ROUTE085 all exist in route-list.md)
+- [x] All data model references are valid (names cross-checked against entities.md)
 - [x] All behavior logic references are valid (BL001–BL013 all exist in behavior-logic.md; 9 assigned to features, 4 explicitly excluded as cross-cutting)
-- [x] All permission references are valid (PERM001–PERM010 all exist in permissions-matrix.md; all 10 referenced)
-- [x] Every US has a parent feature (F###) — verified 9+5+5+20+5+10+2+5+3+5 = 69
-- [x] Every route maps to a feature (F###) — 70 routes distributed 10+5+5+20+5+10+2+5+3+5 = 70
+- [x] All permission references are valid (PERM001–PERM011 all exist in permissions-matrix.md; all 11 referenced)
+- [x] Every US has a parent feature (F###) — verified 9+5+5+20+5+10+2+5+3+5+4+7+4 = 84
+- [x] Every route maps to a feature (F###) — 85 routes distributed 10+5+5+20+5+10+2+5+3+5+4+7+4 = 85
 - [x] Every data model maps to a feature (F###) or is explicitly excluded with reason (Unexposed section)
 - [x] Every background logic item maps to a feature (F###) or is explicitly excluded with reason — 9 assigned + 4 excluded = 13/13
-- [x] Every permission maps to a feature (F###) — 10/10
+- [x] Every permission maps to a feature (F###) — 11/11

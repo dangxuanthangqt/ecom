@@ -15,5 +15,8 @@ Every feature in this product. Open one and read it end-to-end via its reading g
 - [F008_SellerProductManagement](F008_SellerProductManagement/)
 - [F009_OwnProfileManagement](F009_OwnProfileManagement/)
 - [F010_UserAccountAdministration](F010_UserAccountAdministration/)
+- [F011_ShoppingCart](F011_ShoppingCart/)
+- [F012_OrderPlacement](F012_OrderPlacement/)
+- [F013_ProductReviews](F013_ProductReviews/)
 
 <!-- end-generated -->

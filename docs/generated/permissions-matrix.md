@@ -24,6 +24,7 @@
 | PERM008_CoreRoleMutationLock | The 3 seeded roles (admin/client/seller) cannot be edited or deleted via `/roles` | role-based | `src/routes/role/role.service.ts:17,104-120` |
 | PERM009_ApiKeyGuardUnused | Alternate `ApiKeyGuard`/`API_KEY` auth type exists but is not wired to any route | api-scope | `src/shared/guards/api-key.guard.ts`, `src/shared/guards/authorization-header.guard.ts:25-31` |
 | PERM010_BrandByIdDocDrift | `GET /brands/:id` is Swagger-labeled `@ApiPublic` but carries no `@IsPublicApi()` — runtime still requires Bearer | route-guard | `src/routes/brand/brand.controller.ts:68` |
+| PERM011_ManageOrderRoleGate | `MANAGE-ORDER` module (seller status-progression + order visibility) is seller/admin only — `client` never holds it | role-based | `initial-scripts/create-permission.ts:14-24` |
 
 ---
 
@@ -151,28 +152,28 @@ This means the permission set for a role is only as current as the last run of t
 After permissions are seeded (PERM004), `updateRole()` runs once per role and REPLACES (`permissions: { set: [...] }`, Prisma `set` — not `connect`) that role's entire permission list:
 
 - **ADMIN**: `Module[Role.ADMIN]` is `undefined` (no entry in the `Module` map, lines 32-35) → the `moduleList && moduleList.length > 0` guard (line 160) is false → `permissionIds` stays as **all** permission IDs, unfiltered. Admin holds every permission for every module, all methods.
-- **SELLER**: filtered to modules `["AUTH","MEDIA","MANAGE-PRODUCT","PRODUCT-TRANSLATIONS","PROFILE"]` (lines 14-20) — ALL methods (GET/POST/PUT/DELETE) under those 5 modules are granted, since filtering is by module string only, not by method.
-- **CLIENT**: filtered to modules `["AUTH","MEDIA","PRODUCTS","CATEGORIES","BRANDS","PRODUCT-TRANSLATIONS","PROFILE"]` (lines 22-29) — same all-methods-within-module behavior.
+- **SELLER**: filtered to modules `["AUTH","MEDIA","MANAGE-PRODUCT","PRODUCT-TRANSLATIONS","PROFILE","CART","ORDERS","MANAGE-ORDER","REVIEWS"]` (lines 14-24, updated 2026-09-12 for F011/F012/F013) — ALL methods (GET/POST/PUT/DELETE) under those 9 modules are granted, since filtering is by module string only, not by method.
+- **CLIENT**: filtered to modules `["AUTH","MEDIA","PRODUCTS","CATEGORIES","BRANDS","PRODUCT-TRANSLATIONS","PROFILE","CART","ORDERS","REVIEWS"]` (lines 26-37, updated 2026-09-12) — same all-methods-within-module behavior. Notably **excludes `MANAGE-ORDER`** — see PERM011.
 
-Modules `BRAND-TRANSLATIONS`, `CATEGORY-TRANSLATIONS`, `LANGUAGES`, `PERMISSIONS`, `ROLES`, `USERS` appear in neither the Seller nor Client allowlist — those 6 modules (30 routes) are effectively admin-only under this seed.
+Modules `BRAND-TRANSLATIONS`, `CATEGORY-TRANSLATIONS`, `LANGUAGES`, `PERMISSIONS`, `ROLES`, `USERS` appear in neither the Seller nor Client allowlist — those 6 modules (30 routes) are effectively admin-only under this seed. `MANAGE-ORDER` (3 routes, ROUTE079–081) is seller+admin only (client excluded) — see PERM011.
 
 ### Related Routes
 
-- All 70 (partitioned by module, see table below)
+- All 85 (partitioned by module, see table below)
 
 ### Permission Rules
 
 | Role | Allow | Conditions |
 |------|-------|------------|
-| admin | ✓ (all 14 modules / 70 routes) | `Module[Role.ADMIN]` undefined → no filter applied |
-| seller | ✓ (5 modules / 28 routes: AUTH, MEDIA, MANAGE-PRODUCT, PRODUCT-TRANSLATIONS, PROFILE) | module must be in `SellerModule` list |
+| admin | ✓ (all 18 modules / 85 routes) | `Module[Role.ADMIN]` undefined → no filter applied |
+| seller | ✓ (9 modules / 43 routes: AUTH, MEDIA, MANAGE-PRODUCT, PRODUCT-TRANSLATIONS, PROFILE, CART, ORDERS, MANAGE-ORDER, REVIEWS) | module must be in `SellerModule` list |
 | seller | ✗ (9 modules / 42 routes: BRANDS, BRAND-TRANSLATIONS, CATEGORIES, CATEGORY-TRANSLATIONS, LANGUAGES, PERMISSIONS, PRODUCTS, ROLES, USERS) | module not in `SellerModule` list |
-| client | ✓ (7 modules / 35 routes: AUTH, MEDIA, PRODUCTS, CATEGORIES, BRANDS, PRODUCT-TRANSLATIONS, PROFILE) | module must be in `ClientModule` list |
-| client | ✗ (7 modules / 35 routes: BRAND-TRANSLATIONS, CATEGORY-TRANSLATIONS, LANGUAGES, MANAGE-PRODUCT, PERMISSIONS, ROLES, USERS) | module not in `ClientModule` list |
+| client | ✓ (10 modules / 39 routes: AUTH, MEDIA, PRODUCTS, CATEGORIES, BRANDS, PRODUCT-TRANSLATIONS, PROFILE, CART, ORDERS, REVIEWS) | module must be in `ClientModule` list |
+| client | ✗ (8 modules / 46 routes: BRAND-TRANSLATIONS, CATEGORY-TRANSLATIONS, LANGUAGES, MANAGE-PRODUCT, MANAGE-ORDER, PERMISSIONS, ROLES, USERS) | module not in `ClientModule` list |
 
 ### Related Modules
 
-AUTH, MEDIA, MANAGE-PRODUCT, PRODUCT-TRANSLATIONS, PROFILE, PRODUCTS, CATEGORIES, BRANDS, BRAND-TRANSLATIONS, CATEGORY-TRANSLATIONS, LANGUAGES, PERMISSIONS, ROLES, USERS
+AUTH, MEDIA, MANAGE-PRODUCT, PRODUCT-TRANSLATIONS, PROFILE, PRODUCTS, CATEGORIES, BRANDS, BRAND-TRANSLATIONS, CATEGORY-TRANSLATIONS, LANGUAGES, PERMISSIONS, ROLES, USERS, CART, ORDERS, MANAGE-ORDER, REVIEWS
 
 ---
 
@@ -314,12 +315,42 @@ AUTH, MEDIA, MANAGE-PRODUCT, PRODUCT-TRANSLATIONS, PROFILE, PRODUCTS, CATEGORIES
 
 ---
 
+## PERM011_ManageOrderRoleGate: `MANAGE-ORDER` module is seller/admin only
+
+**Type**: role-based
+**Enforced At**: `initial-scripts/create-permission.ts:14-24` (SellerModule includes `"MANAGE-ORDER"`, ClientModule does not)
+
+### Description
+
+Added 2026-09-12 for F012 Order Placement & Fulfilment. `ManageOrderController` (`src/routes/order/manage-order/manage-order.controller.ts`, prefix `manage-order/orders`) is registered under module `MANAGE-ORDER` (derived from its path segment per PERM004). `SellerModule` (`initial-scripts/create-permission.ts:14-24`) includes `"MANAGE-ORDER"`; `ClientModule` (lines 26-37) does not. Combined with PERM005's all-methods-per-module grant, this means a `client` caller is rejected by PERM003 (403, no matching `Permission` row) before `ManageOrderService.buildActorScope`'s own visibility logic ever runs — the role gate and the ownership-scope logic are two independent layers. `ManageOrderService.updateOrderStatus` additionally rejects any caller attempting `nextStatus: CANCELLED` regardless of role, since cancellation is buyer-only (BR-O04, `src/routes/order/manage-order/manage-order.service.ts:118-122`).
+
+### Related Routes
+
+- (GET) /manage-order/orders — ROUTE079
+- (GET) /manage-order/orders/:orderId — ROUTE080
+- (PUT) /manage-order/orders/:orderId/status — ROUTE081
+
+### Permission Rules
+
+| Role | Allow | Conditions |
+|------|-------|------------|
+| admin | ✓ | `MANAGE-ORDER` module granted (undefined allowlist → all modules); sees all orders (`buildActorScope` returns `{}`) |
+| seller | ✓ | `MANAGE-ORDER` in `SellerModule`; sees only orders whose snapshot items reference their own products (`buildActorScope` filters `products.some.createdById`) |
+| client | ✗ | `MANAGE-ORDER` not in `ClientModule` → 403 before any handler logic runs |
+
+### Related Modules
+
+- MANAGE-ORDER
+
+---
+
 ## Summary
 
-- **Total Permission Items**: 10
-- **By Type**: route-guard: 3 (PERM001, PERM002, PERM010), role-based: 5 (PERM003, PERM004, PERM005, PERM006, PERM008), resource-ownership: 1 (PERM007), api-scope: 1 (PERM009) — total 10. PERM003 is classified role-based (its table row, line 19); it is route-guard-flavored in mechanism but counted once, under role-based.
+- **Total Permission Items**: 11
+- **By Type**: route-guard: 3 (PERM001, PERM002, PERM010), role-based: 6 (PERM003, PERM004, PERM005, PERM006, PERM008, PERM011), resource-ownership: 1 (PERM007), api-scope: 1 (PERM009) — total 11. PERM003 is classified role-based (its table row, line 19); it is route-guard-flavored in mechanism but counted once, under role-based.
 - **Roles identified**: `admin`, `client`, `seller` (`src/constants/role.constant.ts:1-5`) — no others found in code
 - **No client-side gates found**: this is a headless backend API; `feature-flag`/`experiment`/`env-gate`/`locale-gate` types do not apply. `No special client-side gates identified.`
+- **2026-09-12 update (F011/F012/F013)**: `SellerModule`/`ClientModule` in `initial-scripts/create-permission.ts` both gained `CART`, `ORDERS`, `REVIEWS`; `SellerModule` additionally gained `MANAGE-ORDER` (client did not) — see PERM005 (updated) and PERM011 (new).
 
 ---
 
