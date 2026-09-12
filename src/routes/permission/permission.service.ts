@@ -9,10 +9,14 @@ import {
 } from "@/dtos/permission/permission.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import { PermissionRepository } from "@/repositories/permission/permission.repository";
+import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
 
 @Injectable()
 export class PermissionService {
-  constructor(private readonly permissionRepository: PermissionRepository) {}
+  constructor(
+    private readonly permissionRepository: PermissionRepository,
+    private readonly rolePermissionCacheService: RolePermissionCacheService,
+  ) {}
 
   /**
    * Retrieves a paginated list of permissions with optional filtering and sorting.
@@ -93,6 +97,8 @@ export class PermissionService {
       rolesIds,
     });
 
+    await this.rolePermissionCacheService.invalidateAll();
+
     return permission;
   }
 
@@ -127,6 +133,8 @@ export class PermissionService {
       },
     });
 
+    await this.rolePermissionCacheService.invalidateAll();
+
     return permission;
   }
 
@@ -152,6 +160,8 @@ export class PermissionService {
       userId,
       isHardDelete,
     });
+
+    await this.rolePermissionCacheService.invalidateAll();
 
     return permission;
   }

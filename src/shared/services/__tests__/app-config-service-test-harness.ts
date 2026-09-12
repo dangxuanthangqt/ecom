@@ -51,6 +51,7 @@ export const setupAppConfigService = async (
     S3_ACCESS_KEY: "s3-access-key",
     S3_SECRET_KEY: "s3-secret-key",
     S3_BUCKET_NAME: "test-bucket",
+    REDIS_URL: "redis://localhost:6379",
   };
 
   const config = { ...defaultConfig, ...configOverrides };

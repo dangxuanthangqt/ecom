@@ -10,13 +10,17 @@ import {
 } from "@/dtos/role/role.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import { RoleRepository } from "@/repositories/role/role.repository";
+import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class RoleService {
   private forbiddenRoles: string[] = [Role.ADMIN, Role.CLIENT, Role.SELLER];
 
-  constructor(private readonly roleRepository: RoleRepository) {}
+  constructor(
+    private readonly roleRepository: RoleRepository,
+    private readonly rolePermissionCacheService: RolePermissionCacheService,
+  ) {}
 
   /**
    * Retrieves a paginated list of roles with optional filtering and sorting.
@@ -148,6 +152,8 @@ export class RoleService {
       permissionIds,
     });
 
+    await this.rolePermissionCacheService.invalidateRole(id);
+
     return role;
   }
 
@@ -175,6 +181,8 @@ export class RoleService {
       userId,
       isHardDelete,
     });
+
+    await this.rolePermissionCacheService.invalidateRole(id);
 
     return role;
   }

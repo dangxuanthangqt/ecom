@@ -6,6 +6,8 @@ import { AppConfigService } from "../services/app-config.service";
 import { EmailService } from "../services/email.service";
 import { HashingService } from "../services/hashing.service";
 import { PrismaService } from "../services/prisma.service";
+import { RedisService } from "../services/redis.service";
+import { RolePermissionCacheService } from "../services/role-permission-cache.service";
 import { S3Service } from "../services/s3.service";
 import { TokenService } from "../services/token.service";
 
@@ -17,6 +19,8 @@ const sharedProviders: Provider[] = [
   EmailService,
   TwoFactorAuthenticationService,
   S3Service,
+  RedisService,
+  RolePermissionCacheService,
 ];
 
 @Global()

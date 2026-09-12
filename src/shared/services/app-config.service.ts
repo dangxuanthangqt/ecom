@@ -26,6 +26,9 @@ export class AppConfigService {
       resendApiKey: this.getString("RESEND_API_KEY"),
       sandboxEmail: this.getString("SANDBOX_EMAIL"),
 
+      // Redis
+      redisUrl: this.getString("REDIS_URL"),
+
       // Google
       googleClientId: this.getString("GOOGLE_CLIENT_ID"),
       googleClientSecret: this.getString("GOOGLE_CLIENT_SECRET"),

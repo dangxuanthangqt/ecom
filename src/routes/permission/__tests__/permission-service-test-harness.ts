@@ -1,6 +1,7 @@
 import { Test } from "@nestjs/testing";
 
 import { PermissionRepository } from "@/repositories/permission/permission.repository";
+import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
 
 import { PermissionService } from "../permission.service";
 
@@ -16,6 +17,9 @@ export const createPermissionServiceMocks = () => ({
     updatePermission: jest.fn(),
     deletePermission: jest.fn(),
   },
+  rolePermissionCacheService: {
+    invalidateAll: jest.fn(),
+  },
 });
 
 export type PermissionServiceMocks = ReturnType<
@@ -30,6 +34,10 @@ export const buildPermissionService = async (
     providers: [
       PermissionService,
       { provide: PermissionRepository, useValue: mocks.permissionRepository },
+      {
+        provide: RolePermissionCacheService,
+        useValue: mocks.rolePermissionCacheService,
+      },
     ],
   }).compile();
 

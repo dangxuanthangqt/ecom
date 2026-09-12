@@ -169,4 +169,29 @@ describe("PermissionService - createPermission", () => {
     // Assert
     await expect(promise).rejects.toBe(error);
   });
+
+  it("invalidates the whole role-permission cache after creating", async () => {
+    // Act
+    await createAs();
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateAll,
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not invalidate the cache when creation fails", async () => {
+    // Arrange
+    mocks.permissionRepository.createPermission.mockRejectedValue(
+      new Error("Duplicate permission"),
+    );
+
+    // Act
+    await createAs().catch(() => undefined);
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateAll,
+    ).not.toHaveBeenCalled();
+  });
 });

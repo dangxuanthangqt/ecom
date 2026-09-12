@@ -55,6 +55,14 @@ describe("AppConfigService", () => {
       expect(service.appConfig.s3BucketName).toBe("test-bucket");
     });
 
+    it("loads Redis configuration", async () => {
+      // Arrange & Act
+      const { service } = await setupAppConfigService();
+
+      // Assert
+      expect(service.appConfig.redisUrl).toBe("redis://localhost:6379");
+    });
+
     it("loads Google OAuth configuration", async () => {
       // Arrange & Act
       const { service } = await setupAppConfigService();

@@ -123,4 +123,14 @@ describe("PermissionService - deletePermission", () => {
       isHardDelete: undefined,
     });
   });
+
+  it("invalidates the whole role-permission cache after deleting", async () => {
+    // Act
+    await deleteAs();
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateAll,
+    ).toHaveBeenCalledTimes(1);
+  });
 });

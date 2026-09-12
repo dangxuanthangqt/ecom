@@ -155,6 +155,31 @@ describe("RoleService - deleteRole", () => {
     expect(result).toBe(deleted);
   });
 
+  it("invalidates the role's cached permission checks after deleting", async () => {
+    // Act
+    await deleteAs(CUSTOM_ROLE_ID);
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateRole,
+    ).toHaveBeenCalledWith(CUSTOM_ROLE_ID);
+  });
+
+  it("does not invalidate the cache when the delete is refused", async () => {
+    // Arrange
+    mocks.roleRepository.findUniqueRole.mockResolvedValue(
+      makeRole({ name: "admin" }),
+    );
+
+    // Act
+    await deleteAs().catch(() => undefined);
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateRole,
+    ).not.toHaveBeenCalled();
+  });
+
   it("refuses to delete an admin role", async () => {
     // Arrange
     mocks.roleRepository.findUniqueRole.mockResolvedValue(

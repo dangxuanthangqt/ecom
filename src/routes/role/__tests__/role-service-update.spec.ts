@@ -104,6 +104,31 @@ describe("RoleService - updateRole", () => {
     expect(result).toBe(updated);
   });
 
+  it("invalidates the role's cached permission checks after updating", async () => {
+    // Act
+    await updateAs(CUSTOM_ROLE_ID);
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateRole,
+    ).toHaveBeenCalledWith(CUSTOM_ROLE_ID);
+  });
+
+  it("does not invalidate the cache when the update is refused", async () => {
+    // Arrange
+    mocks.roleRepository.findUniqueRole.mockResolvedValue(
+      makeRole({ name: "admin" }),
+    );
+
+    // Act
+    await updateAs().catch(() => undefined);
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateRole,
+    ).not.toHaveBeenCalled();
+  });
+
   it("refuses to update an admin role", async () => {
     // Arrange
     mocks.roleRepository.findUniqueRole.mockResolvedValue(
