@@ -1,0 +1,144 @@
+{
+  "generated_at": "2026-09-12T05:17:08Z",
+  "index": {
+    "initial-scripts/create-permission.ts": [
+      "F006"
+    ],
+    "initial-scripts/create-permission.ts:14-35,149-192": [
+      "F004",
+      "F005",
+      "F006"
+    ],
+    "initial-scripts/create-permission.ts:22-29,158-169": [
+      "F002"
+    ],
+    "initial-scripts/index.ts": [
+      "F006"
+    ],
+    "prisma/migrations/20250608153843_create_partial_index_brand_and_brand_translation/migration.sql": [
+      "F004"
+    ],
+    "prisma/schema.prisma": [
+      "F006"
+    ],
+    "src/dtos/product/product.validation.ts": [
+      "F008"
+    ],
+    "src/repositories/brand-translation/brand-translation.repository.ts": [
+      "F004"
+    ],
+    "src/repositories/brand/brand.repository.ts": [
+      "F002"
+    ],
+    "src/repositories/category/category.repository.ts": [
+      "F003"
+    ],
+    "src/repositories/category/category.repository.ts:40-49,76-79,254-263": [
+      "F003"
+    ],
+    "src/repositories/permission/permission.repository.ts": [
+      "F006"
+    ],
+    "src/repositories/product/product.repository.ts": [
+      "F008"
+    ],
+    "src/repositories/refresh-token/refresh-token.repository.ts": [
+      "F001"
+    ],
+    "src/repositories/role/shared-role.repository.ts": [
+      "F001"
+    ],
+    "src/routes/auth/auth.controller.ts": [
+      "F001"
+    ],
+    "src/routes/auth/auth.service.ts": [
+      "F001"
+    ],
+    "src/routes/auth/google.service.ts": [
+      "F001"
+    ],
+    "src/routes/brand-translation/brand-translation.controller.ts": [
+      "F004"
+    ],
+    "src/routes/brand/brand.controller.ts": [
+      "F002"
+    ],
+    "src/routes/category-translation/category-translation.controller.ts": [
+      "F004"
+    ],
+    "src/routes/category/category.controller.ts": [
+      "F003"
+    ],
+    "src/routes/language/language.controller.ts": [
+      "F004"
+    ],
+    "src/routes/media/media.controller.ts": [
+      "F005"
+    ],
+    "src/routes/permission/permission.controller.ts": [
+      "F006"
+    ],
+    "src/routes/permission/permission.service.ts": [
+      "F006"
+    ],
+    "src/routes/product-translation/product-translation.controller.ts": [
+      "F004"
+    ],
+    "src/routes/product/manage-product/manage-product.controller.ts": [
+      "F008"
+    ],
+    "src/routes/product/manage-product/manage-product.service.ts": [
+      "F008"
+    ],
+    "src/routes/product/product.controller.ts": [
+      "F007"
+    ],
+    "src/routes/product/product.service.ts": [
+      "F007"
+    ],
+    "src/routes/profile/profile.controller.ts": [
+      "F009"
+    ],
+    "src/routes/role/role.controller.ts": [
+      "F006"
+    ],
+    "src/routes/role/role.service.ts:17,104-120": [
+      "F006"
+    ],
+    "src/routes/user/user.controller.ts": [
+      "F010"
+    ],
+    "src/selectors/brand.selector.ts": [
+      "F002"
+    ],
+    "src/selectors/category.selector.ts": [
+      "F003"
+    ],
+    "src/selectors/product.selector.ts": [
+      "F007"
+    ],
+    "src/selectors/product.selector.ts:10-22,41-65": [
+      "F007"
+    ],
+    "src/shared/guards/access-token.guard.ts": [
+      "F002",
+      "F003",
+      "F006",
+      "F008",
+      "F010"
+    ],
+    "src/shared/guards/authorization-header.guard.ts": [
+      "F004"
+    ],
+    "src/shared/modules/base.module.ts": [
+      "F001",
+      "F009"
+    ],
+    "src/shared/param-decorators/auth-api.decorator.ts": [
+      "F007"
+    ],
+    "src/shared/services/s3.service.ts": [
+      "F005"
+    ]
+  }
+}

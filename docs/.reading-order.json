@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "lang": "en",
+  "title": "Documentation Index — Reading Order",
+  "quickPath": {
+    "label": "Minimum fast read",
+    "nums": [
+      1,
+      2,
+      4,
+      5
+    ]
+  },
+  "roles": [
+    {
+      "key": "new_dev",
+      "label": "New developer — get productive fast",
+      "nums": [
+        1,
+        2,
+        4,
+        5,
+        7,
+        15
+      ]
+    },
+    {
+      "key": "reviewer",
+      "label": "Reviewer — rules, permissions, contracts",
+      "nums": [
+        2,
+        13
+      ]
+    },
+    {
+      "key": "pm",
+      "label": "PM / BA — scope and behavior",
+      "nums": [
+        1,
+        5,
+        6
+      ]
+    }
+  ],
+  "layers": [
+    {
+      "layer": 1,
+      "label": "Orientation — what the system is and why",
+      "intro": "Start here if you are new. This layer answers what the system is and how it is shaped, before any detail.",
+      "entries": [
+        {
+          "num": 1,
+          "kind": "file",
+          "path": "system/overview.md",
+          "key": "system_overview",
+          "what": "Product goals, scope, primary actors, and the big picture — read first — Read first — establishes the product's purpose, scope, and primary actors before any structural or behavioral detail."
+        },
+        {
+          "num": 2,
+          "kind": "file",
+          "path": "system/architecture.md",
+          "key": "architecture",
+          "what": "Layer diagram, tech stack, service boundaries, and the main data flow — Read after the overview because the layer diagram, tech stack, and data flow only make sense once you know what the system is for."
+        }
+      ]
+    },
+    {
+      "layer": 2,
+      "label": "Domain model — entities, features, and stories",
+      "intro": "The domain vocabulary — the entities, the feature catalogue, and the user stories that everything else refers back to.",
+      "entries": [
+        {
+          "num": 4,
+          "kind": "file",
+          "path": "generated/entities.md",
+          "key": "entities",
+          "what": "Core data entities, their key fields, and how they relate — Read after orientation — the core data entities are the vocabulary the feature list, stories, and APIs all refer back to."
+        },
+        {
+          "num": 5,
+          "kind": "file",
+          "path": "generated/feature-list.md",
+          "key": "feature_list",
+          "what": "The full F### feature catalogue, each with a one-line summary — Read after the entities because each feature is described by the data it touches; this is the catalogue everything else indexes into."
+        },
+        {
+          "num": 6,
+          "kind": "file",
+          "path": "generated/user-stories.md",
+          "key": "user_stories",
+          "what": "US### user stories grouped by feature and actor — Read after the feature list — the stories expand each F### into concrete actor goals and acceptance intent."
+        }
+      ]
+    },
+    {
+      "layer": 3,
+      "label": "Interfaces & behavior — screens, APIs, rules, permissions",
+      "intro": "How the system behaves at its edges: the screens users touch, the API surface, the business rules it enforces, and who may do what.",
+      "entries": [
+        {
+          "num": 7,
+          "kind": "file",
+          "path": "generated/screen-list.md",
+          "key": "screen_list",
+          "what": "Inventory of every SCR### screen in the product — Read after the stories because screens are where those user goals become something the user can see and touch."
+        },
+        {
+          "num": 8,
+          "kind": "file",
+          "path": "generated/screen-flow.md",
+          "key": "screen_flow",
+          "what": "How screens connect — navigation paths and state transitions — Read after the screen list so you know the screens before tracing how navigation and state move between them."
+        },
+        {
+          "num": 9,
+          "kind": "file",
+          "path": "generated/route-list.md",
+          "key": "route_list",
+          "what": "Every API route the backend exposes, with method and path — Read after the screens because the routes are the backend surface those screens call into."
+        },
+        {
+          "num": 10,
+          "kind": "file",
+          "path": "generated/api-map.md",
+          "key": "api_map",
+          "what": "API surface grouped by resource, plus background jobs — Read after the route list — it groups the raw routes by resource and adds background jobs, giving the API its shape."
+        },
+        {
+          "num": 12,
+          "kind": "file",
+          "path": "generated/behavior-logic.md",
+          "key": "behavior_logic",
+          "what": "BL### background/async logic units and what triggers them — Read after the API surface because the BL### units describe the async and background logic those endpoints and jobs trigger."
+        },
+        {
+          "num": 13,
+          "kind": "file",
+          "path": "generated/permissions-matrix.md",
+          "key": "permissions_matrix",
+          "what": "Which role may perform which action (RBAC matrix) — Read after the rules — it pins down which role may perform each action the rest of the system exposes."
+        }
+      ]
+    },
+    {
+      "layer": 4,
+      "label": "Deep dives — flows, per-feature, and per-screen specs",
+      "intro": "Drill-downs for when you need depth on one specific flow, feature, or screen — read after the layers above give you the map.",
+      "entries": [
+        {
+          "num": 15,
+          "kind": "glob",
+          "glob": "features/*/",
+          "link": "features/",
+          "key": "features",
+          "what": "Per-feature deep specs — functional-spec + technical-spec per feature (see note below)"
+        }
+      ]
+    }
+  ],
+  "ui": {
+    "start_here": "Start Here",
+    "appendix": "Appendix — Repo Docs",
+    "drill_labels": {
+      "flows": "Flows",
+      "features": "Features",
+      "screens": "Screens",
+      "traceability_matrix": "Traceability"
+    },
+    "pager": {
+      "prev": "‹ Previous",
+      "next": "Next ›",
+      "reading": "Reading",
+      "back_to_index": "back to index",
+      "end_of_spine": "End of the reading order"
+    },
+    "zoom": {
+      "title": "Diagram viewer",
+      "open": "Open this diagram in the zoom viewer",
+      "close": "Close",
+      "zoom_in": "Zoom in",
+      "zoom_out": "Zoom out",
+      "fit": "Fit to screen",
+      "actual_size": "Actual size",
+      "hint": "Scroll to zoom · drag to pan · Esc to close"
+    }
+  }
+}
