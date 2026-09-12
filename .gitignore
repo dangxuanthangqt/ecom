@@ -57,3 +57,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # uploaded files
 /uploads
+
+# Takumi working state (regenerated per run; docs/ is the deliverable)
+plans/
