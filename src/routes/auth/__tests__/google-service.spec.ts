@@ -16,20 +16,28 @@ import {
 
 jest.mock("googleapis");
 
+interface GenerateAuthUrlOptions {
+  state: string;
+  scope: string[];
+  access_type: string;
+  include_granted_scopes: boolean | string;
+}
+
 describe("GoogleService - getAuthorizationUrl", () => {
   let service: GoogleService;
-  let mocks: GoogleServiceMocks;
 
   beforeEach(async () => {
     // Mock OAuth2 client BEFORE creating service
     // Use implementation function to generate realistic URLs with proper state encoding
     const mockOAuth2ClientForAuth = {
-      generateAuthUrl: jest.fn().mockImplementation((options) => {
-        // Build URL manually to preserve state encoding (state is base64, not URL-encoded)
-        const state = encodeURIComponent(options.state);
-        const scope = encodeURIComponent(options.scope.join(" "));
-        return `https://accounts.google.com/o/oauth2/v2/auth?client_id=test-client-id&access_type=${options.access_type}&scope=${scope}&include_granted_scopes=${options.include_granted_scopes}&state=${state}`;
-      }),
+      generateAuthUrl: jest
+        .fn()
+        .mockImplementation((options: GenerateAuthUrlOptions) => {
+          // Build URL manually to preserve state encoding (state is base64, not URL-encoded)
+          const state = encodeURIComponent(options.state);
+          const scope = encodeURIComponent(options.scope.join(" "));
+          return `https://accounts.google.com/o/oauth2/v2/auth?client_id=test-client-id&access_type=${options.access_type}&scope=${scope}&include_granted_scopes=${options.include_granted_scopes}&state=${state}`;
+        }),
       getToken: jest.fn(),
       setCredentials: jest.fn(),
     };
@@ -38,10 +46,10 @@ describe("GoogleService - getAuthorizationUrl", () => {
       .fn()
       .mockReturnValue(mockOAuth2ClientForAuth);
 
-    ({ service, mocks } = await setupGoogleService());
+    ({ service } = await setupGoogleService());
   });
 
-  it("generates an authorization URL with encoded state containing device info", async () => {
+  it("generates an authorization URL with encoded state containing device info", () => {
     // Act
     const url = service.getAuthorizationUrl({
       userAgent: "Mozilla/5.0",
@@ -57,7 +65,7 @@ describe("GoogleService - getAuthorizationUrl", () => {
     expect(url).toContain("state=");
   });
 
-  it("encodes userAgent and ip in base64 state parameter", async () => {
+  it("encodes userAgent and ip in base64 state parameter", () => {
     // Act
     const url = service.getAuthorizationUrl({
       userAgent: "Mozilla/5.0 Custom",
@@ -72,7 +80,7 @@ describe("GoogleService - getAuthorizationUrl", () => {
     const encodedState = decodeURIComponent(stateMatch![1]);
     const decodedState = JSON.parse(
       Buffer.from(encodedState, "base64").toString(),
-    );
+    ) as { userAgent: string; ip: string };
 
     expect(decodedState).toEqual({
       userAgent: "Mozilla/5.0 Custom",
@@ -80,7 +88,7 @@ describe("GoogleService - getAuthorizationUrl", () => {
     });
   });
 
-  it("requests both email and profile scopes", async () => {
+  it("requests both email and profile scopes", () => {
     // Act
     const url = service.getAuthorizationUrl({
       userAgent: "Mozilla/5.0",
@@ -107,12 +115,14 @@ describe("GoogleService - googleCallback", () => {
   beforeEach(async () => {
     // Mock OAuth2 client BEFORE creating service
     const mockOAuth2ClientForCallback = {
-      generateAuthUrl: jest.fn().mockImplementation((options) => {
-        // Build URL manually to preserve state encoding (state is base64, not URL-encoded)
-        const state = encodeURIComponent(options.state);
-        const scope = encodeURIComponent(options.scope.join(" "));
-        return `https://accounts.google.com/o/oauth2/v2/auth?client_id=test-client-id&access_type=${options.access_type}&scope=${scope}&include_granted_scopes=${options.include_granted_scopes}&state=${state}`;
-      }),
+      generateAuthUrl: jest
+        .fn()
+        .mockImplementation((options: GenerateAuthUrlOptions) => {
+          // Build URL manually to preserve state encoding (state is base64, not URL-encoded)
+          const state = encodeURIComponent(options.state);
+          const scope = encodeURIComponent(options.scope.join(" "));
+          return `https://accounts.google.com/o/oauth2/v2/auth?client_id=test-client-id&access_type=${options.access_type}&scope=${scope}&include_granted_scopes=${options.include_granted_scopes}&state=${state}`;
+        }),
       getToken: jest.fn(),
       setCredentials: jest.fn(),
     };
@@ -121,7 +131,9 @@ describe("GoogleService - googleCallback", () => {
       .fn()
       .mockReturnValue(mockOAuth2ClientForCallback);
 
-    ({ service, mocks } = await setupGoogleService());
+    const setupResult = await setupGoogleService();
+    service = setupResult.service;
+    mocks = setupResult.mocks;
     mocks.authService.generateTokens.mockResolvedValue({
       accessToken: "access-token",
       refreshToken: "refresh-token",
@@ -150,7 +162,6 @@ describe("GoogleService - googleCallback", () => {
       }),
       setCredentials: jest.fn(),
     };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     service["oauth2Client"] = oauth2ClientMock as unknown as OAuth2Client;
 
     const mockUserinfo = {
@@ -197,7 +208,6 @@ describe("GoogleService - googleCallback", () => {
       }),
       setCredentials: jest.fn(),
     };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     service["oauth2Client"] = oauth2ClientMock as unknown as OAuth2Client;
 
     const mockUserinfo = {
@@ -301,7 +311,6 @@ describe("GoogleService - googleCallback", () => {
       }),
       setCredentials: jest.fn(),
     };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     service["oauth2Client"] = oauth2ClientMock as unknown as OAuth2Client;
 
     const mockUserinfo = {
@@ -344,7 +353,6 @@ describe("GoogleService - googleCallback", () => {
       }),
       setCredentials: jest.fn(),
     };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     service["oauth2Client"] = oauth2ClientMock as unknown as OAuth2Client;
 
     const mockUserinfo = {
@@ -386,7 +394,6 @@ describe("GoogleService - googleCallback", () => {
       }),
       setCredentials: jest.fn(),
     };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     service["oauth2Client"] = oauth2ClientMock as unknown as OAuth2Client;
 
     const mockUserinfo = {
@@ -423,7 +430,6 @@ describe("GoogleService - googleCallback", () => {
       }),
       setCredentials: jest.fn(),
     };
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     service["oauth2Client"] = oauth2ClientMock as unknown as OAuth2Client;
 
     const mockUserinfo = {

@@ -9,6 +9,18 @@ import {
   makeArgumentsHost,
 } from "./filters-test-harness";
 
+// Type for the mock response object used in tests
+interface MockResponse {
+  status: jest.Mock<MockResponse, [number]>;
+  json: jest.Mock<MockResponse, [unknown]>;
+}
+
+// Type for the mock HTTP context
+type MockHttpContext = {
+  getRequest: jest.Mock<unknown>;
+  getResponse: jest.Mock<MockResponse, []>;
+};
+
 describe("PrismaClientExceptionFilter - catch", () => {
   let filter: PrismaClientExceptionFilter<any>;
 
@@ -28,7 +40,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       clientVersion: "5.0.0",
     });
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -51,7 +64,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -74,7 +88,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -97,7 +112,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -120,7 +136,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -145,7 +162,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -166,7 +184,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -189,7 +208,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -210,7 +230,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -231,7 +252,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -251,7 +273,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       clientVersion: "5.0.0",
     });
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -274,7 +297,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       { clientVersion: "5.0.0" } as any,
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -295,7 +319,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       },
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -313,7 +338,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       "5.0.0",
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -331,7 +357,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       "5.0.0",
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);
@@ -349,7 +376,8 @@ describe("PrismaClientExceptionFilter - catch", () => {
       clientVersion: "5.0.0",
     });
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(error, host);

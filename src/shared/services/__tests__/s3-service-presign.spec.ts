@@ -9,21 +9,6 @@ interface CommandWithInput {
   input: Record<string, unknown>;
 }
 
-interface PresignerModule {
-  getSignedUrl: jest.Mock<
-    Promise<string>,
-    [unknown, unknown, Record<string, unknown>]
-  >;
-}
-
-interface S3Module {
-  S3: jest.Mock;
-  DeleteObjectCommand: jest.Mock<CommandWithInput, [unknown]>;
-  GetObjectCommand: jest.Mock<CommandWithInput, [unknown]>;
-  PutObjectCommand: jest.Mock<CommandWithInput, [unknown]>;
-  S3ServiceException: typeof Error;
-}
-
 jest.mock("@aws-sdk/client-s3", () => ({
   S3: jest.fn(),
   DeleteObjectCommand: jest.fn(function (
@@ -53,7 +38,9 @@ jest.mock("@aws-sdk/s3-request-presigner", () => ({
 }));
 
 jest.mock("fs", () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const realFs = jest.requireActual("fs");
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return {
     ...realFs,
     promises: {
@@ -68,6 +55,23 @@ jest.mock("fs", () => {
 jest.mock("mime-types", () => ({
   lookup: jest.fn<string | false, [string]>(),
 }));
+
+// Get mocked modules with proper typing
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const s3Module = require("@aws-sdk/client-s3") as {
+  S3: jest.Mock;
+  DeleteObjectCommand: jest.Mock<CommandWithInput, [unknown]>;
+  GetObjectCommand: jest.Mock<CommandWithInput, [unknown]>;
+  PutObjectCommand: jest.Mock<CommandWithInput, [unknown]>;
+  S3ServiceException: typeof Error;
+};
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const presignerModule = require("@aws-sdk/s3-request-presigner") as {
+  getSignedUrl: jest.Mock<
+    Promise<string>,
+    [unknown, unknown, Record<string, unknown>]
+  >;
+};
 
 const makeS3Error = (
   code: string,
@@ -91,21 +95,11 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
     Promise<string>,
     [unknown, unknown, Record<string, unknown>]
   >;
-  let GetObjectCommand: jest.Mock<CommandWithInput, [unknown]>;
-  let PutObjectCommand: jest.Mock<CommandWithInput, [unknown]>;
 
   beforeEach(async () => {
     ({ service, mocks } = await setupS3Service());
     jest.clearAllMocks();
-    getSignedUrl = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    ).getSignedUrl;
-    GetObjectCommand = jest.mocked(
-      require("@aws-sdk/client-s3"),
-    ).GetObjectCommand;
-    PutObjectCommand = jest.mocked(
-      require("@aws-sdk/client-s3"),
-    ).PutObjectCommand as jest.Mock<CommandWithInput, [unknown]>;
+    getSignedUrl = presignerModule.getSignedUrl;
   });
 
   it("generates a presigned download URL when file does not exist", async () => {
@@ -150,9 +144,6 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
 
     mocks.send.mockRejectedValueOnce(makeS3Error("NoSuchKey", 404));
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockResolvedValue("https://signed-url");
 
     // Act
@@ -176,10 +167,7 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
     // First send call for checkFileExists (file doesn't exist)
     mocks.send.mockRejectedValueOnce(makeS3Error("NoSuchKey", 404));
 
-    const { getSignedUrl: getSignedUrlMock } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
-    getSignedUrlMock.mockResolvedValue("https://signed-url");
+    getSignedUrl.mockResolvedValue("https://signed-url");
     // Act
     await service.generatePresignedDownloadUrl({
       key,
@@ -188,11 +176,11 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
 
     // Assert - check the second GetObjectCommand call (the one with ResponseContentType)
     // First call is from checkFileExists, second is from presigned URL generation
-    const GetObjectCommandMock = jest.mocked(
-      require("@aws-sdk/client-s3"),
-    ).GetObjectCommand as jest.Mock<CommandWithInput, [unknown]>;
+    const GetObjectCommandMock = s3Module.GetObjectCommand;
     const input = GetObjectCommandMock.mock.calls[1]?.[0];
-    expect((input as Record<string, unknown>)?.ResponseContentType).toBe(responseContentType);
+    expect((input as Record<string, unknown>)?.ResponseContentType).toBe(
+      responseContentType,
+    );
   });
 
   it("supports custom response content disposition", async () => {
@@ -202,10 +190,7 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
 
     mocks.send.mockRejectedValueOnce(makeS3Error("NoSuchKey", 404));
 
-    const { getSignedUrl: getSignedUrlMock } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
-    getSignedUrlMock.mockResolvedValue("https://signed-url");
+    getSignedUrl.mockResolvedValue("https://signed-url");
     // Act
     await service.generatePresignedDownloadUrl({
       key,
@@ -213,9 +198,7 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
     });
 
     // Assert
-    const GetObjectCommandMock = jest.mocked(
-      require("@aws-sdk/client-s3"),
-    ).GetObjectCommand as jest.Mock<CommandWithInput, [unknown]>;
+    const GetObjectCommandMock = s3Module.GetObjectCommand;
     const input = GetObjectCommandMock.mock.calls[1]?.[0];
     expect((input as Record<string, unknown>)?.ResponseContentDisposition).toBe(
       responseContentDisposition,
@@ -228,9 +211,6 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
 
     mocks.send.mockRejectedValueOnce(makeS3Error("NoSuchKey", 404));
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockResolvedValue("https://signed-url");
 
     // Act
@@ -252,9 +232,6 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
 
     mocks.send.mockRejectedValueOnce(makeS3Error("NoSuchKey", 404));
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockRejectedValue(new Error("Signing failed"));
 
     // Act & Assert
@@ -267,10 +244,15 @@ describe("S3Service - generatePresignedDownloadUrl", () => {
 describe("S3Service - generatePresignedUploadUrl", () => {
   let service: S3Service;
   let mocks: S3ServiceMocks;
+  let getSignedUrl: jest.Mock<
+    Promise<string>,
+    [unknown, unknown, Record<string, unknown>]
+  >;
 
   beforeEach(async () => {
     ({ service, mocks } = await setupS3Service());
     jest.clearAllMocks();
+    getSignedUrl = presignerModule.getSignedUrl;
   });
 
   it("generates a presigned upload URL when file does not exist", async () => {
@@ -284,9 +266,6 @@ describe("S3Service - generatePresignedUploadUrl", () => {
       "image/jpeg",
     );
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockResolvedValue(
       "https://test-bucket.s3.us-east-1.amazonaws.com/uploads/image.jpg?signed",
     );
@@ -328,20 +307,17 @@ describe("S3Service - generatePresignedUploadUrl", () => {
       "application/pdf",
     );
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockResolvedValue("https://signed-url");
     // Act
     await service.generatePresignedUploadUrl({ key });
 
     // Assert
     expect(mime.lookup).toHaveBeenCalledWith(key);
-    const PutObjCmd = jest.mocked(
-      require("@aws-sdk/client-s3"),
-    ).PutObjectCommand as jest.Mock<CommandWithInput, [unknown]>;
+    const PutObjCmd = s3Module.PutObjectCommand;
     const input = PutObjCmd.mock.calls[0]?.[0];
-    expect((input as Record<string, unknown>)?.ContentType).toBe("application/pdf");
+    expect((input as Record<string, unknown>)?.ContentType).toBe(
+      "application/pdf",
+    );
   });
 
   it("uses octet-stream when mime type cannot be detected", async () => {
@@ -352,19 +328,16 @@ describe("S3Service - generatePresignedUploadUrl", () => {
 
     (mime.lookup as jest.Mock<string | false, [string]>).mockReturnValue(false);
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockResolvedValue("https://signed-url");
     // Act
     await service.generatePresignedUploadUrl({ key });
 
     // Assert
-    const PutObjCmd = jest.mocked(
-      require("@aws-sdk/client-s3"),
-    ).PutObjectCommand as jest.Mock<CommandWithInput, [unknown]>;
+    const PutObjCmd = s3Module.PutObjectCommand;
     const input = PutObjCmd.mock.calls[0]?.[0];
-    expect((input as Record<string, unknown>)?.ContentType).toBe("application/octet-stream");
+    expect((input as Record<string, unknown>)?.ContentType).toBe(
+      "application/octet-stream",
+    );
   });
 
   it("includes expiry time in upload presigned URL", async () => {
@@ -378,16 +351,13 @@ describe("S3Service - generatePresignedUploadUrl", () => {
       "application/json",
     );
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockResolvedValue("https://signed-url");
 
     // Act
     await service.generatePresignedUploadUrl({ key, expiresIn });
 
     // Assert
-    expect(getSignedUrl).toHaveBeenCalledWith(
+    expect(presignerModule.getSignedUrl).toHaveBeenCalledWith(
       expect.anything(),
       expect.anything(),
       expect.objectContaining({
@@ -406,22 +376,16 @@ describe("S3Service - generatePresignedUploadUrl", () => {
       "text/plain",
     );
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockResolvedValue("https://signed-url");
     // Act
     await service.generatePresignedUploadUrl({ key });
 
     // Assert
-    const PutObjCmd = jest.mocked(
-      require("@aws-sdk/client-s3"),
-    ).PutObjectCommand as jest.Mock<CommandWithInput, [unknown]>;
+    const PutObjCmd = s3Module.PutObjectCommand;
     const input = PutObjCmd.mock.calls[0]?.[0];
-    const metadata = (input as Record<string, unknown>)?.Metadata as Record<
-      string,
-      unknown
-    > | undefined;
+    const metadata = (input as Record<string, unknown>)?.Metadata as
+      | Record<string, unknown>
+      | undefined;
     expect(metadata).toBeDefined();
     expect(metadata?.uploadedAt).toBeTruthy();
   });
@@ -436,16 +400,13 @@ describe("S3Service - generatePresignedUploadUrl", () => {
       "application/octet-stream",
     );
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
     getSignedUrl.mockResolvedValue("https://signed-url");
 
     // Act
     await service.generatePresignedUploadUrl({ key });
 
     // Assert
-    expect(getSignedUrl).toHaveBeenCalledWith(
+    expect(presignerModule.getSignedUrl).toHaveBeenCalledWith(
       expect.anything(),
       expect.anything(),
       expect.objectContaining({
@@ -464,10 +425,7 @@ describe("S3Service - generatePresignedUploadUrl", () => {
       "image/jpeg",
     );
 
-    const { getSignedUrl } = jest.mocked(
-      require("@aws-sdk/s3-request-presigner"),
-    );
-    getSignedUrl.mockRejectedValue(new Error("Signing failed"));
+    presignerModule.getSignedUrl.mockRejectedValue(new Error("Signing failed"));
 
     // Act & Assert
     await expect(service.generatePresignedUploadUrl({ key })).rejects.toThrow();

@@ -13,8 +13,7 @@ import {
   containing,
 } from "./s3-service-test-harness";
 
-// Import Upload constructor from mocked module for type assertions in tests
-const { Upload } = jest.mocked(require("@aws-sdk/lib-storage"));
+// Upload will be imported after jest.mock declarations
 
 interface CommandWithInput {
   input: Record<string, unknown>;
@@ -60,7 +59,9 @@ jest.mock("@aws-sdk/s3-request-presigner", () => ({
 }));
 
 jest.mock("fs", () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const realFs = jest.requireActual("fs");
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return {
     ...realFs,
     promises: {
@@ -75,6 +76,13 @@ jest.mock("fs", () => {
 jest.mock("mime-types", () => ({
   lookup: jest.fn<string | false, [string]>(),
 }));
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const libStorageModule = require("@aws-sdk/lib-storage") as {
+  Upload: jest.Mock;
+};
+
+const { Upload } = libStorageModule;
 
 describe("S3Service - uploadSimpleFileFromDisk", () => {
   let service: S3Service;
@@ -207,7 +215,9 @@ describe("S3Service - uploadSimpleFileFromDisk", () => {
 
     // Assert
     const callArg = mocks.send.mock.calls[0][0];
-    const metadata = callArg.input.Metadata as Record<string, unknown> | undefined;
+    const metadata = callArg.input.Metadata as
+      | Record<string, unknown>
+      | undefined;
     expect(metadata).toMatchObject({
       originalName: file.name,
     });
@@ -284,7 +294,7 @@ describe("S3Service - uploadLargeFileFromDisk", () => {
     (createReadStream as jest.Mock).mockReturnValue(makeReadStream());
     (fs.unlink as jest.Mock).mockResolvedValue(undefined);
 
-    (Upload as jest.Mock).mockImplementation(() => ({
+    Upload.mockImplementation(() => ({
       done: jest.fn().mockRejectedValue(new Error("Multipart upload failed")),
       on: jest.fn(function () {
         return this;
@@ -420,7 +430,7 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
         return this;
       }),
     };
-    (Upload as jest.Mock).mockImplementation(() => mockUpload);
+    Upload.mockImplementation(() => mockUpload);
 
     // Act
     const result = await service.uploadLargeFileFromBuffer({
@@ -443,7 +453,7 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
         return this;
       }),
     };
-    (Upload as jest.Mock).mockImplementation(() => mockUpload);
+    Upload.mockImplementation(() => mockUpload);
 
     // Act
     await service.uploadLargeFileFromBuffer({
@@ -474,7 +484,7 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
         return this;
       }),
     };
-    (Upload as jest.Mock).mockImplementation(() => mockUpload);
+    Upload.mockImplementation(() => mockUpload);
 
     // Act
     await service.uploadLargeFileFromBuffer({
@@ -506,7 +516,7 @@ describe("S3Service - uploadLargeFileFromBuffer", () => {
         return this;
       }),
     };
-    (Upload as jest.Mock).mockImplementation(() => mockUpload);
+    Upload.mockImplementation(() => mockUpload);
 
     // Act & Assert
     await expect(
@@ -554,7 +564,7 @@ describe("S3Service - smartUploadFromBuffer", () => {
         return this;
       }),
     };
-    (Upload as jest.Mock).mockImplementation(() => mockUpload);
+    Upload.mockImplementation(() => mockUpload);
 
     // Act
     const result = await service.smartUploadFromBuffer({
@@ -582,7 +592,7 @@ describe("S3Service - smartUploadFromBuffer", () => {
         return this;
       }),
     };
-    (Upload as jest.Mock).mockImplementation(() => mockUpload);
+    Upload.mockImplementation(() => mockUpload);
 
     // Act
     await service.smartUploadFromBuffer({

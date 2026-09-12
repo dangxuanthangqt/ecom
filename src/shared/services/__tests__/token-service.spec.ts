@@ -1,3 +1,5 @@
+import * as uuid from "uuid";
+
 import { TokenService } from "../token.service";
 
 import {
@@ -12,7 +14,23 @@ jest.mock("uuid", () => ({
   v4: jest.fn<string, []>().mockReturnValue("mock-uuid-1234"),
 }));
 
-const { v4 } = jest.mocked(require("uuid"));
+const { v4 } = jest.mocked(uuid);
+
+// Helper to safely extract mock call arguments
+const getSignCallPayload = (mock: jest.Mock, index: number = 0): unknown => {
+  const call = mock.mock.calls[index] as readonly unknown[] | undefined;
+  return call?.[0];
+};
+
+const getSignCallOptions = (mock: jest.Mock, index: number = 0): unknown => {
+  const call = mock.mock.calls[index] as readonly unknown[] | undefined;
+  return call?.[1];
+};
+
+const getVerifyCallOptions = (mock: jest.Mock, index: number = 0): unknown => {
+  const call = mock.mock.calls[index] as readonly unknown[] | undefined;
+  return call?.[1];
+};
 
 describe("TokenService", () => {
   let service: TokenService;
@@ -76,7 +94,7 @@ describe("TokenService", () => {
       service.signAccessToken(payload);
 
       // Assert
-      const signedPayload = mocks.jwtService.sign.mock.calls[0][0];
+      const signedPayload = getSignCallPayload(mocks.jwtService.sign);
       expect(signedPayload).toEqual(
         containing({
           userId: "custom-user",
@@ -94,7 +112,10 @@ describe("TokenService", () => {
       service.signAccessToken(payload);
 
       // Assert
-      const options = mocks.jwtService.sign.mock.calls[0][1];
+      const options = getSignCallOptions(mocks.jwtService.sign) as Record<
+        string,
+        unknown
+      >;
       expect(options.algorithm).toBe("HS256");
       expect(options.secret).toBe("access-secret-key");
     });
@@ -133,7 +154,10 @@ describe("TokenService", () => {
       service.signRefreshToken(payload);
 
       // Assert
-      const options = mocks.jwtService.sign.mock.calls[0][1];
+      const options = getSignCallOptions(mocks.jwtService.sign) as Record<
+        string,
+        unknown
+      >;
       expect(options.expiresIn).toBe("30d");
     });
 
@@ -146,7 +170,10 @@ describe("TokenService", () => {
       service.signRefreshToken(payload);
 
       // Assert
-      const options = mocks.jwtService.sign.mock.calls[0][1];
+      const options = getSignCallOptions(mocks.jwtService.sign) as Record<
+        string,
+        unknown
+      >;
       expect(options.expiresIn).toBe("7d");
     });
 
@@ -159,7 +186,10 @@ describe("TokenService", () => {
       service.signRefreshToken(payload);
 
       // Assert
-      const options = mocks.jwtService.sign.mock.calls[0][1];
+      const options = getSignCallOptions(mocks.jwtService.sign) as Record<
+        string,
+        unknown
+      >;
       expect(options.algorithm).toBe("HS256");
       expect(options.secret).toBe("refresh-secret-key");
     });
@@ -210,7 +240,9 @@ describe("TokenService", () => {
       await service.verifyAccessToken(token);
 
       // Assert
-      const options = mocks.jwtService.verifyAsync.mock.calls[0][1];
+      const options = getVerifyCallOptions(
+        mocks.jwtService.verifyAsync,
+      ) as Record<string, unknown>;
       expect(options.secret).toBe("access-secret-key");
     });
 
@@ -281,7 +313,9 @@ describe("TokenService", () => {
       await service.verifyRefreshToken(token);
 
       // Assert
-      const options = mocks.jwtService.verifyAsync.mock.calls[0][1];
+      const options = getVerifyCallOptions(
+        mocks.jwtService.verifyAsync,
+      ) as Record<string, unknown>;
       expect(options.secret).toBe("refresh-secret-key");
     });
 

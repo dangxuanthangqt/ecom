@@ -19,6 +19,18 @@ import {
   makeArgumentsHost,
 } from "./filters-test-harness";
 
+// Type for the mock response object used in tests
+interface MockResponse {
+  status: jest.Mock<MockResponse, [number]>;
+  json: jest.Mock<MockResponse, [unknown]>;
+}
+
+// Type for the mock HTTP context. Extends unknown to avoid type overlap issues.
+type MockHttpContext = {
+  getRequest: jest.Mock<unknown>;
+  getResponse: jest.Mock<MockResponse, []>;
+};
+
 describe("ExternalExceptionFilter - catch", () => {
   let filter: ExternalExceptionFilter;
 
@@ -37,7 +49,8 @@ describe("ExternalExceptionFilter - catch", () => {
     const zodError = schema.safeParse({}).error as ZodError;
     const exception = new ZodValidationException(zodError);
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -56,7 +69,8 @@ describe("ExternalExceptionFilter - catch", () => {
     const zodError = schema.safeParse({}).error as ZodError;
     const exception = new ZodSerializationException(zodError);
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -73,7 +87,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new BadRequestException("Invalid request");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -89,7 +104,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new UnauthorizedException("Unauthorized access");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -104,7 +120,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new ForbiddenException("Forbidden resource");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -119,7 +136,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new NotFoundException("Resource not found");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -136,7 +154,8 @@ describe("ExternalExceptionFilter - catch", () => {
       "Cannot process request",
     );
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -156,7 +175,8 @@ describe("ExternalExceptionFilter - catch", () => {
       field: "email",
     });
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -171,7 +191,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new BadRequestException("Test error");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -186,7 +207,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new BadRequestException("Test error");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -220,7 +242,8 @@ describe("ExternalExceptionFilter - catch", () => {
 
     // Assert
     // Response is created with correct status code
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
     const response = extractResponseCall(mockResponse);
     expect(response.statusCode).toBe(HttpStatus.FORBIDDEN);
   });
@@ -229,7 +252,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new UnauthorizedException("Unauthorized");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -242,7 +266,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new BadRequestException("Invalid");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -260,7 +285,8 @@ describe("ExternalExceptionFilter - catch", () => {
       statusCode: HttpStatus.BAD_REQUEST,
     });
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);
@@ -275,7 +301,8 @@ describe("ExternalExceptionFilter - catch", () => {
     // Arrange
     const exception = new NotFoundException("Not found");
     const host = makeArgumentsHost();
-    const mockResponse = (host.switchToHttp() as any).getResponse();
+    const httpHost = host.switchToHttp() as unknown as MockHttpContext;
+    const mockResponse = httpHost.getResponse();
 
     // Act
     filter.catch(exception, host);

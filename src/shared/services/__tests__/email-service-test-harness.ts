@@ -7,9 +7,17 @@ interface EmailServiceConfig {
   resendApiKey: string;
 }
 
-interface EmailMockClient {
+// Type for the email send parameters
+export interface EmailSendParams {
+  from: string;
+  to: string;
+  subject: string;
+  html: string;
+}
+
+export interface EmailMockClient {
   emails: {
-    send: jest.Mock<Promise<unknown>, [unknown]>;
+    send: jest.Mock<Promise<unknown>, [EmailSendParams]>;
   };
 }
 
@@ -21,7 +29,7 @@ export const createEmailServiceMocks = () => ({
   },
   resend: {
     emails: {
-      send: jest.fn<Promise<unknown>, [unknown]>(),
+      send: jest.fn<Promise<unknown>, [EmailSendParams]>(),
     },
   } as EmailMockClient,
 });
@@ -31,7 +39,7 @@ export type EmailServiceMocks = ReturnType<typeof createEmailServiceMocks>;
 jest.mock("resend", () => ({
   Resend: jest.fn<EmailMockClient, [string]>().mockImplementation(() => ({
     emails: {
-      send: jest.fn<Promise<unknown>, [unknown]>(),
+      send: jest.fn<Promise<unknown>, [EmailSendParams]>(),
     },
   })),
 }));

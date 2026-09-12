@@ -10,6 +10,27 @@ import {
 jest.mock("@nestjs/platform-express");
 
 describe("Single Image Interceptor Utilities", () => {
+  /** The options object handed to FileInterceptor, typed for assertions. */
+  interface InterceptorOptions {
+    storage?: unknown;
+    useMemoryStorage?: boolean;
+    limits?: { fileSize?: number };
+    fileFilter?: unknown;
+  }
+
+  const optionsOf = (callIndex = 0): InterceptorOptions =>
+    jest.mocked(FileInterceptor).mock.calls[callIndex][1] as InterceptorOptions;
+
+  /** Every recorded call's options, for assertions that sweep all of them. */
+  const allOptions = (): InterceptorOptions[] =>
+    jest
+      .mocked(FileInterceptor)
+      .mock.calls.map(([, options]) => options as InterceptorOptions);
+
+  /** Typed wrappers so `expect.any` does not leak `any` into assertions. */
+  const anyFunction = (): unknown => expect.any(Function) as unknown;
+  const anyObject = (): unknown => expect.any(Object) as unknown;
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -63,10 +84,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageInterceptor("avatar");
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith(
-        "avatar",
-        expect.any(Object),
-      );
+      expect(FileInterceptor).toHaveBeenCalledWith("avatar", anyObject());
     });
 
     it("includes fileFilter in options", () => {
@@ -77,7 +95,7 @@ describe("Single Image Interceptor Utilities", () => {
       expect(FileInterceptor).toHaveBeenCalledWith(
         "file",
         expect.objectContaining({
-          fileFilter: expect.any(Function),
+          fileFilter: anyFunction(),
         }),
       );
     });
@@ -106,7 +124,7 @@ describe("Single Image Interceptor Utilities", () => {
       });
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith("file", expect.any(Object));
+      expect(FileInterceptor).toHaveBeenCalledWith("file", anyObject());
     });
 
     it("uses custom file filter when provided", () => {
@@ -132,7 +150,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageInterceptor("file");
 
       // Assert
-      const options = (FileInterceptor as jest.Mock).mock.calls[0][1];
+      const options = optionsOf();
       // Memory storage should not have 'storage' property or have useMemoryStorage: true
       expect(options.useMemoryStorage || !options.storage).toBeDefined();
     });
@@ -144,7 +162,7 @@ describe("Single Image Interceptor Utilities", () => {
       });
 
       // Assert
-      const options = (FileInterceptor as jest.Mock).mock.calls[0][1];
+      const options = optionsOf();
       expect(options.storage).toBeDefined();
     });
   });
@@ -170,10 +188,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageMemoryInterceptor("profileImage");
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith(
-        "profileImage",
-        expect.any(Object),
-      );
+      expect(FileInterceptor).toHaveBeenCalledWith("profileImage", anyObject());
     });
 
     it("uses custom file size", () => {
@@ -216,7 +231,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageMemoryInterceptor("file");
 
       // Assert
-      const options = (FileInterceptor as jest.Mock).mock.calls[0][1];
+      const options = optionsOf();
       // Memory storage should not have 'storage' property
       expect(options.storage).toBeUndefined();
     });
@@ -228,7 +243,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageDiskInterceptor();
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith("file", expect.any(Object));
+      expect(FileInterceptor).toHaveBeenCalledWith("file", anyObject());
     });
 
     it("uses custom field name", () => {
@@ -236,10 +251,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageDiskInterceptor("avatar");
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith(
-        "avatar",
-        expect.any(Object),
-      );
+      expect(FileInterceptor).toHaveBeenCalledWith("avatar", anyObject());
     });
 
     it("uses custom file size", () => {
@@ -264,7 +276,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageDiskInterceptor("file");
 
       // Assert
-      const options = (FileInterceptor as jest.Mock).mock.calls[0][1];
+      const options = optionsOf();
       expect(options.storage).toBeDefined();
     });
 
@@ -275,7 +287,7 @@ describe("Single Image Interceptor Utilities", () => {
       });
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith("file", expect.any(Object));
+      expect(FileInterceptor).toHaveBeenCalledWith("file", anyObject());
     });
 
     it("uses custom file filter", () => {
@@ -307,7 +319,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageDiskInterceptor("file", options);
 
       // Assert - should be ignored as disk interceptor
-      const callOptions = (FileInterceptor as jest.Mock).mock.calls[0][1];
+      const callOptions = optionsOf();
       // Disk version should have storage
       expect(callOptions.storage).toBeDefined();
     });
@@ -328,9 +340,9 @@ describe("Single Image Interceptor Utilities", () => {
 
       // Assert
       expect(FileInterceptor).toHaveBeenCalledTimes(3);
-      (FileInterceptor as jest.Mock).mock.calls.forEach((call) => {
-        expect(call[1].limits).toBeDefined();
-        expect(call[1].limits.fileSize).toBe(FILE_SIZE_LIMITS.IMAGE_5MB);
+      allOptions().forEach((options) => {
+        expect(options.limits).toBeDefined();
+        expect(options.limits?.fileSize).toBe(FILE_SIZE_LIMITS.IMAGE_5MB);
       });
     });
 
@@ -342,9 +354,9 @@ describe("Single Image Interceptor Utilities", () => {
 
       // Assert
       expect(FileInterceptor).toHaveBeenCalledTimes(3);
-      (FileInterceptor as jest.Mock).mock.calls.forEach((call) => {
-        expect(call[1].fileFilter).toBeDefined();
-        expect(typeof call[1].fileFilter).toBe("function");
+      allOptions().forEach((options) => {
+        expect(options.fileFilter).toBeDefined();
+        expect(typeof options.fileFilter).toBe("function");
       });
     });
   });
@@ -355,7 +367,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageInterceptor();
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith("file", expect.any(Object));
+      expect(FileInterceptor).toHaveBeenCalledWith("file", anyObject());
     });
 
     it("createSingleImageMemoryInterceptor uses default field name 'file'", () => {
@@ -363,7 +375,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageMemoryInterceptor();
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith("file", expect.any(Object));
+      expect(FileInterceptor).toHaveBeenCalledWith("file", anyObject());
     });
 
     it("createSingleImageDiskInterceptor uses default field name 'file'", () => {
@@ -371,7 +383,7 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageDiskInterceptor();
 
       // Assert
-      expect(FileInterceptor).toHaveBeenCalledWith("file", expect.any(Object));
+      expect(FileInterceptor).toHaveBeenCalledWith("file", anyObject());
     });
 
     it("all interceptors default to IMAGE_5MB size limit", () => {
@@ -381,8 +393,8 @@ describe("Single Image Interceptor Utilities", () => {
       createSingleImageDiskInterceptor();
 
       // Assert
-      (FileInterceptor as jest.Mock).mock.calls.forEach((call) => {
-        expect(call[1].limits.fileSize).toBe(FILE_SIZE_LIMITS.IMAGE_5MB);
+      allOptions().forEach((options) => {
+        expect(options.limits?.fileSize).toBe(FILE_SIZE_LIMITS.IMAGE_5MB);
       });
     });
   });

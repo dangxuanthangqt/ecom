@@ -40,7 +40,9 @@ jest.mock("@aws-sdk/s3-request-presigner", () => ({
 }));
 
 jest.mock("fs", () => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   const realFs = jest.requireActual("fs");
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return {
     ...realFs,
     promises: {
@@ -52,8 +54,17 @@ jest.mock("fs", () => {
   };
 });
 
-const createReadStream = jest.mocked(require("fs")).createReadStream;
-const { Upload } = jest.mocked(require("@aws-sdk/lib-storage"));
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const fsModule = require("fs") as {
+  createReadStream: jest.Mock;
+};
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const libStorageModule = require("@aws-sdk/lib-storage") as {
+  Upload: jest.Mock;
+};
+
+const createReadStream = fsModule.createReadStream;
+const { Upload } = libStorageModule;
 
 describe("S3Service - utility functions and error paths", () => {
   let service: S3Service;
@@ -406,9 +417,9 @@ describe("S3Service - utility functions and error paths", () => {
       const callArg = mocks.send.mock.calls[0]?.[0] as
         | CommandWithInput
         | undefined;
-      expect((callArg?.input as Record<string, unknown>)?.ServerSideEncryption).toBe(
-        "AES256",
-      );
+      expect(
+        (callArg?.input as Record<string, unknown>)?.ServerSideEncryption,
+      ).toBe("AES256");
     });
 
     it("sets encryption on multipart uploads", async () => {
@@ -428,7 +439,10 @@ describe("S3Service - utility functions and error paths", () => {
       });
 
       // Assert
-      const uploadCall = Upload.mock.calls[0][0];
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      const uploadCall = Upload.mock.calls[0]?.[0] as {
+        params: { ServerSideEncryption?: string };
+      };
       expect(uploadCall.params.ServerSideEncryption).toBe("AES256");
     });
   });
@@ -451,8 +465,9 @@ describe("S3Service - utility functions and error paths", () => {
       const callArg = mocks.send.mock.calls[0]?.[0] as
         | CommandWithInput
         | undefined;
-      const metadata = (callArg?.input as Record<string, unknown>)
-        ?.Metadata as Record<string, unknown> | undefined;
+      const metadata = (callArg?.input as Record<string, unknown>)?.Metadata as
+        | Record<string, unknown>
+        | undefined;
       expect(metadata?.originalName).toBe(fileName);
     });
 
@@ -472,8 +487,9 @@ describe("S3Service - utility functions and error paths", () => {
       const callArg = mocks.send.mock.calls[0]?.[0] as
         | CommandWithInput
         | undefined;
-      const metadata = (callArg?.input as Record<string, unknown>)
-        ?.Metadata as Record<string, unknown> | undefined;
+      const metadata = (callArg?.input as Record<string, unknown>)?.Metadata as
+        | Record<string, unknown>
+        | undefined;
       expect(metadata?.uploadedAt).toBeTruthy();
       expect(new Date(metadata?.uploadedAt as string)).toBeInstanceOf(Date);
     });
@@ -496,7 +512,9 @@ describe("S3Service - utility functions and error paths", () => {
       const callArg = mocks.send.mock.calls[0]?.[0] as
         | CommandWithInput
         | undefined;
-      expect((callArg?.input as Record<string, unknown>)?.Key).toContain("images/");
+      expect((callArg?.input as Record<string, unknown>)?.Key).toContain(
+        "images/",
+      );
     });
 
     it("respects custom folder when provided", async () => {
@@ -516,7 +534,9 @@ describe("S3Service - utility functions and error paths", () => {
       const callArg = mocks.send.mock.calls[0]?.[0] as
         | CommandWithInput
         | undefined;
-      expect((callArg?.input as Record<string, unknown>)?.Key).toContain("documents/");
+      expect((callArg?.input as Record<string, unknown>)?.Key).toContain(
+        "documents/",
+      );
     });
 
     it("allows arbitrary folder paths", async () => {
@@ -560,7 +580,9 @@ describe("S3Service - utility functions and error paths", () => {
       const callArg = mocks.send.mock.calls[0]?.[0] as
         | CommandWithInput
         | undefined;
-      expect((callArg?.input as Record<string, unknown>)?.ContentType).toBe(mimeType);
+      expect((callArg?.input as Record<string, unknown>)?.ContentType).toBe(
+        mimeType,
+      );
     });
 
     it("preserves content type through upload process", async () => {

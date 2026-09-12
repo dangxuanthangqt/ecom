@@ -1,6 +1,20 @@
+import OTPAuth from "otpauth";
+
 import { TwoFactorAuthenticationService } from "../2fa.service";
 
 import { setup2FAService } from "./2fa-service-test-harness";
+
+// Helper to create TOTP instance for testing
+const createTOTPInstance = (email: string, secret: string): OTPAuth.TOTP => {
+  return new OTPAuth.TOTP({
+    issuer: "E-commerce",
+    label: email,
+    algorithm: "SHA1",
+    digits: 6,
+    period: 30,
+    secret,
+  });
+};
 
 describe("TwoFactorAuthenticationService", () => {
   let service: TwoFactorAuthenticationService;
@@ -98,15 +112,7 @@ describe("TwoFactorAuthenticationService", () => {
       const { secret } = service.generateTOTPSecret(email);
 
       // Generate a valid code using the same logic
-      const OTPAuth = require("otpauth");
-      const totp = new OTPAuth.TOTP({
-        issuer: "E-commerce",
-        label: email,
-        algorithm: "SHA1",
-        digits: 6,
-        period: 30,
-        secret,
-      });
+      const totp = createTOTPInstance(email, secret);
       const validCode = totp.generate();
 
       // Act
@@ -143,15 +149,7 @@ describe("TwoFactorAuthenticationService", () => {
       const secret1 = service.generateTOTPSecret(email).secret;
       const secret2 = service.generateTOTPSecret(email).secret;
 
-      const OTPAuth = require("otpauth");
-      const totp = new OTPAuth.TOTP({
-        issuer: "E-commerce",
-        label: email,
-        algorithm: "SHA1",
-        digits: 6,
-        period: 30,
-        secret: secret1,
-      });
+      const totp = createTOTPInstance(email, secret1);
       const codeForSecret1 = totp.generate();
 
       // Act
@@ -177,15 +175,7 @@ describe("TwoFactorAuthenticationService", () => {
       const email = "user@example.com";
       const { secret } = service.generateTOTPSecret(email);
 
-      const OTPAuth = require("otpauth");
-      const totp = new OTPAuth.TOTP({
-        issuer: "E-commerce",
-        label: email,
-        algorithm: "SHA1",
-        digits: 6,
-        period: 30,
-        secret,
-      });
+      const totp = createTOTPInstance(email, secret);
       const validCode = totp.generate();
       const invalidCode = validCode + "1"; // Add extra digit
 
@@ -205,15 +195,7 @@ describe("TwoFactorAuthenticationService", () => {
       const email = "user@example.com";
       const { secret } = service.generateTOTPSecret(email);
 
-      const OTPAuth = require("otpauth");
-      const totp = new OTPAuth.TOTP({
-        issuer: "E-commerce",
-        label: email,
-        algorithm: "SHA1",
-        digits: 6,
-        period: 30,
-        secret,
-      });
+      const totp = createTOTPInstance(email, secret);
 
       // Get current code
       const currentCode = totp.generate();
@@ -236,16 +218,7 @@ describe("TwoFactorAuthenticationService", () => {
       const { secret: secret1 } = service.generateTOTPSecret(email1);
       const { secret: secret2 } = service.generateTOTPSecret(email2);
 
-      const OTPAuth = require("otpauth");
-      const totp1 = new OTPAuth.TOTP({
-        issuer: "E-commerce",
-        label: email1,
-        algorithm: "SHA1",
-        digits: 6,
-        period: 30,
-        secret: secret1,
-      });
-
+      const totp1 = createTOTPInstance(email1, secret1);
       const code1 = totp1.generate();
 
       // Act

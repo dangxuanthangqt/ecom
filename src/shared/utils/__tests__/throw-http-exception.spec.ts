@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpException,
   NotFoundException,
   UnprocessableEntityException,
   InternalServerErrorException,
@@ -10,6 +11,30 @@ import {
 import throwHttpException from "../throw-http-exception.util";
 
 describe("throwHttpException", () => {
+  /**
+   * The exception body, read through the public `getResponse()` rather than the
+   * private `response` field, and typed so assertions need no unsafe access.
+   */
+  interface ExceptionDetail {
+    message: string;
+    field?: string;
+  }
+
+  interface ExceptionBody {
+    message: unknown;
+    field?: unknown;
+  }
+
+  const bodyOf = (error: unknown): ExceptionBody =>
+    (error as HttpException).getResponse() as ExceptionBody;
+
+  /** badRequest wraps its detail in an array; this reads one entry of it. */
+  const detailAt = (error: unknown, index: number): ExceptionDetail =>
+    (bodyOf(error).message as ExceptionDetail[])[index];
+
+  /** The `type` argument, so the default-branch test can pass an invalid one. */
+  type HttpErrorType = Parameters<typeof throwHttpException>[0]["type"];
+
   describe("badRequest", () => {
     it("throws BadRequestException with message", () => {
       // Arrange
@@ -25,7 +50,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
-        expect(error.response.message).toEqual([{ message: "Invalid input" }]);
+        expect(bodyOf(error).message).toEqual([{ message: "Invalid input" }]);
       }
     });
 
@@ -44,7 +69,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
-        expect(error.response.message).toEqual([
+        expect(bodyOf(error).message).toEqual([
           { message: "Invalid email", field: "email" },
         ]);
       }
@@ -66,7 +91,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
-        expect(error.response).toEqual({ message: "User not found" });
+        expect(bodyOf(error)).toEqual({ message: "User not found" });
       }
     });
 
@@ -85,7 +110,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
-        expect(error.response).toEqual({
+        expect(bodyOf(error)).toEqual({
           message: "Product not found",
           field: "productId",
         });
@@ -108,7 +133,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(UnprocessableEntityException);
-        expect(error.response).toEqual({ message: "Cannot process request" });
+        expect(bodyOf(error)).toEqual({ message: "Cannot process request" });
       }
     });
 
@@ -127,7 +152,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(UnprocessableEntityException);
-        expect(error.response).toEqual({
+        expect(bodyOf(error)).toEqual({
           message: "Email already exists",
           field: "email",
         });
@@ -150,7 +175,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
-        expect(error.response).toEqual({ message: "Invalid credentials" });
+        expect(bodyOf(error)).toEqual({ message: "Invalid credentials" });
       }
     });
 
@@ -169,7 +194,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
-        expect(error.response).toEqual({
+        expect(bodyOf(error)).toEqual({
           message: "Token expired",
           field: "token",
         });
@@ -192,7 +217,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(ForbiddenException);
-        expect(error.response).toEqual({ message: "Access denied" });
+        expect(bodyOf(error)).toEqual({ message: "Access denied" });
       }
     });
 
@@ -211,7 +236,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(ForbiddenException);
-        expect(error.response).toEqual({
+        expect(bodyOf(error)).toEqual({
           message: "Cannot delete admin user",
           field: "userId",
         });
@@ -234,7 +259,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(error.response).toEqual({ message: "Something went wrong" });
+        expect(bodyOf(error)).toEqual({ message: "Something went wrong" });
       }
     });
 
@@ -253,7 +278,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(error.response).toEqual({
+        expect(bodyOf(error)).toEqual({
           message: "Database connection failed",
           field: "database",
         });
@@ -266,7 +291,8 @@ describe("throwHttpException", () => {
       // Arrange
       const action = () =>
         throwHttpException({
-          type: "invalid" as any,
+          // Deliberately invalid, to exercise the switch default.
+          type: "invalid" as unknown as HttpErrorType,
           message: "Default error",
         });
 
@@ -276,7 +302,7 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(error.response).toEqual({ message: "Default error" });
+        expect(bodyOf(error)).toEqual({ message: "Default error" });
       }
     });
   });
@@ -295,7 +321,7 @@ describe("throwHttpException", () => {
       try {
         action();
       } catch (error) {
-        expect(error.response.message[0]).toEqual({
+        expect(detailAt(error, 0)).toEqual({
           message: "Test message",
           field: "testField",
         });
@@ -314,7 +340,7 @@ describe("throwHttpException", () => {
       try {
         action();
       } catch (error) {
-        expect(error.response.message[0]).toEqual({ message: "Test message" });
+        expect(detailAt(error, 0)).toEqual({ message: "Test message" });
       }
     });
 
@@ -330,8 +356,8 @@ describe("throwHttpException", () => {
       try {
         action();
       } catch (error) {
-        expect(error.response).toEqual({ message: "Test message" });
-        expect(error.response.field).toBeUndefined();
+        expect(bodyOf(error)).toEqual({ message: "Test message" });
+        expect(bodyOf(error).field).toBeUndefined();
       }
     });
 
@@ -349,7 +375,7 @@ describe("throwHttpException", () => {
       try {
         action();
       } catch (error) {
-        expect(error.response.message[0].message).toBe(messageText);
+        expect(detailAt(error, 0).message).toBe(messageText);
       }
     });
   });
