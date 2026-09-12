@@ -34,6 +34,7 @@
   },
   "include": [
     "initial-scripts/**/*.ts",
+    "prisma/**/*.ts",
     "src/**/*.ts",
     "src/**/*.json",
     "test/**/*.ts",
