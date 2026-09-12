@@ -1,0 +1,104 @@
+name: Database Migrate
+
+# Applies committed Prisma migrations to staging or production.
+#
+# This is the ONLY automated path that writes to a deployed database. It runs on
+# one runner, one job, with concurrency locked per environment — so no two
+# migration runs and no app replica can ever race the schema.
+#
+# `workflow_call` lets a deploy pipeline chain it before rolling out new app
+# containers; `workflow_dispatch` gives operators the same, audited path by hand.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      dry_run:
+        description: "Report pending migrations without applying them"
+        required: false
+        default: true
+        type: boolean
+      backup_confirmed:
+        description: "A verified backup exists and its restore path is known (see docs/database-rollback-recovery.md). Required for a real apply."
+        required: false
+        default: false
+        type: boolean
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      dry_run:
+        required: false
+        default: false
+        type: boolean
+      backup_confirmed:
+        required: false
+        default: false
+        type: boolean
+    secrets:
+      DATABASE_URL:
+        required: true
+
+# One migration at a time per environment. Queued, never cancelled — cancelling
+# mid-migration is what leaves a P3009 half-applied migration behind.
+concurrency:
+  group: db-migrate-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    # Attach required reviewers to the `production` GitHub Environment to make
+    # production migrations approval-gated.
+    environment: ${{ inputs.environment }}
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DRY_RUN: ${{ inputs.dry_run }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # A real apply against production is refused without an acknowledged
+      # backup. This setup has no PITR (archive_mode=off), so a dump is the only
+      # recovery point that exists — see docs/database-rollback-recovery.md.
+      # Deliberately NOT taking the dump here: a production dump uploaded as a
+      # CI artifact would put customer data into GitHub storage. The backup is
+      # taken next to the database and this input attests to it.
+      - name: Require an acknowledged backup for production
+        if: inputs.dry_run == false && inputs.environment == 'production' && inputs.backup_confirmed == false
+        shell: bash
+        run: |
+          echo "::error::Refusing to migrate production without backup_confirmed=true."
+          echo "Take and verify a backup next to the database first:"
+          echo "  BACKUP_LABEL=pre-migration pnpm db:backup"
+          echo "Then re-run this workflow with backup_confirmed = true."
+          exit 1
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
+
+      - name: Setup Prisma client
+        uses: ./.github/actions/prisma-setup
+
+      - name: Show pending migrations
+        shell: bash
+        run: pnpm db:migrate:dry-run
+
+      - name: Apply migrations
+        if: inputs.dry_run == false
+        shell: bash
+        run: pnpm db:migrate
+
+      - name: Confirm database is fully migrated
+        if: inputs.dry_run == false
+        shell: bash
+        run: pnpm prisma:migrate:status

@@ -107,3 +107,98 @@ jobs:
           name: coverage
           path: coverage/
           retention-days: 7
+
+  # Proves the committed migration history is valid, complete and immutable
+  # BEFORE it can reach staging or production. See docs/database-migration.md.
+  migrations:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: ecom_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ecom_ci?schema=public
+      SHADOW_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ecom_ci_shadow?schema=public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history so the immutability check can diff against the base branch.
+          fetch-depth: 0
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
+
+      - name: Setup Prisma client
+        uses: ./.github/actions/prisma-setup
+
+      # A migration that has already been deployed must never be edited: every
+      # environment stores its checksum, and a changed file makes `migrate deploy`
+      # fail with P3005/P3006. Only brand-new migration directories may be added.
+      - name: Check applied migrations are immutable
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_ref="${{ github.base_ref }}"
+          git fetch --no-tags origin "$base_ref:refs/remotes/origin/$base_ref" || true
+          changed=$(git diff --diff-filter=MDR --name-only "origin/$base_ref...HEAD" -- prisma/migrations)
+          if [ -n "$changed" ]; then
+            echo "::error::Existing migration files were modified, renamed or deleted."
+            echo "$changed"
+            echo "Migrations are immutable once committed. Add a NEW migration instead."
+            exit 1
+          fi
+          echo "No existing migration was altered."
+
+      - name: Create shadow database
+        shell: bash
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres \
+            -c 'CREATE DATABASE ecom_ci_shadow;'
+
+      - name: Validate Prisma schema
+        shell: bash
+        run: pnpm prisma:validate
+
+      # Same command production runs. Applying the whole history to an empty
+      # database catches broken SQL and bad ordering here instead of in prod.
+      - name: Apply migrations to a clean database
+        shell: bash
+        run: pnpm prisma:migrate:deploy
+
+      - name: Verify no migration is pending or failed
+        shell: bash
+        run: pnpm prisma:migrate:status
+
+      # Catches the classic mistake: schema.prisma edited but no migration
+      # generated. Exit code 2 means the migration history does not reproduce
+      # the schema.
+      - name: Check schema and migration history agree
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          pnpm prisma:migrate:drift
+          code=$?
+          set -e
+          if [ "$code" -eq 2 ]; then
+            echo "::error::prisma/schema.prisma does not match prisma/migrations."
+            echo "Run: pnpm prisma:migrate:dev --name <change> and commit the result."
+            exit 1
+          fi
+          exit "$code"
