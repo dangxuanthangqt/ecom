@@ -17,6 +17,10 @@ const SellerModule = [
   "MANAGE-PRODUCT",
   "PRODUCT-TRANSLATIONS",
   "PROFILE",
+  "CART",
+  "ORDERS",
+  "MANAGE-ORDER",
+  "REVIEWS",
 ];
 
 const ClientModule = [
@@ -27,6 +31,9 @@ const ClientModule = [
   "BRANDS",
   "PRODUCT-TRANSLATIONS",
   "PROFILE",
+  "CART",
+  "ORDERS",
+  "REVIEWS",
 ];
 
 const Module = {

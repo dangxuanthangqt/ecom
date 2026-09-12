@@ -4982,6 +4982,1168 @@ paths:
                   message: Internal server error.
       summary: Delete a product translation
       tags: *a14
+  /cart:
+    get:
+      operationId: getCartItems
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: asc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - createdAt
+              - updatedAt
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve the caller's own cart lines with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/CartItemDetailResponseDto"
+                    required:
+                      - data
+      summary: Get my cart
+      tags: &a15
+        - Cart
+    post:
+      operationId: addCartItem
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddCartItemRequestDto"
+      responses:
+        "200":
+          description:
+            Adds a SKU to the caller's cart, incrementing the quantity of an
+            existing line for the same SKU.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartItemDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Add a SKU to the cart
+      tags: *a15
+  /cart/{cartItemId}:
+    put:
+      operationId: updateCartItemQuantity
+      parameters:
+        - name: cartItemId
+          required: true
+          in: path
+          description: The unique identifier of the cart line to update.
+          schema:
+            format: uuid
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCartItemRequestDto"
+      responses:
+        "200":
+          description: Sets the quantity of one own cart line.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartItemDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Set the quantity of a cart line
+      tags: *a15
+    delete:
+      operationId: deleteCartItem
+      parameters:
+        - name: cartItemId
+          required: true
+          in: path
+          description: The unique identifier of the cart line to remove.
+          schema:
+            format: uuid
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Removes one own cart line.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteCartItemResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Remove a cart line
+      tags: *a15
+  /orders:
+    get:
+      operationId: getOrders
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: asc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - createdAt
+              - updatedAt
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter by order status
+          schema:
+            type: string
+            enum:
+              - PENDING_CONFIRMATION
+              - PENDING_PICKUP
+              - PENDING_DELIVERY
+              - DELIVERED
+              - RETURNED
+              - CANCELLED
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve the caller's own orders with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/BaseOrderResponseDto"
+                    required:
+                      - data
+      summary: Get my orders
+      tags: &a16
+        - Orders
+    post:
+      operationId: checkout
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderRequestDto"
+      responses:
+        "200":
+          description:
+            Creates one order per seller from the given cart lines, freezing
+            product/SKU snapshots and decrementing stock in one transaction.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Checkout the cart
+      tags: *a16
+  /orders/{orderId}:
+    get:
+      operationId: getOrderById
+      parameters:
+        - name: orderId
+          required: true
+          in: path
+          description: The unique identifier of the order.
+          schema:
+            format: uuid
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieves the caller's own order with its snapshot items.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get one of my orders
+      tags: *a16
+  /orders/{orderId}/cancel:
+    put:
+      operationId: cancelOrder
+      parameters:
+        - name: orderId
+          required: true
+          in: path
+          description: The unique identifier of the order to cancel.
+          schema:
+            format: uuid
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Cancels the caller's own order while it is still pending
+            confirmation, restoring stock.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CancelOrderResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Cancel my order
+      tags: *a16
+  /manage-order/orders:
+    get:
+      operationId: getManageOrders
+      parameters:
+        - name: status
+          required: false
+          in: query
+          description: Filter by order status
+          schema:
+            type: string
+            enum:
+              - PENDING_CONFIRMATION
+              - PENDING_PICKUP
+              - PENDING_DELIVERY
+              - DELIVERED
+              - RETURNED
+              - CANCELLED
+        - name: createdById
+          required: false
+          in: query
+          description:
+            Filter by the seller who owns the order's products (admin only;
+            ignored for seller callers, whose own id always scopes the query)
+          schema:
+            format: uuid
+            type: string
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: asc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - createdAt
+              - updatedAt
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description:
+            Retrieve orders visible to the caller (own products for a seller,
+            all for an admin) with pagination.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/BaseOrderResponseDto"
+                    required:
+                      - data
+      summary: Get a list of orders (seller/admin)
+      tags: &a17
+        - Manage Orders
+  /manage-order/orders/{orderId}:
+    get:
+      operationId: getManageOrderById
+      parameters:
+        - name: orderId
+          required: true
+          in: path
+          description: The unique identifier of the order to retrieve.
+          schema:
+            format: uuid
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrieve one order visible to the caller by its ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManageOrderDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Get order by ID (seller/admin)
+      tags: *a17
+  /manage-order/orders/{orderId}/status:
+    put:
+      operationId: updateOrderStatus
+      parameters:
+        - name: orderId
+          required: true
+          in: path
+          description: The unique identifier of the order to update.
+          schema:
+            format: uuid
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderStatusRequestDto"
+      responses:
+        "200":
+          description:
+            Advances the order along the legal status flow (BR-O05); rejects an
+            illegal transition with 400.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ManageOrderDetailResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Advance order status (seller/admin)
+      tags: *a17
+  /reviews:
+    get:
+      operationId: getReviews
+      parameters:
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of items per page
+          schema:
+            example: 20
+            type: number
+        - name: pageIndex
+          required: false
+          in: query
+          description: Page index (starts from 0)
+          schema:
+            example: 0
+            type: number
+        - name: order
+          required: false
+          in: query
+          description: Sort order
+          schema:
+            example: asc
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: orderBy
+          required: false
+          in: query
+          description: Field to order by
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - createdAt
+              - updatedAt
+              - rating
+        - name: keyword
+          required: false
+          in: query
+          description: Search keyword
+          schema:
+            example: admin
+            type: string
+        - name: productId
+          required: true
+          in: query
+          description: The product to list reviews for
+          schema:
+            format: uuid
+            type: string
+      responses:
+        "200":
+          description: Retrieve reviews for one product, newest first.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/PageDto"
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ReviewWithAuthorResponseDto"
+                    required:
+                      - data
+      summary: Get reviews
+      tags: &a18
+        - Reviews
+    post:
+      operationId: createReview
+      parameters:
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewRequestDto"
+      responses:
+        "200":
+          description:
+            Creates a review for a delivered order's product (BR-R01). One
+            review per product per user (BR-R02).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewWithAuthorResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Create a review
+      tags: *a18
+  /reviews/{reviewId}:
+    put:
+      operationId: updateReview
+      parameters:
+        - name: reviewId
+          required: true
+          in: path
+          description: The unique identifier of the review to update.
+          schema:
+            format: uuid
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReviewRequestDto"
+      responses:
+        "200":
+          description: Edits one own review. Another user's review is a 404 (BR-R03).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewWithAuthorResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Edit own review
+      tags: *a18
+    delete:
+      operationId: deleteReview
+      parameters:
+        - name: reviewId
+          required: true
+          in: path
+          description: The unique identifier of the review to remove.
+          schema:
+            format: uuid
+        - name: Authorization
+          in: header
+          description: Bearer auth token
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Removes one own review. Another user's review is a 404 (BR-R03).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteReviewResponseDto"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - field: field
+                      message: message
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 401
+                  message: Unauthorized.
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 403
+                  message: Forbidden.
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Not Found.
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 422
+                  message: Unprocessable content.
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 500
+                  message: Internal server error.
+      summary: Delete own review
+      tags: *a18
 info:
   title: Ecom API
   description: The Ecom API description
@@ -5497,7 +6659,7 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: &a15
+          enum: &a19
             - GET
             - POST
             - PUT
@@ -5505,7 +6667,7 @@ components:
             - PATCH
         rolesIds:
           description: Roles associated with the permission
-          example: &a16
+          example: &a20
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -5540,10 +6702,10 @@ components:
           type: string
           description: Permission method
           example: POST
-          enum: *a15
+          enum: *a19
         rolesIds:
           description: Roles associated with the permission
-          example: *a16
+          example: *a20
           type: array
           items:
             type: string
@@ -6168,7 +7330,7 @@ components:
           example: Brand Name
         brandTranslationIds:
           description: brandTranslationIds
-          example: &a17
+          example: &a21
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -6217,7 +7379,7 @@ components:
           example: Brand Name
         brandTranslationIds:
           description: brandTranslationIds
-          example: *a17
+          example: *a21
           type: array
           items:
             type: string
@@ -6441,7 +7603,7 @@ components:
           example: https://example.com/logos/category-logo.png
         categoryTranslationIds:
           description: List of category translation IDs to associate with the category
-          example: &a18
+          example: &a22
             - 123e4567-e89b-12d3-a456-426614174000
           type: array
           items:
@@ -6466,7 +7628,7 @@ components:
           example: https://example.com/logos/category-logo.png
         categoryTranslationIds:
           description: List of category translation IDs to associate with the category
-          example: *a18
+          example: *a22
           type: array
           items:
             type: string
@@ -6626,7 +7788,7 @@ components:
           example: 90
         images:
           description: Array of product image URLs
-          example: &a19
+          example: &a23
             - https://example.com/image1.jpg
             - https://example.com/image2.png
             - https://example.com/image3.webp
@@ -6715,7 +7877,7 @@ components:
           example: 90
         images:
           description: Array of product image URLs
-          example: *a19
+          example: *a23
           type: array
           items:
             type: string
@@ -6807,7 +7969,7 @@ components:
           type: string
           description: The date when the product will be published
           example: 2023-10-01T00:00:00Z
-          default: 2025-07-10T15:54:38.209Z
+          default: 2026-09-12T15:13:34.650Z
         name:
           type: string
           description: The name of the product
@@ -6822,7 +7984,7 @@ components:
           example: 90
         images:
           description: Array of product image URLs
-          example: &a20
+          example: &a24
             - https://example.com/image1.jpg
             - https://example.com/image2.png
             - https://example.com/image3.webp
@@ -6841,7 +8003,7 @@ components:
             $ref: "#/components/schemas/VariantRequestDto"
         categoryIds:
           description: List of category IDs associated with the product
-          example: &a21
+          example: &a25
             - 123e4567-e89b-12d3-a456-426614174000
             - 123e4567-e89b-12d3-a456-426614174001
           type: array
@@ -6869,7 +8031,7 @@ components:
           type: string
           description: The date when the product will be published
           example: 2023-10-01T00:00:00Z
-          default: 2025-07-10T15:54:38.209Z
+          default: 2026-09-12T15:13:34.650Z
         name:
           type: string
           description: The name of the product
@@ -6884,7 +8046,7 @@ components:
           example: 90
         images:
           description: Array of product image URLs
-          example: *a20
+          example: *a24
           type: array
           items:
             type: string
@@ -6895,7 +8057,7 @@ components:
           format: uuid
         categoryIds:
           description: List of category IDs associated with the product
-          example: *a21
+          example: *a25
           type: array
           items:
             type: string
@@ -6966,3 +8128,379 @@ components:
           description: The unique identifier of the product.
           example: 123e4567-e89b-12d3-a456-426614174000
           format: uuid
+    CartItemProductSummaryResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the parent product
+          format: uuid
+        name:
+          type: string
+          description: Name of the parent product
+      required:
+        - id
+        - name
+    CartItemSkuResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the SKU
+          format: uuid
+        order:
+          type: number
+          description: Display order of the SKU
+        image:
+          type: string
+          description: Image URL of the SKU
+        price:
+          type: number
+          description: Price of the SKU
+        stock:
+          type: number
+          description: Remaining stock for the SKU
+        value:
+          type: string
+          description: SKU value, e.g. size or color
+        product:
+          $ref: "#/components/schemas/CartItemProductSummaryResponseDto"
+      required:
+        - id
+        - order
+        - image
+        - price
+        - stock
+        - value
+        - product
+    CartItemDetailResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the cart line
+          format: uuid
+        quantity:
+          type: number
+          description: Quantity of the SKU held in the cart
+        createdAt:
+          format: date-time
+          type: string
+          description: When the cart line was created
+        updatedAt:
+          format: date-time
+          type: string
+          description: When the cart line was last updated
+        sku:
+          $ref: "#/components/schemas/CartItemSkuResponseDto"
+      required:
+        - id
+        - quantity
+        - createdAt
+        - updatedAt
+        - sku
+    AddCartItemRequestDto:
+      type: object
+      properties:
+        skuId:
+          type: string
+          description: The SKU to add to the cart
+          format: uuid
+        quantity:
+          type: number
+          description: Quantity to add
+          example: 1
+          minimum: 1
+      required:
+        - skuId
+        - quantity
+    UpdateCartItemRequestDto:
+      type: object
+      properties:
+        quantity:
+          type: number
+          description: New quantity for the cart line
+          example: 1
+          minimum: 1
+      required:
+        - quantity
+    DeleteCartItemResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Cart item removed successfully.
+      required:
+        - message
+    BaseOrderResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the order
+          format: uuid
+        status:
+          type: string
+          description: Current order status
+          enum: &a26
+            - PENDING_CONFIRMATION
+            - PENDING_PICKUP
+            - PENDING_DELIVERY
+            - DELIVERED
+            - RETURNED
+            - CANCELLED
+        createdAt:
+          format: date-time
+          type: string
+          description: When the order was placed
+        updatedAt:
+          format: date-time
+          type: string
+          description: When the order was last updated
+      required:
+        - id
+        - status
+        - createdAt
+        - updatedAt
+    ProductSkuSnapshotResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the snapshot line
+          format: uuid
+        productName:
+          type: string
+          description: Product name frozen at purchase time
+        price:
+          type: number
+          description: Unit price frozen at purchase time
+        images:
+          description: Product images frozen at purchase time
+          type: array
+          items:
+            type: string
+        skuValue:
+          type: string
+          description: SKU value (e.g. size, color) frozen at purchase time
+        quantity:
+          type: number
+          description: Quantity purchased on this line
+      required:
+        - id
+        - productName
+        - price
+        - images
+        - skuValue
+        - quantity
+    OrderDetailResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the order
+          format: uuid
+        status:
+          type: string
+          description: Current order status
+          enum: *a26
+        createdAt:
+          format: date-time
+          type: string
+          description: When the order was placed
+        updatedAt:
+          format: date-time
+          type: string
+          description: When the order was last updated
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductSkuSnapshotResponseDto"
+      required:
+        - id
+        - status
+        - createdAt
+        - updatedAt
+        - items
+    CreateOrderRequestDto:
+      type: object
+      properties:
+        cartItemIds:
+          description: Cart line ids to convert into orders (one per seller)
+          example:
+            - 11111111-1111-4111-8111-111111111111
+          type: array
+          items:
+            type: string
+      required:
+        - cartItemIds
+    CancelOrderResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the order
+          format: uuid
+        status:
+          type: string
+          description: Current order status
+          enum: *a26
+        createdAt:
+          format: date-time
+          type: string
+          description: When the order was placed
+        updatedAt:
+          format: date-time
+          type: string
+          description: When the order was last updated
+      required:
+        - id
+        - status
+        - createdAt
+        - updatedAt
+    ManageOrderDetailResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the order
+          format: uuid
+        status:
+          type: string
+          description: Current order status
+          enum: *a26
+        createdAt:
+          format: date-time
+          type: string
+          description: When the order was placed
+        updatedAt:
+          format: date-time
+          type: string
+          description: When the order was last updated
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductSkuSnapshotResponseDto"
+      required:
+        - id
+        - status
+        - createdAt
+        - updatedAt
+        - items
+    UpdateOrderStatusRequestDto:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The next order status to transition to
+          enum:
+            - PENDING_CONFIRMATION
+            - PENDING_PICKUP
+            - PENDING_DELIVERY
+            - DELIVERED
+            - RETURNED
+            - CANCELLED
+      required:
+        - status
+    ReviewAuthorResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the review author
+          format: uuid
+        name:
+          type: string
+          description: Display name of the review author
+        avatar:
+          type: object
+          description: Avatar URL of the review author
+          nullable: true
+      required:
+        - id
+        - name
+        - avatar
+    ReviewWithAuthorResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the review
+          format: uuid
+        content:
+          type: string
+          description: Review text content
+        rating:
+          type: number
+          description: Rating from 1 to 5
+          minimum: 1
+          maximum: 5
+        productId:
+          type: string
+          description: Reviewed product identifier
+          format: uuid
+        userId:
+          type: string
+          description: Review author identifier
+          format: uuid
+        createdAt:
+          format: date-time
+          type: string
+          description: When the review was created
+        updatedAt:
+          format: date-time
+          type: string
+          description: When the review was last updated
+        user:
+          $ref: "#/components/schemas/ReviewAuthorResponseDto"
+      required:
+        - id
+        - content
+        - rating
+        - productId
+        - userId
+        - createdAt
+        - updatedAt
+        - user
+    CreateReviewRequestDto:
+      type: object
+      properties:
+        productId:
+          type: string
+          description: The product being reviewed
+          format: uuid
+        rating:
+          type: number
+          description: Rating from 1 to 5
+          example: 5
+          minimum: 1
+          maximum: 5
+        content:
+          type: string
+          description: Review text content
+          example: Great product!
+      required:
+        - productId
+        - rating
+        - content
+    UpdateReviewRequestDto:
+      type: object
+      properties:
+        rating:
+          type: number
+          description: Rating from 1 to 5
+          example: 5
+          minimum: 1
+          maximum: 5
+        content:
+          type: string
+          description: Review text content
+          example: Great product!
+    DeleteReviewResponseDto:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Review removed successfully.
+      required:
+        - message
