@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { ALL_LANGUAGES } from "@/constants/language";
+import { NOT_DELETED } from "@/constants/soft-delete.constant";
 
 import { categoryTranslationSelect } from "./category-translation.selector";
 
@@ -19,21 +20,18 @@ export const createCategoryWithTranslationsSelect = ({
     ...categorySelect,
     categoryTranslations: {
       where: {
-        deletedAt: null,
+        ...NOT_DELETED,
         languageId: languageId === ALL_LANGUAGES ? undefined : languageId,
       },
       select: categoryTranslationSelect,
     },
+    // If the category is deleted, its children/parent won't be returned.
     childrenCategories: {
-      where: {
-        deletedAt: null, // If category is deleted, this translation will not be returned
-      },
+      where: NOT_DELETED,
       select: categorySelect,
     },
     parentCategory: {
-      where: {
-        deletedAt: null, // If parent category is deleted, this translation will not be returned
-      },
+      where: NOT_DELETED,
       select: categorySelect,
     },
   });

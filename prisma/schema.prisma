@@ -254,6 +254,8 @@ model Product {
   updatedAt DateTime  @updatedAt
 
   @@index([deletedAt])
+  @@index([brandId])
+  @@index([createdById])
 }
 
 model ProductTranslation {

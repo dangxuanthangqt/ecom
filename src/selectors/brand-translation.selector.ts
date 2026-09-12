@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+import { NOT_DELETED } from "@/constants/soft-delete.constant";
+
 import { languageSelect } from "./language.selector";
 
 const brandTranslationSelect =
@@ -13,9 +15,8 @@ const brandTranslationSelect =
         name: true,
         logo: true,
       },
-      where: {
-        deletedAt: null, // If parent brand is deleted, this translation will not be returned
-      },
+      // If the parent brand is deleted, this translation won't be returned.
+      where: NOT_DELETED,
     },
     language: {
       select: languageSelect,

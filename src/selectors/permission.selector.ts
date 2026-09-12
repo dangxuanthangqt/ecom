@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+import { NOT_DELETED } from "@/constants/soft-delete.constant";
+
 export const permissionSelect = Prisma.validator<Prisma.PermissionSelect>()({
   id: true,
   name: true,
@@ -18,9 +20,7 @@ export const permissionWithRolesSelect =
     method: true,
     module: true,
     roles: {
-      where: {
-        deletedAt: null,
-      },
+      where: NOT_DELETED,
       select: {
         id: true,
         name: true,

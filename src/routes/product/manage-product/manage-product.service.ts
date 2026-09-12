@@ -11,10 +11,11 @@ import { Role } from "@/constants/role.constant";
 import {
   CreateProductRequestDto,
   ManageProductPaginationQueryDto,
+  ProductResponseDto,
   UpdateProductRequestDto,
 } from "@/dtos/product/product.dto";
 import { ProductRepository } from "@/repositories/product/product.repository";
-import { createProductSelect } from "@/selectors/product.selector";
+import { createProductDetailSelect } from "@/selectors/product.selector";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
@@ -108,7 +109,10 @@ export class ManageProductService {
     const totalPages = Math.ceil(productsCount / pageSize);
 
     return {
-      data: products,
+      // Wrap each row in the response DTO so ClassSerializerInterceptor
+      // (excludeExtraneousValues) can actually strip fields — it only
+      // applies @Expose() rules to real DTO instances, not plain Prisma rows.
+      data: products.map((product) => new ProductResponseDto(product)),
       pagination: {
         pageIndex,
         pageSize,
@@ -131,7 +135,10 @@ export class ManageProductService {
   }) {
     const product = await this.productRepository.findUniqueProduct({
       where: { id: productId, deletedAt: null },
-      select: { ...createProductSelect({ languageId }), createdById: true },
+      select: {
+        ...createProductDetailSelect({ languageId }),
+        createdById: true,
+      },
     });
 
     // findUniqueProduct resolves to null for an absent or soft-deleted id;

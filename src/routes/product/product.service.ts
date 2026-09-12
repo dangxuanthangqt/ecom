@@ -7,9 +7,12 @@ import {
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { ProductOrderByFields } from "@/dtos/product/constant";
-import { ProductPaginationQueryDto } from "@/dtos/product/product.dto";
+import {
+  ProductPaginationQueryDto,
+  ProductResponseDto,
+} from "@/dtos/product/product.dto";
 import { ProductRepository } from "@/repositories/product/product.repository";
-import { createProductSelect } from "@/selectors/product.selector";
+import { createProductDetailSelect } from "@/selectors/product.selector";
 
 @Injectable()
 export class ProductService {
@@ -68,7 +71,10 @@ export class ProductService {
     const totalPages = Math.ceil(productsCount / pageSize);
 
     return {
-      data: products,
+      // Wrap each row in the response DTO so ClassSerializerInterceptor
+      // (excludeExtraneousValues) can actually strip fields — it only
+      // applies @Expose() rules to real DTO instances, not plain Prisma rows.
+      data: products.map((product) => new ProductResponseDto(product)),
       pagination: {
         pageIndex,
         pageSize,
@@ -91,7 +97,7 @@ export class ProductService {
         deletedAt: null,
         publishedAt: { lte: new Date(), not: null },
       },
-      select: createProductSelect({
+      select: createProductDetailSelect({
         languageId,
       }),
     });

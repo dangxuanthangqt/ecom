@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+import { NOT_DELETED } from "@/constants/soft-delete.constant";
+
 import { languageSelect } from "./language.selector";
 
 export const categoryTranslationSelect =
@@ -17,8 +19,7 @@ export const categoryTranslationSelect =
         name: true,
         logo: true,
       },
-      where: {
-        deletedAt: null, // If parent category is deleted, this translation will not be returned
-      },
+      // If the parent category is deleted, this translation won't be returned.
+      where: NOT_DELETED,
     },
   });

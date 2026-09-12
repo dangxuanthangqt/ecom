@@ -80,7 +80,7 @@ client-controlled on this route) so `publishedAt: {lte: now, not: null}` always 
 (`src/routes/product/product.controller.ts:41-44`); `totalPages = Math.ceil(productsCount / pageSize)`
 (`src/routes/product/product.service.ts:68`).
 **Source:** `src/routes/product/product.controller.ts:35-44` → `src/routes/product/product.service.ts:18-79` → `src/repositories/product/product.repository.ts:46-132`
-→ `src/selectors/product.selector.ts:41-65`
+→ `src/selectors/product.selector.ts:29-43` (`createProductListSelect` — list rows carry no `skus`/`categories`, matching `ProductResponseDto`)
 
 <!-- No diagram: below threshold — read-only, single query pair (findMany + count) inside one
      transaction, synchronous, no background step. -->
@@ -99,7 +99,7 @@ client-controlled on this route) so `publishedAt: {lte: now, not: null}` always 
 **BE** · `` `ProductService#getProductById` `` (`src/routes/product/product.service.ts:81-100`) calls
 `` `ProductRepository#findUniqueProduct` `` (`src/repositories/product/product.repository.ts:144-174`) with
 `where: { id, deletedAt: null, publishedAt: { lte: now, not: null } }` and
-`createProductSelect({ languageId })` (`src/selectors/product.selector.ts:41-65`).
+`createProductDetailSelect({ languageId })` (`src/selectors/product.selector.ts:58-74`).
 **Rule** · **BR-001 — Only published, non-deleted products are ever returned.** Same eligibility
 gate as A1, applied inline in the `where` clause instead of a separate branch — a product failing
 any part of it is indistinguishable from one that never existed. *(§ 4.4)*
@@ -108,7 +108,7 @@ record-not-found error, caught and translated to `throwHttpException({type:"notF
 "Product not found"})` (`src/repositories/product/product.repository.ts:163-168`) → HTTP 404. On a match, returns the full
 `ProductDetailResponseDto` shape (brand, categories, SKUs, translations).
 **Source:** `src/routes/product/product.controller.ts:60-71` → `src/routes/product/product.service.ts:81-100` → `src/repositories/product/product.repository.ts:144-174`
-→ `src/selectors/product.selector.ts:41-65`
+→ `src/selectors/product.selector.ts:58-74` (`createProductDetailSelect` — adds `skus`/`categories` on top of the list shape)
 
 <!-- No diagram: below threshold — read-only, single findUniqueOrThrow call, synchronous. -->
 
@@ -134,7 +134,8 @@ record-not-found error, caught and translated to `throwHttpException({type:"notF
 | `ProductController` | HTTP entry point for both public product routes | A1, A2 | `src/routes/product/product.controller.ts` |
 | `ProductService` | Composes pagination/ordering and forces the public-only filter | A1, A2 | `src/routes/product/product.service.ts` |
 | `ProductRepository` | Runs the Prisma query/transaction, maps not-found to 404; shared with F008's seller CRUD | A1, A2 | `src/repositories/product/product.repository.ts` |
-| `createProductSelect` | Builds the Prisma `select` shape (brand, categories, SKUs, translations) | A1, A2 | `src/selectors/product.selector.ts:41-65` |
+| `createProductListSelect` | Builds the list `select` shape (brand, translations — no SKUs/categories) | A1 | `src/selectors/product.selector.ts:29-43` |
+| `createProductDetailSelect` | Extends the list shape with `skus`/`categories` | A2 | `src/selectors/product.selector.ts:58-74` |
 
 ### 4.2 Data Model
 
@@ -173,7 +174,7 @@ erDiagram
 |---|---|---|---|
 | `Product` (MODEL009) | `product` | The catalog entity this feature reads; `publishedAt`/`deletedAt` gate visibility | A1, A2 |
 | `ProductTranslation` (MODEL010) | `productTranslation` | Locale-filtered name/description, owned by F004 | A1, A2 |
-| `SKU` (MODEL013) | `sKU` | Purchasable variants shown in product detail (non-deleted only) | A2 (also selected on A1) |
+| `SKU` (MODEL013) | `sKU` | Purchasable variants shown in product detail (non-deleted only) | A2 only — `createProductListSelect` (A1) no longer selects `skus` |
 | `Brand` (MODEL014) | `brand` | Brand shown on both list and detail rows | A1, A2 |
 | `Category` (MODEL011) | `category` | Categories shown in product detail only (base fields, no translation join — BR-003) | A2 |
 
@@ -222,24 +223,26 @@ where.deletedAt = null
 ```
 
 **BR-002 — Product translations are locale-filtered; brand translations are not.**
-Used in: **A1** · **A2**. `createProductSelect({ languageId })` filters `productTranslations` to
-the caller's resolved locale (`src/selectors/product.selector.ts:48-53`), but passes NO `languageId` to
-`createBrandWithTranslationsSelect()` inside the base `productSelect` (`src/selectors/product.selector.ts:17-20`),
+Used in: **A1** · **A2**. `createProductListSelect({ languageId })` (the shared base both A1 and
+A2's `createProductDetailSelect` build on) filters `productTranslations` to
+the caller's resolved locale (`src/selectors/product.selector.ts:36-42`), but passes NO `languageId` to
+`createBrandWithTranslationsSelect()` inside the base `productSelect` (`src/selectors/product.selector.ts:19-22`),
 so `brandTranslations` defaults to `ALL_LANGUAGES` (`src/selectors/brand.selector.ts:13-16`) regardless of the
 caller's locale — every brand-language row comes back, not just the caller's own.
-**Source:** `src/selectors/product.selector.ts:10-22,41-65` · `src/selectors/brand.selector.ts:13-27`
+**Source:** `src/selectors/product.selector.ts:11-23,29-43` · `src/selectors/brand.selector.ts:13-27`
 ```text
 productTranslations: where languageId = caller.lang
 brand.brandTranslations: where languageId = ALL (languageId param never forwarded)
 ```
 
 **BR-003 — Category names in product detail are never localized.**
-Used in: **A2** (also selected, unused for translation, on A1's underlying select). `createProductSelect`
+Used in: **A2** only — `createProductListSelect` (A1) does not select `categories` at all.
+`createProductDetailSelect`
 selects `categories` using the bare `categorySelect` (`src/selectors/category.selector.ts:6-10`),
 which carries only `id`/`name`/`logo` — it never joins `categoryTranslationSelect`, unlike
 `createCategoryWithTranslationsSelect` which exists in the same file but is not used here. The
 category's own base `name` column is returned regardless of the caller's resolved locale.
-**Source:** `src/selectors/product.selector.ts:60-63` · `src/selectors/category.selector.ts:6-10`
+**Source:** `src/selectors/product.selector.ts:70-73` · `src/selectors/category.selector.ts:6-10`
 ```text
 categories: select { id, name, logo }  // base fields only, no CategoryTranslation join
 ```
@@ -322,14 +325,16 @@ header; confirm 404, not the product's data.
 | A1, A2 | 2 | `ProductController` | `src/routes/product/product.controller.ts:1-72` | HTTP entry point for both public routes |
 | A1, A2 | 3 | `ProductService` | `src/routes/product/product.service.ts:1-101` | Composes filters/pagination, forces public-only visibility |
 | A1, A2 | 4 | `ProductRepository` | `src/repositories/product/product.repository.ts:34-174` | Runs the Prisma query/transaction, 404 mapping |
-| A1, A2 | 5 | `createProductSelect` | `src/selectors/product.selector.ts:41-65` | Shapes the response (brand, categories, SKUs, translations) |
+| A1 | 5 | `createProductListSelect` | `src/selectors/product.selector.ts:29-43` | Shapes the list response (brand, translations — no SKUs/categories) |
+| A2 | 6 | `createProductDetailSelect` | `src/selectors/product.selector.ts:58-74` | Shapes the detail response (adds SKUs, categories) |
 
 #### Data Flow
 
 ```text
 Query/path params (ProductPaginationQueryDto | UUID) -> ProductService applies public-only filter
   + pagination/order -> ProductRepository runs Prisma findMany+count (A1) or findUniqueOrThrow (A2)
-  -> createProductSelect shapes the row(s) -> PageDto | ProductDetailResponseDto response
+  -> createProductListSelect (A1) | createProductDetailSelect (A2) shapes the row(s)
+  -> PageDto<ProductResponseDto> (A1) | ProductDetailResponseDto (A2) response
 ```
 
 ### 5.5 Artifact References

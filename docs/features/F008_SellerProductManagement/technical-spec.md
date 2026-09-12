@@ -318,7 +318,7 @@ erDiagram
 | Entity | Table | Used for | Action |
 |---|---|---|---|
 | `Product` | `product` | The product a seller owns/manages | A1-A5 |
-| `SKU` | `sku` | Purchasable variants of a product | A1-A5 |
+| `SKU` | `sku` | Purchasable variants of a product | A2-A5 (`createProductListSelect`, used by A1's list query, no longer selects `skus`) |
 | `Category` | `category` | Referenced (not owned) — existence-checked on create/update | A3, A4 |
 | `ProductTranslation` | `product_translation` | Localized product name/description, soft-deleted alongside the product | A2, A5 |
 
@@ -482,7 +482,7 @@ A4 update: {productId, variants, skus, categoryIds, ...} (PUT body)
   -> ManageProductService#updateProduct: fetch createdById, check ownership (BR-001)
   -> ProductRepository#updateProduct: diff skus by value into create/update/delete sets
   -> tx.product.update (scalars + categories.set) + tx.sKU.{createMany,update,deleteMany}
-  -> re-fetch product with createProductSelect()
+  -> re-fetch product with createProductDetailSelect()
   -> ProductDetailResponseDto (full product detail response)
 ```
 

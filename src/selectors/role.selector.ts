@@ -1,5 +1,7 @@
 import { Prisma } from "@prisma/client";
 
+import { NOT_DELETED } from "@/constants/soft-delete.constant";
+
 import { permissionSelect } from "./permission.selector";
 
 // hover mouse over the roleSelect to see the type
@@ -10,7 +12,7 @@ export const roleWithPermissionsSelect = Prisma.validator<Prisma.RoleSelect>()({
   description: true,
   isActive: true,
   permissions: {
-    where: { deletedAt: null },
+    where: NOT_DELETED,
     select: permissionSelect,
   },
 });

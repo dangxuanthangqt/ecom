@@ -345,9 +345,10 @@ erDiagram
 | name | String @db.VarChar(500) | NOT NULL | |
 | basePrice | Float | NOT NULL | |
 | virtualPrice | Float | NOT NULL | Display/strike-through price |
-| brandId | String @db.Uuid | FK → Brand | |
+| brandId | String @db.Uuid | FK → Brand, indexed | |
 | images | String[] | | |
 | variants | Json (`/// [Variants]` typed via prisma-json-types-generator) | NOT NULL | Structured variant/option config replacing the commented-out relational Variant model |
+| createdById | String? @db.Uuid | FK → User (SetNull), indexed | Seller-scoped list queries filter on this column (F008) |
 | deletedAt | DateTime? | indexed | |
 
 **Relationships**: Many-to-One with Brand. Many-to-Many with Category. One-to-Many with SKU, Review, ProductTranslation. Many-to-Many with Order (`products`).
@@ -645,6 +646,7 @@ Validation is enforced primarily at the DTO layer (`class-validator` decorators 
 - **Total Discriminators (DISC-###)**: 4 (`DISC-001` User.status, `DISC-002` VerificationCode.type, `DISC-003` Permission.method, `DISC-004` Order.status)
 - **Total Relationships**: 25 (see ERD)
 - **New constraints (2026-09-12, F011/F012/F013)**: `CartItem.@@unique([userId, skuId])`, `Review.@@unique([userId, productId])`, `Order.@@index([userId, deletedAt])`, `ProductSKUSnapshot.quantity` (new column) — see MODEL016/MODEL017/MODEL018/MODEL019 above for detail.
+- **New indexes (2026-09-12, Product query optimization)**: `Product.@@index([brandId])`, `Product.@@index([createdById])` — added alongside the existing `Product.@@index([deletedAt])`, for the seller-scoped list query in F008 (`ManageProductService.getProducts` filters by `createdById`) and the public/detail brand join in F007. No new columns or models; see MODEL009_Product above.
 - **Dead code excluded**: `Variant`, `VariantOption` (commented out, `prisma/schema.prisma:329-369`); `prisma/schema.development.prisma` (0 bytes, unused)
 - **Audit pattern**: 15 of 21 models carry `createdById/updatedById/deletedById → User` (SetNull) + `deletedAt` soft-delete + `createdAt/updatedAt`. Exceptions with no soft-delete: `VerificationCode, Device, RefreshToken` (hard/expiry-based, though RefreshToken added a `deletedAt` in migration `20250511100158`), `CartItem, ProductSKUSnapshot, Review, PaymentTransaction, Message`.
 

@@ -64,3 +64,10 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Takumi working state (regenerated per run; docs/ is the deliverable)
 plans/
+.takumi/
+
+# Claude Code local state (per-machine settings + agent working notes)
+.claude/
+
+# SunLint generates this temp ESLint config with an absolute, machine-specific path
+.sunlint-eslint.config.js
