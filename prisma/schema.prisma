@@ -449,6 +449,8 @@ model CartItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, skuId])
 }
 
 model ProductSKUSnapshot {
@@ -457,6 +459,7 @@ model ProductSKUSnapshot {
   price       Float
   images      String[]
   skuValue    String   @db.VarChar(500)
+  quantity    Int
   skuId       String?  @db.Uuid
   sku         SKU?     @relation(fields: [skuId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   orderId     String?  @db.Uuid
@@ -499,6 +502,8 @@ model Review {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
 }
 
 model PaymentTransaction {
