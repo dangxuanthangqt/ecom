@@ -5,8 +5,9 @@ runs:
   using: "composite"
 
   steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+    # No checkout here on purpose. Every caller checks out first, and a second
+    # checkout re-clones at the default fetch-depth of 1 — discarding a caller's
+    # `fetch-depth: 0` history and breaking anything that needs a merge base.
 
     - name: Install Node.js v20.17.0
       uses: actions/setup-node@v4

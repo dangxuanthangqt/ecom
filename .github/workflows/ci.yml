@@ -142,12 +142,9 @@ jobs:
           # Full history so the immutability check can diff against the base branch.
           fetch-depth: 0
 
-      - name: Install dependencies
-        uses: ./.github/actions/pnpm-install
-
-      - name: Setup Prisma client
-        uses: ./.github/actions/prisma-setup
-
+      # Runs before any other action, because a step that checks out again would
+      # re-clone at depth 1 and destroy the history this diff needs.
+      #
       # A migration that has already been deployed must never be edited: every
       # environment stores its checksum, and a changed file makes `migrate deploy`
       # fail with P3005/P3006. Only brand-new migration directories may be added.
@@ -157,7 +154,17 @@ jobs:
         run: |
           set -euo pipefail
           base_ref="${{ github.base_ref }}"
-          git fetch --no-tags origin "$base_ref:refs/remotes/origin/$base_ref" || true
+
+          if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+            git fetch --no-tags --unshallow origin
+          fi
+          git fetch --no-tags origin "+refs/heads/$base_ref:refs/remotes/origin/$base_ref"
+
+          if ! git merge-base "origin/$base_ref" HEAD >/dev/null 2>&1; then
+            echo "::error::No merge base between origin/$base_ref and HEAD — the checkout is missing history."
+            exit 1
+          fi
+
           changed=$(git diff --diff-filter=MDR --name-only "origin/$base_ref...HEAD" -- prisma/migrations)
           if [ -n "$changed" ]; then
             echo "::error::Existing migration files were modified, renamed or deleted."
@@ -166,6 +173,12 @@ jobs:
             exit 1
           fi
           echo "No existing migration was altered."
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
+
+      - name: Setup Prisma client
+        uses: ./.github/actions/prisma-setup
 
       - name: Create shadow database
         shell: bash
