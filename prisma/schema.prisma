@@ -489,6 +489,7 @@ model Order {
 
   @@index([deletedAt])
   @@index([deletedAt, status])
+  @@index([userId, deletedAt])
 }
 
 model Review {
