@@ -254,6 +254,8 @@ model Product {
   updatedAt DateTime  @updatedAt
 
   @@index([deletedAt])
+  @@index([brandId])
+  @@index([createdById])
 }
 
 model ProductTranslation {
@@ -449,6 +451,8 @@ model CartItem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, skuId])
 }
 
 model ProductSKUSnapshot {
@@ -457,6 +461,7 @@ model ProductSKUSnapshot {
   price       Float
   images      String[]
   skuValue    String   @db.VarChar(500)
+  quantity    Int
   skuId       String?  @db.Uuid
   sku         SKU?     @relation(fields: [skuId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   orderId     String?  @db.Uuid
@@ -486,6 +491,7 @@ model Order {
 
   @@index([deletedAt])
   @@index([deletedAt, status])
+  @@index([userId, deletedAt])
 }
 
 model Review {
@@ -499,6 +505,8 @@ model Review {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
 }
 
 model PaymentTransaction {

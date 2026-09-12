@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 
 import { ALL_LANGUAGES } from "@/constants/language";
+import { NOT_DELETED } from "@/constants/soft-delete.constant";
 
 import { brandTranslationSelect } from "./brand-translation.selector";
 
@@ -19,7 +20,7 @@ const createBrandWithTranslationsSelect = ({
     ...brandSelect,
     brandTranslations: {
       where: {
-        deletedAt: null,
+        ...NOT_DELETED,
         languageId: languageId === ALL_LANGUAGES ? undefined : languageId,
       },
       select: brandTranslationSelect,

@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 
 import { AppConfigService } from "@/shared/services/app-config.service";
 import { PrismaService } from "@/shared/services/prisma.service";
+import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
 import { TokenService } from "@/shared/services/token.service";
 
 import { AccessTokenGuard } from "../access-token.guard";
@@ -19,6 +20,12 @@ export const createGuardMocks = () => ({
     role: {
       findUniqueOrThrow: jest.fn(),
     },
+  },
+  // Defaults to a cache miss so existing DB-driven assertions keep working
+  // unless a test explicitly arranges a cache hit.
+  rolePermissionCacheService: {
+    get: jest.fn().mockResolvedValue(null),
+    set: jest.fn().mockResolvedValue(undefined),
   },
   appConfigService: {
     get: jest.fn(),
@@ -38,6 +45,10 @@ export const buildAccessTokenGuard = async (
       AccessTokenGuard,
       { provide: TokenService, useValue: mocks.tokenService },
       { provide: PrismaService, useValue: mocks.prismaService },
+      {
+        provide: RolePermissionCacheService,
+        useValue: mocks.rolePermissionCacheService,
+      },
     ],
   }).compile();
 

@@ -1,6 +1,9 @@
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { ProductOrderByFields } from "@/dtos/product/constant";
-import { ProductPaginationQueryDto } from "@/dtos/product/product.dto";
+import {
+  ProductPaginationQueryDto,
+  ProductResponseDto,
+} from "@/dtos/product/product.dto";
 
 import { ProductService } from "../product.service";
 
@@ -288,6 +291,28 @@ describe("ProductService - getProducts", () => {
     expect(result.data).toEqual([]);
     expect(result.pagination.totalItems).toBe(0);
     expect(result.pagination.totalPages).toBe(0);
+  });
+
+  it("wraps every row in ProductResponseDto so the serializer can strip extra fields", async () => {
+    // Arrange — ClassSerializerInterceptor (excludeExtraneousValues: true) only
+    // applies @Expose() rules to actual DTO instances, not plain Prisma rows;
+    // returning a raw row here would leak unexposed fields over the wire.
+    const products = [makeProduct(), makeProduct({ id: "prod-2" })];
+    mocks.productRepository.findManyProducts.mockResolvedValue({
+      products,
+      productsCount: 2,
+    });
+
+    // Act
+    const result = await service.getProducts({
+      query: makeQuery(),
+      languageId: LANGUAGE_ID,
+    });
+
+    // Assert
+    result.data.forEach((item) => {
+      expect(item).toBeInstanceOf(ProductResponseDto);
+    });
   });
 
   it("ensures isPublic filter is always applied", async () => {

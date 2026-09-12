@@ -1,6 +1,9 @@
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { Role } from "@/constants/role.constant";
-import { ManageProductPaginationQueryDto } from "@/dtos/product/product.dto";
+import {
+  ManageProductPaginationQueryDto,
+  ProductResponseDto,
+} from "@/dtos/product/product.dto";
 
 import { ManageProductService } from "../manage-product.service";
 
@@ -77,6 +80,28 @@ describe("ManageProductService - getProducts", () => {
       LANGUAGE_ID,
     );
     expect(result.data).toEqual(products);
+  });
+
+  it("wraps every row in ProductResponseDto so the serializer can strip extra fields", async () => {
+    // Arrange
+    const products = [makeProduct(), makeProduct({ id: "prod-2" })];
+    mocks.productRepository.findManyProducts.mockResolvedValue({
+      products,
+      productsCount: 2,
+    });
+
+    // Act
+    const result = await service.getProducts({
+      query: makeQuery(),
+      languageId: LANGUAGE_ID,
+      userId: ADMIN_USER_ID,
+      roleName: Role.ADMIN,
+    });
+
+    // Assert
+    result.data.forEach((item) => {
+      expect(item).toBeInstanceOf(ProductResponseDto);
+    });
   });
 
   it("lets a seller fetch only their own products by default", async () => {

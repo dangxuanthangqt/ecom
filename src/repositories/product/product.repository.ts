@@ -16,7 +16,10 @@ import {
   UpsertSKURequestDto,
   UpsertSKUWithIdRequestDto,
 } from "@/dtos/sku/sku.dto";
-import { createProductSelect } from "@/selectors/product.selector";
+import {
+  createProductDetailSelect,
+  createProductListSelect,
+} from "@/selectors/product.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -102,7 +105,7 @@ export class ProductRepository {
         take,
         skip,
         orderBy,
-        select: createProductSelect({
+        select: createProductListSelect({
           languageId,
         }),
       });
@@ -209,7 +212,7 @@ export class ProductRepository {
     try {
       const product = await this.prisma.product.create({
         data,
-        select: createProductSelect(),
+        select: createProductDetailSelect(),
       });
 
       return product;
@@ -378,7 +381,7 @@ export class ProductRepository {
         // 5. Lấy product đã cập nhật với SKUs mới
         return await tx.product.findUniqueOrThrow({
           where: { id: productId, deletedAt: null },
-          select: createProductSelect(),
+          select: createProductDetailSelect(),
         });
       });
 

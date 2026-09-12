@@ -345,9 +345,10 @@ erDiagram
 | name | String @db.VarChar(500) | NOT NULL | |
 | basePrice | Float | NOT NULL | |
 | virtualPrice | Float | NOT NULL | Display/strike-through price |
-| brandId | String @db.Uuid | FK → Brand | |
+| brandId | String @db.Uuid | FK → Brand, indexed | |
 | images | String[] | | |
 | variants | Json (`/// [Variants]` typed via prisma-json-types-generator) | NOT NULL | Structured variant/option config replacing the commented-out relational Variant model |
+| createdById | String? @db.Uuid | FK → User (SetNull), indexed | Seller-scoped list queries filter on this column (F008) |
 | deletedAt | DateTime? | indexed | |
 
 **Relationships**: Many-to-One with Brand. Many-to-Many with Category. One-to-Many with SKU, Review, ProductTranslation. Many-to-Many with Order (`products`).
@@ -479,15 +480,17 @@ erDiagram
 
 ### MODEL016_CartItem
 
-**Description**: A line item in a User's shopping cart (`prisma/schema.prisma:442-452`). No soft-delete (hard removal on cart update).
+**Description**: A line item in a User's shopping cart (`prisma/schema.prisma:442-454`). No soft-delete (hard removal on cart update). As of the F011 Shopping Cart feature (2026-09-12), this model is wired to live endpoints — `CartController`/`CartService`/`CartRepository` (`src/routes/cart/`, `src/repositories/cart/cart.repository.ts`).
 
 | Attribute | Type | Constraints | Description |
 |-----------|------|-------------|--------------|
 | id | String @db.Uuid | PK | |
-| quantity | Int | NOT NULL | |
+| quantity | Int | NOT NULL | Bounded 1..SKU.stock at write time (BR-C03), not by a DB check constraint |
 | skuId | String @db.Uuid | FK → SKU | |
 | userId | String @db.Uuid | FK → User (Cascade) | |
 | createdAt / updatedAt | DateTime | | |
+
+**Constraints**: `@@unique([userId, skuId])` (migration `20260912140523_add_cart_item_user_sku_unique`) — one cart line per (user, SKU) pair; enforces BR-C04 (one line per SKU) at the DB level so a concurrent double-add cannot split the line into two rows.
 
 **Relationships**: Many-to-One with SKU, Many-to-One with User.
 
@@ -497,7 +500,7 @@ erDiagram
 
 ### MODEL017_ProductSKUSnapshot
 
-**Description**: Immutable point-in-time copy of a SKU's product/price/image data captured onto an Order line item, so historical orders survive SKU edits/deletion (`prisma/schema.prisma:454-466`).
+**Description**: Immutable point-in-time copy of a SKU's product/price/image data captured onto an Order line item, so historical orders survive SKU edits/deletion (`prisma/schema.prisma:456-469`). As of F012 Order Placement & Fulfilment (2026-09-12), one row is created per order line at checkout (`OrderCheckoutRepository.checkout`, `src/repositories/order/order-checkout.repository.ts:122-131`) and read back by `OrderCancelRepository`/`ManageOrderService` to restore stock on cancellation.
 
 | Attribute | Type | Constraints | Description |
 |-----------|------|-------------|--------------|
@@ -506,6 +509,7 @@ erDiagram
 | price | Float | NOT NULL | Copied at order time |
 | images | String[] | | Copied at order time |
 | skuValue | String @db.VarChar(500) | NOT NULL | Copied at order time |
+| quantity | Int | NOT NULL | Added by migration `20260912140558_add_snapshot_quantity` — quantity purchased on this line, one snapshot row per order line (not one row per unit); read by `OrderCancelRepository.cancelOrder` (`src/repositories/order/order-cancel.repository.ts:57-71`) to restore exactly the stock a cancelled order took |
 | skuId | String? @db.Uuid | FK → SKU, SetNull | Nullable — survives SKU deletion |
 | orderId | String? @db.Uuid | FK → Order, SetNull | Nullable |
 | createdAt | DateTime | default now() | |
@@ -518,17 +522,19 @@ erDiagram
 
 ### MODEL018_Order
 
-**Description**: A placed order with a lifecycle status (`prisma/schema.prisma:468-489`).
+**Description**: A placed order with a lifecycle status (`prisma/schema.prisma:471-493`). As of F012 Order Placement & Fulfilment (2026-09-12), wired to live endpoints: buyer checkout/list/detail/cancel on `OrderController` (`src/routes/order/`) and seller/admin status progression on `ManageOrderController` (`src/routes/order/manage-order/`).
 
 | Attribute | Type | Constraints | Description |
 |-----------|------|-------------|--------------|
 | id | String @db.Uuid | PK | |
-| userId | String @db.Uuid | FK → User | |
+| userId | String @db.Uuid | FK → User, indexed (`[userId, deletedAt]`) | The buyer who placed the order |
 | status | OrderStatus | indexed (`[deletedAt, status]`) | See DISC-004 |
 | deletedAt | DateTime? | indexed | |
 | createdAt / updatedAt | DateTime | | |
 
-**Relationships**: Many-to-One with User. One-to-Many with ProductSKUSnapshot (`items`). Many-to-Many with Product (`products`).
+**Constraints**: `@@index([userId, deletedAt])` (migration `20260912153038_add_order_user_id_index`) — added post-review (reviewer finding H1) to support the buyer's own-order list/detail queries (`OrderRepository.findManyOrders`/`findUniqueOrder`, `src/repositories/order/order.repository.ts:18-34,58-74`), which always filter by `userId` + `deletedAt: null`.
+
+**Relationships**: Many-to-One with User. One-to-Many with ProductSKUSnapshot (`items`). Many-to-Many with Product (`products`) — populated at checkout (`OrderCheckoutRepository.checkout`, `src/repositories/order/order-checkout.repository.ts:127`) so `ManageOrderService.buildActorScope`'s seller visibility (BR-O06) and `ReviewRepository.findDeliveredOrderForProduct`'s purchase-verification check (BR-R01) both have an indexed join instead of walking the nullable `ProductSKUSnapshot.skuId`.
 
 **Discriminator Fields**:
 
@@ -540,16 +546,18 @@ erDiagram
 
 ### MODEL019_Review
 
-**Description**: A User's rating/comment on a Product (`prisma/schema.prisma:491-502`). No soft-delete.
+**Description**: A User's rating/comment on a Product (`prisma/schema.prisma:495-508`). No soft-delete. As of F013 Product Reviews (2026-09-12), wired to live endpoints — `ReviewController`/`ReviewService`/`ReviewRepository` (`src/routes/review/`, `src/repositories/review/review.repository.ts`). Rating range (1–5) and non-empty content are enforced at the DTO layer (`CreateReviewRequestDto`, `src/dtos/review/review.dto.ts:94-109`), not by a DB `@@check` — the schema's `Int` column still has no enforced range, confirming the earlier `[UNVERIFIED]` flag below.
 
 | Attribute | Type | Constraints | Description |
 |-----------|------|-------------|--------------|
 | id | String @db.Uuid | PK | |
 | content | String | NOT NULL | |
-| rating | Int | NOT NULL | Numeric score (no enforced range in schema) |
+| rating | Int | NOT NULL | Numeric score; DTO-validated 1–5 (`@Min(1)`/`@Max(5)`), no DB-level range constraint |
 | productId | String @db.Uuid | FK → Product | |
 | userId | String @db.Uuid | FK → User | |
 | createdAt / updatedAt | DateTime | | |
+
+**Constraints**: `@@unique([userId, productId])` (migration `20260912140540_add_review_user_product_unique`) — one review per (user, product) pair (BR-R02); a duplicate insert throws Prisma's unique-violation error, remapped by `ReviewRepository.createReview` to HTTP 409 (`src/repositories/review/review.repository.ts:113-125`).
 
 **Relationships**: Many-to-One with Product, Many-to-One with User.
 
@@ -633,10 +641,12 @@ Validation is enforced primarily at the DTO layer (`class-validator` decorators 
 
 ## Summary
 
-- **Total Entities**: 21 (`Language, User, UserTranslation, VerificationCode, Device, RefreshToken, Permission, Role, Product, ProductTranslation, Category, CategoryTranslation, SKU, Brand, BrandTranslation, CartItem, ProductSKUSnapshot, Order, Review, PaymentTransaction, Message`)
+- **Total Entities**: 21 (`Language, User, UserTranslation, VerificationCode, Device, RefreshToken, Permission, Role, Product, ProductTranslation, Category, CategoryTranslation, SKU, Brand, BrandTranslation, CartItem, ProductSKUSnapshot, Order, Review, PaymentTransaction, Message`) — unchanged; F011/F012/F013 (2026-09-12) exposed `CartItem`, `Order`+`ProductSKUSnapshot`, and `Review` through live endpoints for the first time but added no new Prisma models.
 - **Total Enums**: 4 (`OrderStatus, VerificationCodeType, UserStatus, HTTPMethod`)
 - **Total Discriminators (DISC-###)**: 4 (`DISC-001` User.status, `DISC-002` VerificationCode.type, `DISC-003` Permission.method, `DISC-004` Order.status)
 - **Total Relationships**: 25 (see ERD)
+- **New constraints (2026-09-12, F011/F012/F013)**: `CartItem.@@unique([userId, skuId])`, `Review.@@unique([userId, productId])`, `Order.@@index([userId, deletedAt])`, `ProductSKUSnapshot.quantity` (new column) — see MODEL016/MODEL017/MODEL018/MODEL019 above for detail.
+- **New indexes (2026-09-12, Product query optimization)**: `Product.@@index([brandId])`, `Product.@@index([createdById])` — added alongside the existing `Product.@@index([deletedAt])`, for the seller-scoped list query in F008 (`ManageProductService.getProducts` filters by `createdById`) and the public/detail brand join in F007. No new columns or models; see MODEL009_Product above.
 - **Dead code excluded**: `Variant`, `VariantOption` (commented out, `prisma/schema.prisma:329-369`); `prisma/schema.development.prisma` (0 bytes, unused)
 - **Audit pattern**: 15 of 21 models carry `createdById/updatedById/deletedById → User` (SetNull) + `deletedAt` soft-delete + `createdAt/updatedAt`. Exceptions with no soft-delete: `VerificationCode, Device, RefreshToken` (hard/expiry-based, though RefreshToken added a `deletedAt` in migration `20250511100158`), `CartItem, ProductSKUSnapshot, Review, PaymentTransaction, Message`.
 

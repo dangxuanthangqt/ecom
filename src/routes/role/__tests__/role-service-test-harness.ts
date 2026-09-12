@@ -1,6 +1,7 @@
 import { Test } from "@nestjs/testing";
 
 import { RoleRepository } from "@/repositories/role/role.repository";
+import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
 
 import { RoleService } from "../role.service";
 
@@ -16,6 +17,9 @@ export const createRoleServiceMocks = () => ({
     updateRole: jest.fn(),
     deleteRole: jest.fn(),
   },
+  rolePermissionCacheService: {
+    invalidateRole: jest.fn(),
+  },
 });
 
 export type RoleServiceMocks = ReturnType<typeof createRoleServiceMocks>;
@@ -28,6 +32,10 @@ export const buildRoleService = async (
     providers: [
       RoleService,
       { provide: RoleRepository, useValue: mocks.roleRepository },
+      {
+        provide: RolePermissionCacheService,
+        useValue: mocks.rolePermissionCacheService,
+      },
     ],
   }).compile();
 

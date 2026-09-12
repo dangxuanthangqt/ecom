@@ -156,4 +156,29 @@ describe("PermissionService - updatePermission", () => {
     // Assert
     await expect(promise).rejects.toBe(error);
   });
+
+  it("invalidates the whole role-permission cache after updating", async () => {
+    // Act
+    await updateAs();
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateAll,
+    ).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not invalidate the cache when the update fails", async () => {
+    // Arrange
+    mocks.permissionRepository.updatePermission.mockRejectedValue(
+      new Error("Duplicate permission"),
+    );
+
+    // Act
+    await updateAs().catch(() => undefined);
+
+    // Assert
+    expect(
+      mocks.rolePermissionCacheService.invalidateAll,
+    ).not.toHaveBeenCalled();
+  });
 });

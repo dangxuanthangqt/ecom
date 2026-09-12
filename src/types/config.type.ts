@@ -9,6 +9,9 @@ export type AppConfig = {
   readonly resendApiKey: string;
   readonly sandboxEmail?: string;
 
+  // Redis
+  readonly redisUrl: string;
+
   // Google
   readonly googleClientId: string;
   readonly googleClientSecret: string;

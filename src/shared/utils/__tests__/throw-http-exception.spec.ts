@@ -6,6 +6,7 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
   ForbiddenException,
+  ConflictException,
 } from "@nestjs/common";
 
 import throwHttpException from "../throw-http-exception.util";
@@ -239,6 +240,48 @@ describe("throwHttpException", () => {
         expect(bodyOf(error)).toEqual({
           message: "Cannot delete admin user",
           field: "userId",
+        });
+      }
+    });
+  });
+
+  describe("conflict", () => {
+    it("throws ConflictException with message", () => {
+      // Arrange
+      const action = () =>
+        throwHttpException({
+          type: "conflict",
+          message: "Resource already exists",
+        });
+
+      // Act & Assert
+      expect(action).toThrow(ConflictException);
+      try {
+        action();
+      } catch (error) {
+        expect(error).toBeInstanceOf(ConflictException);
+        expect(bodyOf(error)).toEqual({ message: "Resource already exists" });
+      }
+    });
+
+    it("throws ConflictException with message and field", () => {
+      // Arrange
+      const action = () =>
+        throwHttpException({
+          type: "conflict",
+          message: "You have already reviewed this product",
+          field: "productId",
+        });
+
+      // Act & Assert
+      expect(action).toThrow(ConflictException);
+      try {
+        action();
+      } catch (error) {
+        expect(error).toBeInstanceOf(ConflictException);
+        expect(bodyOf(error)).toEqual({
+          message: "You have already reviewed this product",
+          field: "productId",
         });
       }
     });

@@ -1,6 +1,7 @@
 import { Language as LanguageSchema, Prisma } from "@prisma/client";
 
 import { ALL_LANGUAGES } from "@/constants/language";
+import { NOT_DELETED } from "@/constants/soft-delete.constant";
 
 import { createBrandWithTranslationsSelect } from "./brand.selector";
 import { categorySelect } from "./category.selector";
@@ -14,52 +15,60 @@ export const productSelect = Prisma.validator<Prisma.ProductSelect>()({
   basePrice: true,
   virtualPrice: true,
   publishedAt: true,
+  variants: true,
   brand: {
     select: createBrandWithTranslationsSelect(),
-    where: { deletedAt: null },
+    where: NOT_DELETED,
   },
-  variants: true,
 });
 
 /**
- * Creates a Prisma select object for product queries with related data.
- *
- * @param options - Configuration options for the select query
- * @param options.languageId - The language ID to filter product translations.
- *                             Defaults to ALL_LANGUAGES to include all translations.
- * @returns A Prisma ProductSelect object configured with product translations, SKUs, and categories
- *
- * @example
- * ```typescript
- * // Get product with all language translations
- * const selectAll = createProductSelect();
- *
- * // Get product with specific language translations
- * const selectEnglish = createProductSelect({ languageId: 'en' });
- * ```
+ * List/pagination shape — matches `ProductResponseDto` (no `skus`/`categories`).
+ * Use for any `findMany` product query.
  */
-export const createProductSelect = ({
+export const createProductListSelect = ({
   languageId = ALL_LANGUAGES,
 }: {
   languageId?: LanguageSchema["id"];
-} = {}) => {
-  return Prisma.validator<Prisma.ProductSelect>()({
+} = {}) =>
+  Prisma.validator<Prisma.ProductSelect>()({
     ...productSelect,
     productTranslations: {
       where: {
-        deletedAt: null,
+        ...NOT_DELETED,
         languageId: languageId === ALL_LANGUAGES ? undefined : languageId,
       },
       select: productTranslationSelect,
     },
+  });
+
+/**
+ * Detail shape — adds `skus`/`categories`, matches `ProductDetailResponseDto`.
+ * Use for `findUnique`/create/update product queries.
+ *
+ * @example
+ * ```typescript
+ * // Get product with all language translations
+ * const selectAll = createProductDetailSelect();
+ *
+ * // Get product with specific language translations
+ * const selectEnglish = createProductDetailSelect({ languageId: 'en' });
+ * ```
+ */
+export const createProductDetailSelect = ({
+  languageId = ALL_LANGUAGES,
+}: {
+  languageId?: LanguageSchema["id"];
+} = {}) =>
+  Prisma.validator<Prisma.ProductSelect>()({
+    ...createProductListSelect({ languageId }),
     skus: {
-      where: { deletedAt: null },
+      where: NOT_DELETED,
       select: skuSelect,
       orderBy: { order: "asc" },
     },
     categories: {
-      where: { deletedAt: null },
+      where: NOT_DELETED,
       select: categorySelect,
     },
   });
-};

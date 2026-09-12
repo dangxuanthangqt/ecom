@@ -711,6 +711,181 @@ export type paths = {
     patch?: never;
     trace?: never;
   };
+  "/cart": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get my cart */
+    get: operations["getCartItems"];
+    put?: never;
+    /** Add a SKU to the cart */
+    post: operations["addCartItem"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/cart/{cartItemId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Set the quantity of a cart line */
+    put: operations["updateCartItemQuantity"];
+    post?: never;
+    /** Remove a cart line */
+    delete: operations["deleteCartItem"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get my orders */
+    get: operations["getOrders"];
+    put?: never;
+    /** Checkout the cart */
+    post: operations["checkout"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orders/{orderId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get one of my orders */
+    get: operations["getOrderById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/orders/{orderId}/cancel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Cancel my order */
+    put: operations["cancelOrder"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage-order/orders": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get a list of orders (seller/admin) */
+    get: operations["getManageOrders"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage-order/orders/{orderId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get order by ID (seller/admin) */
+    get: operations["getManageOrderById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/manage-order/orders/{orderId}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Advance order status (seller/admin) */
+    put: operations["updateOrderStatus"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reviews": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get reviews */
+    get: operations["getReviews"];
+    put?: never;
+    /** Create a review */
+    post: operations["createReview"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/reviews/{reviewId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Edit own review */
+    put: operations["updateReview"];
+    post?: never;
+    /** Delete own review */
+    delete: operations["deleteReview"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 };
 export type webhooks = Record<string, never>;
 export type components = {
@@ -2249,7 +2424,7 @@ export type components = {
       /**
        * Format: date-time
        * @description The date when the product will be published
-       * @default 2025-07-10T15:54:38.209Z
+       * @default 2026-09-12T15:13:34.650Z
        * @example 2023-10-01T00:00:00Z
        */
       publishedAt: string;
@@ -2300,7 +2475,7 @@ export type components = {
       /**
        * Format: date-time
        * @description The date when the product will be published
-       * @default 2025-07-10T15:54:38.209Z
+       * @default 2026-09-12T15:13:34.650Z
        * @example 2023-10-01T00:00:00Z
        */
       publishedAt: string;
@@ -2399,6 +2574,305 @@ export type components = {
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       productId?: string;
+    };
+    CartItemProductSummaryResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the parent product
+       */
+      id: string;
+      /** @description Name of the parent product */
+      name: string;
+    };
+    CartItemSkuResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the SKU
+       */
+      id: string;
+      /** @description Display order of the SKU */
+      order: number;
+      /** @description Image URL of the SKU */
+      image: string;
+      /** @description Price of the SKU */
+      price: number;
+      /** @description Remaining stock for the SKU */
+      stock: number;
+      /** @description SKU value, e.g. size or color */
+      value: string;
+      product: components["schemas"]["CartItemProductSummaryResponseDto"];
+    };
+    CartItemDetailResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the cart line
+       */
+      id: string;
+      /** @description Quantity of the SKU held in the cart */
+      quantity: number;
+      /**
+       * Format: date-time
+       * @description When the cart line was created
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description When the cart line was last updated
+       */
+      updatedAt: string;
+      sku: components["schemas"]["CartItemSkuResponseDto"];
+    };
+    AddCartItemRequestDto: {
+      /**
+       * Format: uuid
+       * @description The SKU to add to the cart
+       */
+      skuId: string;
+      /**
+       * @description Quantity to add
+       * @example 1
+       */
+      quantity: number;
+    };
+    UpdateCartItemRequestDto: {
+      /**
+       * @description New quantity for the cart line
+       * @example 1
+       */
+      quantity: number;
+    };
+    DeleteCartItemResponseDto: {
+      /** @example Cart item removed successfully. */
+      message: string;
+    };
+    BaseOrderResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the order
+       */
+      id: string;
+      /**
+       * @description Current order status
+       * @enum {string}
+       */
+      status:
+        | "PENDING_CONFIRMATION"
+        | "PENDING_PICKUP"
+        | "PENDING_DELIVERY"
+        | "DELIVERED"
+        | "RETURNED"
+        | "CANCELLED";
+      /**
+       * Format: date-time
+       * @description When the order was placed
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description When the order was last updated
+       */
+      updatedAt: string;
+    };
+    ProductSkuSnapshotResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the snapshot line
+       */
+      id: string;
+      /** @description Product name frozen at purchase time */
+      productName: string;
+      /** @description Unit price frozen at purchase time */
+      price: number;
+      /** @description Product images frozen at purchase time */
+      images: string[];
+      /** @description SKU value (e.g. size, color) frozen at purchase time */
+      skuValue: string;
+      /** @description Quantity purchased on this line */
+      quantity: number;
+    };
+    OrderDetailResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the order
+       */
+      id: string;
+      /**
+       * @description Current order status
+       * @enum {string}
+       */
+      status:
+        | "PENDING_CONFIRMATION"
+        | "PENDING_PICKUP"
+        | "PENDING_DELIVERY"
+        | "DELIVERED"
+        | "RETURNED"
+        | "CANCELLED";
+      /**
+       * Format: date-time
+       * @description When the order was placed
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description When the order was last updated
+       */
+      updatedAt: string;
+      items: components["schemas"]["ProductSkuSnapshotResponseDto"][];
+    };
+    CreateOrderRequestDto: {
+      /**
+       * @description Cart line ids to convert into orders (one per seller)
+       * @example [
+       *       "11111111-1111-4111-8111-111111111111"
+       *     ]
+       */
+      cartItemIds: string[];
+    };
+    CancelOrderResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the order
+       */
+      id: string;
+      /**
+       * @description Current order status
+       * @enum {string}
+       */
+      status:
+        | "PENDING_CONFIRMATION"
+        | "PENDING_PICKUP"
+        | "PENDING_DELIVERY"
+        | "DELIVERED"
+        | "RETURNED"
+        | "CANCELLED";
+      /**
+       * Format: date-time
+       * @description When the order was placed
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description When the order was last updated
+       */
+      updatedAt: string;
+    };
+    ManageOrderDetailResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the order
+       */
+      id: string;
+      /**
+       * @description Current order status
+       * @enum {string}
+       */
+      status:
+        | "PENDING_CONFIRMATION"
+        | "PENDING_PICKUP"
+        | "PENDING_DELIVERY"
+        | "DELIVERED"
+        | "RETURNED"
+        | "CANCELLED";
+      /**
+       * Format: date-time
+       * @description When the order was placed
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description When the order was last updated
+       */
+      updatedAt: string;
+      items: components["schemas"]["ProductSkuSnapshotResponseDto"][];
+    };
+    UpdateOrderStatusRequestDto: {
+      /**
+       * @description The next order status to transition to
+       * @enum {string}
+       */
+      status:
+        | "PENDING_CONFIRMATION"
+        | "PENDING_PICKUP"
+        | "PENDING_DELIVERY"
+        | "DELIVERED"
+        | "RETURNED"
+        | "CANCELLED";
+    };
+    ReviewAuthorResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the review author
+       */
+      id: string;
+      /** @description Display name of the review author */
+      name: string;
+      /** @description Avatar URL of the review author */
+      avatar: Record<string, never> | null;
+    };
+    ReviewWithAuthorResponseDto: {
+      /**
+       * Format: uuid
+       * @description Unique identifier of the review
+       */
+      id: string;
+      /** @description Review text content */
+      content: string;
+      /** @description Rating from 1 to 5 */
+      rating: number;
+      /**
+       * Format: uuid
+       * @description Reviewed product identifier
+       */
+      productId: string;
+      /**
+       * Format: uuid
+       * @description Review author identifier
+       */
+      userId: string;
+      /**
+       * Format: date-time
+       * @description When the review was created
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description When the review was last updated
+       */
+      updatedAt: string;
+      user: components["schemas"]["ReviewAuthorResponseDto"];
+    };
+    CreateReviewRequestDto: {
+      /**
+       * Format: uuid
+       * @description The product being reviewed
+       */
+      productId: string;
+      /**
+       * @description Rating from 1 to 5
+       * @example 5
+       */
+      rating: number;
+      /**
+       * @description Review text content
+       * @example Great product!
+       */
+      content: string;
+    };
+    UpdateReviewRequestDto: {
+      /**
+       * @description Rating from 1 to 5
+       * @example 5
+       */
+      rating?: number;
+      /**
+       * @description Review text content
+       * @example Great product!
+       */
+      content?: string;
+    };
+    DeleteReviewResponseDto: {
+      /** @example Review removed successfully. */
+      message: string;
     };
   };
   responses: never;
@@ -7208,6 +7682,1062 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ProductTranslationResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getCartItems: {
+    parameters: {
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "asc" | "desc";
+        /** @description Field to order by */
+        orderBy?: "createdAt" | "updatedAt";
+        /** @description Search keyword */
+        keyword?: string;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve the caller's own cart lines with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["CartItemDetailResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  addCartItem: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddCartItemRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Adds a SKU to the caller's cart, incrementing the quantity of an existing line for the same SKU. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CartItemDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateCartItemQuantity: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the cart line to update. */
+        cartItemId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateCartItemRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Sets the quantity of one own cart line. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CartItemDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteCartItem: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the cart line to remove. */
+        cartItemId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Removes one own cart line. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeleteCartItemResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getOrders: {
+    parameters: {
+      query?: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "asc" | "desc";
+        /** @description Field to order by */
+        orderBy?: "createdAt" | "updatedAt";
+        /** @description Search keyword */
+        keyword?: string;
+        /** @description Filter by order status */
+        status?:
+          | "PENDING_CONFIRMATION"
+          | "PENDING_PICKUP"
+          | "PENDING_DELIVERY"
+          | "DELIVERED"
+          | "RETURNED"
+          | "CANCELLED";
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve the caller's own orders with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["BaseOrderResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  checkout: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateOrderRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Creates one order per seller from the given cart lines, freezing product/SKU snapshots and decrementing stock in one transaction. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrderDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getOrderById: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the order. */
+        orderId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieves the caller's own order with its snapshot items. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrderDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  cancelOrder: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the order to cancel. */
+        orderId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cancels the caller's own order while it is still pending confirmation, restoring stock. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CancelOrderResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getManageOrders: {
+    parameters: {
+      query?: {
+        /** @description Filter by order status */
+        status?:
+          | "PENDING_CONFIRMATION"
+          | "PENDING_PICKUP"
+          | "PENDING_DELIVERY"
+          | "DELIVERED"
+          | "RETURNED"
+          | "CANCELLED";
+        /** @description Filter by the seller who owns the order's products (admin only; ignored for seller callers, whose own id always scopes the query) */
+        createdById?: string;
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "asc" | "desc";
+        /** @description Field to order by */
+        orderBy?: "createdAt" | "updatedAt";
+        /** @description Search keyword */
+        keyword?: string;
+      };
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve orders visible to the caller (own products for a seller, all for an admin) with pagination. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["BaseOrderResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  getManageOrderById: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the order to retrieve. */
+        orderId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve one order visible to the caller by its ID. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManageOrderDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateOrderStatus: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the order to update. */
+        orderId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateOrderStatusRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Advances the order along the legal status flow (BR-O05); rejects an illegal transition with 400. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManageOrderDetailResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  getReviews: {
+    parameters: {
+      query: {
+        /** @description Number of items per page */
+        pageSize?: number;
+        /** @description Page index (starts from 0) */
+        pageIndex?: number;
+        /** @description Sort order */
+        order?: "asc" | "desc";
+        /** @description Field to order by */
+        orderBy?: "createdAt" | "updatedAt" | "rating";
+        /** @description Search keyword */
+        keyword?: string;
+        /** @description The product to list reviews for */
+        productId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Retrieve reviews for one product, newest first. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PageDto"] & {
+            data: components["schemas"]["ReviewWithAuthorResponseDto"][];
+          };
+        };
+      };
+    };
+  };
+  createReview: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateReviewRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Creates a review for a delivered order's product (BR-R01). One review per product per user (BR-R02). */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewWithAuthorResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  updateReview: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the review to update. */
+        reviewId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateReviewRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Edits one own review. Another user's review is a 404 (BR-R03). */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ReviewWithAuthorResponseDto"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": unknown;
+        };
+      };
+    };
+  };
+  deleteReview: {
+    parameters: {
+      query?: never;
+      header: {
+        /** @description Bearer auth token */
+        Authorization: string;
+      };
+      path: {
+        /** @description The unique identifier of the review to remove. */
+        reviewId: unknown;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Removes one own review. Another user's review is a 404 (BR-R03). */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeleteReviewResponseDto"];
         };
       };
       /** @description Bad Request */

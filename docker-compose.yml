@@ -19,6 +19,22 @@ services:
     networks:
       - ecom-network
 
+  # Caches the auth guard's role/permission lookup (RolePermissionCacheService).
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - ecom-network
+
   # One-shot migration job. Runs `prisma migrate deploy` exactly once, before the
   # app starts. Never scale this service.
   migrate:
@@ -49,6 +65,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       migrate:
         condition: service_completed_successfully
     networks:
@@ -56,6 +74,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   ecom-network:

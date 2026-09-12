@@ -52,6 +52,22 @@ $  pnpm run seed:initial-scripts:create-permission
 $ docker compose up db -d
 ```
 
+## Redis
+
+Redis caches the auth guard's role/permission lookup (see
+[docs/redis-role-permission-cache.md](docs/redis-role-permission-cache.md)). Required for the app to
+boot — set `REDIS_URL` in your env file (defaults to `redis://localhost:6379` in `.env.example`).
+
+### Start Redis Server on local
+
+```bash
+# start Redis only (useful with `pnpm run start:dev`, which runs outside docker)
+$ docker compose up redis -d
+```
+
+`docker-compose up -d --build` (production mode above) already starts Redis alongside Postgres and the
+app, so this is only needed when running the app directly on the host.
+
 ### Generate prisma client
 
 ```bash

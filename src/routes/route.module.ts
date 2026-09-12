@@ -3,14 +3,17 @@ import { Module } from "@nestjs/common";
 import { AuthModule } from "./auth/auth.module";
 import { BrandModule } from "./brand/brand.module";
 import { BrandTranslationModule } from "./brand-translation/brand-translation.module";
+import { CartModule } from "./cart/cart.module";
 import { CategoryModule } from "./category/category.module";
 import { CategoryTranslationModule } from "./category-translation/category-translation.module";
 import { LanguageModule } from "./language/language.module";
 import { MediaModule } from "./media/media.module";
+import { OrderModule } from "./order/order.module";
 import { PermissionModule } from "./permission/permission.module";
 import { ProductModule } from "./product/product.module";
 import { ProductTranslationModule } from "./product-translation/product-translation.module";
 import { ProfileModule } from "./profile/profile.module";
+import { ReviewModule } from "./review/review.module";
 import { RoleModule } from "./role/role.module";
 import { UserModule } from "./user/user.module";
 
@@ -29,6 +32,9 @@ import { UserModule } from "./user/user.module";
     CategoryTranslationModule,
     ProductModule,
     ProductTranslationModule,
+    CartModule,
+    OrderModule,
+    ReviewModule,
   ],
 })
 export class RouteModule {}

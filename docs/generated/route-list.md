@@ -3,7 +3,7 @@
 **Project**: ecom (NestJS backend)
 **Generated**: 2026-09-12
 
-**Route source tier**: Tier-2 static parse (no CLI probe/route-lister). Enumerated from `@Controller`/`@Get|Post|Put|Delete` decorators in `src/routes/**`. Cross-checked against generated `swagger.yaml` (produced by `pnpm build:swagger` → `src/generate-swagger.ts`) — **0 discrepancies**: all 39 swagger path entries and their HTTP methods match the static parse exactly (spot-verified path list + method counts for `/auth/*`, `/media/*`, `/languages/*`; full path-list diff below).
+**Route source tier**: Tier-2 static parse (no CLI probe/route-lister). Enumerated from `@Controller`/`@Get|Post|Put|Delete` decorators in `src/routes/**`. Cross-checked against generated `swagger.yaml` (produced by `pnpm build:swagger` → `src/generate-swagger.ts`) — **0 discrepancies**: all 50 swagger path entries (39 original + 10 covering the 15 new cart/order/review/manage-order routes) and their HTTP methods match the static parse exactly (spot-verified path list + method counts for `/auth/*`, `/media/*`, `/languages/*`, `/cart`, `/orders`, `/reviews`; full path-list diff below).
 
 **Global prefix**: none. `src/main.ts` calls no `app.setGlobalPrefix()`. Swagger UI is mounted at `/api` only when `NODE_ENV=development` (`src/main.ts:54-60`) — not an API route, dev-only tooling.
 
@@ -153,6 +153,41 @@ Note: two handlers are commented out in source (`uploadImage` buffer variant `me
 | PUT | /users/:id | ROUTE069 | F010 | UserController@updateUser (user.controller.ts:110) | Bearer (default) |
 | DELETE | /users/:id | ROUTE070 | F010 | UserController@deleteUser (user.controller.ts:139) | Bearer (default) |
 
+### File: src/routes/cart/cart.controller.ts (prefix: `cart`)
+
+| Method | Path | Code | Owner F### | Handler | Middleware |
+|--------|------|------|------------|---------|------------|
+| GET | /cart | ROUTE071 | F011 | CartController@getCartItems (cart.controller.ts:42) | Bearer (default) |
+| POST | /cart | ROUTE072 | F011 | CartController@addCartItem (cart.controller.ts:60) | Bearer (default) |
+| PUT | /cart/:cartItemId | ROUTE073 | F011 | CartController@updateCartItemQuantity (cart.controller.ts:86) | Bearer (default) |
+| DELETE | /cart/:cartItemId | ROUTE074 | F011 | CartController@deleteCartItem (cart.controller.ts:113) | Bearer (default) |
+
+### File: src/routes/order/order.controller.ts (prefix: `orders`)
+
+| Method | Path | Code | Owner F### | Handler | Middleware |
+|--------|------|------|------------|---------|------------|
+| GET | /orders | ROUTE075 | F012 | OrderController@getOrders (order.controller.ts:41) | Bearer (default) |
+| GET | /orders/:orderId | ROUTE076 | F012 | OrderController@getOrderById (order.controller.ts:63) | Bearer (default) |
+| POST | /orders | ROUTE077 | F012 | OrderController@checkout (order.controller.ts:81) | Bearer (default) |
+| PUT | /orders/:orderId/cancel | ROUTE078 | F012 | OrderController@cancelOrder (order.controller.ts:107) | Bearer (default) |
+
+### File: src/routes/order/manage-order/manage-order.controller.ts (prefix: `manage-order/orders`)
+
+| Method | Path | Code | Owner F### | Handler | Middleware |
+|--------|------|------|------------|---------|------------|
+| GET | /manage-order/orders | ROUTE079 | F012 | ManageOrderController@getManageOrders (manage-order.controller.ts:45) | Bearer (default); seller sees own products' orders, admin sees all (BR-O06) |
+| GET | /manage-order/orders/:orderId | ROUTE080 | F012 | ManageOrderController@getManageOrderById (manage-order.controller.ts:72) | Bearer (default); same BR-O06 scope |
+| PUT | /manage-order/orders/:orderId/status | ROUTE081 | F012 | ManageOrderController@updateOrderStatus (manage-order.controller.ts:100) | Bearer (default); seller/admin only via MANAGE-ORDER module (not granted to client) |
+
+### File: src/routes/review/review.controller.ts (prefix: `reviews`)
+
+| Method | Path | Code | Owner F### | Handler | Middleware |
+|--------|------|------|------------|---------|------------|
+| GET | /reviews | ROUTE082 | F013 | ReviewController@getReviews (review.controller.ts:45) | public (`@IsPublicApi`) |
+| POST | /reviews | ROUTE083 | F013 | ReviewController@createReview (review.controller.ts:62) | Bearer (default) |
+| PUT | /reviews/:reviewId | ROUTE084 | F013 | ReviewController@updateReview (review.controller.ts:90) | Bearer (default) |
+| DELETE | /reviews/:reviewId | ROUTE085 | F013 | ReviewController@deleteReview (review.controller.ts:119) | Bearer (default) |
+
 ## Frontend Routes
 
 No data — headless backend API, no frontend routes.
@@ -161,12 +196,13 @@ No data — headless backend API, no frontend routes.
 
 | Category | Count |
 |----------|-------|
-| Backend Routes | 70 |
+| Backend Routes | 85 |
 | Frontend Pages | 0 |
-| Total | 70 |
+| Total | 85 |
 
 ## Cross-check notes
 
-- `swagger.yaml` lists 39 distinct paths; every path and its HTTP-method set matches the static-parse rows above exactly (verified full path-list diff + method-count spot-check on `/auth/*`, `/media/*`, `/languages/*`). No discrepancy found.
+- `swagger.yaml` lists 50 distinct paths (39 original + 10 new cart/order/review/manage-order paths, several carrying 2 methods, covering all 15 new routes). Re-verified after `pnpm build:swagger` regenerated the file in the delivery pass — all 10 new paths and their HTTP-method sets match the static-parse rows below exactly. No discrepancy found.
 - Route `ROUTE012` (`GET /brands/:id`) is documented via `@ApiPublic` (swagger label) but carries **no** `@IsPublicApi()` decorator — the only decorator that changes runtime auth. Runtime behavior therefore requires a Bearer token despite the "Public" swagger doc name. Flagged `[UNVERIFIED]` pending confirmation this isn't a doc/behavior drift bug in the source itself (not a route-list extraction error).
-- `Owner F###` is `—` for all 70 rows: `feature-list.md` has not been generated yet in this session (Wave 1 runs before feature synthesis per `_session-context.md`). Re-attribution is a downstream wave's job, not a gap in this artifact.
+- `Owner F###` is `—` for the original 70 rows (unchanged from Wave 1: `feature-list.md`'s feature synthesis ran after this artifact and was never backfilled here beyond the initial pass). ROUTE071–ROUTE085 carry their owner F### directly since `feature-list.md` already defines F011–F013 as of this pass.
+- ROUTE071–ROUTE085 (cart, orders, manage-order/orders, reviews) added 2026-09-12 for F011 Shopping Cart, F012 Order Placement & Fulfilment, F013 Product Reviews. Source: `src/routes/{cart,order,review}/*.controller.ts`. `GET /reviews` is the only public route among the 15 (`@IsPublicApi()`, `review.controller.ts:38`).
