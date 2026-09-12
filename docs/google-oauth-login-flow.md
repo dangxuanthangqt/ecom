@@ -70,15 +70,15 @@ Người dùng đi qua **5 màn hình**, trong đó 2 màn hình là của Googl
 
 ### 2.2. Bảng tóm tắt
 
-| # | Màn hình thấy gì | Người dùng làm gì | Ai xử lý | URL trên thanh địa chỉ |
-|---|---|---|---|---|
-| 1 | Trang đăng nhập của bạn | Bấm "Đăng nhập với Google" | FE | `localhost:3000/login` |
-| 2 | Nút chuyển trạng thái loading | Chờ (~100–300ms) | FE → BE | `localhost:3000/login` |
-| 3 | Trang Google "Choose an account" | Chọn tài khoản | Google | `accounts.google.com/...` |
-| 4 | Trang Google xin quyền | Bấm Continue / Allow | Google | `accounts.google.com/...` |
-| 5 | Trắng, chớp qua rất nhanh | Không làm gì | BE | `localhost:4000/auth/google/callback?...` |
-| 6 | "Đang đăng nhập..." | Không làm gì | FE | `localhost:3000/login-google/success?accessToken=...` |
-| 7 | Trang chủ, đã đăng nhập | Bắt đầu dùng app | FE | `localhost:3000/` |
+| #   | Màn hình thấy gì                 | Người dùng làm gì          | Ai xử lý | URL trên thanh địa chỉ                                |
+| --- | -------------------------------- | -------------------------- | -------- | ----------------------------------------------------- |
+| 1   | Trang đăng nhập của bạn          | Bấm "Đăng nhập với Google" | FE       | `localhost:3000/login`                                |
+| 2   | Nút chuyển trạng thái loading    | Chờ (~100–300ms)           | FE → BE  | `localhost:3000/login`                                |
+| 3   | Trang Google "Choose an account" | Chọn tài khoản             | Google   | `accounts.google.com/...`                             |
+| 4   | Trang Google xin quyền           | Bấm Continue / Allow       | Google   | `accounts.google.com/...`                             |
+| 5   | Trắng, chớp qua rất nhanh        | Không làm gì               | BE       | `localhost:4000/auth/google/callback?...`             |
+| 6   | "Đang đăng nhập..."              | Không làm gì               | FE       | `localhost:3000/login-google/success?accessToken=...` |
+| 7   | Trang chủ, đã đăng nhập          | Bắt đầu dùng app           | FE       | `localhost:3000/`                                     |
 
 ---
 
@@ -147,7 +147,7 @@ Nếu trình duyệt chưa đăng nhập Google nào, người dùng sẽ thấy
 
 ### Bước 4 — Google xin quyền
 
-**Thấy gì:** màn hình dạng *"Ứng dụng ABC muốn truy cập Tài khoản Google của bạn"*, liệt kê đúng 2 quyền ứng với 2 scope đã khai:
+**Thấy gì:** màn hình dạng _"Ứng dụng ABC muốn truy cập Tài khoản Google của bạn"_, liệt kê đúng 2 quyền ứng với 2 scope đã khai:
 
 - Xem địa chỉ email chính của bạn
 - Xem thông tin cá nhân công khai
@@ -178,16 +178,16 @@ GET http://localhost:4000/auth/google/callback?code=4/0AY0e-g7...&state=eyJ1c2Vy
 
 Đây là bước nặng nhất của cả flow. BE chạy tuần tự ([google.service.ts:76](../src/routes/auth/google.service.ts#L76)):
 
-| Thứ tự | Việc | Gọi ra ngoài? |
-|---|---|---|
-| 1 | Giải mã `state`, validate bằng zod | Không |
-| 2 | Đổi `code` lấy token Google — `getToken(code)` | Có — gọi Google |
-| 3 | Lấy email/tên — `oauth2.userinfo.get()` | Có — gọi Google |
-| 4 | Tìm user theo email trong DB | Không |
-| 5 | Chưa có → tạo user mới, role `Client` | Không |
-| 6 | Tạo bản ghi `Device` | Không |
-| 7 | Ký access token + refresh token, lưu refresh token vào DB | Không |
-| 8 | Redirect về FE kèm token trên query | Không |
+| Thứ tự | Việc                                                      | Gọi ra ngoài?   |
+| ------ | --------------------------------------------------------- | --------------- |
+| 1      | Giải mã `state`, validate bằng zod                        | Không           |
+| 2      | Đổi `code` lấy token Google — `getToken(code)`            | Có — gọi Google |
+| 3      | Lấy email/tên — `oauth2.userinfo.get()`                   | Có — gọi Google |
+| 4      | Tìm user theo email trong DB                              | Không           |
+| 5      | Chưa có → tạo user mới, role `Client`                     | Không           |
+| 6      | Tạo bản ghi `Device`                                      | Không           |
+| 7      | Ký access token + refresh token, lưu refresh token vào DB | Không           |
+| 8      | Redirect về FE kèm token trên query                       | Không           |
 
 Hai lần gọi Google ở bước 2–3 chính là lý do màn hình này có độ trễ thấy được.
 
@@ -221,7 +221,10 @@ Mọi API khác trong app đều là FE chủ động `fetch()`, nhận JSON, r�
 Nên nếu BE `return { accessToken, refreshToken }` như một API bình thường, người dùng sẽ nhìn thấy **JSON thô hiện trên màn hình**:
 
 ```json
-{"data":{"accessToken":"eyJhbGciOi...","refreshToken":"eyJhbGciOi..."},"statusCode":200}
+{
+  "data": { "accessToken": "eyJhbGciOi...", "refreshToken": "eyJhbGciOi..." },
+  "statusCode": 200
+}
 ```
 
 Và dừng luôn ở đó — không có gì đưa họ về app được nữa. Cách duy nhất để đưa trình duyệt quay lại FE là trả `302` kèm header `Location`, chính là `res.redirect()`. Đó cũng là lý do controller dùng `@Res()` để cầm response gốc của Express, thay vì trả object như các endpoint còn lại.
@@ -232,11 +235,11 @@ Khi đã buộc phải redirect thì câu hỏi kế tiếp là: nhét token và
 
 Một redirect `302` chỉ có đúng ba chỗ chứa được dữ liệu:
 
-| Kênh | Dùng được? | Vấn đề |
-|---|---|---|
-| Body của response | Không | Trình duyệt vứt body của 302 đi, chỉ đọc `Location` |
-| Header tự định nghĩa | Không | Trình duyệt không chuyển header sang request tiếp theo, JS cũng không đọc được |
-| URL trong `Location` | Được | Đây là kênh duy nhất còn lại |
+| Kênh                 | Dùng được? | Vấn đề                                                                         |
+| -------------------- | ---------- | ------------------------------------------------------------------------------ |
+| Body của response    | Không      | Trình duyệt vứt body của 302 đi, chỉ đọc `Location`                            |
+| Header tự định nghĩa | Không      | Trình duyệt không chuyển header sang request tiếp theo, JS cũng không đọc được |
+| URL trong `Location` | Được       | Đây là kênh duy nhất còn lại                                                   |
 
 Và URL thì chỉ có hai chỗ để nhét: **query string** (`?token=...`) hoặc **fragment** (`#token=...`). Còn một kênh thứ tư là `Set-Cookie` đính trên chính response 302 — mục sau nói kỹ, vì đây mới là hướng nên đi.
 
@@ -262,11 +265,11 @@ res.cookie("accessToken", accessToken, {
   httpOnly: true,
   secure: true,
   sameSite: "lax",
-  domain: ".example.com",   // để cả FE và BE cùng đọc được
+  domain: ".example.com", // để cả FE và BE cùng đọc được
   maxAge: 5 * 60 * 1000,
 });
 
-res.redirect(googleClientRedirectUri);   // URL sạch, không token
+res.redirect(googleClientRedirectUri); // URL sạch, không token
 ```
 
 Token không bao giờ xuất hiện trên URL, và bỏ luôn được bước "FE đọc query rồi POST sang route handler".
@@ -309,7 +312,7 @@ Nhưng token vẫn nằm trên thanh địa chỉ và vẫn vào history. Đây 
 
 Dùng được và chạy đúng, nhưng thuộc loại "tạm ổn cho dev, cần sửa trước khi lên production".
 
-Việc trang callback gọi `router.replace` rồi đổi token sang cookie `httpOnly` ngay ([mục 5.2](#52-trang-nhận-callback)) bịt được phần *history* — chỗ dễ bịt nhất. Nhưng **không bịt được access log của proxy**, vì token đã bay qua đường truyền rồi. Muốn triệt để thì phải đổi sang cách 1 hoặc cách 2.
+Việc trang callback gọi `router.replace` rồi đổi token sang cookie `httpOnly` ngay ([mục 5.2](#52-trang-nhận-callback)) bịt được phần _history_ — chỗ dễ bịt nhất. Nhưng **không bịt được access log của proxy**, vì token đã bay qua đường truyền rồi. Muốn triệt để thì phải đổi sang cách 1 hoặc cách 2.
 
 ---
 
@@ -344,12 +347,12 @@ Việc trang callback gọi `router.replace` rồi đổi token sang cookie `htt
 
 Access token chỉ sống **5 phút** (`ACCESS_TOKEN_EXPIRES_IN=5m`). Nghĩa là chỉ cần người dùng ngồi đọc một trang khoảng 5 phút rồi bấm tiếp là đã rơi vào tình huống này.
 
-| Thời điểm | Người dùng thấy | Chạy ngầm |
-|---|---|---|
-| Phút 0 | Đăng nhập xong | Có access token (5m) + refresh token (1d) |
-| Phút 0–5 | Dùng bình thường | Mọi request đi kèm access token, BE chấp nhận |
-| Phút 5+ | Bấm một chức năng, **không thấy gì khác lạ** | Request đầu tiên bị `401` → FE tự gọi refresh → thử lại request → thành công |
-| Sau 1 ngày | Bị đá về trang login | Refresh token hết hạn, không cứu được nữa |
+| Thời điểm  | Người dùng thấy                              | Chạy ngầm                                                                    |
+| ---------- | -------------------------------------------- | ---------------------------------------------------------------------------- |
+| Phút 0     | Đăng nhập xong                               | Có access token (5m) + refresh token (1d)                                    |
+| Phút 0–5   | Dùng bình thường                             | Mọi request đi kèm access token, BE chấp nhận                                |
+| Phút 5+    | Bấm một chức năng, **không thấy gì khác lạ** | Request đầu tiên bị `401` → FE tự gọi refresh → thử lại request → thành công |
+| Sau 1 ngày | Bị đá về trang login                         | Refresh token hết hạn, không cứu được nữa                                    |
 
 Người dùng **không được nhìn thấy** việc refresh xảy ra. Nếu họ bị văng ra login sau mỗi 5 phút thì cơ chế refresh ở [mục 5.4](#54-gọi-api-và-tự-refresh-khi-hết-hạn) đang hỏng.
 
@@ -357,24 +360,24 @@ Lưu ý về **rotation**: mỗi refresh token dùng được đúng một lần
 
 ### 2.4. Lần đăng nhập thứ hai khác gì lần đầu
 
-| | Lần đầu | Các lần sau |
-|---|---|---|
-| Màn hình xin quyền (bước 4) | Có | **Không** — Google nhớ rồi |
-| Tạo user trong DB | Có | Không — tìm thấy theo email |
-| Tạo `Device` mới | Có | **Vẫn tạo mới** — xem [mục 7.8](#78-mỗi-lần-login-tạo-một-device-mới) |
-| Số màn hình đi qua | 5 | 4 |
-| Cảm giác | Chậm, nhiều bước | Gần như chỉ một cú bấm |
+|                             | Lần đầu          | Các lần sau                                                           |
+| --------------------------- | ---------------- | --------------------------------------------------------------------- |
+| Màn hình xin quyền (bước 4) | Có               | **Không** — Google nhớ rồi                                            |
+| Tạo user trong DB           | Có               | Không — tìm thấy theo email                                           |
+| Tạo `Device` mới            | Có               | **Vẫn tạo mới** — xem [mục 7.8](#78-mỗi-lần-login-tạo-một-device-mới) |
+| Số màn hình đi qua          | 5                | 4                                                                     |
+| Cảm giác                    | Chậm, nhiều bước | Gần như chỉ một cú bấm                                                |
 
 ### 2.5. Các nhánh không thành công
 
-| Người dùng làm gì | Kết quả | Người dùng thấy |
-|---|---|---|
-| Bấm Cancel ở màn hình Google | Google trả `?error=access_denied` | "Failed to google login." (nên sửa thành "Bạn đã hủy đăng nhập") |
-| Đóng tab giữa chừng | Không có gì xảy ra | Không thấy gì, phải làm lại từ đầu |
-| F5 ở trang callback của BE | `invalid_grant` | Trang lỗi, dù lần đầu đã thành công |
-| Email không nằm trong Test users | Google chặn | `403 access_denied` ngay trên trang Google |
-| BE sập giữa chừng | Redirect không xảy ra | Kẹt ở trang trắng `localhost:4000/...` |
-| DB sập | `catch` bắt được | Về FE kèm `errorMessage` |
+| Người dùng làm gì                | Kết quả                           | Người dùng thấy                                                  |
+| -------------------------------- | --------------------------------- | ---------------------------------------------------------------- |
+| Bấm Cancel ở màn hình Google     | Google trả `?error=access_denied` | "Failed to google login." (nên sửa thành "Bạn đã hủy đăng nhập") |
+| Đóng tab giữa chừng              | Không có gì xảy ra                | Không thấy gì, phải làm lại từ đầu                               |
+| F5 ở trang callback của BE       | `invalid_grant`                   | Trang lỗi, dù lần đầu đã thành công                              |
+| Email không nằm trong Test users | Google chặn                       | `403 access_denied` ngay trên trang Google                       |
+| BE sập giữa chừng                | Redirect không xảy ra             | Kẹt ở trang trắng `localhost:4000/...`                           |
+| DB sập                           | `catch` bắt được                  | Về FE kèm `errorMessage`                                         |
 
 ---
 
@@ -391,12 +394,12 @@ GOOGLE_REDIRECT_URI=http://localhost:4000/auth/google/callback
 GOOGLE_REDIRECT_CLIENT_URI=http://localhost:3000/login-google/success
 ```
 
-| Biến | Ý nghĩa |
-|---|---|
-| `GOOGLE_CLIENT_ID` | Client ID lấy từ Google Cloud Console |
-| `GOOGLE_CLIENT_SECRET` | Client secret — **chỉ nằm ở BE**, không bao giờ để lộ ra FE |
-| `GOOGLE_REDIRECT_URI` | URL Google gọi ngược lại. Trỏ về **BE**, phải khai báo y hệt trong Google Console |
-| `GOOGLE_REDIRECT_CLIENT_URI` | URL BE redirect về **FE** sau khi xong. Không liên quan gì tới Google |
+| Biến                         | Ý nghĩa                                                                           |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| `GOOGLE_CLIENT_ID`           | Client ID lấy từ Google Cloud Console                                             |
+| `GOOGLE_CLIENT_SECRET`       | Client secret — **chỉ nằm ở BE**, không bao giờ để lộ ra FE                       |
+| `GOOGLE_REDIRECT_URI`        | URL Google gọi ngược lại. Trỏ về **BE**, phải khai báo y hệt trong Google Console |
+| `GOOGLE_REDIRECT_CLIENT_URI` | URL BE redirect về **FE** sau khi xong. Không liên quan gì tới Google             |
 
 Hai biến cuối rất hay bị nhầm. `GOOGLE_REDIRECT_URI` là của Google, `GOOGLE_REDIRECT_CLIENT_URI` là của bạn.
 
@@ -435,7 +438,9 @@ Xử lý tại [auth.controller.ts:171](../src/routes/auth/auth.controller.ts#L1
 Trong [google.service.ts:49](../src/routes/auth/google.service.ts#L49):
 
 ```ts
-const stateString = Buffer.from(JSON.stringify({ userAgent, ip })).toString("base64");
+const stateString = Buffer.from(JSON.stringify({ userAgent, ip })).toString(
+  "base64",
+);
 
 const url = this.oauth2Client.generateAuthUrl({
   access_type: "offline",
@@ -493,7 +498,9 @@ Sau đó controller [auth.controller.ts:183](../src/routes/auth/auth.controller.
 res.redirect(`${googleClientRedirectUri}?accessToken=...&refreshToken=...`);
 
 // Thất bại
-res.redirect(`${googleClientRedirectUri}?errorMessage=Failed%20to%20google%20login.`);
+res.redirect(
+  `${googleClientRedirectUri}?errorMessage=Failed%20to%20google%20login.`,
+);
 ```
 
 Cả hai nhánh đều redirect về cùng một URL FE, chỉ khác query param. FE phải xử lý được cả hai.
@@ -502,10 +509,10 @@ Cả hai nhánh đều redirect về cùng một URL FE, chỉ khác query param
 
 `generateTokens()` tại [auth.service.ts:242](../src/routes/auth/auth.service.ts#L242):
 
-| Token | Payload | Hạn (mặc định) | Lưu DB? |
-|---|---|---|---|
-| `accessToken` | `userId`, `deviceId`, `roleId`, `roleName` | `ACCESS_TOKEN_EXPIRES_IN` = 5m | Không |
-| `refreshToken` | `userId` | `REFRESH_TOKEN_EXPIRES_IN` = 1d | Có — bảng `RefreshToken` |
+| Token          | Payload                                    | Hạn (mặc định)                  | Lưu DB?                  |
+| -------------- | ------------------------------------------ | ------------------------------- | ------------------------ |
+| `accessToken`  | `userId`, `deviceId`, `roleId`, `roleName` | `ACCESS_TOKEN_EXPIRES_IN` = 5m  | Không                    |
+| `refreshToken` | `userId`                                   | `REFRESH_TOKEN_EXPIRES_IN` = 1d | Có — bảng `RefreshToken` |
 
 Refresh token được ghi vào DB kèm `deviceId` và `expiresAt`, nên có thể thu hồi được (logout, khóa thiết bị). Access token thì không — hết hạn là cách duy nhất để nó chết, nên hạn 5 phút là hợp lý.
 
@@ -540,11 +547,7 @@ export default function LoginPage() {
     window.location.href = json.data.url;
   };
 
-  return (
-    <button onClick={handleGoogleLogin}>
-      Đăng nhập với Google
-    </button>
-  );
+  return <button onClick={handleGoogleLogin}>Đăng nhập với Google</button>;
 }
 ```
 
@@ -605,11 +608,11 @@ Hai chi tiết đáng lưu ý:
 
 ### 5.3. Lưu token ở đâu
 
-| Cách | Chống XSS | Ghi chú |
-|---|---|---|
-| `localStorage` | Không | Dính XSS là mất sạch token. Tiện nhưng đừng dùng cho refresh token |
-| Cookie `httpOnly` set từ Next route handler | Có | Khuyến nghị. JS không đọc được |
-| Memory (React state) | Có | An toàn nhất nhưng F5 là mất, phải refresh lại |
+| Cách                                        | Chống XSS | Ghi chú                                                            |
+| ------------------------------------------- | --------- | ------------------------------------------------------------------ |
+| `localStorage`                              | Không     | Dính XSS là mất sạch token. Tiện nhưng đừng dùng cho refresh token |
+| Cookie `httpOnly` set từ Next route handler | Có        | Khuyến nghị. JS không đọc được                                     |
+| Memory (React state)                        | Có        | An toàn nhất nhưng F5 là mất, phải refresh lại                     |
 
 Route handler đặt cookie:
 
@@ -631,7 +634,10 @@ export async function POST(request: Request) {
   };
 
   cookieStore.set("accessToken", accessToken, { ...base, maxAge: 60 * 5 });
-  cookieStore.set("refreshToken", refreshToken, { ...base, maxAge: 60 * 60 * 24 });
+  cookieStore.set("refreshToken", refreshToken, {
+    ...base,
+    maxAge: 60 * 60 * 24,
+  });
 
   return NextResponse.json({ ok: true });
 }
@@ -719,15 +725,15 @@ Nhớ loại trừ `/login-google` khỏi matcher, không thì trang callback b�
 
 ## 6. Tình huống lỗi
 
-| Hiện tượng | Nguyên nhân | Cách xử lý |
-|---|---|---|
-| Google báo `redirect_uri_mismatch` | `GOOGLE_REDIRECT_URI` khác chuỗi khai trong Console | Copy y nguyên, chú ý http/https, port, dấu `/` cuối |
-| Redirect về FE kèm `errorMessage=Failed to google login.` | Bất kỳ exception nào trong `googleCallback` | Xem log BE — `GoogleService` đã `logger.error` nguyên lỗi gốc |
-| `Invalid state data.` | `state` parse/validate hỏng | Thường do zod chê `ip`, xem mục 7.3 |
-| `invalid_grant` khi `getToken` | `code` đã dùng rồi hoặc hết hạn | Không F5 lại trang callback. Mỗi `code` chỉ đổi được một lần |
-| FE nhận `undefined` khi lấy url | Quên lớp bọc `data` của interceptor | Đọc `json.data.url` |
-| `403 access_denied` | App ở chế độ Testing, email chưa nằm trong Test users | Thêm test user hoặc publish app |
-| Callback chạy xong nhưng FE trắng trang | `useSearchParams` chưa bọc `<Suspense>` | Bọc lại |
+| Hiện tượng                                                | Nguyên nhân                                           | Cách xử lý                                                    |
+| --------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------- |
+| Google báo `redirect_uri_mismatch`                        | `GOOGLE_REDIRECT_URI` khác chuỗi khai trong Console   | Copy y nguyên, chú ý http/https, port, dấu `/` cuối           |
+| Redirect về FE kèm `errorMessage=Failed to google login.` | Bất kỳ exception nào trong `googleCallback`           | Xem log BE — `GoogleService` đã `logger.error` nguyên lỗi gốc |
+| `Invalid state data.`                                     | `state` parse/validate hỏng                           | Thường do zod chê `ip`, xem mục 7.3                           |
+| `invalid_grant` khi `getToken`                            | `code` đã dùng rồi hoặc hết hạn                       | Không F5 lại trang callback. Mỗi `code` chỉ đổi được một lần  |
+| FE nhận `undefined` khi lấy url                           | Quên lớp bọc `data` của interceptor                   | Đọc `json.data.url`                                           |
+| `403 access_denied`                                       | App ở chế độ Testing, email chưa nằm trong Test users | Thêm test user hoặc publish app                               |
+| Callback chạy xong nhưng FE trắng trang                   | `useSearchParams` chưa bọc `<Suspense>`               | Bọc lại                                                       |
 
 ---
 
