@@ -18,13 +18,24 @@
     "start:dev": "NODE_ENV=development nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate",
+    "prisma:format": "prisma format",
+    "prisma:studio": "prisma studio",
     "prisma:migrate:dev": "prisma migrate dev",
     "prisma:migrate:dev:create-only": "prisma migrate dev --create-only",
     "prisma:migrate:deploy": "prisma migrate deploy",
-    "prisma:generate": "prisma generate",
-    "prisma:generate:env": "dotenv -e .env.${APP_ENV:-development} -- prisma generate",
-    "prisma:studio": "prisma studio",
-    "prisma:studio:env": "dotenv -e .env.${APP_ENV:-development} -- prisma studio",
+    "prisma:migrate:status": "prisma migrate status",
+    "prisma:migrate:resolve:applied": "prisma migrate resolve --applied",
+    "prisma:migrate:resolve:rolled-back": "prisma migrate resolve --rolled-back",
+    "prisma:migrate:drift": "prisma migrate diff --from-migrations ./prisma/migrations --to-schema-datamodel ./prisma/schema.prisma --shadow-database-url \"$SHADOW_DATABASE_URL\" --exit-code",
+    "db:migrate": "sh ./scripts/run-database-migrations.sh",
+    "db:migrate:dry-run": "DRY_RUN=true sh ./scripts/run-database-migrations.sh",
+    "db:backup": "sh ./scripts/backup-database.sh",
+    "db:restore": "sh ./scripts/restore-database.sh",
+    "db:drift:live": "prisma migrate diff --from-url \"$DATABASE_URL\" --to-schema-datamodel ./prisma/schema.prisma --exit-code",
+    "db:drift:live:script": "prisma migrate diff --from-url \"$DATABASE_URL\" --to-schema-datamodel ./prisma/schema.prisma --script",
+    "db:test:reset": "prisma migrate reset --force --skip-seed && prisma migrate status",
     "seed:initial-scripts": "ts-node initial-scripts",
     "seed:initial-scripts:create-permission": "NODE_ENV=development ts-node initial-scripts/create-permission",
     "test": "jest",
@@ -126,7 +137,19 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "<rootDir>/../test/jest-setup-silence-nest-logger.ts"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1",
+      "^src/(.*)$": "<rootDir>/$1"
+    },
+    "coveragePathIgnorePatterns": [
+      "\\.dto\\.ts$",
+      "\\.module\\.ts$",
+      "test-harness\\.ts$"
+    ]
   },
   "packageManager": "pnpm@10.6.5",
   "pnpm": {

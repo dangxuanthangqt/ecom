@@ -36,8 +36,9 @@ export class ExternalExceptionFilter implements ExceptionFilter {
       defaultExceptionDto.statusCode = exception.getStatus();
       defaultExceptionDto.message = zodError.message;
     }
-
-    if (exception instanceof HttpException) {
+    // Zod exceptions extend HttpException, so this must stay an `else if`:
+    // a plain `if` would overwrite the Zod detail resolved above.
+    else if (exception instanceof HttpException) {
       const errorResponse = exception.getResponse() as HttpExceptionResponse;
 
       const errorMessage = errorResponse.message || exception.message;

@@ -54,3 +54,166 @@ jobs:
       - name: Build
         shell: bash
         run: pnpm build
+
+  # Runs the Jest unit suite. Prisma client generation is required because the
+  # specs type-check against the generated model types under ts-jest.
+  test:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
+
+      - name: Setup Prisma client
+        uses: ./.github/actions/prisma-setup
+
+      # --ci fails instead of writing new snapshots; the run is sequential-ish
+      # on a 2-core runner, so cap workers to keep the suite from thrashing.
+      # No `--` separator: pnpm forwards these to jest directly, whereas with
+      # `--` they arrive as test path patterns and match zero tests.
+      - name: Unit tests
+        shell: bash
+        run: |
+          pnpm test:cov --ci --maxWorkers=2 \
+            --coverageReporters=text --coverageReporters=json-summary
+
+      - name: Coverage summary
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          summary=coverage/coverage-summary.json
+          if [ ! -f "$summary" ]; then
+            echo "No coverage summary produced." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          node -e '
+            const t = require("./coverage/coverage-summary.json").total;
+            const row = (k) => `| ${k} | ${t[k].pct}% | ${t[k].covered}/${t[k].total} |`;
+            console.log("### Coverage\n");
+            console.log("| Metric | % | Covered |");
+            console.log("| --- | --- | --- |");
+            ["statements", "branches", "functions", "lines"].forEach((k) =>
+              console.log(row(k)),
+            );
+          ' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/
+          retention-days: 7
+
+  # Proves the committed migration history is valid, complete and immutable
+  # BEFORE it can reach staging or production. See docs/database-migration.md.
+  migrations:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: ecom_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ecom_ci?schema=public
+      SHADOW_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ecom_ci_shadow?schema=public
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Full history so the immutability check can diff against the base branch.
+          fetch-depth: 0
+
+      # Runs before any other action, because a step that checks out again would
+      # re-clone at depth 1 and destroy the history this diff needs.
+      #
+      # A migration that has already been deployed must never be edited: every
+      # environment stores its checksum, and a changed file makes `migrate deploy`
+      # fail with P3005/P3006. Only brand-new migration directories may be added.
+      - name: Check applied migrations are immutable
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          base_ref="${{ github.base_ref }}"
+
+          if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
+            git fetch --no-tags --unshallow origin
+          fi
+          git fetch --no-tags origin "+refs/heads/$base_ref:refs/remotes/origin/$base_ref"
+
+          if ! git merge-base "origin/$base_ref" HEAD >/dev/null 2>&1; then
+            echo "::error::No merge base between origin/$base_ref and HEAD — the checkout is missing history."
+            exit 1
+          fi
+
+          changed=$(git diff --diff-filter=MDR --name-only "origin/$base_ref...HEAD" -- prisma/migrations)
+          if [ -n "$changed" ]; then
+            echo "::error::Existing migration files were modified, renamed or deleted."
+            echo "$changed"
+            echo "Migrations are immutable once committed. Add a NEW migration instead."
+            exit 1
+          fi
+          echo "No existing migration was altered."
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
+
+      - name: Setup Prisma client
+        uses: ./.github/actions/prisma-setup
+
+      - name: Create shadow database
+        shell: bash
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres \
+            -c 'CREATE DATABASE ecom_ci_shadow;'
+
+      - name: Validate Prisma schema
+        shell: bash
+        run: pnpm prisma:validate
+
+      # Same command production runs. Applying the whole history to an empty
+      # database catches broken SQL and bad ordering here instead of in prod.
+      - name: Apply migrations to a clean database
+        shell: bash
+        run: pnpm prisma:migrate:deploy
+
+      - name: Verify no migration is pending or failed
+        shell: bash
+        run: pnpm prisma:migrate:status
+
+      # Catches the classic mistake: schema.prisma edited but no migration
+      # generated. Exit code 2 means the migration history does not reproduce
+      # the schema.
+      - name: Check schema and migration history agree
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          pnpm prisma:migrate:drift
+          code=$?
+          set -e
+          if [ "$code" -eq 2 ]; then
+            echo "::error::prisma/schema.prisma does not match prisma/migrations."
+            echo "Run: pnpm prisma:migrate:dev --name <change> and commit the result."
+            exit 1
+          fi
+          exit "$code"

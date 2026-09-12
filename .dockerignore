@@ -20,10 +20,11 @@ dist
 coverage
 .nyc_output
 
-# Environment files (exclude from Docker build)
+# Environment files — never bake secrets into an image layer.
+# docker-compose injects .env.local at runtime via `env_file`, which reads from
+# the host and is unaffected by this file.
 .env
 .env.*
-!.env.local
 
 # Git
 .git
@@ -85,3 +86,7 @@ initial-scripts
 # Swagger
 swagger.yaml
 schema.ts
+
+# Database dumps — never bake production data into an image
+backups
+*.dump

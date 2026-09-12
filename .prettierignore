@@ -12,4 +12,20 @@ pnpm-lock.yaml
 
 *.log
 
+# Machine-generated documentation (rebuild-spec output).
+# These are regenerated wholesale, so hand-formatting them only creates diff
+# noise that the next regeneration throws away. Hand-written docs directly under
+# docs/ are still checked.
+docs/generated/
+docs/features/
+docs/system/
+docs/README.md
+docs/.reading-order.json
+docs/_source-to-fcode.json
 
+# Vendored agent skills installed from an upstream repository — kept byte-for-byte
+# as published so they can be diffed against upstream.
+.agents/
+
+# Local, machine-specific editor state
+.claude/

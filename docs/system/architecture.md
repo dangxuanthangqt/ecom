@@ -55,7 +55,7 @@ All 13 feature modules are wired in `route.module.ts:18-32` (`AuthModule, Langua
 
 | Layer | Technology | Version | Source |
 |-------|------------|---------|--------|
-| Runtime | Node.js | 20 (production image `node:20-alpine`) | `Dockerfile:42` |
+| Runtime | Node.js | 20 (production image `node:20.19.5-alpine`, pinned) | `Dockerfile:74` |
 | Framework | NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`) | 11.0.1 | `package.json:41,43,45` |
 | Language | TypeScript | 5.7.3 | `package.json:111` |
 | ORM | Prisma (`@prisma/client`, `prisma`) | 6.4.1 | `package.json:47,103` |
@@ -152,7 +152,7 @@ flowchart TB
 
 | Node / Edge | Description | Source |
 |-------------|--------------|--------|
-| APPC | Application container, 3-stage Dockerfile build (`base` → `builder` → `production`), entrypoint runs `prisma migrate deploy` then `node dist/main.js` | `Dockerfile:1-55`; `docker-entrypoint.sh:9-23` |
+| APPC | Application container, 5-stage Dockerfile build (`base` → `builder` → `migrator` / `pruner` → `production`); entrypoint validates `DATABASE_URL` then execs `node dist/main.js` — it does **not** migrate, migrations run from the separate `migrator` stage | `Dockerfile:5,48,74`; `docker-entrypoint.sh` |
 | DBC | PostgreSQL 15 container, persisted via named volume `postgres_data` | `docker-compose.yml:5-17` |
 | APPC → DBC | Compose network `ecom-network` (bridge driver); app connects via `DATABASE_URL` env (from `.env.local`, not committed) | `docker-compose.yml:16-17,25-26,37-38` |
 

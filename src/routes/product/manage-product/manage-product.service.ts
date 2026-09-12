@@ -134,6 +134,16 @@ export class ManageProductService {
       select: { ...createProductSelect({ languageId }), createdById: true },
     });
 
+    // findUniqueProduct resolves to null for an absent or soft-deleted id;
+    // without this guard the permission check below dereferences null and the
+    // caller gets a 500 instead of a 404.
+    if (!product) {
+      throwHttpException({
+        type: "notFound",
+        message: "Product not found.",
+      });
+    }
+
     this.validateClientPermission({
       userId,
       roleName,

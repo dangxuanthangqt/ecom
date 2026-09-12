@@ -1,25 +1,21 @@
 #!/bin/sh
+# Entrypoint for the application container.
+#
+# It deliberately does NOT run database migrations. Every app replica shares this
+# entrypoint, so migrating here means N instances racing the same schema on every
+# scale-up or rolling deploy. Migrations are applied exactly once, by the
+# dedicated `migrator` image (Dockerfile stage `migrator`) or by the CI/CD
+# migration job, BEFORE the new app version starts.
+#
+# See docs/database-migration.md.
 
-echo "Running database migrations..."
+set -eu
 
-# Wait for database to be ready
-echo "Waiting for database to be ready..."
-sleep 5
+echo "[entrypoint] Starting application..."
 
-# Run migrations
-echo "Running Prisma migrations..."
-npx prisma migrate deploy
-
-# Check if migrations succeeded
-if [ $? -eq 0 ]; then
-  echo "Migrations completed successfully!"
-else
-  echo "Migrations failed!"
+if [ -z "${DATABASE_URL:-}" ]; then
+  echo "[entrypoint] ERROR: DATABASE_URL is not set." >&2
   exit 1
 fi
 
-# Start the application
-echo "Starting the application..."
 exec "$@"
-
-node dist/main.js
