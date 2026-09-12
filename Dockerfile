@@ -1,11 +1,15 @@
-# Pinned to an exact Node 20 LTS patch (the same major CI uses) so the build,
+# Pinned to the exact Node patch in .nvmrc, which CI also reads, so the build,
 # the migrator image and the runtime are reproducible and never drift apart.
-# Do not pin below 20.19: earlier patches ship a corepack whose registry signing
-# keys are expired, which breaks `corepack prepare` at build time.
-FROM node:20.19.5-alpine AS base
+# A FROM line cannot read .nvmrc, so this literal is the one place that must be
+# updated alongside it — they drifted once already (CI on 20.17, image on 20.19)
+# and the mismatch only surfaced when a dependency's engines.node range rejected
+# the CI runner mid-install.
+FROM node:24.14.1-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable pnpm && corepack prepare --activate pnpm@10.6.5
+# No version here: corepack reads `packageManager` from package.json, the same
+# source pnpm/action-setup uses in CI.
+RUN corepack enable pnpm
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed
 RUN apk add --no-cache libc6-compat
 
@@ -17,7 +21,9 @@ RUN apk add --no-cache libc6-compat
 # Set working directory
 WORKDIR /app
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+# pnpm-workspace.yaml carries the install settings (allowBuilds); pnpm 12 errors
+# out without it rather than silently skipping build scripts.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # https://pnpm.io/cli/fetch
 RUN pnpm fetch
 
@@ -71,7 +77,8 @@ RUN pnpm prune --prod
 
 # Starts from a clean pinned image, not from `base`: `base` carries the pnpm
 # store populated by `pnpm fetch`, which has no business in a runtime image.
-FROM node:20.19.5-alpine AS production
+# Keep this tag identical to the `base` stage and to .nvmrc.
+FROM node:24.14.1-alpine AS production
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 ENV NODE_ENV=production

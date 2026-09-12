@@ -55,7 +55,7 @@ All 13 feature modules are wired in `route.module.ts:18-32` (`AuthModule, Langua
 
 | Layer | Technology | Version | Source |
 |-------|------------|---------|--------|
-| Runtime | Node.js | 20 (production image `node:20.19.5-alpine`, pinned) | `Dockerfile:74` |
+| Runtime | Node.js | 24.14.1 (pinned in `.nvmrc`; production image `node:24.14.1-alpine`) | `Dockerfile:81` |
 | Framework | NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`) | 11.0.1 | `package.json:41,43,45` |
 | Language | TypeScript | 5.7.3 | `package.json:111` |
 | ORM | Prisma (`@prisma/client`, `prisma`) | 6.4.1 | `package.json:47,103` |

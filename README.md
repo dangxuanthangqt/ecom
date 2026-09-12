@@ -14,9 +14,19 @@ You need to run the following step by step.
    cp .env.example .env.local
    ```
 
-2. Install dependencies:
+2. Use the project's Node version. It is pinned in `.nvmrc`, and CI, the Docker
+   image and `engines.node` all read the same version — a mismatch fails at
+   install time rather than in CI:
 
    ```bash
+   nvm use   # installs/activates the version in .nvmrc
+   ```
+
+3. Install dependencies. pnpm comes from the `packageManager` field via corepack,
+   so there is no version to pass:
+
+   ```bash
+   corepack enable pnpm
    pnpm install
    ```
 
@@ -30,16 +40,59 @@ $   docker-compose up -d --build
 
 Open [http://localhost:4000/api](http://localhost:4000/api) with your browser to see the result.
 
-### Seeding initial data (ex: roles....)
+### Seeding data
 
 Update the DATABASE_URL in `.env.development` file to match your target database configuration.
 
-```bash
-# Seed roles and create admin user
-$  pnpm run seed:initial-scripts
+Full reference: [docs/database-seeding.md](docs/database-seeding.md).
 
-# Seed permissions development, create permission for admin role
-$  pnpm run seed:initial-scripts:create-permission
+#### Fixture seed — everyday development
+
+Small (~180 rows), deterministic and idempotent. Fixed ids, so e2e tests and
+Postman collections can hardcode them. Re-run it as often as you like.
+
+```bash
+# core (languages, roles, admin) + demo catalogue
+$ pnpm run db:seed
+
+# truncate the seeded tables first
+$ pnpm run db:seed:reset
+
+# core only — the only tier that runs outside development/test
+$ pnpm run db:seed:core
+```
+
+`pnpm prisma migrate reset` runs this seed automatically via the `prisma.seed`
+hook.
+
+Demo accounts: `seller@ecom.local`, `client@ecom.local`, `client2@ecom.local` —
+all with password `Password@123`. The admin account comes from `ADMIN_EMAIL` /
+`ADMIN_PASSWORD` in your env file.
+
+#### Volume seed — performance work
+
+Bulk random data for pagination, index and query measurement. Run on demand;
+never part of `migrate reset`. Needs the core seed first. Refused unless
+`NODE_ENV` is `development` or `test`.
+
+```bash
+# ~44k rows in about 2s
+$ pnpm run db:seed:volume
+
+# tune any count
+$ pnpm run db:seed:volume --products=20000 --orders=50000
+
+# remove volume data, leaving the fixture data intact
+$ pnpm run db:seed:volume:clean
+```
+
+#### Permissions
+
+Permissions are derived from the live route table, so they need a booted app
+rather than a fixture:
+
+```bash
+$ pnpm run seed:initial-scripts:create-permission
 # (NODE_ENV=development ts-node initial-scripts/create-permission)
 ```
 

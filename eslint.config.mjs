@@ -13,7 +13,10 @@ const config = [
       "node_modules",
       "coverage",
       "schema.ts",
-      "prisma",
+      // Only Prisma's own generated/SQL output is exempt — prisma/seed*.ts and
+      // prisma/seed/** carry real logic and go through the same gate as src/.
+      "prisma/migrations",
+      "prisma/generated",
       ".husky",
     ],
   },
