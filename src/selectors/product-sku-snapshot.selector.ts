@@ -1,0 +1,18 @@
+import { Prisma } from "@prisma/client";
+
+/**
+ * `ProductSKUSnapshot` is a denormalized copy by design (BR-O03) — reads
+ * serve these frozen fields, never a live join back to `Product`/`SKU`.
+ * `skuId` is surfaced (nullable per schema) so cancellation can restore
+ * stock even though the join is optional.
+ */
+export const productSkuSnapshotSelect =
+  Prisma.validator<Prisma.ProductSKUSnapshotSelect>()({
+    id: true,
+    productName: true,
+    price: true,
+    images: true,
+    skuValue: true,
+    quantity: true,
+    skuId: true,
+  });
