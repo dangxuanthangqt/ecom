@@ -6,6 +6,7 @@ import {
   HttpException,
   UnauthorizedException,
   ForbiddenException,
+  ConflictException,
 } from "@nestjs/common";
 
 interface HttpExceptionDetail {
@@ -19,7 +20,8 @@ type HttpErrorType =
   | "unprocessable"
   | "internal"
   | "unauthorized"
-  | "forbidden";
+  | "forbidden"
+  | "conflict";
 
 function throwHttpException({
   type,
@@ -52,6 +54,10 @@ function throwHttpException({
 
     case "forbidden":
       exception = new ForbiddenException(detail);
+      break;
+
+    case "conflict":
+      exception = new ConflictException(detail);
       break;
 
     case "internal":
