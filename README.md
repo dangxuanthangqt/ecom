@@ -14,9 +14,19 @@ You need to run the following step by step.
    cp .env.example .env.local
    ```
 
-2. Install dependencies:
+2. Use the project's Node version. It is pinned in `.nvmrc`, and CI, the Docker
+   image and `engines.node` all read the same version — a mismatch fails at
+   install time rather than in CI:
 
    ```bash
+   nvm use   # installs/activates the version in .nvmrc
+   ```
+
+3. Install dependencies. pnpm comes from the `packageManager` field via corepack,
+   so there is no version to pass:
+
+   ```bash
+   corepack enable pnpm
    pnpm install
    ```
 

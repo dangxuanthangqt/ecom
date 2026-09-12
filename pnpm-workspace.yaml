@@ -1,0 +1,26 @@
+# pnpm 11 moved these settings out of package.json's "pnpm" field, which pnpm 12
+# no longer reads. This file is settings-only — the repo is not a monorepo, so
+# there is deliberately no `packages:` key.
+
+# pnpm 12 turns a silently-ignored install script into a hard error, so every
+# dependency that wants to run one must be answered here, yes or no.
+#
+# bcrypt is the only yes: it resolves a native binding, and `require("bcrypt")`
+# fails outright without it.
+#
+# The rest keep the behaviour they already had under pnpm 10, where only bcrypt
+# was allowed to build — the Prisma client is generated explicitly by
+# `pnpm prisma:generate`, esbuild/swc/unrs-resolver ship their platform binary
+# as an optional dependency rather than a postinstall download, and the
+# remainder are telemetry or donation notices.
+allowBuilds:
+  bcrypt: true
+  "@nestjs/core": false
+  "@prisma/client": false
+  "@prisma/engines": false
+  "@scarf/scarf": false
+  "@swc/core": false
+  esbuild: false
+  nestjs-pino: false
+  prisma: false
+  unrs-resolver: false

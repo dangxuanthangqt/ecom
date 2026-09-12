@@ -12,7 +12,7 @@ The data model (`prisma/schema.prisma`, 21 model blocks) is broader than the exp
 
 Auth is homegrown JWT (access + rotating refresh token, HS256) plus Google OAuth2 Authorization-Code flow, TOTP-based 2FA, and OTP email verification via Resend (`src/shared/services/token.service.ts:25-49`, `src/routes/auth/google.service.ts`, `docs/google-oauth-login-flow.md`). Authorization is RBAC: `Role` ↔ `Permission` (path+method pairs) resolved per-request against the caller's JWT `roleId` (`src/shared/guards/access-token.guard.ts:56-99`, `prisma/schema.prisma:182-225`). Three seed roles exist: `admin`, `client`, `seller` (`src/constants/role.constant.ts:2-6`).
 
-Media is stored in AWS S3 (`src/shared/services/s3.service.ts`); i18n strings live in `nestjs-i18n` JSON catalogs (`src/i18n/en/`, `src/i18n/vn/`) rather than in code. Deployment is a 3-stage Docker build (deps → build → slim `node:20-alpine` runtime) driven by `docker-compose.yml`, with Postgres as a co-located service. CI runs via `.github/workflows/ci.yml` with pnpm/Prisma setup actions (`.github/actions/pnpm-install/`, `.github/actions/prisma-setup/`).
+Media is stored in AWS S3 (`src/shared/services/s3.service.ts`); i18n strings live in `nestjs-i18n` JSON catalogs (`src/i18n/en/`, `src/i18n/vn/`) rather than in code. Deployment is a 3-stage Docker build (deps → build → slim `node:24.14.1-alpine` runtime) driven by `docker-compose.yml`, with Postgres as a co-located service. CI runs via `.github/workflows/ci.yml` with pnpm/Prisma setup actions (`.github/actions/pnpm-install/`, `.github/actions/prisma-setup/`).
 
 For per-feature detail, permission mapping, and the full data model, see `feature-list.md`, `permissions.md`, and `data-model.md` once those artifacts land in this same directory.
 
