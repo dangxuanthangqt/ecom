@@ -80,6 +80,9 @@ export class MediaService {
   }): Promise<{ urls: string[] }> {
     const uploadPromises = Object.values(files)
       .flat()
+      // An optional field present with an undefined value survives flat() and
+      // would blow up on destructuring below.
+      .filter((file): file is Express.Multer.File => Boolean(file))
       .map(async (file) => {
         const { buffer, originalname, mimetype } = file;
 

@@ -248,19 +248,31 @@ describe("MediaService - uploadMultipleImagesFromBuffer", () => {
     expect(mocks.s3Service.uploadFileFromBuffer).toHaveBeenCalledTimes(3);
   });
 
-  it("throws when destructuring file properties from undefined", async () => {
-    // Arrange - the service calls Object.values().flat().map, which attempts to
-    // destructure file properties from undefined, causing a TypeError. The service
-    // does not filter out undefined values.
-
+  it("ignores fields present but undefined, uploading nothing", async () => {
     // Act
-    const promise = service.uploadMultipleImagesFromBuffer({
+    const result = await service.uploadMultipleImagesFromBuffer({
       file1: undefined,
       file2: undefined,
     });
 
-    // Assert - real behavior: service throws on undefined file destructuring
-    await expect(promise).rejects.toThrow("Cannot destructure property");
+    // Assert - absent optional fields are skipped rather than destructured
+    expect(result.urls).toEqual([]);
+    expect(mocks.s3Service.uploadFileFromBuffer).not.toHaveBeenCalled();
+  });
+
+  it("uploads the populated field when the other is undefined", async () => {
+    // Arrange
+    const file = makeFile({ originalname: "only.png" });
+
+    // Act
+    const result = await service.uploadMultipleImagesFromBuffer({
+      file1: undefined,
+      file2: [file],
+    });
+
+    // Assert
+    expect(result.urls).toHaveLength(1);
+    expect(mocks.s3Service.uploadFileFromBuffer).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -298,11 +298,11 @@ describe("ManageProductService - getProductById", () => {
     await expectForbiddenPermission(promise);
   });
 
-  it("throws when product not found due to missing null guard", async () => {
-    // Arrange - BUG: service does not null-guard before permission check
+  it("answers 404 for an id that does not resolve to a product", async () => {
+    // Arrange
     mocks.productRepository.findUniqueProduct.mockResolvedValue(null);
 
-    // Act & Assert - real behavior throws TypeError when accessing createdById on null
+    // Act
     const promise = service.getProductById({
       productId: "non-existent",
       languageId: LANGUAGE_ID,
@@ -310,9 +310,11 @@ describe("ManageProductService - getProductById", () => {
       roleName: Role.SELLER,
     });
 
-    await expect(promise).rejects.toThrow(
-      "Cannot read properties of null (reading 'createdById')",
-    );
+    // Assert - a missing product is a 404, never a dereference of null
+    await expect(promise).rejects.toMatchObject({
+      status: 404,
+      response: { message: "Product not found." },
+    });
   });
 
   it("passes languageId to repository", async () => {

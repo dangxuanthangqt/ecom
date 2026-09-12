@@ -1,18 +1,18 @@
 import { validate } from "class-validator";
 
-import { IsBothOrNoneExist } from "../is-both-or-none-exist";
+import { IsExactlyOneExists } from "../is-exactly-one-exists";
 
-class TestBothOrNoneExistDto {
+class TestExactlyOneExistsDto {
   totpCode?: string;
 
-  @IsBothOrNoneExist("totpCode")
+  @IsExactlyOneExists("totpCode")
   code?: string;
 }
 
-describe("IsBothOrNoneExist Decorator", () => {
+describe("IsExactlyOneExists Decorator", () => {
   it("fails when both fields are provided (validator logic is inverted)", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.totpCode = "123456";
     dto.code = "654321";
 
@@ -27,7 +27,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("fails when both fields are undefined (validator logic is inverted)", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     // Both totpCode and code are undefined
 
     // Act
@@ -40,7 +40,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("fails when both fields are not provided", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
 
     // Act
     const errors = await validate(dto);
@@ -51,7 +51,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("passes when only code is provided and totpCode is undefined", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.code = "654321";
     // totpCode is undefined
 
@@ -64,7 +64,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("passes when only totpCode is provided and code is undefined", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.totpCode = "123456";
     // code is undefined
 
@@ -77,7 +77,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("produces the correct error message", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.code = "654321";
 
     // Act
@@ -90,7 +90,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("fails when both fields are empty strings (both defined)", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.totpCode = "";
     dto.code = "";
 
@@ -104,7 +104,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("passes when one field is empty string and other is undefined", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.code = "";
     // totpCode is undefined
 
@@ -117,7 +117,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("passes when totpCode is empty string and code is undefined", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.totpCode = "";
     // code is undefined
 
@@ -130,7 +130,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("fails when both fields have whitespace strings (both defined)", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.totpCode = "   ";
     dto.code = "   ";
 
@@ -144,7 +144,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("passes when only code has whitespace and totpCode is undefined", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.code = "   ";
 
     // Act
@@ -156,7 +156,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("fails with various defined values (both provided)", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.totpCode = "000000";
     dto.code = "999999";
 
@@ -169,7 +169,7 @@ describe("IsBothOrNoneExist Decorator", () => {
 
   it("has constraint when exactly one field is defined", async () => {
     // Arrange
-    const dto = new TestBothOrNoneExistDto();
+    const dto = new TestExactlyOneExistsDto();
     dto.code = "123456";
 
     // Act

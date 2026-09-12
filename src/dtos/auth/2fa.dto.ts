@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 import { IsOptional, IsString, Length } from "class-validator";
 
-import { IsBothOrNoneExist } from "@/validations/decorators/is-both-or-none-exist";
+import { IsExactlyOneExists } from "@/validations/decorators/is-exactly-one-exists";
 
 export class Disable2faRequestDto {
   @ApiProperty({
@@ -27,7 +27,7 @@ export class Disable2faRequestDto {
   @IsString()
   @IsOptional()
   @Length(6, 6, { message: "Verification code must be exactly 6 characters." })
-  @IsBothOrNoneExist("totpCode")
+  @IsExactlyOneExists("totpCode")
   code?: string;
 }
 

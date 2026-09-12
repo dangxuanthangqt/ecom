@@ -8,8 +8,8 @@ import {
 
 import { Disable2faRequestDto } from "@/dtos/auth/2fa.dto";
 
-@ValidatorConstraint({ name: "mutuallyExclusive", async: false })
-export class BothOrNoneExistConstraint implements ValidatorConstraintInterface {
+@ValidatorConstraint({ name: "exactlyOneExists", async: false })
+export class ExactlyOneExistsConstraint implements ValidatorConstraintInterface {
   validate(value: string | undefined, args: ValidationArguments) {
     const object = args.object as Disable2faRequestDto;
     const relatedPropertyName = args
@@ -27,22 +27,22 @@ export class BothOrNoneExistConstraint implements ValidatorConstraintInterface {
     const relatedPropertyName = args
       .constraints[0] as keyof Disable2faRequestDto;
 
-    return `Either both ${relatedPropertyName} and ${args.property} must be provided, or neither should be provided.`;
+    return `Exactly one of ${relatedPropertyName} or ${args.property} must be provided, not both and not neither.`;
   }
 }
 
-export function IsBothOrNoneExist(
+export function IsExactlyOneExists(
   property: string,
   validationOptions?: ValidationOptions,
 ): PropertyDecorator {
   return (object: object, propertyName: string) => {
     registerDecorator({
-      name: "IsBothOrNoneExist",
+      name: "IsExactlyOneExists",
       target: object.constructor,
       propertyName,
       constraints: [property],
       options: validationOptions,
-      validator: BothOrNoneExistConstraint,
+      validator: ExactlyOneExistsConstraint,
     });
   };
 }
