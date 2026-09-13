@@ -29,7 +29,8 @@
       "@/dtos/*": ["src/dtos/*"],
       "@/validations/*": ["src/validations/*"],
       "@/repositories/*": ["src/repositories/*"],
-      "@/selectors/*": ["src/selectors/*"]
+      "@/selectors/*": ["src/selectors/*"],
+      "@/seed/*": ["prisma/seed/*"]
     }
   },
   "include": [
