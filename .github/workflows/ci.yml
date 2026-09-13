@@ -110,6 +110,55 @@ jobs:
           path: coverage/
           retention-days: 7
 
+  # Real e2e suite: a booted Nest app against a dedicated ecom_e2e Postgres
+  # database and real Redis, driving HTTP through supertest. Uses
+  # `docker compose up` (not GitHub Actions `services:`) for db/redis because
+  # `scripts/prepare-e2e-database.sh` shells out to `docker compose ps -q redis`
+  # to flush the role-permission cache — the same setup path a developer runs
+  # locally. See docs/e2e-testing.md.
+  test-e2e:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: ./.github/actions/pnpm-install
+
+      - name: Setup Prisma client
+        uses: ./.github/actions/prisma-setup
+
+      # `--wait` blocks until both services report healthy per the
+      # `healthcheck:` blocks already defined in docker-compose.yml, so this
+      # step fails fast instead of racing a not-yet-ready Postgres/Redis.
+      - name: Start db and redis
+        shell: bash
+        run: docker compose up -d --wait db redis
+
+      # `validateEnv` requires every key below to be present. `.env.test` only
+      # carries e2e overrides (NODE_ENV, DATABASE_URL, REDIS_URL,
+      # RESEND_API_KEY) and `ConfigModule` falls back to `.env` for the rest —
+      # which does not exist in a fresh CI checkout, so both files are
+      # synthesised from their committed `.example` counterparts.
+      - name: Write .env and .env.test from the committed examples
+        shell: bash
+        run: |
+          cp .env.example .env
+          cp .env.test.example .env.test
+
+      # `pretest:e2e` (via `test:e2e:setup`) resets ecom_e2e, seeds fixtures,
+      # syncs route permissions and flushes redis DB 1 before the suite runs.
+      - name: Run e2e suite
+        shell: bash
+        run: pnpm test:e2e
+
+      - name: Stop db and redis
+        if: always()
+        shell: bash
+        run: docker compose down -v
+
   # Proves the committed migration history is valid, complete and immutable
   # BEFORE it can reach staging or production. See docs/database-migration.md.
   migrations:

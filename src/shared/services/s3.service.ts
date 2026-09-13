@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
 import { createReadStream, promises as fs, statSync } from "fs";
 import * as path from "path";
 
@@ -37,15 +36,28 @@ export class S3Service {
       },
     });
 
-    this.s3.listBuckets({}).then((data) => {
-      if (data.Buckets) {
-        this.logger.log(
-          `S3 Buckets: ${data.Buckets.map((bucket) => bucket.Name).join(", ")}`,
+    this.s3
+      .listBuckets({})
+      .then((data) => {
+        if (data.Buckets) {
+          this.logger.log(
+            `S3 Buckets: ${data.Buckets.map((bucket) => bucket.Name).join(", ")}`,
+          );
+        } else {
+          this.logger.warn("No S3 buckets found.");
+        }
+      })
+      .catch((error: unknown) => {
+        // Startup diagnostics only — never let a missing/invalid S3
+        // credential turn into an unhandled promise rejection that crashes
+        // the whole process. An environment without working S3 access
+        // (local dev without creds, CI, e2e) must still be able to boot;
+        // real upload/download calls elsewhere already report their own
+        // errors through `throwHttpException`.
+        this.logger.warn(
+          `Failed to list S3 buckets at startup: ${(error as Error).message}`,
         );
-      } else {
-        this.logger.warn("No S3 buckets found.");
-      }
-    });
+      });
   }
 
   private getPublicUrl(key: string): string {

@@ -13,7 +13,7 @@ import { AppEnv } from "@/constants/env.constant";
 
 class EnvSchema {
   @IsString()
-  @IsIn([AppEnv.DEVELOPMENT, AppEnv.PRODUCTION])
+  @IsIn([AppEnv.DEVELOPMENT, AppEnv.PRODUCTION, AppEnv.TEST])
   NODE_ENV: string;
 
   @IsString()

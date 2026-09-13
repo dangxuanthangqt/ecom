@@ -1,10 +1,17 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "..",
   "testEnvironment": "node",
-  "setupFilesAfterEnv": ["<rootDir>/jest-setup-silence-nest-logger.ts"],
-  "testRegex": ".e2e-spec.ts$",
+  "testRegex": "\\.e2e-spec\\.ts$",
+  "testTimeout": 30000,
+  "setupFiles": ["<rootDir>/test/e2e/support/load-test-env.ts"],
+  "setupFilesAfterEnv": ["<rootDir>/test/jest-setup-silence-nest-logger.ts"],
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@/seed/(.*)$": "<rootDir>/prisma/seed/$1",
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^src/(.*)$": "<rootDir>/src/$1"
   }
 }
