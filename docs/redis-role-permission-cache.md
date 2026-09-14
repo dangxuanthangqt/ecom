@@ -1,5 +1,9 @@
 # Redis cache cho role/permission check trong Auth Guard
 
+> **Chưa quen Redis?** Đọc [redis-caching-guide.md](redis-caching-guide.md) trước — tài liệu đó dạy
+> Redis từ căn bản, các pattern cache kinh điển, và vẽ lại toàn bộ luồng Redis của dự án. Trang này là
+> **biên bản triển khai**: số liệu đo thật, test coverage, và các risk đã review rồi quyết định accept.
+
 > Vị trí triển khai (ưu tiên 1 trong phân tích tối ưu Redis): `src/shared/guards/access-token.guard.ts`.
 > Mục tiêu: mọi request có auth trước đây đều query Postgres (`role.findUniqueOrThrow` join permissions)
 > để check quyền trên route hiện tại — đây là query lặp lại nhiều nhất trong toàn app vì nó chạy trên
