@@ -1,18 +1,16 @@
 import {
   BadRequestException,
-  NotFoundException,
-  UnprocessableEntityException,
-  InternalServerErrorException,
-  HttpException,
-  UnauthorizedException,
-  ForbiddenException,
   ConflictException,
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+  UnprocessableEntityException,
 } from "@nestjs/common";
 
-interface HttpExceptionDetail {
-  message: string;
-  field?: string;
-}
+import { ErrorDetailDto } from "@/dtos/error-detail.dto";
 
 type HttpErrorType =
   | "badRequest"
@@ -23,50 +21,73 @@ type HttpErrorType =
   | "forbidden"
   | "conflict";
 
+const STATUS_BY_TYPE: Record<HttpErrorType, HttpStatus> = {
+  badRequest: HttpStatus.BAD_REQUEST,
+  notFound: HttpStatus.NOT_FOUND,
+  unprocessable: HttpStatus.UNPROCESSABLE_ENTITY,
+  unauthorized: HttpStatus.UNAUTHORIZED,
+  forbidden: HttpStatus.FORBIDDEN,
+  conflict: HttpStatus.CONFLICT,
+  internal: HttpStatus.INTERNAL_SERVER_ERROR,
+};
+
+/**
+ * Raises a business-rule failure already shaped as the API error envelope, so it
+ * reaches the client exactly as a validation failure does. See
+ * `docs/error-handling.md`.
+ *
+ * @param field  names the input the rule is about. It becomes one `details` entry;
+ *               omit it for failures that are not scoped to a field.
+ * @param code   the stable machine code for that entry. Defaults to `"invalid"`;
+ *               pass something specific whenever the client must branch on it.
+ * @param error  overrides the top-level machine code, which otherwise derives from
+ *               the HTTP status.
+ */
 function throwHttpException({
   type,
   message,
   field,
+  code = "invalid",
+  error,
 }: {
   type: HttpErrorType;
   message: string;
   field?: string;
+  code?: string;
+  error?: string;
 }): never {
-  const detail: HttpExceptionDetail = { message, field };
-  let exception: HttpException;
+  const statusCode = STATUS_BY_TYPE[type] ?? HttpStatus.INTERNAL_SERVER_ERROR;
+  const details: ErrorDetailDto[] = field ? [{ field, code, message }] : [];
+  const payload = { statusCode, error, message, details };
 
+  throw buildException(type, payload, statusCode);
+}
+
+function buildException(
+  type: HttpErrorType,
+  payload: object,
+  statusCode: HttpStatus,
+): HttpException {
   switch (type) {
     case "badRequest":
-      exception = new BadRequestException([detail]);
-      break;
-
+      return new BadRequestException(payload);
     case "notFound":
-      exception = new NotFoundException(detail);
-      break;
-
+      return new NotFoundException(payload);
     case "unprocessable":
-      exception = new UnprocessableEntityException(detail);
-      break;
-
+      return new UnprocessableEntityException(payload);
     case "unauthorized":
-      exception = new UnauthorizedException(detail);
-      break;
-
+      return new UnauthorizedException(payload);
     case "forbidden":
-      exception = new ForbiddenException(detail);
-      break;
-
+      return new ForbiddenException(payload);
     case "conflict":
-      exception = new ConflictException(detail);
-      break;
-
+      return new ConflictException(payload);
     case "internal":
+      return new InternalServerErrorException(payload);
     default:
-      exception = new InternalServerErrorException(detail);
-      break;
+      // An unknown type is a programming error, not a client error — answer 500
+      // rather than inventing a status for it.
+      return new HttpException(payload, statusCode);
   }
-
-  throw exception;
 }
 
 export default throwHttpException;

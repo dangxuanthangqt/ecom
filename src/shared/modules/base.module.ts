@@ -8,28 +8,25 @@ import {
   Reflector,
 } from "@nestjs/core";
 import { LoggerModule } from "nestjs-pino";
-import { ZodSerializerInterceptor, ZodValidationPipe } from "nestjs-zod";
 
 import { validateEnv } from "src/validations/env.validation";
 
-import { ExternalExceptionFilter } from "../filters/external-exception.filter";
-import { PrismaClientExceptionFilter } from "../filters/prisma-exception.filter";
+import { GlobalExceptionFilter } from "../filters/global-exception.filter";
 import { AccessTokenGuard } from "../guards/access-token.guard";
 import { ApiKeyGuard } from "../guards/api-key.guard";
 import { AuthorizationHeaderGuard } from "../guards/authorization-header.guard";
 import { AppConfigService } from "../services/app-config.service";
 import { loggerFactory } from "../utils/setup-logger.util";
+import { createValidationPipe } from "../utils/validation-pipe.config";
 
 import { I18nModule } from "./i18n.module";
 
+// One filter owns every error response. See `GlobalExceptionFilter` for why this
+// is deliberately not a list.
 const filters: Provider[] = [
   {
     provide: APP_FILTER,
-    useClass: PrismaClientExceptionFilter,
-  },
-  {
-    provide: APP_FILTER,
-    useClass: ExternalExceptionFilter,
+    useClass: GlobalExceptionFilter,
   },
 ];
 
@@ -52,24 +49,16 @@ const serializerInterceptor: Provider = {
   inject: [Reflector],
 };
 
-const zodValidationPipe: Provider = {
+const validationPipe: Provider = {
   provide: APP_PIPE,
-  useClass: ZodValidationPipe,
-};
-
-const zodSerializerInterceptor: Provider = {
-  provide: APP_INTERCEPTOR,
-  useClass: ZodSerializerInterceptor,
+  useFactory: createValidationPipe,
 };
 
 const providers: Provider[] = [
   ...filters,
   ...guards,
   serializerInterceptor,
-
-  /** Testing with zod */
-  zodValidationPipe,
-  zodSerializerInterceptor,
+  validationPipe,
 ];
 @Module({
   imports: [

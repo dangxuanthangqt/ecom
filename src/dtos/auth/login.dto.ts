@@ -1,8 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 import { IsEmail, IsOptional, IsString, Length } from "class-validator";
-import { createZodDto } from "nestjs-zod";
-import { z } from "zod";
 
 import { IsOnlyOneExists } from "@/validations/decorators/is-only-one-exists";
 
@@ -71,21 +69,3 @@ export class LoginResponseDto {
     Object.assign(this, partial);
   }
 }
-
-// Test with zod
-const LoginRequestSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8).max(20),
-});
-//   .strict();
-
-export class LoginRequestZodDto extends createZodDto(LoginRequestSchema) {}
-
-const LoginResponseSchema = z
-  .object({
-    accessToken: z.string(),
-    refreshToken: z.string(),
-  })
-  .strict();
-
-export class LoginResponseZodDto extends createZodDto(LoginResponseSchema) {}
