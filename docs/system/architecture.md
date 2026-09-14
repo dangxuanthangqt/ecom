@@ -11,8 +11,8 @@ graph TB
     end
     subgraph "NestJS Application - src/main.ts"
         GUARD["AuthorizationHeaderGuard - global APP_GUARD"]
-        PIPE["ValidationPipe class-validator + ZodValidationPipe global APP_PIPE"]
-        FILTER["PrismaClientExceptionFilter + ExternalExceptionFilter - global APP_FILTER"]
+        PIPE["ValidationPipe class-validator global APP_PIPE"]
+        FILTER["GlobalExceptionFilter - global APP_FILTER"]
         subgraph "RouteModule - 14 feature modules"
             AUTH["AuthModule"]
             PRODUCT["ProductModule"]
@@ -61,7 +61,7 @@ All 13 feature modules are wired in `route.module.ts:18-32` (`AuthModule, Langua
 | ORM | Prisma (`@prisma/client`, `prisma`) | 6.4.1 | `package.json:47,103` |
 | Database | PostgreSQL | 15 (docker-compose `postgres:15-alpine`); driver via `datasource db { provider = "postgresql" }` | `docker-compose.yml:6`; `prisma/schema.prisma:9-11` |
 | Auth | `@nestjs/jwt` (JWT access/refresh) + Google OAuth2 (`google-auth-library` 9.15.1, `googleapis` 146.0.0) | 11.0.0 / 9.15.1 / 146.0.0 | `package.json:44,52,53` |
-| Validation | `class-validator` 0.14.1 + `nestjs-zod` 4.3.1 (dual validation stack, zod path marked `/** Testing with zod */`) | 0.14.1 / 4.3.1 | `package.json:50,59`; `src/shared/modules/base.module.ts:55-58,70` |
+| Validation | `class-validator` 0.14.1 (sole HTTP validation system; `nestjs-zod` was removed from the pipeline and from `package.json` — see Notes) | 0.14.1 | `package.json:50`; `src/shared/modules/base.module.ts:52-55`; `src/shared/utils/validation-pipe.config.ts` |
 | Logging | `nestjs-pino` 4.3.1 | 4.3.1 | `package.json:58`; `src/main.ts:19` |
 | i18n | `nestjs-i18n` 10.5.1 | 10.5.1 | `package.json:57`; `src/shared/modules/i18n.module.ts` |
 | Object storage | AWS S3 (`@aws-sdk/client-s3` 3.821.0) | 3.821.0 | `package.json:38-40` |
@@ -99,7 +99,7 @@ Two module-scoping conventions observed:
 sequenceDiagram
     participant C as "HTTP Client"
     participant G as "AuthorizationHeaderGuard"
-    participant P as "ValidationPipe / ZodValidationPipe"
+    participant P as "ValidationPipe (class-validator)"
     participant Ctrl as "Controller"
     participant S as "Service"
     participant R as "Repository"
@@ -108,7 +108,7 @@ sequenceDiagram
     C->>G: "Request with Authorization header"
     G->>G: "canActivate - AccessTokenGuard or ApiKeyGuard or none per @AuthorizationHeader metadata"
     G->>P: "authorized"
-    P->>P: "class-validator whitelist/forbidNonWhitelisted + zod"
+    P->>P: "class-validator whitelist/forbidNonWhitelisted/transform"
     P->>Ctrl: "validated DTO"
     Ctrl->>S: "call service method"
     S->>R: "call repository method"
@@ -116,25 +116,27 @@ sequenceDiagram
     DB-->>R: "rows"
     R-->>S: "domain result or thrown HttpException"
     S-->>Ctrl: "response shape"
-    Ctrl-->>C: "JSON response - ClassSerializerInterceptor / ZodSerializerInterceptor strips extraneous fields"
+    Ctrl-->>C: "JSON response - ClassSerializerInterceptor strips extraneous fields"
 ```
 
-**Source:** `src/shared/guards/authorization-header.guard.ts:39-78` (global `APP_GUARD`, dispatches to `AccessTokenGuard`/`ApiKeyGuard`/no-op per `@AuthorizationHeader` reflector metadata, AND/OR combine modes); `src/shared/guards/access-token.guard.ts:101-122` (JWT verify + per-route permission check against `role.permissions` where `path`+`method` match, `src/shared/guards/access-token.guard.ts:56-90`); `src/shared/modules/base.module.ts:45-58,60-63` (`ClassSerializerInterceptor` + `ZodSerializerInterceptor` registered as `APP_INTERCEPTOR`); error path via `src/shared/filters/prisma-exception.filter.ts:61-67` (`@Catch` on 5 Prisma exception classes, maps Prisma error codes P1008/P2000-P2025 to HTTP status) and `src/shared/filters/external-exception.filter.ts:18-19` (`@Catch(HttpException)`, also handles `ZodValidationException`/`ZodSerializationException`).
+**Source:** `src/shared/guards/authorization-header.guard.ts:39-78` (global `APP_GUARD`, dispatches to `AccessTokenGuard`/`ApiKeyGuard`/no-op per `@AuthorizationHeader` reflector metadata, AND/OR combine modes); `src/shared/guards/access-token.guard.ts:101-122` (JWT verify + per-route permission check against `role.permissions` where `path`+`method` match, `src/shared/guards/access-token.guard.ts:56-90`); `src/shared/modules/base.module.ts:42-50` (`ClassSerializerInterceptor` registered as `APP_INTERCEPTOR`); error path via the single `GlobalExceptionFilter` (`@Catch()`, no argument) at `src/shared/filters/global-exception.filter.ts`, dispatching to `mapHttpException` (`src/shared/filters/http-exception.mapper.ts`) and `mapPrismaError` (`src/shared/filters/prisma-error.mapper.ts`, maps Prisma error codes P1008/P2000-P2025 to HTTP status) — see `docs/error-handling.md` for the full contract.
 
-**Dead-code note:** `src/main.ts:7,46,48-51` shows `TransformInterceptor` and both exception filters commented out at the bootstrap level with the inline comment `"not working with pipe ?"` — the actually-active global registration is exclusively through `base.module.ts`'s `APP_FILTER`/`APP_GUARD`/`APP_INTERCEPTOR` DI tokens (`src/shared/modules/base.module.ts:25-34,36-43,45-53,55-63`), not through `main.ts`. `TransformInterceptor` (`src/shared/interceptors/transform.interceptor.ts`) is defined but never registered anywhere — dead code.
+**`main.ts` note:** `src/main.ts` no longer configures any pipe, filter, or interceptor at the bootstrap level — that registration lives entirely in `BaseModule` via `APP_PIPE`/`APP_FILTER`/`APP_GUARD`/`APP_INTERCEPTOR` DI tokens (`src/shared/modules/base.module.ts`). This is what lets the e2e harness (`test/e2e/support/create-test-app.ts`) get production's exact error contract by importing `AppModule` alone.
+
+**Dead-code note:** `TransformInterceptor` (`src/shared/interceptors/transform.interceptor.ts`) is still defined but never registered anywhere — still dead code, unrelated to the error-handling refactor above.
 
 ## Cross-Cutting Concerns
 
 | Concern | Mechanism | Source |
 |---|---|---|
-| Global validation pipe | `ValidationPipe` (whitelist, forbidNonWhitelisted, transform, custom `exceptionFactory` → `ValidateException`) registered in `NestFactory.create` bootstrap, plus a second `ZodValidationPipe` as `APP_PIPE` | `src/main.ts:31-44`; `src/shared/modules/base.module.ts:55-58,70` |
-| Global auth guard | `AuthorizationHeaderGuard` as `APP_GUARD` | `src/shared/modules/base.module.ts:39-42` |
-| Global exception filters | `PrismaClientExceptionFilter`, `ExternalExceptionFilter` as `APP_FILTER` | `src/shared/modules/base.module.ts:26-33` |
-| Response serialization | `ClassSerializerInterceptor` (excludeExtraneousValues) + `ZodSerializerInterceptor`, both `APP_INTERCEPTOR` | `src/shared/modules/base.module.ts:45-53,60-63` |
-| CORS | Hardcoded single origin `http://localhost:3000`, methods `GET,HEAD,PUT,PATCH,POST,DELETE` | `src/main.ts:24-29` — **[UNVERIFIED]** whether this is intentionally non-configurable or a dev-only leftover; no env var drives it |
+| Global validation pipe | `ValidationPipe` (whitelist, forbidNonWhitelisted, transform, custom `exceptionFactory` → `ValidateException`), the sole HTTP validation system, registered as `APP_PIPE` via `createValidationPipe` | `src/shared/utils/validation-pipe.config.ts`; `src/shared/modules/base.module.ts:52-55` |
+| Global auth guard | `AuthorizationHeaderGuard` as `APP_GUARD` | `src/shared/modules/base.module.ts:36-39` |
+| Global exception filter | One `GlobalExceptionFilter` (`@Catch()`, no argument) as `APP_FILTER`, dispatching to `mapHttpException`/`mapPrismaError` — see `docs/error-handling.md` | `src/shared/modules/base.module.ts:26-31`; `src/shared/filters/global-exception.filter.ts` |
+| Response serialization | `ClassSerializerInterceptor` (excludeExtraneousValues) as `APP_INTERCEPTOR` | `src/shared/modules/base.module.ts:42-50` |
+| CORS | Hardcoded single origin `http://localhost:3000`, methods `GET,HEAD,PUT,PATCH,POST,DELETE` | `src/main.ts:20-25` — **[UNVERIFIED]** whether this is intentionally non-configurable or a dev-only leftover; no env var drives it |
 | i18n | `nestjs-i18n`, resolvers: `AcceptLanguageResolver` + custom `x-lang` header, message files in `src/i18n/{en,vn}/message.json` | `src/shared/modules/i18n.module.ts:14-33` |
-| Env validation | `ConfigModule.forRoot({ validate: validateEnv, envFilePath: [".env.${NODE_ENV}", ".env"] })`, global | `src/shared/modules/base.module.ts:76-80`; `src/validations/env.validation.ts` |
-| Structured logging | `nestjs-pino`, factory-configured via `AppConfigService` (`LOG_LEVEL`, `LOG_PRETTY`) | `src/shared/modules/base.module.ts:81-84`; `src/main.ts:19` |
+| Env validation | `ConfigModule.forRoot({ validate: validateEnv, envFilePath: [".env.${NODE_ENV}", ".env"] })`, global | `src/shared/modules/base.module.ts:65-69`; `src/validations/env.validation.ts` |
+| Structured logging | `nestjs-pino`, factory-configured via `AppConfigService` (`LOG_LEVEL`, `LOG_PRETTY`) | `src/shared/modules/base.module.ts:70-73`; `src/main.ts:15` |
 | Swagger docs | Mounted at `/api` only when `configService.isDevelopment` | `src/main.ts:53-60` |
 
 ## Deployment View
@@ -185,7 +187,7 @@ graph TB
 
 - **Two Prisma schema files** exist (`prisma/schema.prisma`, `prisma/schema.development.prisma`); the datasource/env-selection mechanism between them was not traced in this pass — carried forward as `[UNVERIFIED]` from scout-report.md.
 - **No cache layer, no message queue, no scheduled jobs, no webhooks** — confirmed absent via scout-report's Background Logic Source Inventory grep (`@Cron|@Interval|... ` returned no `queue-worker`/`scheduled-job`/`webhook` rows) and no Redis/BullMQ/RabbitMQ dependency in `package.json`.
-- **Dual validation/serialization stacks** (`class-validator` + `nestjs-zod`) are both wired globally simultaneously (`base.module.ts:55-63,70`); the zod path is explicitly commented `/** Testing with zod */` in source — read as an in-progress migration, not a settled architecture decision.
+- **Single validation stack.** `nestjs-zod` was removed from the HTTP pipeline and from `package.json`; `class-validator`'s `ValidationPipe` (`src/shared/utils/validation-pipe.config.ts`) is now the only validation system wired at `APP_PIPE` (`base.module.ts:52-55`). Standalone `zod` is still used inside `GoogleService` to parse the OAuth `state` blob (`src/routes/auth/google.service.ts`) — that is not HTTP validation and is unaffected. See `docs/error-handling.md` for the resulting error contract.
 
 **Status:** DONE
 **Summary:** architecture.md written with Mermaid system/layering/data-flow/deployment/module-graph diagrams, tech-stack table, and cross-cutting-concerns table, every claim cited to `file:line`; deployment view honestly scoped to the local docker-compose file with an explicit N/A+WARN for missing CD/K8s/Terraform.

@@ -187,7 +187,7 @@ N/A as a screen-flow diagram — see `route-list.md § Auth mechanism` for the a
 
 ## Error Handling Flows
 
-N/A at the screen level — see `behavior-logic.md` for the two global exception filters (`ExternalExceptionFilter`, `PrismaClientExceptionFilter`) that shape every error response body across all 70 routes.
+N/A at the screen level — every error response body across all 70 routes is now shaped by one `GlobalExceptionFilter` (`src/shared/filters/global-exception.filter.ts`); see `behavior-logic.md` (BL006/BL007, both marked superseded) and `docs/error-handling.md` for the current contract.
 
 ## Circular Dependencies Check
 

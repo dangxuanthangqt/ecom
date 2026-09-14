@@ -265,7 +265,7 @@ sequenceDiagram
 | Action | Scenario | Behavior |
 |---|---|---|
 | A1-A5 | Caller's role has no USERS-module `Permission` row for the called `(path, method)` | `AccessTokenGuard.verifyRolePermission` throws 403 before the handler runs — `src/shared/guards/access-token.guard.ts:56-99` |
-| A2, A4, A5 | Target `id` well-formed UUID but no matching non-deleted row | `findUniqueOrThrow`/`updateUser`/soft-delete-update throw a Prisma not-found, mapped to 404 by `PrismaClientExceptionFilter` (BL007) |
+| A2, A4, A5 | Target `id` well-formed UUID but no matching non-deleted row | `findUniqueOrThrow`/`updateUser`/soft-delete-update throw a Prisma not-found (`P2025`), mapped to 404 by `GlobalExceptionFilter`'s `mapPrismaError` (BL007) |
 | A3 | `email` already exists (unique constraint) | 422 "Email is already exist." — `src/repositories/user/shared-user.repository.ts:193-198` |
 | A4, A5 | Concurrent update/delete on the same target by two admins | Last write wins — no optimistic-locking/version field on `User`; Prisma's plain `update` overwrites whichever admin's call resolves last |
 | A4 | Admin sets `status` to `INACTIVE`/`BLOCKED` | Write succeeds; no other code path checks `User.status` anywhere (login included) — see § 5.3 |

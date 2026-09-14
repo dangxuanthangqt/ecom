@@ -601,7 +601,7 @@ global filters/interceptors/lifecycle hooks or one-shot ops scripts, not a perso
 anything — and are correctly homed in `behavior-logic.md` only, not represented here:
 
 - BL001_SyncRoutePermissionsScript, BL002_SeedAdminUserScript — manual dev/ops scripts, no route.
-- BL006_ExternalExceptionFilter, BL007_PrismaClientExceptionFilter, BL008_ResponseTransformInterceptor, BL013_PrismaClientLifecycleObserver — global cross-cutting middleware wrapping all 70 routes automatically.
+- BL006_ExternalExceptionFilter, BL007_PrismaClientExceptionFilter (both superseded — now one `GlobalExceptionFilter`, see `behavior-logic.md`), BL008_ResponseTransformInterceptor, BL013_PrismaClientLifecycleObserver — global cross-cutting middleware wrapping all 70 routes automatically.
 - BL010_ImageValidationPipe — dead code, not attached to any live route.
 
 BL003, BL004, BL005, BL009, BL011, BL012 are referenced above inline within the US that triggers
