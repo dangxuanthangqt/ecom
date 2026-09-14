@@ -119,9 +119,9 @@ describe("Product translations (minimal, F008 support)", () => {
       .send({})
       .expect(400);
 
-    const body = response.body as { message: { field: string }[] };
+    const body = response.body as { details: { field: string }[] };
 
-    expect(Array.isArray(body.message)).toBe(true);
-    expect(body.message.some((detail) => detail.field === "name")).toBe(true);
+    expect(Array.isArray(body.details)).toBe(true);
+    expect(body.details.some((detail) => detail.field === "name")).toBe(true);
   });
 });

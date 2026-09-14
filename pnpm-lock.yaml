@@ -232,9 +232,6 @@ importers:
       nestjs-pino:
         specifier: 4.3.1
         version: 4.3.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(pino-http@10.4.0)(pino@9.6.0)(rxjs@7.8.1)
-      nestjs-zod:
-        specifier: 4.3.1
-        version: 4.3.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(@nestjs/swagger@11.1.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2))(zod@3.24.2)
       otpauth:
         specifier: 9.4.0
         version: 9.4.0
@@ -1396,21 +1393,6 @@ packages:
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
-
-  '@nest-zod/z@2.0.0':
-    resolution: {integrity: sha512-OqmJUZlpcx9ECzPYSIjaR/q/xLKrm9FkV+0FIWLEb9MVc9YeP21GmnQJBxE1dPRlLJ1kybNFBlt4D/PB8YAPkA==}
-    peerDependencies:
-      '@nestjs/common': ^10.0.0 || ^11.0.0
-      '@nestjs/core': ^10.0.0 || ^11.0.0
-      '@nestjs/swagger': ^7.4.2 || ^8.0.0 || ^11.0.0
-      zod: '>= 3.14.3'
-    peerDependenciesMeta:
-      '@nestjs/common':
-        optional: true
-      '@nestjs/core':
-        optional: true
-      '@nestjs/swagger':
-        optional: true
 
   '@nestjs/cli@11.0.0':
     resolution: {integrity: sha512-53Hparhbz4nNQNttf6EFfYNeFxSLdshqnvaiWy3MBnZxgAuqtAZP3xsiNHPId5dYtzGCjdK60FN4Vcspx3Y+aw==}
@@ -4639,21 +4621,6 @@ packages:
       pino-http: ^6.4.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
       rxjs: ^7.1.0
 
-  nestjs-zod@4.3.1:
-    resolution: {integrity: sha512-gl10NOf/AhWt4HLcnMI1J0WUlBCKyteJBftD6SwNyX71/vzAorr5MJQWiDJoPPkou9QL2CRHHBtyjr55o7++Xw==}
-    peerDependencies:
-      '@nestjs/common': ^10.0.0 || ^11.0.0
-      '@nestjs/core': ^10.0.0 || ^11.0.0
-      '@nestjs/swagger': ^7.4.2 || ^8.0.0 || ^11.0.0
-      zod: '>= 3.14.3'
-    peerDependenciesMeta:
-      '@nestjs/common':
-        optional: true
-      '@nestjs/core':
-        optional: true
-      '@nestjs/swagger':
-        optional: true
-
   node-abort-controller@3.1.1:
     resolution: {integrity: sha512-AGK2yQKIjRuqnc6VkX2Xj5d+QW8xZ87pa1UK6yA6ouUyuxfHuMP6umE5QK7UmTeOAymo+Zx1Fxiuw9rVx8taHQ==}
 
@@ -7339,14 +7306,6 @@ snapshots:
       '@emnapi/runtime': 1.4.4
       '@tybys/wasm-util': 0.10.0
     optional: true
-
-  '@nest-zod/z@2.0.0(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(@nestjs/swagger@11.1.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2))(zod@3.24.2)':
-    dependencies:
-      zod: 3.24.2
-    optionalDependencies:
-      '@nestjs/common': 11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      '@nestjs/core': 11.0.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@11.0.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      '@nestjs/swagger': 11.1.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)
 
   '@nestjs/cli@11.0.0(@swc/cli@0.6.0(@swc/core@1.10.7)(chokidar@4.0.3))(@swc/core@1.10.7)(@types/node@22.10.7)(esbuild@0.25.0)':
     dependencies:
@@ -11148,16 +11107,6 @@ snapshots:
       pino: 9.6.0
       pino-http: 10.4.0
       rxjs: 7.8.1
-
-  nestjs-zod@4.3.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(@nestjs/swagger@11.1.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2))(zod@3.24.2):
-    dependencies:
-      '@nest-zod/z': 2.0.0(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(@nestjs/swagger@11.1.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2))(zod@3.24.2)
-      deepmerge: 4.3.1
-      zod: 3.24.2
-    optionalDependencies:
-      '@nestjs/common': 11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      '@nestjs/core': 11.0.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/platform-express@11.0.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
-      '@nestjs/swagger': 11.1.1(@nestjs/common@11.0.1(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1))(@nestjs/core@11.0.1)(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)
 
   node-abort-controller@3.1.1: {}
 

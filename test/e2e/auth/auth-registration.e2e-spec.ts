@@ -12,12 +12,16 @@ import { prismaTestClient } from "../support/prisma-test-client";
 
 interface ValidationErrorDetail {
   field: string;
+  code: string;
   message: string;
 }
 
 interface ErrorResponseBody {
   statusCode: number;
-  message: string | ValidationErrorDetail[];
+  error: string;
+  message: string;
+  details: ValidationErrorDetail[];
+  requestId?: string;
 }
 
 /**
@@ -120,9 +124,64 @@ describe("auth registration flow", () => {
       .expect(400);
 
     const errorBody = response.body as ErrorResponseBody;
-    expect(Array.isArray(errorBody.message)).toBe(true);
-    expect(errorBody.message).toEqual(
-      expect.arrayContaining([expect.objectContaining({ field: "code" })]),
+    expect(typeof errorBody.message).toBe("string");
+    expect(errorBody.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          field: "code",
+          code: "isString",
+        }),
+      ]),
     );
+    expect(errorBody.error).toBe("VALIDATION_FAILED");
+    expect(errorBody.requestId).toBeTruthy();
+  });
+
+  it("returns the full error envelope with all fields on validation failure", async () => {
+    const email = uniqueEmail();
+    const body = registerBody({ email });
+    // Omit multiple required fields to trigger multiple validation errors.
+    delete (body as { code?: string }).code;
+    delete (body as { phoneNumber?: string }).phoneNumber;
+
+    const response = await request(app.getHttpServer())
+      .post("/auth/register")
+      .send(body)
+      .expect(400);
+
+    const errorBody = response.body as ErrorResponseBody;
+
+    // Assert all envelope fields are present and correctly typed.
+    expect(errorBody.statusCode).toBe(400);
+    expect(typeof errorBody.error).toBe("string");
+    expect(errorBody.error).toBe("VALIDATION_FAILED");
+    expect(typeof errorBody.message).toBe("string");
+    expect(errorBody.message).toBe("Validation failed");
+
+    // Assert details array structure and content.
+    expect(Array.isArray(errorBody.details)).toBe(true);
+    expect(errorBody.details.length).toBeGreaterThan(0);
+
+    // Verify each detail carries field, code, and message.
+    errorBody.details.forEach((detail) => {
+      expect(typeof detail.field).toBe("string");
+      expect(typeof detail.code).toBe("string");
+      expect(typeof detail.message).toBe("string");
+    });
+
+    // Verify the specific errors we triggered.
+    expect(
+      errorBody.details.some(
+        (d) => d.field === "code" && d.code === "isString",
+      ),
+    ).toBe(true);
+    expect(
+      errorBody.details.some(
+        (d) => d.field === "phoneNumber" && d.code === "isString",
+      ),
+    ).toBe(true);
+
+    // Verify requestId is present.
+    expect(typeof errorBody.requestId).toBe("string");
   });
 });

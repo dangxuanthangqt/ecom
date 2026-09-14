@@ -42,8 +42,8 @@ authored_by: rebuild-spec
 
 | Code | Name | Trigger | Payload | File Schema |
 |------|------|---------|---------|--------------|
-| BL006_ExternalExceptionFilter | Any `HttpException` (incl. Zod validation/serialization) thrown by any handler — global `APP_FILTER` | N/A — not event/notification | N/A — not a file-exchange type |
-| BL007_PrismaClientExceptionFilter | Any Prisma client error thrown by any handler — global `APP_FILTER` | N/A — not event/notification | N/A — not a file-exchange type |
+| BL006_ExternalExceptionFilter | Any `HttpException` thrown by any handler, dispatched through `GlobalExceptionFilter` — global `APP_FILTER` (superseded, see entry) | N/A — not event/notification | N/A — not a file-exchange type |
+| BL007_PrismaClientExceptionFilter | Any Prisma client error thrown by any handler, dispatched through `GlobalExceptionFilter` — global `APP_FILTER` (superseded, see entry) | N/A — not event/notification | N/A — not a file-exchange type |
 | BL008_ResponseTransformInterceptor | Every successful response — global `APP_INTERCEPTOR` | N/A — not event/notification | N/A — not a file-exchange type |
 | BL009_ArrayFilesValidationPipe | Applied inline in `MediaController.uploadArrayOfImages` (`POST /media/upload/array-of-images`) | N/A — not event/notification | N/A — not a file-exchange type |
 | BL010_ImageValidationPipe | Not currently attached to any live handler — see Description | N/A — not event/notification | N/A — not a file-exchange type |
@@ -216,19 +216,24 @@ Thin wrapper around the Resend SDK (`resend.emails.send`, `:16-21`), hardcoded `
 
 ## BL006_ExternalExceptionFilter
 
+> **Superseded.** `ExternalExceptionFilter` and `PrismaClientExceptionFilter` were deleted and
+> collapsed into one `GlobalExceptionFilter` (`@Catch()`, no argument). This entry is kept as BL006
+> for ID stability (referenced by `api-map.md`, `feature-list.md`, `user-stories.md`, `screen-flow.md`);
+> see BL007 for the Prisma side and `docs/error-handling.md` for the current, full contract.
+
 **Type**: middleware
-**Trigger**: Any `HttpException` thrown by any route handler (registered `@Catch(HttpException)`, global `APP_FILTER` in `src/shared/modules/base.module.ts`)
-**Source File**: src/shared/filters/external-exception.filter.ts
-**Source Symbol**: ExternalExceptionFilter::catch
+**Trigger**: Any `HttpException` thrown by any route handler, dispatched through `GlobalExceptionFilter`'s bare `@Catch()` (global `APP_FILTER` in `src/shared/modules/base.module.ts`)
+**Source File**: src/shared/filters/http-exception.mapper.ts
+**Source Symbol**: mapHttpException
 
 ### Description
 
-Normalizes every uncaught `HttpException` (and the Zod-specific subclasses `ZodValidationException`/`ZodSerializationException` from `nestjs-zod`) into a single `DefaultExceptionDto` response shape (`statusCode`, `message`). For Zod exceptions it extracts `exception.getZodError().message` (`:29-38`); for all other `HttpException`s it reads `exception.getResponse()` and falls back to `exception.message` (`:40-47`). Logs the exception class name, timestamp, status, and message plus the full stack (`:49-52`) before writing the JSON response (`:55`). This is the process-wide error-shape contract every one of the 70 routes' error responses conforms to.
+Normalizes every `HttpException` into the single `ErrorResponseDto` envelope (`statusCode`, `error`, `message`, `details`, `requestId`) that `GlobalExceptionFilter` (`src/shared/filters/global-exception.filter.ts`) writes for every response. A bare string payload becomes `message`; an array under `message` (Nest's own validation pipe, or a foreign pipe's per-field failures) is lifted into `details` with `message` fixed at `"Validation failed"`. A SCREAMING_SNAKE `error` already on the exception payload survives; anything else is re-derived from the HTTP status. `class-validator` is now the only validation system reaching this path — `nestjs-zod` and its `ZodValidationException`/`ZodSerializationException` subclasses are gone from the HTTP pipeline. This is the process-wide error-shape contract every one of the 70 routes' error responses conforms to; see `docs/error-handling.md` for the full contract and worked examples.
 
 ### Related Modules
 
-- src/dtos/default-exception.dto.ts
-- src/shared/modules/base.module.ts (registration site)
+- src/dtos/error-response.dto.ts
+- src/shared/filters/global-exception.filter.ts (dispatch + registration site)
 
 ### Related Routes
 
@@ -242,18 +247,23 @@ Normalizes every uncaught `HttpException` (and the Zod-specific subclasses `ZodV
 
 ## BL007_PrismaClientExceptionFilter
 
+> **Superseded.** `PrismaClientExceptionFilter` and `ExternalExceptionFilter` were deleted and
+> collapsed into one `GlobalExceptionFilter` (`@Catch()`, no argument). This entry is kept as BL007
+> for ID stability (referenced by `api-map.md`, `feature-list.md`, `user-stories.md`, `screen-flow.md`);
+> see BL006 for the HTTP-exception side and `docs/error-handling.md` for the current, full contract.
+
 **Type**: middleware
-**Trigger**: Any of `PrismaClientInitializationError`/`ValidationError`/`KnownRequestError`/`UnknownRequestError`/`RustPanicError` thrown during a Prisma call (registered `@Catch(...)`, global `APP_FILTER`)
-**Source File**: src/shared/filters/prisma-exception.filter.ts
-**Source Symbol**: PrismaClientExceptionFilter::catch
+**Trigger**: Any of `PrismaClientInitializationError`/`ValidationError`/`KnownRequestError`/`UnknownRequestError`/`RustPanicError` thrown during a Prisma call, dispatched through `GlobalExceptionFilter`'s bare `@Catch()` (global `APP_FILTER` in `src/shared/modules/base.module.ts`)
+**Source File**: src/shared/filters/prisma-error.mapper.ts
+**Source Symbol**: mapPrismaError
 
 ### Description
 
-Maps Prisma error codes to HTTP status + message via a static lookup table `HTTP_CODE_FROM_PRISMA` (`:12-59`) — e.g. `P2002` (unique constraint) → 409 "Reference Data already exists.", `P2025` (record not found) → 404, `P1008` (timeout) → 408. Unmapped codes fall back to a generic 500 (`:96-100`). Extracts a trimmed diagnostic snippet from the raw Prisma error message (everything after the `→` arrow Prisma includes in its error text, `:117-123`) for logging, while the HTTP response body carries only the mapped generic message — raw Prisma internals never reach the client.
+Maps Prisma error codes to HTTP status + message via a static lookup table `HTTP_CODE_FROM_PRISMA` — e.g. `P2002` (unique constraint) → 409 "Reference data already exists.", `P2025` (record not found) → 404, `P1008` (timeout) → 408. `P2001` (record does not exist) now maps to `404 NOT_FOUND` — it previously mapped to `204 No Content` with a JSON body, which was wrong on two counts: a 204 forbids a body, and "record does not exist" is not "no content". Unmapped codes no longer carry their own message: they fall through to `ErrorResponseDto`'s generic 500 text, so an unmapped Prisma code is indistinguishable from any other 500. `shortPrismaMessage` trims the raw Prisma diagnostic (everything after the `→` arrow Prisma includes in its error text) for the log only — the HTTP response body never carries Prisma's raw message.
 
 ### Related Modules
 
-- src/shared/modules/base.module.ts (registration site)
+- src/shared/filters/global-exception.filter.ts (dispatch + registration site)
 
 ### Related Routes
 

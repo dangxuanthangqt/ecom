@@ -75,7 +75,6 @@
     "multer": "2.0.1",
     "nestjs-i18n": "10.5.1",
     "nestjs-pino": "4.3.1",
-    "nestjs-zod": "4.3.1",
     "otpauth": "9.4.0",
     "pino-http": "10.4.0",
     "pino-pretty": "13.0.0",

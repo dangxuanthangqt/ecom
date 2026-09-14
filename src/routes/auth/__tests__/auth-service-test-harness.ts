@@ -157,8 +157,8 @@ export const stubTokenGeneration = (
 };
 
 /**
- * BadRequestException is thrown with an array payload, so its `message` is the
- * generic "Bad Request Exception". Assert on the detail payload instead.
+ * BadRequestException is thrown with the envelope payload. Assert on the
+ * detail in the `details` array instead.
  */
 export const expectBadRequestDetail = async (
   promise: Promise<unknown>,
@@ -167,6 +167,12 @@ export const expectBadRequestDetail = async (
   expect(promise).rejects.toMatchObject({
     response: {
       statusCode: 400,
-      message: [detail],
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      details: expect.arrayContaining([
+        expect.objectContaining({
+          field: detail.field,
+          message: detail.message,
+        }),
+      ]),
     },
   });

@@ -21,6 +21,7 @@ describe("transformValidateObject", () => {
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
       field: "email",
+      code: "isEmail",
       message: "email must be an email",
     });
   });
@@ -49,10 +50,12 @@ describe("transformValidateObject", () => {
     expect(result).toHaveLength(2);
     expect(result).toContainEqual({
       field: "email",
+      code: "isEmail",
       message: "email must be an email",
     });
     expect(result).toContainEqual({
       field: "password",
+      code: "minLength",
       message: "password must be at least 8 characters",
     });
   });
@@ -74,10 +77,12 @@ describe("transformValidateObject", () => {
     expect(result).toHaveLength(2);
     expect(result).toContainEqual({
       field: "password",
+      code: "minLength",
       message: "password must be at least 8 characters",
     });
     expect(result).toContainEqual({
       field: "password",
+      code: "matches",
       message: "password must contain uppercase letter",
     });
   });
@@ -103,6 +108,7 @@ describe("transformValidateObject", () => {
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
       field: "address.street",
+      code: "isString",
       message: "street must be a string",
     });
   });
@@ -133,6 +139,7 @@ describe("transformValidateObject", () => {
     expect(result).toHaveLength(1);
     expect(result[0]).toEqual({
       field: "user.profile.name",
+      code: "isString",
       message: "name must be a string",
     });
   });
@@ -166,10 +173,12 @@ describe("transformValidateObject", () => {
     expect(result).toHaveLength(2);
     expect(result).toContainEqual({
       field: "email",
+      code: "isEmail",
       message: "email must be an email",
     });
     expect(result).toContainEqual({
       field: "address.street",
+      code: "isString",
       message: "street must be a string",
     });
   });
@@ -217,10 +226,12 @@ describe("transformValidateObject", () => {
     expect(result).toHaveLength(2);
     expect(result).toContainEqual({
       field: "address.street",
+      code: "isString",
       message: "street must be a string",
     });
     expect(result).toContainEqual({
       field: "address.city.name",
+      code: "isString",
       message: "name must be a string",
     });
   });
@@ -240,6 +251,7 @@ describe("transformValidateObject", () => {
     // Assert
     expect(result).toHaveLength(1);
     expect(result[0]).toHaveProperty("field");
+    expect(result[0]).toHaveProperty("code");
     expect(result[0]).toHaveProperty("message");
   });
 });

@@ -84,10 +84,14 @@ describe("ManageOrderService - updateOrderStatus (BR-O05 legal transitions)", ()
 
       await expect(promise).rejects.toMatchObject({ status: 400 });
       const error = (await promise.catch((caught: unknown) => caught)) as {
-        response: { message: { message: string }[] };
+        response: { message: string; details: unknown[] };
       };
-      expect(error.response.message[0].message).toContain(from);
-      expect(error.response.message[0].message).toContain(to);
+      // The rejected transition is not scoped to a field, so it is stated in
+      // `message` and `details` stays empty — assert exactly that, rather than
+      // searching both for the status names.
+      expect(error.response.message).toContain(from);
+      expect(error.response.message).toContain(to);
+      expect(error.response.details).toEqual([]);
       expect(
         mocks.orderStatusRepository.updateOrderStatus,
       ).not.toHaveBeenCalled();

@@ -512,8 +512,8 @@ story, and no route of their own**: they normalize thrown errors (HTTP and Prism
 response shape, wrap every successful response in one envelope, and manage the DB client's
 connect/disconnect lifecycle.
 
-- BL006_ExternalExceptionFilter
-- BL007_PrismaClientExceptionFilter
+- BL006_ExternalExceptionFilter (superseded — now `GlobalExceptionFilter`, see `behavior-logic.md`)
+- BL007_PrismaClientExceptionFilter (superseded — now `GlobalExceptionFilter`, see `behavior-logic.md`)
 - BL008_ResponseTransformInterceptor
 - BL013_PrismaClientLifecycleObserver
 

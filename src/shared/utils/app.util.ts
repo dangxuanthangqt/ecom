@@ -2,44 +2,47 @@ import { ValidationError } from "@nestjs/common";
 
 import { ErrorDetailDto } from "src/dtos/error-detail.dto";
 
+/**
+ * Flattens class-validator's recursive `ValidationError` tree into one flat list,
+ * one entry per failed constraint.
+ *
+ * Two properties matter to consumers:
+ * - nested failures carry a dotted `field` path (`address.city`), so a client can
+ *   address the offending input without walking a tree of its own;
+ * - `code` is the constraint key (`isEmail`, `minLength`), which is stable across
+ *   message and locale changes. It is the only part of a detail entry a client
+ *   should branch on.
+ */
 export const transformValidateObject = (
   errors: ValidationError[],
 ): ErrorDetailDto[] => {
-  const details: ErrorDetailDto[] = extractErrorDetails(errors);
+  const details: ErrorDetailDto[] = [];
+
+  for (const error of errors) {
+    collectInto(details, error);
+  }
 
   return details;
 };
 
-function extractErrorDetails(errors: ValidationError[]): ErrorDetailDto[] {
-  const errorDetails: ErrorDetailDto[] = [];
+function collectInto(
+  details: ErrorDetailDto[],
+  error: ValidationError,
+  parentPath: string | null = null,
+): void {
+  const path = parentPath ? `${parentPath}.${error.property}` : error.property;
 
-  function recursiveExtract(
-    error: ValidationError,
-    property: string | null = null,
-  ) {
-    if (error.constraints) {
-      for (const constraint in error.constraints) {
-        errorDetails.push({
-          field: property ? `${property}.${error.property}` : error.property,
-          // errorCode: constraint,
-          message: error.constraints[constraint],
-        });
-      }
-    }
-
-    if (error.children) {
-      for (const childError of error.children) {
-        recursiveExtract(
-          childError,
-          property ? `${property}.${error.property}` : error.property,
-        );
-      }
+  if (error.constraints) {
+    for (const code of Object.keys(error.constraints)) {
+      details.push({
+        field: path,
+        code,
+        message: error.constraints[code],
+      });
     }
   }
 
-  for (const error of errors) {
-    recursiveExtract(error);
+  for (const child of error.children ?? []) {
+    collectInto(details, child, path);
   }
-
-  return errorDetails;
 }

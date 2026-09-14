@@ -15,7 +15,11 @@ import { UserId } from "../support/fixtures";
 import { prismaTestClient } from "../support/prisma-test-client";
 
 interface ErrorResponseBody {
-  message: string | Array<{ field: string }>;
+  statusCode: number;
+  error: string;
+  message: string;
+  details: Array<{ field: string; code: string; message: string }>;
+  requestId?: string;
 }
 
 /**
@@ -151,10 +155,13 @@ describe("user admin access control", () => {
 
     const body = response.body as ErrorResponseBody;
     expect(response.status).toBe(400);
-    expect(Array.isArray(body.message)).toBe(true);
+    // `message` stays a string whatever the failure is; the per-field breakdown
+    // lives in `details`. See docs/error-handling.md.
+    expect(typeof body.message).toBe("string");
+    expect(body.error).toBe("VALIDATION_FAILED");
 
     const fieldsWithErrors = new Set(
-      (body.message as Array<{ field: string }>).map((detail) => detail.field),
+      body.details.map((detail) => detail.field),
     );
     expect(fieldsWithErrors).toEqual(
       new Set(["email", "password", "name", "phoneNumber"]),

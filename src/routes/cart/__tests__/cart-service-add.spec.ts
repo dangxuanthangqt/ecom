@@ -59,11 +59,8 @@ describe("CartService - addCartItem", () => {
     await expect(promise).rejects.toMatchObject({
       status: 400,
       response: {
-        message: [
-          expect.objectContaining({
-            message: "Only 10 left in stock for this SKU.",
-          }),
-        ],
+        message: "Only 10 left in stock for this SKU.",
+        details: [],
       },
     });
     expect(mocks.cartRepository.upsertCartItem).not.toHaveBeenCalled();

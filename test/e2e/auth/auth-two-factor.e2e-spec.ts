@@ -14,12 +14,16 @@ interface MessageResponseBody {
 
 interface ValidationErrorDetail {
   field: string;
+  code: string;
   message: string;
 }
 
 interface ValidationErrorResponseBody {
   statusCode: number;
-  message: ValidationErrorDetail[];
+  error: string;
+  message: string;
+  details: ValidationErrorDetail[];
+  requestId?: string;
 }
 
 interface AccessTokenResponseBody {
@@ -76,9 +80,9 @@ describe("auth two-factor flow", () => {
       .set("User-Agent", "e2e-test-agent")
       .send({ email: user.email, password: user.password })
       .expect(400);
-    expect(
-      (loginNoCodeResponse.body as ValidationErrorResponseBody).message,
-    ).toEqual(
+    const errorBody = loginNoCodeResponse.body as ValidationErrorResponseBody;
+    expect(typeof errorBody.message).toBe("string");
+    expect(errorBody.details).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           message: "TOTP or verification code is required.",
@@ -165,7 +169,9 @@ describe("auth two-factor flow", () => {
       .send({ totpCode: "123" })
       .expect(400);
 
-    expect((response.body as ValidationErrorResponseBody).message).toEqual(
+    const errorBody = response.body as ValidationErrorResponseBody;
+    expect(typeof errorBody.message).toBe("string");
+    expect(errorBody.details).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           message: "OptCode must be exactly 6 characters.",

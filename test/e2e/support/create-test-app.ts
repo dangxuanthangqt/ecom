@@ -1,10 +1,8 @@
-import { HttpStatus, INestApplication, ValidationPipe } from "@nestjs/common";
+import { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { App } from "supertest/types";
 
 import { AppModule } from "src/app.module";
-import { ValidateException } from "src/shared/exceptions/validate.exception";
-import { transformValidateObject } from "src/shared/utils/app.util";
 
 export type TestApp = INestApplication<App>;
 
@@ -15,11 +13,10 @@ export type TestApp = INestApplication<App>;
  * `syncRoutePermissions` read — no port is bound, so nothing collides across
  * spec files even under `--runInBand`.
  *
- * `AppModule` already installs `nestjs-zod`'s `ZodValidationPipe` globally via
- * `APP_PIPE` (see `BaseModule`). `main.ts` additionally layers a
- * `class-validator` `ValidationPipe` with a `ValidateException` factory on
- * top — both must be present here too, or a spec asserting a validation-error
- * response body would see a different shape than production.
+ * Nothing is configured here on purpose. The validation pipe and the global
+ * exception filter are `APP_PIPE` / `APP_FILTER` providers inside `BaseModule`,
+ * so importing `AppModule` is enough to get production's exact error contract —
+ * there is no second copy of the pipe options to fall out of step.
  */
 export async function createTestApp(): Promise<TestApp> {
   const moduleFixture = await Test.createTestingModule({
@@ -27,20 +24,6 @@ export async function createTestApp(): Promise<TestApp> {
   }).compile();
 
   const app = moduleFixture.createNestApplication();
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      errorHttpStatusCode: HttpStatus.BAD_REQUEST,
-      exceptionFactory: (errors) => {
-        const transformedErrors = transformValidateObject(errors);
-
-        return new ValidateException(transformedErrors);
-      },
-    }),
-  );
 
   await app.init();
 

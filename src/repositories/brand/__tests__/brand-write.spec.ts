@@ -134,12 +134,12 @@ describe("BrandRepository - createBrand", () => {
       });
 
       // Assert
-      // The exception body carries `message` as an array of `{ field, message }`
-      // detail objects, not a bare string.
+      // The exception body carries `message` as a string and details as an array
       await expect(promise).rejects.toMatchObject({
         status: 400,
         response: {
-          message: [{ message: "Some brand translations do not exist." }],
+          message: "Some brand translations do not exist.",
+          details: [],
         },
       });
     });
@@ -171,7 +171,12 @@ describe("BrandRepository - createBrand", () => {
         status: 422,
         response: {
           message: "Brand is already exists.",
-          field: "brand.",
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          details: expect.arrayContaining([
+            expect.objectContaining({
+              field: "brand.",
+            }),
+          ]),
         },
       });
     });
@@ -203,7 +208,12 @@ describe("BrandRepository - createBrand", () => {
         status: 422,
         response: {
           message: "Failed to create brand.",
-          field: "brand",
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          details: expect.arrayContaining([
+            expect.objectContaining({
+              field: "brand",
+            }),
+          ]),
         },
       });
     });
@@ -345,7 +355,12 @@ describe("BrandRepository - updateBrand", () => {
         status: 422,
         response: {
           message: "Brand is already exists.",
-          field: "brand.",
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          details: expect.arrayContaining([
+            expect.objectContaining({
+              field: "brand.",
+            }),
+          ]),
         },
       });
     });
@@ -374,7 +389,12 @@ describe("BrandRepository - updateBrand", () => {
         status: 422,
         response: {
           message: "Failed to update brand.",
-          field: "brand",
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          details: expect.arrayContaining([
+            expect.objectContaining({
+              field: "brand",
+            }),
+          ]),
         },
       });
     });

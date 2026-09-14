@@ -15,8 +15,8 @@ import {
   getSchemaPath,
 } from "@nestjs/swagger";
 
-import { BadRequestExceptionDto } from "@/dtos/bad-request-exception.dto";
-import { DefaultExceptionDto } from "@/dtos/default-exception.dto";
+import { ErrorCode } from "@/constants/error-code.constant";
+import { ErrorResponseDto } from "@/dtos/error-response.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
 
 export function ApiAuth({
@@ -36,7 +36,7 @@ export function ApiAuth({
     ApiUnauthorizedResponse({
       description: "Unauthorized",
       schema: {
-        example: new DefaultExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.UNAUTHORIZED,
         }),
       },
@@ -44,7 +44,7 @@ export function ApiAuth({
     ApiForbiddenResponse({
       description: "Forbidden",
       schema: {
-        example: new DefaultExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.FORBIDDEN,
         }),
       },
@@ -52,7 +52,7 @@ export function ApiAuth({
     ApiInternalServerErrorResponse({
       description: "Internal Server Error",
       schema: {
-        example: new DefaultExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         }),
       },
@@ -60,12 +60,15 @@ export function ApiAuth({
     ApiBadRequestResponse({
       description: "Bad Request",
       schema: {
-        example: new BadRequestExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.BAD_REQUEST,
-          message: [
+          error: ErrorCode.VALIDATION_FAILED,
+          message: "Validation failed",
+          details: [
             {
-              field: "field",
-              message: "message",
+              field: "email",
+              code: "isEmail",
+              message: "email must be an email",
             },
           ],
         }),
@@ -74,7 +77,7 @@ export function ApiAuth({
     ApiUnprocessableEntityResponse({
       description: "Unprocessable Entity",
       schema: {
-        example: new DefaultExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
       },
@@ -82,7 +85,7 @@ export function ApiAuth({
     ApiNotFoundResponse({
       description: "Not Found",
       schema: {
-        example: new DefaultExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.NOT_FOUND,
         }),
       },
@@ -133,7 +136,7 @@ export function ApiPublic({
     ApiInternalServerErrorResponse({
       description: "Internal Server Error",
       schema: {
-        example: new DefaultExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         }),
       },
@@ -141,7 +144,7 @@ export function ApiPublic({
     ApiUnprocessableEntityResponse({
       description: "Unprocessable Entity",
       schema: {
-        example: new DefaultExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
       },
@@ -149,12 +152,15 @@ export function ApiPublic({
     ApiBadRequestResponse({
       description: "Bad Request",
       schema: {
-        example: new BadRequestExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.BAD_REQUEST,
-          message: [
+          error: ErrorCode.VALIDATION_FAILED,
+          message: "Validation failed",
+          details: [
             {
-              field: "field",
-              message: "message",
+              field: "email",
+              code: "isEmail",
+              message: "email must be an email",
             },
           ],
         }),
@@ -163,7 +169,7 @@ export function ApiPublic({
     ApiNotFoundResponse({
       description: "Not Found",
       schema: {
-        example: new DefaultExceptionDto({
+        example: new ErrorResponseDto({
           statusCode: HttpStatus.NOT_FOUND,
         }),
       },

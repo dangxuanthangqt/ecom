@@ -1,14 +1,10 @@
-import { HttpStatus, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule } from "@nestjs/swagger";
 import { Logger } from "nestjs-pino";
 
 import { AppModule } from "./app.module";
-// import { TransformInterceptor } from "./shared/interceptors/transform.interceptor";
-import { ValidateException } from "./shared/exceptions/validate.exception";
 import { SharedModule } from "./shared/modules/shared.module";
 import { AppConfigService } from "./shared/services/app-config.service";
-import { transformValidateObject } from "./shared/utils/app.util";
 import { setupSwagger } from "./shared/utils/setup-swagger.util";
 
 async function bootstrap() {
@@ -28,27 +24,9 @@ async function bootstrap() {
     optionsSuccessStatus: 204,
   });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-
-      errorHttpStatusCode: HttpStatus.BAD_REQUEST,
-      exceptionFactory: (errors) => {
-        const transformedErrors = transformValidateObject(errors);
-
-        return new ValidateException(transformedErrors);
-      },
-    }),
-  );
-
-  // app.useGlobalInterceptors(new TransformInterceptor());
-
-  // app.useGlobalFilters(
-  //   new PrismaClientExceptionFilter(),
-  //   new ExternalExceptionFilter(),
-  // ); not working with pipe ?
+  // The validation pipe and the exception filter are registered in `BaseModule`
+  // via APP_PIPE / APP_FILTER, so every entry point that boots `AppModule` — the
+  // server here, and the e2e harness — gets the identical error contract.
 
   // Setup Swagger
   if (configService.isDevelopment) {

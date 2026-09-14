@@ -16,22 +16,25 @@ describe("throwHttpException", () => {
    * The exception body, read through the public `getResponse()` rather than the
    * private `response` field, and typed so assertions need no unsafe access.
    */
-  interface ExceptionDetail {
+  interface ErrorDetailDto {
+    field: string;
+    code: string;
     message: string;
-    field?: string;
   }
 
   interface ExceptionBody {
-    message: unknown;
-    field?: unknown;
+    statusCode: number;
+    error?: string;
+    message: string;
+    details: ErrorDetailDto[];
   }
 
   const bodyOf = (error: unknown): ExceptionBody =>
     (error as HttpException).getResponse() as ExceptionBody;
 
-  /** badRequest wraps its detail in an array; this reads one entry of it. */
-  const detailAt = (error: unknown, index: number): ExceptionDetail =>
-    (bodyOf(error).message as ExceptionDetail[])[index];
+  /** Reads one entry from the details array. */
+  const detailAt = (error: unknown, index: number): ErrorDetailDto =>
+    bodyOf(error).details[index];
 
   /** The `type` argument, so the default-branch test can pass an invalid one. */
   type HttpErrorType = Parameters<typeof throwHttpException>[0]["type"];
@@ -51,7 +54,9 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
-        expect(bodyOf(error).message).toEqual([{ message: "Invalid input" }]);
+        const body = bodyOf(error);
+        expect(body.message).toBe("Invalid input");
+        expect(body.details).toEqual([]);
       }
     });
 
@@ -70,9 +75,14 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException);
-        expect(bodyOf(error).message).toEqual([
-          { message: "Invalid email", field: "email" },
-        ]);
+        const body = bodyOf(error);
+        expect(body.message).toBe("Invalid email");
+        expect(body.details).toHaveLength(1);
+        expect(body.details[0]).toMatchObject({
+          field: "email",
+          message: "Invalid email",
+          code: "invalid",
+        });
       }
     });
   });
@@ -92,7 +102,9 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
-        expect(bodyOf(error)).toEqual({ message: "User not found" });
+        const body = bodyOf(error);
+        expect(body.message).toBe("User not found");
+        expect(body.details).toEqual([]);
       }
     });
 
@@ -111,9 +123,13 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException);
-        expect(bodyOf(error)).toEqual({
-          message: "Product not found",
+        const body = bodyOf(error);
+        expect(body.message).toBe("Product not found");
+        expect(body.details).toHaveLength(1);
+        expect(body.details[0]).toMatchObject({
           field: "productId",
+          message: "Product not found",
+          code: "invalid",
         });
       }
     });
@@ -134,7 +150,9 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(UnprocessableEntityException);
-        expect(bodyOf(error)).toEqual({ message: "Cannot process request" });
+        const body = bodyOf(error);
+        expect(body.message).toBe("Cannot process request");
+        expect(body.details).toEqual([]);
       }
     });
 
@@ -153,9 +171,13 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(UnprocessableEntityException);
-        expect(bodyOf(error)).toEqual({
-          message: "Email already exists",
+        const body = bodyOf(error);
+        expect(body.message).toBe("Email already exists");
+        expect(body.details).toHaveLength(1);
+        expect(body.details[0]).toMatchObject({
           field: "email",
+          message: "Email already exists",
+          code: "invalid",
         });
       }
     });
@@ -176,7 +198,9 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
-        expect(bodyOf(error)).toEqual({ message: "Invalid credentials" });
+        const body = bodyOf(error);
+        expect(body.message).toBe("Invalid credentials");
+        expect(body.details).toEqual([]);
       }
     });
 
@@ -195,9 +219,13 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(UnauthorizedException);
-        expect(bodyOf(error)).toEqual({
-          message: "Token expired",
+        const body = bodyOf(error);
+        expect(body.message).toBe("Token expired");
+        expect(body.details).toHaveLength(1);
+        expect(body.details[0]).toMatchObject({
           field: "token",
+          message: "Token expired",
+          code: "invalid",
         });
       }
     });
@@ -218,7 +246,9 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(ForbiddenException);
-        expect(bodyOf(error)).toEqual({ message: "Access denied" });
+        const body = bodyOf(error);
+        expect(body.message).toBe("Access denied");
+        expect(body.details).toEqual([]);
       }
     });
 
@@ -237,9 +267,13 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(ForbiddenException);
-        expect(bodyOf(error)).toEqual({
-          message: "Cannot delete admin user",
+        const body = bodyOf(error);
+        expect(body.message).toBe("Cannot delete admin user");
+        expect(body.details).toHaveLength(1);
+        expect(body.details[0]).toMatchObject({
           field: "userId",
+          message: "Cannot delete admin user",
+          code: "invalid",
         });
       }
     });
@@ -260,7 +294,9 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(ConflictException);
-        expect(bodyOf(error)).toEqual({ message: "Resource already exists" });
+        const body = bodyOf(error);
+        expect(body.message).toBe("Resource already exists");
+        expect(body.details).toEqual([]);
       }
     });
 
@@ -279,9 +315,13 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(ConflictException);
-        expect(bodyOf(error)).toEqual({
-          message: "You have already reviewed this product",
+        const body = bodyOf(error);
+        expect(body.message).toBe("You have already reviewed this product");
+        expect(body.details).toHaveLength(1);
+        expect(body.details[0]).toMatchObject({
           field: "productId",
+          message: "You have already reviewed this product",
+          code: "invalid",
         });
       }
     });
@@ -302,7 +342,9 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(bodyOf(error)).toEqual({ message: "Something went wrong" });
+        const body = bodyOf(error);
+        expect(body.message).toBe("Something went wrong");
+        expect(body.details).toEqual([]);
       }
     });
 
@@ -321,16 +363,20 @@ describe("throwHttpException", () => {
         action();
       } catch (error) {
         expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(bodyOf(error)).toEqual({
-          message: "Database connection failed",
+        const body = bodyOf(error);
+        expect(body.message).toBe("Database connection failed");
+        expect(body.details).toHaveLength(1);
+        expect(body.details[0]).toMatchObject({
           field: "database",
+          message: "Database connection failed",
+          code: "invalid",
         });
       }
     });
   });
 
   describe("default case (internal)", () => {
-    it("defaults to internal error for invalid type", () => {
+    it("defaults to HttpException for invalid type", () => {
       // Arrange
       const action = () =>
         throwHttpException({
@@ -340,18 +386,20 @@ describe("throwHttpException", () => {
         });
 
       // Act & Assert
-      expect(action).toThrow(InternalServerErrorException);
+      expect(action).toThrow(HttpException);
       try {
         action();
       } catch (error) {
-        expect(error).toBeInstanceOf(InternalServerErrorException);
-        expect(bodyOf(error)).toEqual({ message: "Default error" });
+        expect(error).toBeInstanceOf(HttpException);
+        const body = bodyOf(error);
+        expect(body.message).toBe("Default error");
+        expect(body.details).toEqual([]);
       }
     });
   });
 
   describe("error response structure", () => {
-    it("includes both message and field in response when provided for badRequest", () => {
+    it("includes field in details when provided", () => {
       // Arrange
       const action = () =>
         throwHttpException({
@@ -364,14 +412,13 @@ describe("throwHttpException", () => {
       try {
         action();
       } catch (error) {
-        expect(detailAt(error, 0)).toEqual({
-          message: "Test message",
-          field: "testField",
-        });
+        const detail = detailAt(error, 0);
+        expect(detail.field).toBe("testField");
+        expect(detail.message).toBe("Test message");
       }
     });
 
-    it("includes only message in response when field is not provided for badRequest", () => {
+    it("includes empty details when field is not provided", () => {
       // Arrange
       const action = () =>
         throwHttpException({
@@ -383,11 +430,13 @@ describe("throwHttpException", () => {
       try {
         action();
       } catch (error) {
-        expect(detailAt(error, 0)).toEqual({ message: "Test message" });
+        const body = bodyOf(error);
+        expect(body.message).toBe("Test message");
+        expect(body.details).toEqual([]);
       }
     });
 
-    it("includes only message in response when field is not provided for notFound", () => {
+    it("includes only message when field is not provided for notFound", () => {
       // Arrange
       const action = () =>
         throwHttpException({
@@ -399,8 +448,9 @@ describe("throwHttpException", () => {
       try {
         action();
       } catch (error) {
-        expect(bodyOf(error)).toEqual({ message: "Test message" });
-        expect(bodyOf(error).field).toBeUndefined();
+        const body = bodyOf(error);
+        expect(body.message).toBe("Test message");
+        expect(body.details).toEqual([]);
       }
     });
 
@@ -418,7 +468,64 @@ describe("throwHttpException", () => {
       try {
         action();
       } catch (error) {
-        expect(detailAt(error, 0).message).toBe(messageText);
+        const body = bodyOf(error);
+        expect(body.message).toBe(messageText);
+      }
+    });
+
+    it("uses custom code when provided", () => {
+      // Arrange
+      const action = () =>
+        throwHttpException({
+          type: "badRequest",
+          message: "Email validation failed",
+          field: "email",
+          code: "isEmail",
+        });
+
+      // Act & Assert
+      try {
+        action();
+      } catch (error) {
+        const detail = detailAt(error, 0);
+        expect(detail.code).toBe("isEmail");
+      }
+    });
+
+    it("uses default code when not provided", () => {
+      // Arrange
+      const action = () =>
+        throwHttpException({
+          type: "badRequest",
+          message: "Invalid input",
+          field: "someField",
+        });
+
+      // Act & Assert
+      try {
+        action();
+      } catch (error) {
+        const detail = detailAt(error, 0);
+        expect(detail.code).toBe("invalid");
+      }
+    });
+
+    it("includes statusCode and error fields in response", () => {
+      // Arrange
+      const action = () =>
+        throwHttpException({
+          type: "badRequest",
+          message: "Test",
+          error: "CUSTOM_ERROR",
+        });
+
+      // Act & Assert
+      try {
+        action();
+      } catch (error) {
+        const body = bodyOf(error);
+        expect(body.statusCode).toBe(400);
+        expect(body.error).toBe("CUSTOM_ERROR");
       }
     });
   });

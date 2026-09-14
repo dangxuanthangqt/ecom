@@ -1,13 +1,24 @@
-import { ErrorCode } from "./error-code.constant";
+import { HttpStatus } from "@nestjs/common";
 
-export const ErrorMessage = {
-  400: "Bad Request.",
-  401: "Unauthorized.",
-  403: "Forbidden.",
-  404: "Not Found.",
-  422: "Unprocessable content.",
-  500: "Internal server error.",
+/**
+ * Human-facing fallback text, used only when an exception carries no message of
+ * its own. Anything user-visible and specific belongs on the exception itself.
+ */
+export const ErrorMessage: Partial<Record<HttpStatus, string>> = {
+  [HttpStatus.BAD_REQUEST]: "Bad request.",
+  [HttpStatus.UNAUTHORIZED]: "Unauthorized.",
+  [HttpStatus.FORBIDDEN]: "Forbidden.",
+  [HttpStatus.NOT_FOUND]: "Not found.",
+  [HttpStatus.REQUEST_TIMEOUT]: "Request timeout.",
+  [HttpStatus.CONFLICT]: "Conflict.",
+  [HttpStatus.PAYLOAD_TOO_LARGE]: "Payload too large.",
+  [HttpStatus.UNPROCESSABLE_ENTITY]: "Unprocessable content.",
+  [HttpStatus.TOO_MANY_REQUESTS]: "Too many requests.",
+  [HttpStatus.INTERNAL_SERVER_ERROR]:
+    "Sorry! Something went wrong on our end, please try again later.",
+  [HttpStatus.SERVICE_UNAVAILABLE]: "Service unavailable.",
+};
 
-  [ErrorCode.VALIDATE_COMMON]: "Validate Common",
-  // TODO: Add more error message
-} as const;
+export function defaultMessageForStatus(status: HttpStatus): string {
+  return ErrorMessage[status] ?? "An error occurred.";
+}

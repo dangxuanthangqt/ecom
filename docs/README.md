@@ -100,5 +100,6 @@ Read by: Dev / SA — how it is built on the inside.
 
 - [features/](features/) — How is each feature implemented? (per feature)
 - [generated/behavior-logic.md](generated/behavior-logic.md) — What background/business logic runs, and when?
+- [error-handling.md](error-handling.md) — How does a failure become an error response, and how do I add a new one?
 
 <!-- end-generated -->
