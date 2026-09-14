@@ -191,7 +191,7 @@ describe("PermissionRepository - createPermission", () => {
     await expect(promise).rejects.toThrow(BadRequestException);
     await expect(promise).rejects.toMatchObject({
       response: containing({
-        message: arrayContaining([
+        details: arrayContaining([
           containing({
             message: "Invalid roles provided.",
           }),
@@ -315,7 +315,7 @@ describe("PermissionRepository - updatePermission", () => {
     await expect(promise).rejects.toThrow(BadRequestException);
     await expect(promise).rejects.toMatchObject({
       response: containing({
-        message: arrayContaining([
+        details: arrayContaining([
           containing({
             message: "Invalid roles provided.",
           }),

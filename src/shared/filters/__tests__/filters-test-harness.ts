@@ -1,7 +1,7 @@
 import { ArgumentsHost } from "@nestjs/common";
 import { Request, Response } from "express";
 
-interface MockResponse {
+export interface MockResponse {
   status: jest.Mock<MockResponse, [number]>;
   json: jest.Mock<MockResponse, [unknown]>;
 }
@@ -21,6 +21,9 @@ export const makeArgumentsHost = (
   } as unknown as Request;
 
   return {
+    // The filter is declared `@Catch()` with no argument, so it checks the host
+    // type before touching request/response. The harness must answer that.
+    getType: jest.fn<string, []>(() => "http"),
     switchToHttp: jest
       .fn<
         {
@@ -36,10 +39,17 @@ export const makeArgumentsHost = (
   } as unknown as ArgumentsHost;
 };
 
+/** The `res` double the filter was handed, typed so specs need no unsafe access. */
+export const mockResponseOf = (host: ArgumentsHost): MockResponse =>
+  host.switchToHttp().getResponse<unknown>() as MockResponse;
+
 /** The envelope every exception filter in this codebase writes via `res.json()`. */
 export interface ExceptionResponseBody {
   statusCode: number;
-  message: unknown;
+  error: string;
+  message: string;
+  details: Array<{ field: string; code: string; message: string }>;
+  requestId?: string;
 }
 
 /**
