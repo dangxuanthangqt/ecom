@@ -17,6 +17,12 @@ on:
       - master
     paths:
       - package.json
+  # Manual escape hatch. Tags whatever version package.json holds at the
+  # dispatched ref, so a release the push trigger cannot reach is still
+  # reachable: the very first tag (no package.json change can produce it
+  # without also changing the version), or a re-run after the release step
+  # failed on an already-pushed tag.
+  workflow_dispatch:
 
 permissions:
   contents: write
