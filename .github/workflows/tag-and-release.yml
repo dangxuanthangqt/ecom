@@ -1,0 +1,99 @@
+name: Tag and Release
+
+# Cuts the release marker after code lands on master.
+#
+# The version in package.json is the single source of truth: a merge that bumps
+# it produces `v<version>` as an annotated tag plus a GitHub release with
+# auto-generated notes. A merge that leaves it alone produces nothing — the
+# `paths` filter skips the workflow entirely, and the tag-exists check below
+# makes a re-run a no-op.
+#
+# Nothing here builds or deploys. It only marks the commit, so a deploy pipeline
+# (or `database-migrate.yml`) has a stable ref to pin to.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - package.json
+
+permissions:
+  contents: write
+
+# Two merges landing back to back would otherwise race on `git push origin
+# <tag>`. Queued, never cancelled: a cancelled run can leave a local tag pushed
+# with no release behind it.
+concurrency:
+  group: tag-and-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tag-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create and push the version tag
+        id: tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          VERSION="$(jq -r '.version' package.json)"
+
+          # Validated before it is used as a ref or written to GITHUB_OUTPUT.
+          # `jq -r` unescapes JSON, so a version carrying a newline would inject
+          # an extra `key=value` line into the single-line GITHUB_OUTPUT format;
+          # an empty version would tag the release as a bare `v`.
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::package.json .version is not valid semver: '${VERSION}'"
+            exit 1
+          fi
+
+          TAG="v${VERSION}"
+          echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
+
+          # The default checkout is shallow and carries no tags.
+          git fetch --tags
+
+          # package.json changed but the version did not — nothing to release.
+          # rev-parse, not `git tag | grep`: under `pipefail` a matching `grep -q`
+          # closes the pipe early and the pipeline reports git's SIGPIPE status.
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "${TAG} already exists. No action taken."
+            exit 0
+          fi
+
+          # https://api.github.com/users/github-actions[bot] — the identity
+          # GitHub Actions commits under.
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "${TAG}" -m "${TAG}"
+          git push origin "${TAG}"
+
+      # Deliberately not gated on "the tag was just created": if an earlier run
+      # pushed the tag and then failed, this step still completes the release.
+      - name: Create the GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "Release ${TAG} already exists. No action taken."
+            exit 0
+          fi
+
+          # --verify-tag refuses to invent a tag that was never pushed.
+          gh release create "${TAG}" \
+            --title "${TAG}" \
+            --generate-notes \
+            --verify-tag
+
+          echo "Released ${TAG}" >> "${GITHUB_STEP_SUMMARY}"
