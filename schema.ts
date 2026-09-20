@@ -236,8 +236,7 @@ export type paths = {
     /** Get a list of permissions */
     get: operations["getPermissions"];
     put?: never;
-    /** Create a new permission */
-    post: operations["createPermission"];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -253,11 +252,9 @@ export type paths = {
     };
     /** Get a permission by ID */
     get: operations["getPermissionById"];
-    /** Update a permission */
-    put: operations["updatePermission"];
+    put?: never;
     post?: never;
-    /** Delete a permission */
-    delete: operations["deletePermission"];
+    delete?: never;
     options?: never;
     head?: never;
     patch?: never;
@@ -1244,6 +1241,11 @@ export type components = {
        */
       isActive: boolean;
       /**
+       * @description Seeded role whose grants come from code; cannot be edited or deleted through the API
+       * @example false
+       */
+      isSystem: boolean;
+      /**
        * @description Role description
        * @example Administrator role
        */
@@ -1256,111 +1258,42 @@ export type components = {
        */
       id: string;
       /**
-       * @description Permission name
-       * @example Create User
+       * @description Stable key of the form resource:action:scope
+       * @example product:update:own
        */
-      name: string;
+      key: string;
+      /**
+       * @description Business capability
+       * @example product
+       */
+      resource: string;
+      /**
+       * @description Operation on the resource
+       * @example update
+       */
+      action: string;
+      /**
+       * @description own = caller's records only, any = unrestricted
+       * @example own
+       * @enum {string}
+       */
+      scope: "own" | "any";
       /**
        * @description Permission description
-       * @example Allows creating new users
+       * @example Update products the caller created
        */
       description?: string;
       /**
-       * @description Permission path
-       * @example /users
-       */
-      path: string;
-      /**
-       * @description Permission method
-       * @example POST
-       */
-      method: string;
-      /**
-       * @description Permission module
-       * @example USER
-       */
-      module: string;
-      /**
-       * @description Roles associated with the permission
+       * @description Roles holding this permission
        * @example [
        *       {
        *         "id": "123e4567-e89b-12d3-a456-426614174000",
-       *         "name": "Admin",
-       *         "description": "Administrator role"
+       *         "name": "admin",
+       *         "description": "Admin role"
        *       }
        *     ]
        */
       roles?: components["schemas"]["RoleResponseDto"][];
-    };
-    CreatePermissionRequestDto: {
-      /**
-       * @description Permission name
-       * @example Create User
-       */
-      name: string;
-      /**
-       * @description Permission description
-       * @example Allows creating new users
-       */
-      description?: string;
-      /**
-       * @description Permission path
-       * @example /users
-       */
-      path: string;
-      /**
-       * @description Permission method
-       * @example POST
-       * @enum {string}
-       */
-      method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-      /**
-       * @description Roles associated with the permission
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000",
-       *       "223e4567-e89b-12d3-a456-426614174001"
-       *     ]
-       */
-      rolesIds: string[];
-    };
-    UpdatePermissionRequestDto: {
-      /**
-       * @description Permission name
-       * @example Create User
-       */
-      name: string;
-      /**
-       * @description Permission description
-       * @example Allows creating new users
-       */
-      description?: string;
-      /**
-       * @description Permission path
-       * @example /users
-       */
-      path: string;
-      /**
-       * @description Permission method
-       * @example POST
-       * @enum {string}
-       */
-      method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
-      /**
-       * @description Roles associated with the permission
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000",
-       *       "223e4567-e89b-12d3-a456-426614174001"
-       *     ]
-       */
-      rolesIds: string[];
-    };
-    DeletePermissionRequestDto: {
-      /**
-       * @description Whether to hard delete the permission
-       * @default false
-       * @example false
-       */
-      isHardDelete: boolean;
     };
     PermissionResponseDto: {
       /**
@@ -1369,30 +1302,31 @@ export type components = {
        */
       id: string;
       /**
-       * @description Permission name
-       * @example Create User
+       * @description Stable key of the form resource:action:scope
+       * @example product:update:own
        */
-      name: string;
+      key: string;
+      /**
+       * @description Business capability
+       * @example product
+       */
+      resource: string;
+      /**
+       * @description Operation on the resource
+       * @example update
+       */
+      action: string;
+      /**
+       * @description own = caller's records only, any = unrestricted
+       * @example own
+       * @enum {string}
+       */
+      scope: "own" | "any";
       /**
        * @description Permission description
-       * @example Allows creating new users
+       * @example Update products the caller created
        */
       description?: string;
-      /**
-       * @description Permission path
-       * @example /users
-       */
-      path: string;
-      /**
-       * @description Permission method
-       * @example POST
-       */
-      method: string;
-      /**
-       * @description Permission module
-       * @example USER
-       */
-      module: string;
     };
     RoleWithPermissionsResponseDto: {
       /**
@@ -1411,6 +1345,11 @@ export type components = {
        */
       isActive: boolean;
       /**
+       * @description Seeded role whose grants come from code; cannot be edited or deleted through the API
+       * @example false
+       */
+      isSystem: boolean;
+      /**
        * @description Role description
        * @example Administrator role
        */
@@ -1420,10 +1359,11 @@ export type components = {
        * @example [
        *       {
        *         "id": "123e4567-e89b-12d3-a456-426614174000",
-       *         "name": "Login",
-       *         "description": "Allows user to log in",
-       *         "path": "/login",
-       *         "method": "POST"
+       *         "key": "product:update:own",
+       *         "resource": "product",
+       *         "action": "update",
+       *         "scope": "own",
+       *         "description": "Update products the caller created"
        *       }
        *     ]
        */
@@ -2424,7 +2364,7 @@ export type components = {
       /**
        * Format: date-time
        * @description The date when the product will be published
-       * @default 2026-09-12T15:13:34.650Z
+       * @default 2026-09-20T18:08:25.837Z
        * @example 2023-10-01T00:00:00Z
        */
       publishedAt: string;
@@ -2475,7 +2415,7 @@ export type components = {
       /**
        * Format: date-time
        * @description The date when the product will be published
-       * @default 2026-09-12T15:13:34.650Z
+       * @default 2026-09-20T18:08:25.837Z
        * @example 2023-10-01T00:00:00Z
        */
       publishedAt: string;
@@ -3836,7 +3776,7 @@ export interface operations {
         /** @description Sort order */
         order?: "asc" | "desc";
         /** @description Field to order by */
-        orderBy?: "createdAt" | "description" | "name" | "updatedAt";
+        orderBy?: "createdAt" | "key" | "resource" | "updatedAt";
         /** @description Search keyword */
         keyword?: string;
       };
@@ -3849,7 +3789,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Retrieve a list of permissions with pagination. */
+      /** @description Retrieve the permission catalogue with pagination. */
       200: {
         headers: {
           [name: string]: unknown;
@@ -3858,87 +3798,6 @@ export interface operations {
           "application/json": components["schemas"]["PageDto"] & {
             data: components["schemas"]["PermissionWithRolesResponseDto"][];
           };
-        };
-      };
-    };
-  };
-  createPermission: {
-    parameters: {
-      query?: never;
-      header: {
-        /** @description Bearer auth token */
-        Authorization: string;
-      };
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreatePermissionRequestDto"];
-      };
-    };
-    responses: {
-      /** @description Create a new permission with associated roles. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PermissionWithRolesResponseDto"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Not Found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Unprocessable Entity */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
         };
       };
     };
@@ -3959,174 +3818,6 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Retrieve a specific permission by its ID. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PermissionWithRolesResponseDto"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Not Found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Unprocessable Entity */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  updatePermission: {
-    parameters: {
-      query?: never;
-      header: {
-        /** @description Bearer auth token */
-        Authorization: string;
-      };
-      path: {
-        /** @description Permission ID (UUID) */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdatePermissionRequestDto"];
-      };
-    };
-    responses: {
-      /** @description Update an existing permission by its ID. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PermissionWithRolesResponseDto"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Not Found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Unprocessable Entity */
-      422: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": unknown;
-        };
-      };
-    };
-  };
-  deletePermission: {
-    parameters: {
-      query?: never;
-      header: {
-        /** @description Bearer auth token */
-        Authorization: string;
-      };
-      path: {
-        /** @description Permission ID (UUID) */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["DeletePermissionRequestDto"];
-      };
-    };
-    responses: {
-      /** @description Delete a specific permission by its ID. */
       200: {
         headers: {
           [name: string]: unknown;

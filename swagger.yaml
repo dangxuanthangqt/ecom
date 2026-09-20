@@ -24,9 +24,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "404":
           description: Not Found
           content:
@@ -34,7 +37,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -42,7 +47,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -50,7 +57,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Register user
       tags: &a1
         - Auth
@@ -78,9 +87,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "404":
           description: Not Found
           content:
@@ -88,7 +100,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -96,7 +110,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -104,7 +120,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Login user
       tags: *a1
   /auth/refresh-token:
@@ -131,9 +149,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "404":
           description: Not Found
           content:
@@ -141,7 +162,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -149,7 +172,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -157,7 +182,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Refresh token
       tags: *a1
   /auth/logout:
@@ -190,9 +217,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -200,7 +230,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -208,7 +240,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -216,7 +250,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -224,7 +260,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -232,7 +270,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Logout user
       tags: *a1
   /auth/otp:
@@ -259,9 +299,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "404":
           description: Not Found
           content:
@@ -269,7 +312,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -277,7 +322,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -285,7 +332,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Send OTP
       tags: *a1
   /auth/google/authorization-url:
@@ -347,9 +396,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "404":
           description: Not Found
           content:
@@ -357,7 +409,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -365,7 +419,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -373,7 +429,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Forgot password
       tags: *a1
   /auth/2fa/enable:
@@ -400,9 +458,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -410,7 +471,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -418,7 +481,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -426,7 +491,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -434,7 +501,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -442,7 +511,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Enable 2FA
       tags: *a1
   /auth/2fa/disable:
@@ -475,9 +546,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -485,7 +559,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -493,7 +569,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -501,7 +579,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -509,7 +589,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -517,7 +599,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Disable 2FA
       tags: *a1
   /languages:
@@ -623,9 +707,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -633,7 +720,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -641,7 +730,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -649,7 +740,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -657,7 +750,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -665,7 +760,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get a language by ID
       tags: *a2
     put:
@@ -706,9 +803,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -716,7 +816,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -724,7 +826,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -732,7 +836,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -740,7 +846,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -748,7 +856,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update a language
       tags: *a2
     delete:
@@ -783,9 +893,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -793,7 +906,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -801,7 +916,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -809,7 +926,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -817,7 +936,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -825,7 +946,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete a language
       tags: *a2
   /languages/create:
@@ -858,9 +981,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -868,7 +994,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -876,7 +1004,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -884,7 +1014,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -892,7 +1024,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -900,7 +1034,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new language
       tags: *a2
   /permissions:
@@ -936,12 +1072,12 @@ paths:
           in: query
           description: Field to order by
           schema:
-            example: createdAt
+            example: key
             type: string
             enum:
               - createdAt
-              - description
-              - name
+              - key
+              - resource
               - updatedAt
         - name: keyword
           required: false
@@ -958,7 +1094,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Retrieve a list of permissions with pagination.
+          description: Retrieve the permission catalogue with pagination.
           content:
             application/json:
               schema:
@@ -974,80 +1110,6 @@ paths:
       summary: Get a list of permissions
       tags: &a3
         - Permissions
-    post:
-      operationId: createPermission
-      parameters:
-        - name: Authorization
-          in: header
-          description: Bearer auth token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreatePermissionRequestDto"
-      responses:
-        "200":
-          description: Create a new permission with associated roles.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PermissionWithRolesResponseDto"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - field: field
-                      message: message
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 401
-                  message: Unauthorized.
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Forbidden.
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Not Found.
-        "422":
-          description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 422
-                  message: Unprocessable content.
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 500
-                  message: Internal server error.
-      summary: Create a new permission
-      tags: *a3
   /permissions/{id}:
     get:
       operationId: getPermissionById
@@ -1079,9 +1141,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1089,7 +1154,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -1097,7 +1164,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -1105,7 +1174,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -1113,7 +1184,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -1121,170 +1194,10 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get a permission by ID
-      tags: *a3
-    put:
-      operationId: updatePermission
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Permission ID (UUID)
-          schema:
-            example: 123e4567-e89b-12d3-a456-426614174000
-            type: string
-        - name: Authorization
-          in: header
-          description: Bearer auth token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UpdatePermissionRequestDto"
-      responses:
-        "200":
-          description: Update an existing permission by its ID.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PermissionWithRolesResponseDto"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - field: field
-                      message: message
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 401
-                  message: Unauthorized.
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Forbidden.
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Not Found.
-        "422":
-          description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 422
-                  message: Unprocessable content.
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 500
-                  message: Internal server error.
-      summary: Update a permission
-      tags: *a3
-    delete:
-      operationId: deletePermission
-      parameters:
-        - name: id
-          required: true
-          in: path
-          description: Permission ID (UUID)
-          schema:
-            example: 123e4567-e89b-12d3-a456-426614174000
-            type: string
-        - name: Authorization
-          in: header
-          description: Bearer auth token
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/DeletePermissionRequestDto"
-      responses:
-        "200":
-          description: Delete a specific permission by its ID.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PermissionWithRolesResponseDto"
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 400
-                  message:
-                    - field: field
-                      message: message
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 401
-                  message: Unauthorized.
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 403
-                  message: Forbidden.
-        "404":
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 404
-                  message: Not Found.
-        "422":
-          description: Unprocessable Entity
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 422
-                  message: Unprocessable content.
-        "500":
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                example:
-                  statusCode: 500
-                  message: Internal server error.
-      summary: Delete a permission
       tags: *a3
   /roles:
     get:
@@ -1381,9 +1294,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1391,7 +1307,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -1399,7 +1317,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -1407,7 +1327,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -1415,7 +1337,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -1423,7 +1347,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new role
       tags: *a4
   /roles/{id}:
@@ -1457,9 +1383,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1467,7 +1396,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -1475,7 +1406,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -1483,7 +1416,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -1491,7 +1426,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -1499,7 +1436,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get a role by ID
       tags: *a4
     put:
@@ -1538,9 +1477,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1548,7 +1490,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -1556,7 +1500,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -1564,7 +1510,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -1572,7 +1520,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -1580,7 +1530,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update an existing role
       tags: *a4
     delete:
@@ -1619,9 +1571,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1629,7 +1584,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -1637,7 +1594,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -1645,7 +1604,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -1653,7 +1614,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -1661,7 +1624,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete a role
       tags: *a4
   /profile:
@@ -1690,9 +1655,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1700,7 +1668,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -1708,7 +1678,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -1716,7 +1688,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -1724,7 +1698,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -1732,7 +1708,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get current user profile.
       tags: &a5
         - Profile
@@ -1767,9 +1745,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1777,7 +1758,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -1785,7 +1768,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -1793,7 +1778,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -1801,7 +1788,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -1809,7 +1798,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update current user profile.
       tags: *a5
   /profile/change-password:
@@ -1842,9 +1833,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1852,7 +1846,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -1860,7 +1856,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -1868,7 +1866,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -1876,7 +1876,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -1884,7 +1886,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Change current user password.
       tags: *a5
   /users:
@@ -1987,9 +1991,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -1997,7 +2004,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2005,7 +2014,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2013,7 +2024,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2021,7 +2034,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2029,7 +2044,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new user.
       tags: *a6
   /users/{id}:
@@ -2062,9 +2079,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2072,7 +2092,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2080,7 +2102,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2088,7 +2112,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2096,7 +2122,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2104,7 +2132,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get a user by ID
       tags: *a6
     put:
@@ -2142,9 +2172,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2152,7 +2185,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2160,7 +2195,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2168,7 +2205,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2176,7 +2215,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2184,7 +2225,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update an existing user.
       tags: *a6
     delete:
@@ -2216,9 +2259,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2226,7 +2272,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2234,7 +2282,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2242,7 +2292,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2250,7 +2302,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2258,7 +2312,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete a user by ID
       tags: *a6
   /media/upload/image:
@@ -2288,9 +2344,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2298,7 +2357,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2306,7 +2367,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2314,7 +2377,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2322,7 +2387,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2330,7 +2397,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Upload a large image from disk
       tags: &a7
         - Media
@@ -2360,9 +2429,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2370,7 +2442,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2378,7 +2452,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2386,7 +2462,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2394,7 +2472,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2402,7 +2482,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Upload multiple images from buffer
       tags: *a7
   /media/upload/multiple-images:
@@ -2431,9 +2513,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2441,7 +2526,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2449,7 +2536,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2457,7 +2546,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2465,7 +2556,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2473,7 +2566,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Upload multiple images from buffer
       tags: *a7
   /media/presigned-url:
@@ -2519,9 +2614,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2529,7 +2627,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2537,7 +2637,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2545,7 +2647,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2553,7 +2657,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2561,7 +2667,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get presigned URL for uploading/downloading files
       tags: *a7
   /media/delete:
@@ -2595,9 +2703,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2605,7 +2716,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2613,7 +2726,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2621,7 +2736,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2629,7 +2746,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2637,7 +2756,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete a file from S3
       tags: *a7
   /brands:
@@ -2733,9 +2854,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2743,7 +2867,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2751,7 +2877,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2759,7 +2887,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2767,7 +2897,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2775,7 +2907,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new brand
       tags: *a8
   /brands/{id}:
@@ -2801,9 +2935,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "404":
           description: Not Found
           content:
@@ -2811,7 +2948,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -2819,7 +2958,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -2827,7 +2968,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get a brand by ID
       tags: *a8
     put:
@@ -2971,9 +3114,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -2981,7 +3127,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -2989,7 +3137,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -2997,7 +3147,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3005,7 +3157,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3013,7 +3167,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new brand translation
       tags: *a9
   /brand-translations/{id}:
@@ -3047,9 +3203,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3057,7 +3216,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3065,7 +3226,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3073,7 +3236,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3081,7 +3246,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3089,7 +3256,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get a brand translation by ID
       tags: *a9
     put:
@@ -3126,9 +3295,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3136,7 +3308,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3144,7 +3318,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3152,7 +3328,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3160,7 +3338,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3168,7 +3348,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update a brand translation
       tags: *a9
     delete:
@@ -3199,9 +3381,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3209,7 +3394,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3217,7 +3404,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3225,7 +3414,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3233,7 +3424,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3241,7 +3434,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete a brand translation
       tags: *a9
   /categories:
@@ -3277,9 +3472,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3287,7 +3485,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3295,7 +3495,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3303,7 +3505,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3311,7 +3515,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3319,7 +3525,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get all categories
       tags: &a10
         - Categories
@@ -3352,9 +3560,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3362,7 +3573,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3370,7 +3583,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3378,7 +3593,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3386,7 +3603,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3394,7 +3613,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new category
       tags: *a10
   /categories/{id}:
@@ -3430,9 +3651,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3440,7 +3664,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3448,7 +3674,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3456,7 +3684,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3464,7 +3694,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3472,7 +3704,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get category by ID
       tags: *a10
     put:
@@ -3511,9 +3745,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3521,7 +3758,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3529,7 +3768,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3537,7 +3778,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3545,7 +3788,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3553,7 +3798,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update an existing category
       tags: *a10
     delete:
@@ -3586,9 +3833,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3596,7 +3846,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3604,7 +3856,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3612,7 +3866,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3620,7 +3876,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3628,7 +3886,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete a category
       tags: *a10
   /category-translations:
@@ -3734,9 +3994,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3744,7 +4007,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3752,7 +4017,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3760,7 +4027,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3768,7 +4037,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3776,7 +4047,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new category translation
       tags: *a11
   /category-translations/{id}:
@@ -3805,9 +4078,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3815,7 +4091,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3823,7 +4101,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3831,7 +4111,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3839,7 +4121,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3847,7 +4131,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get a category translation by ID
       tags: *a11
     put:
@@ -3888,9 +4174,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3898,7 +4187,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3906,7 +4197,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3914,7 +4207,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3922,7 +4217,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -3930,7 +4227,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update an existing category translation
       tags: *a11
     delete:
@@ -3965,9 +4264,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -3975,7 +4277,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -3983,7 +4287,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -3991,7 +4297,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -3999,7 +4307,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4007,7 +4317,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete a category translation
       tags: *a11
   /products:
@@ -4146,9 +4458,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "404":
           description: Not Found
           content:
@@ -4156,7 +4471,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4164,7 +4481,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4172,7 +4491,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get product by ID
       tags: *a12
   /manage-product/products:
@@ -4336,9 +4657,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -4346,7 +4670,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -4354,7 +4680,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -4362,7 +4690,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4370,7 +4700,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4378,7 +4710,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new product
       tags: *a13
   /manage-product/products/{id}:
@@ -4412,9 +4746,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -4422,7 +4759,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -4430,7 +4769,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -4438,7 +4779,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4446,7 +4789,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4454,7 +4799,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get product by ID
       tags: *a13
     put:
@@ -4486,9 +4833,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -4496,7 +4846,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -4504,7 +4856,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -4512,7 +4866,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4520,7 +4876,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4528,7 +4886,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update product by ID
       tags: *a13
     delete:
@@ -4561,9 +4921,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -4571,7 +4934,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -4579,7 +4944,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -4587,7 +4954,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4595,7 +4964,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4603,7 +4974,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete product by ID
       tags: *a13
   /product-translations:
@@ -4705,9 +5078,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -4715,7 +5091,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -4723,7 +5101,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -4731,7 +5111,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4739,7 +5121,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4747,7 +5131,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a new product translation
       tags: *a14
   /product-translations/{id}:
@@ -4781,9 +5167,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -4791,7 +5180,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -4799,7 +5190,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -4807,7 +5200,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4815,7 +5210,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4823,7 +5220,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get a product translation by ID
       tags: *a14
     put:
@@ -4862,9 +5261,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -4872,7 +5274,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -4880,7 +5284,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -4888,7 +5294,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4896,7 +5304,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4904,7 +5314,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Update a product translation
       tags: *a14
     delete:
@@ -4937,9 +5349,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -4947,7 +5362,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -4955,7 +5372,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -4963,7 +5382,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -4971,7 +5392,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -4979,7 +5402,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete a product translation
       tags: *a14
   /cart:
@@ -5082,9 +5507,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5092,7 +5520,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5100,7 +5530,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5108,7 +5540,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5116,7 +5550,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5124,7 +5560,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Add a SKU to the cart
       tags: *a15
   /cart/{cartItemId}:
@@ -5163,9 +5601,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5173,7 +5614,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5181,7 +5624,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5189,7 +5634,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5197,7 +5644,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5205,7 +5654,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Set the quantity of a cart line
       tags: *a15
     delete:
@@ -5237,9 +5688,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5247,7 +5701,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5255,7 +5711,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5263,7 +5721,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5271,7 +5731,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5279,7 +5741,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Remove a cart line
       tags: *a15
   /orders:
@@ -5395,9 +5859,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5405,7 +5872,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5413,7 +5882,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5421,7 +5892,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5429,7 +5902,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5437,7 +5912,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Checkout the cart
       tags: *a16
   /orders/{orderId}:
@@ -5470,9 +5947,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5480,7 +5960,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5488,7 +5970,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5496,7 +5980,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5504,7 +5990,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5512,7 +6000,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get one of my orders
       tags: *a16
   /orders/{orderId}/cancel:
@@ -5546,9 +6036,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5556,7 +6049,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5564,7 +6059,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5572,7 +6069,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5580,7 +6079,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5588,7 +6089,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Cancel my order
       tags: *a16
   /manage-order/orders:
@@ -5714,9 +6217,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5724,7 +6230,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5732,7 +6240,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5740,7 +6250,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5748,7 +6260,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5756,7 +6270,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Get order by ID (seller/admin)
       tags: *a17
   /manage-order/orders/{orderId}/status:
@@ -5797,9 +6313,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5807,7 +6326,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5815,7 +6336,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5823,7 +6346,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5831,7 +6356,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5839,7 +6366,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Advance order status (seller/admin)
       tags: *a17
   /reviews:
@@ -5944,9 +6473,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -5954,7 +6486,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -5962,7 +6496,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -5970,7 +6506,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -5978,7 +6516,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -5986,7 +6526,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Create a review
       tags: *a18
   /reviews/{reviewId}:
@@ -6025,9 +6567,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -6035,7 +6580,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -6043,7 +6590,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -6051,7 +6600,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -6059,7 +6610,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -6067,7 +6620,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Edit own review
       tags: *a18
     delete:
@@ -6099,9 +6654,12 @@ paths:
               schema:
                 example:
                   statusCode: 400
-                  message:
-                    - field: field
-                      message: message
+                  error: VALIDATION_FAILED
+                  message: Validation failed
+                  details:
+                    - field: email
+                      code: isEmail
+                      message: email must be an email
         "401":
           description: Unauthorized
           content:
@@ -6109,7 +6667,9 @@ paths:
               schema:
                 example:
                   statusCode: 401
+                  error: UNAUTHORIZED
                   message: Unauthorized.
+                  details: []
         "403":
           description: Forbidden
           content:
@@ -6117,7 +6677,9 @@ paths:
               schema:
                 example:
                   statusCode: 403
+                  error: FORBIDDEN
                   message: Forbidden.
+                  details: []
         "404":
           description: Not Found
           content:
@@ -6125,7 +6687,9 @@ paths:
               schema:
                 example:
                   statusCode: 404
-                  message: Not Found.
+                  error: NOT_FOUND
+                  message: Not found.
+                  details: []
         "422":
           description: Unprocessable Entity
           content:
@@ -6133,7 +6697,9 @@ paths:
               schema:
                 example:
                   statusCode: 422
+                  error: UNPROCESSABLE_ENTITY
                   message: Unprocessable content.
+                  details: []
         "500":
           description: Internal Server Error
           content:
@@ -6141,7 +6707,9 @@ paths:
               schema:
                 example:
                   statusCode: 500
-                  message: Internal server error.
+                  error: INTERNAL_SERVER_ERROR
+                  message: Sorry! Something went wrong on our end, please try again later.
+                  details: []
       summary: Delete own review
       tags: *a18
 info:
@@ -6585,6 +7153,12 @@ components:
           type: boolean
           description: Is role active
           example: true
+        isSystem:
+          type: boolean
+          description:
+            Seeded role whose grants come from code; cannot be edited or
+            deleted through the API
+          example: false
         description:
           type: string
           description: Role description
@@ -6593,6 +7167,7 @@ components:
         - id
         - name
         - isActive
+        - isSystem
     PermissionWithRolesResponseDto:
       type: object
       properties:
@@ -6600,128 +7175,44 @@ components:
           type: string
           description: Permission ID
           example: 123e4567-e89b-12d3-a456-426614174000
-        name:
+        key:
           type: string
-          description: Permission name
-          example: Create User
+          description: Stable key of the form resource:action:scope
+          example: product:update:own
+        resource:
+          type: string
+          description: Business capability
+          example: product
+        action:
+          type: string
+          description: Operation on the resource
+          example: update
+        scope:
+          type: string
+          description: own = caller's records only, any = unrestricted
+          example: own
+          enum: &a19
+            - own
+            - any
         description:
           type: string
           description: Permission description
-          example: Allows creating new users
-        path:
-          type: string
-          description: Permission path
-          example: /users
-        method:
-          type: string
-          description: Permission method
-          example: POST
-        module:
-          type: string
-          description: Permission module
-          example: USER
+          example: Update products the caller created
         roles:
-          description: Roles associated with the permission
+          description: Roles holding this permission
           example:
             - id: 123e4567-e89b-12d3-a456-426614174000
-              name: Admin
-              description: Administrator role
+              name: admin
+              description: Admin role
           type: array
           items:
             $ref: "#/components/schemas/RoleResponseDto"
       required:
         - id
-        - name
-        - path
-        - method
-        - module
-    CreatePermissionRequestDto:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Permission name
-          example: Create User
-          minLength: 2
-          maxLength: 500
-        description:
-          type: string
-          description: Permission description
-          example: Allows creating new users
-          maxLength: 1000
-        path:
-          type: string
-          description: Permission path
-          example: /users
-          minLength: 1
-          maxLength: 1000
-        method:
-          type: string
-          description: Permission method
-          example: POST
-          enum: &a19
-            - GET
-            - POST
-            - PUT
-            - DELETE
-            - PATCH
-        rolesIds:
-          description: Roles associated with the permission
-          example: &a20
-            - 123e4567-e89b-12d3-a456-426614174000
-            - 223e4567-e89b-12d3-a456-426614174001
-          type: array
-          items:
-            type: string
-      required:
-        - name
-        - path
-        - method
-        - rolesIds
-    UpdatePermissionRequestDto:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Permission name
-          example: Create User
-          minLength: 2
-          maxLength: 500
-        description:
-          type: string
-          description: Permission description
-          example: Allows creating new users
-          maxLength: 1000
-        path:
-          type: string
-          description: Permission path
-          example: /users
-          minLength: 1
-          maxLength: 1000
-        method:
-          type: string
-          description: Permission method
-          example: POST
-          enum: *a19
-        rolesIds:
-          description: Roles associated with the permission
-          example: *a20
-          type: array
-          items:
-            type: string
-      required:
-        - name
-        - path
-        - method
-        - rolesIds
-    DeletePermissionRequestDto:
-      type: object
-      properties:
-        isHardDelete:
-          type: boolean
-          description: Whether to hard delete the permission
-          example: false
-          default: false
+        - key
+        - resource
+        - action
+        - scope
     PermissionResponseDto:
       type: object
       properties:
@@ -6729,32 +7220,33 @@ components:
           type: string
           description: Permission ID
           example: 123e4567-e89b-12d3-a456-426614174000
-        name:
+        key:
           type: string
-          description: Permission name
-          example: Create User
+          description: Stable key of the form resource:action:scope
+          example: product:update:own
+        resource:
+          type: string
+          description: Business capability
+          example: product
+        action:
+          type: string
+          description: Operation on the resource
+          example: update
+        scope:
+          type: string
+          description: own = caller's records only, any = unrestricted
+          example: own
+          enum: *a19
         description:
           type: string
           description: Permission description
-          example: Allows creating new users
-        path:
-          type: string
-          description: Permission path
-          example: /users
-        method:
-          type: string
-          description: Permission method
-          example: POST
-        module:
-          type: string
-          description: Permission module
-          example: USER
+          example: Update products the caller created
       required:
         - id
-        - name
-        - path
-        - method
-        - module
+        - key
+        - resource
+        - action
+        - scope
     RoleWithPermissionsResponseDto:
       type: object
       properties:
@@ -6770,6 +7262,12 @@ components:
           type: boolean
           description: Is role active
           example: true
+        isSystem:
+          type: boolean
+          description:
+            Seeded role whose grants come from code; cannot be edited or
+            deleted through the API
+          example: false
         description:
           type: string
           description: Role description
@@ -6778,10 +7276,11 @@ components:
           description: Permissions associated with the role
           example:
             - id: 123e4567-e89b-12d3-a456-426614174000
-              name: Login
-              description: Allows user to log in
-              path: /login
-              method: POST
+              key: product:update:own
+              resource: product
+              action: update
+              scope: own
+              description: Update products the caller created
           type: array
           items:
             $ref: "#/components/schemas/PermissionResponseDto"
@@ -6789,6 +7288,7 @@ components:
         - id
         - name
         - isActive
+        - isSystem
         - permissions
     CreateRoleRequestDto:
       type: object
@@ -7330,7 +7830,7 @@ components:
           example: Brand Name
         brandTranslationIds:
           description: brandTranslationIds
-          example: &a21
+          example: &a20
             - 123e4567-e89b-12d3-a456-426614174000
             - 223e4567-e89b-12d3-a456-426614174001
           type: array
@@ -7379,7 +7879,7 @@ components:
           example: Brand Name
         brandTranslationIds:
           description: brandTranslationIds
-          example: *a21
+          example: *a20
           type: array
           items:
             type: string
@@ -7603,7 +8103,7 @@ components:
           example: https://example.com/logos/category-logo.png
         categoryTranslationIds:
           description: List of category translation IDs to associate with the category
-          example: &a22
+          example: &a21
             - 123e4567-e89b-12d3-a456-426614174000
           type: array
           items:
@@ -7628,7 +8128,7 @@ components:
           example: https://example.com/logos/category-logo.png
         categoryTranslationIds:
           description: List of category translation IDs to associate with the category
-          example: *a22
+          example: *a21
           type: array
           items:
             type: string
@@ -7788,7 +8288,7 @@ components:
           example: 90
         images:
           description: Array of product image URLs
-          example: &a23
+          example: &a22
             - https://example.com/image1.jpg
             - https://example.com/image2.png
             - https://example.com/image3.webp
@@ -7877,7 +8377,7 @@ components:
           example: 90
         images:
           description: Array of product image URLs
-          example: *a23
+          example: *a22
           type: array
           items:
             type: string
@@ -7969,7 +8469,7 @@ components:
           type: string
           description: The date when the product will be published
           example: 2023-10-01T00:00:00Z
-          default: 2026-09-12T15:13:34.650Z
+          default: 2026-09-20T18:08:25.837Z
         name:
           type: string
           description: The name of the product
@@ -7984,7 +8484,7 @@ components:
           example: 90
         images:
           description: Array of product image URLs
-          example: &a24
+          example: &a23
             - https://example.com/image1.jpg
             - https://example.com/image2.png
             - https://example.com/image3.webp
@@ -8003,7 +8503,7 @@ components:
             $ref: "#/components/schemas/VariantRequestDto"
         categoryIds:
           description: List of category IDs associated with the product
-          example: &a25
+          example: &a24
             - 123e4567-e89b-12d3-a456-426614174000
             - 123e4567-e89b-12d3-a456-426614174001
           type: array
@@ -8031,7 +8531,7 @@ components:
           type: string
           description: The date when the product will be published
           example: 2023-10-01T00:00:00Z
-          default: 2026-09-12T15:13:34.650Z
+          default: 2026-09-20T18:08:25.837Z
         name:
           type: string
           description: The name of the product
@@ -8046,7 +8546,7 @@ components:
           example: 90
         images:
           description: Array of product image URLs
-          example: *a24
+          example: *a23
           type: array
           items:
             type: string
@@ -8057,7 +8557,7 @@ components:
           format: uuid
         categoryIds:
           description: List of category IDs associated with the product
-          example: *a25
+          example: *a24
           type: array
           items:
             type: string
@@ -8242,7 +8742,7 @@ components:
         status:
           type: string
           description: Current order status
-          enum: &a26
+          enum: &a25
             - PENDING_CONFIRMATION
             - PENDING_PICKUP
             - PENDING_DELIVERY
@@ -8303,7 +8803,7 @@ components:
         status:
           type: string
           description: Current order status
-          enum: *a26
+          enum: *a25
         createdAt:
           format: date-time
           type: string
@@ -8344,7 +8844,7 @@ components:
         status:
           type: string
           description: Current order status
-          enum: *a26
+          enum: *a25
         createdAt:
           format: date-time
           type: string
@@ -8368,7 +8868,7 @@ components:
         status:
           type: string
           description: Current order status
-          enum: *a26
+          enum: *a25
         createdAt:
           format: date-time
           type: string
