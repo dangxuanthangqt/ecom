@@ -74,3 +74,6 @@ plans/
 
 # SunLint generates this temp ESLint config with an absolute, machine-specific path
 .sunlint-eslint.config.js
+
+# CodeGraph local index — machine-generated, 17MB, never committed
+.codegraph/
