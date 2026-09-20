@@ -1,96 +1,93 @@
 # Permissions
 
 **Project**: ecom (NestJS backend)
-**Generated**: 2026-09-12
-**Analysis Scope**: Headless backend API, 70 routes
+**Generated**: 2026-09-12 · **Revised**: 2026-09-21 (RBAC refactor: semantic permission keys)
+**Analysis Scope**: Headless backend API, ~70 routes
 
-> **Curated, plain-language view.** For PM/BA/client audiences. The raw PERM### matrix with
-> file:line citations lives at [permissions-matrix.md](permissions-matrix.md). This file is
-> derived from it.
+> **Curated, plain-language view.** For PM/BA/client audiences. The engineering deep-dive — how a
+> request is authorized, how to add a permission, why this pattern — lives at
+> [../authorization-guide.md](../authorization-guide.md). The raw PERM### matrix at
+> [permissions-matrix.md](permissions-matrix.md) predates the 2026-09-21 refactor and describes the
+> old route-based model; treat it as historical until `rebuild-spec` is re-run.
 
 ## Authorization System Type
 
-**System Type**: `rbac` (with one ownership rule layered on top — effectively `hybrid`)
+**System Type**: `rbac` with a per-permission scope axis (`own` / `any`) — commonly called scoped RBAC.
 
-Every request first needs a valid Bearer access token (unless the route is explicitly marked
-public). Once authenticated, a second, per-route check runs: the caller's role must hold a
-`Permission` row matching the exact route and HTTP method being called. That permission table
-isn't a fixed list written in code — it is regenerated from whatever routes are actually
-registered in the running app, then re-attached to each role by a module-name allowlist. One
-route family (product management) adds a further "you can only touch your own records" rule on
-top of the role check.
+Every request first needs a valid Bearer access token, unless the route is explicitly marked public.
+Once authenticated, a second check runs: the caller's role must hold the **permission key** the route
+declares. A key names a business capability, an action, and a reach — for example
+`product:update:own` ("update products you created") or `brand:create:any` ("create any brand").
+
+Keys are declared in code, directly on each route handler, and the list of keys is synced into the
+database. Which role holds which key is data: for the three built-in roles it is defined in code and
+re-applied on every seed; for roles created later it is edited through the role-management API.
+
+A route is either public or declares a key — the application refuses to start otherwise. There is
+no third state.
 
 **Identified Roles**:
 - `admin`
 - `seller`
 - `client`
 
+All three are **system roles**: they cannot be renamed, re-permissioned or deleted through the API.
+
 ## Curated View
 
-- **Admin** can do everything: every one of the 70 routes across all 14 route modules (auth,
-  users, roles, permissions, products, product management, brands, categories, languages, all
-  translation endpoints, media, profile). Admin is also the only role that can promote another
-  user to `seller` or `admin` (by editing a user's role), and the only role exempt from the
-  "you can only edit your own product" rule.
-- **Seller** can use auth, media upload, profile, product translations, and the seller-facing
-  product-management endpoints (create/list/view/edit/delete products) — but only for products
-  they created themselves; a seller cannot see or touch another seller's product. Seller cannot
-  reach user management, role management, permission management, brand/category/language
-  management, or the public product catalog endpoints (those are separate from the
-  seller-scoped product-management ones).
-- **Client** can use auth, media upload, profile, product translations, and the public catalog
-  modules (products, categories, brands). Access within an allowed module is **not** read-only:
-  role grants are filtered by module name only, never by HTTP method
-  (`initial-scripts/create-permission.ts:158-169`), so a client holds every method registered
-  under `BRANDS` and `CATEGORIES` — including create, edit and delete. Client cannot reach
-  product management, user management, role management, permission management, or language
-  management. [UNVERIFIED] Whether granting clients write access to brands and categories is
-  intentional — the module allowlist makes no per-method distinction, so it may be an oversight
-  in the seeding script rather than a deliberate policy. Confirm with engineering.
-- Everyone (including anonymous callers) can register, log in, refresh a token, request an OTP,
-  start/complete Google OAuth login, and request a password reset — these are the only
-  unauthenticated endpoints in the system. The public product-catalog browse endpoints
-  (`GET /products`, `GET /products/:id`) are also open to anonymous callers.
+- **Admin** holds every key at `any` scope: full control over users, roles, languages, brands,
+  categories, all translations, every seller's products, every order's fulfilment, and moderation
+  (delete any review). Admin is also the only role that can delete media files, because file
+  ownership is not yet recorded and so cannot be scoped.
+- **Seller** manages **its own** products and product translations (create/read/update/delete,
+  `own` scope), sees and advances the status of orders that contain its products, and can read
+  brands and categories — which it needs to create a product. It also has everything a signed-in
+  account gets (below). It cannot touch other sellers' products, cannot write brands or categories,
+  cannot manage users or roles.
+- **Client** has what every signed-in account gets: its own profile, cart, orders (create, read,
+  cancel), its own reviews, media upload, and read access to brands and categories. It can browse
+  the public catalogue. It **cannot** create, edit or delete brands, categories or product
+  translations — it used to be able to, by accident; that grant was removed in the 2026-09-21
+  refactor.
+- **Everyone, including anonymous callers**, can register, log in, refresh a token, request an OTP,
+  start/complete Google OAuth login, request a password reset, browse `GET /products`,
+  `GET /products/:id`, `GET /brands` and `GET /reviews`.
 
 ## Access Boundaries
 
-The core boundary is **module ownership**: every route belongs to one of 14 modules (derived
-from its URL's first path segment — e.g. `/users/*` is the USERS module, `/manage-product/*` is
-the MANAGE-PRODUCT module). Admin is the only role attached to all 14 modules; Seller and Client
-are each attached to a fixed subset. Six modules — brand translations, category translations,
-languages, permissions, roles, and users — are reachable by no one except Admin. This makes
-Admin the sole role able to manage other accounts, manage other roles/permissions, or manage the
-catalog's reference/translation data (languages, brand/category translations).
+The core boundary is the **permission key**, not the URL. Two routes can share a URL prefix and
+require different keys; one capability can span several routes. Within a key, the `scope` segment
+draws the second boundary:
 
-A second, independent boundary sits inside product management only: even though Seller is
-allowed into that module, each seller is fenced to records they created. Ownership is decided by
-comparing the caller's user ID against the product's `createdById` — not by a separate
-permission row. Admin bypasses this fence and can manage any seller's product.
+- `any` — the caller may act on every record.
+- `own` — the caller may act only on records it owns. Ownership is decided in the service layer by
+  comparing the caller's user ID against the record's `createdById` (products) or by filtering the
+  query to orders that contain the caller's products (order fulfilment). A record the caller does
+  not own resolves to 403 (products) or 404 (orders).
 
-Client and Seller access is otherwise flat within their allowed modules — once a role is granted
-a module, it gets every method (view, create, edit, delete) registered under that module's URL
-prefix; there is no finer-grained per-action split beyond the ownership fence above.
+Holding `any` always implies `own`. A route declares the *minimum* it needs; a caller with the
+wider grant passes and the service widens the data accordingly. This is how one `GET` route serves
+both "seller sees own products" and "admin sees all" without a role name ever appearing in code.
 
 ## Special Conditions
 
 - **Default role at signup is fixed.** Registering an account (email/password or Google OAuth)
-  always creates a `client`. There is no signup option to become a `seller` or `admin` — an
-  existing admin must promote the account afterward by editing its role.
-- **Three roles cannot be edited or deleted.** `admin`, `client`, and `seller` are the bootstrap
-  roles created at project setup; the role-management endpoints explicitly block renaming,
-  re-permissioning, or deleting these three (custom roles created later have no such
-  protection).
-- **The permission set is regenerated, not hand-maintained.** A maintenance script walks every
-  route currently registered in the running app and rebuilds the permission table to match —
-  removing rows for routes that no longer exist and adding rows for new ones — then reassigns
-  each role's permissions by its module allowlist. This means the true, current permission set
-  depends on this script having been run against the live route table; it cannot be fully
-  confirmed from source code alone (see permissions-matrix.md PERM004 for the exact mechanism).
-- **A documentation/behavior mismatch exists on one endpoint.** `GET /brands/:id` is labeled
-  "Public" in the generated API documentation, but at runtime it still requires a valid Bearer
-  token, since it's missing the one decorator that would actually make it public. Treat it as
-  authenticated-only; the "Public" label is believed to be a documentation error, not intended
-  behavior — flagged for the engineering team to confirm.
-- **An unused alternate login method exists in the code.** An API-key-based authentication path
-  is implemented (checks a hardcoded placeholder key) but is not attached to any current route —
-  it does not affect access to any of the 70 endpoints today.
+  always creates a `client`. An existing admin must promote the account afterward.
+- **System roles are frozen over HTTP.** `admin`, `client`, `seller` carry `isSystem = true`; the
+  role endpoints refuse to edit or delete them. Their grants come from
+  `src/constants/role-permission-matrix.constant.ts` and are rewritten on every seed, so an API
+  edit would be silently undone — refusing is the honest answer.
+- **The permission catalogue is code-owned and read-only over HTTP.** `GET /permissions` lists it;
+  there is no create/update/delete. Grants are changed from the role side (`PUT /roles/:id`) for
+  custom roles, or by editing the matrix in code (a reviewed change) for system roles.
+- **Media deletion is admin-only.** No table records who uploaded which file, so `media:delete`
+  cannot be scoped to `own`. Sellers and clients can upload; only admin can delete. This closes a
+  hole where any signed-in user could delete any file by key.
+- **Product-translation ownership follows the product.** A translation belongs to whoever created
+  the product it translates. A seller sees, edits and deletes only translations of its own products
+  and can only add translations to its own products; another seller's row resolves to 404. Admin
+  (`any`) is unrestricted.
+- **`GET /brands/:id` requires a token; `GET /brands` does not.** The list is public, the detail
+  route requires `brand:read:any`, which all three roles hold. Flagged for engineering to decide
+  whether the detail route should also be public.
+- **An unused API-key authentication path exists in the code** but is attached to no route.

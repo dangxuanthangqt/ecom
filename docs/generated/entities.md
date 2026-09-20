@@ -51,13 +51,16 @@ erDiagram
     }
     Permission {
         string id PK
-        string path
-        string method
+        string key UK
+        string resource
+        string action
+        string scope
     }
     Role {
         string id PK
         string name
         boolean isActive
+        boolean isSystem
     }
     Product {
         string id PK
@@ -292,19 +295,19 @@ erDiagram
 
 ### MODEL007_Permission
 
-**Description**: A route-level permission entry (path + HTTP method + module) assignable to Roles (`prisma/schema.prisma:182-203`).
+**Description**: A permission entry assignable to Roles, identified by a semantic key `resource:action:scope` (e.g. `product:update:own`). **Reshaped 2026-09-21**: the former route-level `name`/`path`/`method`/`module` columns were dropped; keys are declared on handlers with `@RequirePermission` and synced into this table. See `docs/authorization-guide.md`.
 
 | Attribute | Type | Constraints | Description |
 |-----------|------|-------------|--------------|
 | id | String @db.Uuid | PK | |
-| name | String @db.VarChar(500) | NOT NULL | |
+| key | String @db.VarChar(200) | UNIQUE | `resource:action:scope`, e.g. `product:update:own` |
+| resource | String @db.VarChar(100) | NOT NULL | Business capability, not a table name |
+| action | String @db.VarChar(50) | NOT NULL | create / read / update / delete / cancel / upload / revoke |
+| scope | String @db.VarChar(10) | NOT NULL | `own` = caller's records only, `any` = unrestricted |
 | description | String | default "" | |
-| path | String @db.VarChar(1000) | part of partial unique | Route path |
-| module | String @db.VarChar(500) | NOT NULL | Grouping label (added migration `20250506144938`) |
-| method | HTTPMethod | part of partial unique | See DISC-003 |
-| deletedAt | DateTime? | indexed | |
+| deletedAt | DateTime? | indexed | Retired when no handler declares the key any more |
 
-**Constraints**: `permission_path_method_unique` UNIQUE(`path`,`method`) WHERE `deletedAt IS NULL` (migration `20250413091436_partial_unique_index_permission_path_method`).
+**Constraints**: `Permission_key_key` UNIQUE(`key`); index on (`resource`,`action`) (migration `20260921001535_permission_semantic_keys_and_system_roles`). The former partial unique on (`path`,`method`) was dropped with those columns.
 
 **Relationships**: Many-to-Many with Role (`roles`).
 

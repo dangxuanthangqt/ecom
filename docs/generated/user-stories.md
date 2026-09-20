@@ -75,9 +75,9 @@ stories are written for messaging or payment.
 | ROUTE040 | DELETE /media/delete | seller | P1 | US039 | Delete Media Object |
 | ROUTE041 | GET /permissions | admin | P2 | US040 | View Permission List |
 | ROUTE042 | GET /permissions/:id | admin | P2 | US041 | View Permission Detail |
-| ROUTE043 | POST /permissions | admin | P2 | US042 | Create Permission |
-| ROUTE044 | PUT /permissions/:id | admin | P2 | US043 | Update Permission |
-| ROUTE045 | DELETE /permissions/:id | admin | P2 | US044 | Delete Permission |
+| ROUTE043 | POST /permissions | admin | P2 | US042 | Create Permission — **RETIRED 2026-09-21** |
+| ROUTE044 | PUT /permissions/:id | admin | P2 | US043 | Update Permission — **RETIRED 2026-09-21** |
+| ROUTE045 | DELETE /permissions/:id | admin | P2 | US044 | Delete Permission — **RETIRED 2026-09-21** |
 | ROUTE046 | GET /product-translations | client | P2 | US045 | View Product Translation List |
 | ROUTE047 | GET /product-translations/:id | client | P2 | US046 | View Product Translation Detail |
 | ROUTE048 | POST /product-translations | client | P2 | US047 | Create Product Translation |
@@ -358,15 +358,15 @@ stories are written for messaging or payment.
 ### US042_CreatePermission
 > As an admin, I want to create a permission row so that a role can be granted access to a route.
 - AC: Creates a `Permission` row. AC: `[UNVERIFIED]` this may be overwritten by the next run of BL001's sync script, which deletes rows for routes no longer live and re-derives module grants.
-- Route: ROUTE043, POST /permissions, Bearer.
+- Route: ROUTE043, POST /permissions, Bearer. **RETIRED 2026-09-21** — the permission catalogue is code-owned; this endpoint no longer exists.
 
 ### US043_UpdatePermission
 > As an admin, I want to update a permission row so that its role/module association stays correct.
-- AC: Updates the row matching `:id`. Route: ROUTE044, PUT /permissions/:id, Bearer.
+- AC: Updates the row matching `:id`. Route: ROUTE044, PUT /permissions/:id, Bearer. **RETIRED 2026-09-21** — endpoint removed; change grants via `PUT /roles/:id`.
 
 ### US044_DeletePermission
 > As an admin, I want to delete a permission row so that a role loses access to that route.
-- AC: Deletes the row matching `:id`. Route: ROUTE045, DELETE /permissions/:id, Bearer.
+- AC: Deletes the row matching `:id`. Route: ROUTE045, DELETE /permissions/:id, Bearer. **RETIRED 2026-09-21** — endpoint removed; a key disappears when no handler declares it.
 
 ## Product Translations
 

@@ -352,7 +352,7 @@ sót đường ghi nào**.
 ```ts
 // Thay vì SCAN + DEL hàng nghìn key, tăng một số đếm:
 const gen = await this.redis.incr(`gen:role:${roleId}`); // → 7
-const key = `role-permission:v${gen}:${roleId}:${method}:${path}`;
+const key = `role-permission:v${gen}:${roleId}`;
 ```
 
 Key cũ (`v6:...`) lập tức trở nên vô dụng và tự chết theo TTL. Invalidate từ O(N) lệnh xuống **1 lệnh**.
@@ -688,7 +688,7 @@ rate limit khi Redis chết thì kẻ tấn công chỉ cần làm Redis chết 
 | **Cluster**     | Chia key vào 16384 slot trên nhiều node      | Dữ liệu vượt RAM một máy                      |
 
 Lưu ý khi lên Cluster: lệnh động tới **nhiều key** chỉ chạy được nếu các key nằm cùng slot. Muốn ép
-cùng slot thì dùng hash tag: `role-permission:{roleId}:GET:/users` — phần trong `{}` quyết định slot.
+cùng slot thì dùng hash tag: `throttle:credential:{<hash>}` — phần trong `{}` quyết định slot (rate limiter của dự án đang dùng đúng cách này).
 `SCAN` cũng phải chạy trên **từng node**, không còn quét được toàn cluster bằng một vòng lặp.
 
 ### 6.6 Bảo mật
@@ -733,25 +733,27 @@ duy nhất chạy trên **mọi** request có token.
 ```mermaid
 flowchart TD
     REQ["Request kèm Bearer token"] --> GUARD["AccessTokenGuard<br/>src/shared/guards/access-token.guard.ts"]
-    GUARD --> CACHE["RolePermissionCacheService<br/>tầng cache-aside, fail-open"]
+    GUARD --> RES["PermissionResolverService<br/>cache-aside quanh tập quyền của role"]
+    RES --> CACHE["RolePermissionCacheService<br/>một key mỗi role, fail-open"]
     CACHE --> CONN["RedisService<br/>giữ 1 client ioredis dùng chung"]
     CONN --> REDIS[("Redis 6379")]
-    GUARD -.->|"khi MISS"| PG[("Postgres")]
+    RES -.->|"khi MISS"| PG[("Postgres")]
 
     ROLESVC["RoleService<br/>update / delete role"] -->|invalidateRole| CACHE
-    PERMSVC["PermissionService<br/>create / update / delete permission"] -->|invalidateAll| CACHE
+    THR["ThrottlerRedisStorage<br/>rate limit, mọi request"] --> CONN
 
     CFG["AppConfigService<br/>REDIS_URL"] --> CONN
 ```
 
-| Thành phần       | File                                                                             | Trách nhiệm                                                    |
-| ---------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Kết nối          | `src/shared/services/redis.service.ts`                                           | Một client ioredis, cấu hình fail-fast, đóng sạch khi shutdown |
-| Tầng cache       | `src/shared/services/role-permission-cache.service.ts`                           | `get`/`set`/`invalidateRole`/`invalidateAll`, bọc fail-open    |
-| Đọc              | `src/shared/guards/access-token.guard.ts`                                        | Cache-aside quanh query role/permission                        |
-| Ghi (invalidate) | `src/routes/role/role.service.ts`, `src/routes/permission/permission.service.ts` | Xoá cache sau khi ghi DB thành công                            |
-| Cấu hình         | `src/types/config.type.ts`, `app-config.service.ts`, `.env.example`              | `REDIS_URL`                                                    |
-| Hạ tầng          | `docker-compose.yml`                                                             | `redis:7-alpine` + healthcheck, `app` chờ redis healthy        |
+| Thành phần        | File                                                                | Trách nhiệm                                                                 |
+| ----------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Kết nối           | `src/shared/services/redis.service.ts`                              | Một client ioredis, cấu hình fail-fast, đóng sạch khi shutdown              |
+| Tầng cache        | `src/shared/services/role-permission-cache.service.ts`              | `getRoleKeys`/`setRoleKeys`/`invalidateRole`/`invalidateAll`, bọc fail-open |
+| Đọc               | `src/shared/services/permission-resolver.service.ts`                | Cache-aside quanh tập quyền của role, trả `Set<PermissionKey>`              |
+| Ghi (invalidate)  | `src/routes/role/role.service.ts`                                   | Xoá cache role sau khi ghi DB thành công                                    |
+| Dùng chung client | `src/shared/services/throttler-redis-storage.service.ts`            | Rate limiter, xem `rate-limiting-guide.md`                                  |
+| Cấu hình          | `src/types/config.type.ts`, `app-config.service.ts`, `.env.example` | `REDIS_URL`                                                                 |
+| Hạ tầng           | `docker-compose.yml`                                                | `redis:7-alpine` + healthcheck, `app` chờ redis healthy                     |
 
 ### 7.2 Tầng kết nối — `redis.service.ts`
 
@@ -812,36 +814,43 @@ stateDiagram-v2
 
 ### 7.3 Tầng cache — `role-permission-cache.service.ts`
 
+> Lịch sử: bản đầu cache theo bộ ba `(roleId, method, path)` vì permission lúc đó định danh bằng route.
+> Refactor RBAC 2026-09-21 đổi permission sang key ngữ nghĩa `resource:action:scope` và đổi luôn cách
+> cache. Cơ chế phân quyền đầy đủ ở [authorization-guide.md](authorization-guide.md).
+
 **Cấu trúc key:**
 
 ```
-role-permission:{roleId}:{method}:{path}
+role-permission:{roleId}
 
-ví dụ: role-permission:11111111-2222-3333-4444-555555555555:GET:/products/:id
-       └──── namespace ────┘└─ role ─┘└method┘└── route ──┘
+ví dụ: role-permission:11111111-2222-3333-4444-555555555555
+       └──── namespace ────┘└──────────── role ─────────────┘
 ```
 
-Cache theo **bộ ba (role, method, route)** chứ không phải cache cả role. Vì guard chỉ cần trả lời "role
-này có quyền vào đúng route này không" — query DB cũng chỉ lấy `permissions where { path, method }`.
+Cache **cả tập quyền của một role**, không cache theo route. Vì guard cần trả lời "tập quyền này có
+thoả yêu cầu của handler không", và cùng một tập dùng lại cho mọi route mà role đó gọi. Kết quả: số key
+bằng số role thay vì role nhân route, và một lần miss mỗi role thay vì một lần mỗi cặp.
 
-| Thuộc tính | Giá trị                | Lý do                                               |
-| ---------- | ---------------------- | --------------------------------------------------- |
-| TTL        | 300 giây               | Lưới an toàn thứ hai sau invalidate tường minh      |
-| Định dạng  | `JSON.stringify(role)` | Guard dùng nguyên cả object, không cần sửa lẻ field |
-| Quét xoá   | `SCAN` `COUNT 100`     | Không bao giờ dùng `KEYS` (mục 6.1)                 |
-| Khi lỗi    | Fail-open              | Cache hỏng chỉ làm chậm, không được làm sai quyền   |
+| Thuộc tính | Giá trị                    | Lý do                                                  |
+| ---------- | -------------------------- | ------------------------------------------------------ |
+| TTL        | 300 giây                   | Lưới an toàn thứ hai sau invalidate tường minh         |
+| Định dạng  | `JSON.stringify(string[])` | Mảng chuỗi thuần, không có field Date để lo round-trip |
+| Xoá 1 role | `DEL` một key              | Không cần SCAN                                         |
+| Xoá tất cả | `SCAN` `COUNT 100`         | Không bao giờ dùng `KEYS` (mục 6.1)                    |
+| Khi lỗi    | Fail-open                  | Cache hỏng chỉ làm chậm, không được làm sai quyền      |
 
 Bốn method, cả bốn đều bọc `try/catch`:
 
-| Method                   | Khi Redis lỗi     | Hệ quả                            |
-| ------------------------ | ----------------- | --------------------------------- |
-| `get()`                  | trả `null`        | Guard hiểu là MISS → đọc Postgres |
-| `set()`                  | nuốt lỗi, chỉ log | Request hiện tại vẫn thành công   |
-| `invalidateRole(roleId)` | nuốt lỗi, chỉ log | Cache cũ sống tới hết TTL         |
-| `invalidateAll()`        | nuốt lỗi, chỉ log | Cache cũ sống tới hết TTL         |
+| Method                   | Khi Redis lỗi     | Hệ quả                               |
+| ------------------------ | ----------------- | ------------------------------------ |
+| `getRoleKeys()`          | trả `null`        | Resolver hiểu là MISS → đọc Postgres |
+| `setRoleKeys()`          | nuốt lỗi, chỉ log | Request hiện tại vẫn thành công      |
+| `invalidateRole(roleId)` | nuốt lỗi, chỉ log | Cache cũ sống tới hết TTL            |
+| `invalidateAll()`        | nuốt lỗi, chỉ log | Cache cũ sống tới hết TTL            |
 
 **Hệ quả quan trọng:** không có kịch bản nào Redis lỗi làm **bypass** hay **chặn nhầm** permission,
-vì quyết định "có quyền hay không" luôn dựa trên dữ liệu Postgres khi cache không đáng tin.
+vì quyết định luôn dựa trên Postgres khi cache không đáng tin. Ngược lại, lỗi **Postgres** thì
+`PermissionResolverService` cố tình không bắt: đó là 500, không phải 403.
 
 ### 7.4 Luồng đọc
 
@@ -854,15 +863,16 @@ flowchart TD
     B -->|Có| C["verifyAccessToken JWT"]
     C -->|TokenExpiredError| E401b["401 Access token is expired"]
     C -->|Lỗi khác| E401c["401 Access token is invalid"]
-    C -->|OK| D["Lấy roleId, method, path"]
-    D --> F["RolePermissionCacheService.get"]
-    F -->|HIT| H{"permissions rỗng?"}
-    F -->|MISS| G["prisma.role.findUniqueOrThrow<br/>deletedAt null, isActive true"]
-    G -->|Không tìm thấy| E403["403 Forbidden"]
-    G -->|OK| I["cache.set TTL 300s"]
+    C -->|OK| D["reflector: @RequirePermission trên handler"]
+    D -->|Không có| E500["500 Route has no permission declaration"]
+    D -->|Có| F["PermissionResolverService.forRoles([roleId])"]
+    F --> K["cache.getRoleKeys"]
+    K -->|HIT| H{"satisfies?"}
+    K -->|MISS| G["prisma.role.findUnique<br/>isActive true, deletedAt null → permissions.key"]
+    G --> I["cache.setRoleKeys TTL 300s"]
     I --> H
-    H -->|Rỗng| E403
-    H -->|Có quyền| J["Gắn role vào request<br/>canActivate true"]
+    H -->|Không| E403["403 Forbidden"]
+    H -->|Có| J["Gắn Set vào request<br/>canActivate true"]
 ```
 
 **Cache HIT — không chạm DB:**
@@ -871,18 +881,21 @@ flowchart TD
 sequenceDiagram
     participant C as Client
     participant G as AccessTokenGuard
+    participant S as PermissionResolverService
     participant K as RolePermissionCacheService
     participant R as Redis
     participant P as Postgres
 
-    C->>G: GET /products/1 + Bearer token
-    G->>G: verifyAccessToken → roleId
-    G->>K: get(roleId, "GET", "/products/:id")
-    K->>R: GET role-permission:{roleId}:GET:/products/:id
-    R-->>K: chuỗi JSON
-    K-->>G: role đã parse
+    C->>G: GET /manage-product/products + Bearer
+    G->>G: verifyAccessToken → roleId; reflector → "product:read:own"
+    G->>S: forRoles([roleId])
+    S->>K: getRoleKeys(roleId)
+    K->>R: GET role-permission:{roleId}
+    R-->>K: '["product:read:own", ...]'
+    K-->>S: PermissionKey[]
+    S-->>G: Set
     Note over P: không có query nào
-    G->>G: permissions.length > 0 → cho qua
+    G->>G: satisfies(Set, "product:read:own") → cho qua
     G-->>C: 200
 ```
 
@@ -892,49 +905,38 @@ sequenceDiagram
 sequenceDiagram
     participant C as Client
     participant G as AccessTokenGuard
+    participant S as PermissionResolverService
     participant K as RolePermissionCacheService
     participant R as Redis
     participant P as Postgres
 
-    C->>G: GET /products/1 + Bearer token
-    G->>K: get(roleId, "GET", "/products/:id")
-    K->>R: GET role-permission:...
+    C->>G: GET /manage-product/products + Bearer
+    G->>S: forRoles([roleId])
+    S->>K: getRoleKeys(roleId)
+    K->>R: GET role-permission:{roleId}
     R-->>K: null
-    K-->>G: null
-    G->>P: role.findUniqueOrThrow + permissions where path/method
-    P-->>G: role kèm permissions[]
-    G->>K: set(roleId, method, path, role)
-    K->>R: SET role-permission:... EX 300
-    G-->>C: 200 hoặc 403 tuỳ permissions
+    K-->>S: null
+    S->>P: role.findUnique + permissions.key
+    P-->>S: rows
+    S->>K: setRoleKeys(roleId, keys)
+    K->>R: SET role-permission:{roleId} EX 300
+    S-->>G: Set
+    G-->>C: 200 hoặc 403 tuỳ satisfies
 ```
 
-**Một chi tiết thiết kế đáng chú ý.** Hình dạng `select` được định nghĩa **một lần** trong
-`buildRoleRoutePermissionSelect(path, method)`, và kiểu TypeScript của giá trị cache được **suy ra từ
-chính hàm đó**:
-
-```ts
-type RoleWithRoutePermissions = Prisma.RoleGetPayload<{
-  select: ReturnType<typeof buildRoleRoutePermissionSelect>;
-}>;
-```
-
-Nghĩa là nếu ai đó sửa query mà quên sửa kiểu cache, TypeScript báo lỗi ngay. Cache và DB không thể
-lệch shape — một lỗi rất khó phát hiện lúc runtime đã bị chặn ở compile time.
-
-**Một khác biệt phải nhớ khi đọc giá trị cache:** sau round-trip JSON, các field `Date` (`createdAt`,
-`updatedAt`) trở thành **chuỗi ISO**, khác với object Prisma trả về lúc MISS. Hiện chỉ có decorator
-`ActiveUserRole` đọc từ `request[REQUEST_ROLE_PERMISSIONS_KEY]` và chỉ dùng `role.id` / `role.name`
-(đều là string) nên vô hại. **Nếu sau này có consumer đọc field Date từ đây thì phải xử lý lại.**
+**Kết quả rỗng cũng được cache.** Role không tồn tại, đã xoá mềm, hoặc `isActive = false` → cache
+`[]`, guard trả 403. Bị chặn bởi TTL và bởi `invalidateRole` khi role được sửa.
 
 ### 7.5 Luồng invalidate
 
-| Nơi gọi                                    | Hành động      | Xoá gì               | Vì sao                   |
-| ------------------------------------------ | -------------- | -------------------- | ------------------------ |
-| `role.service.ts` `updateRole`             | Sửa role       | `invalidateRole(id)` | Chỉ role đó bị ảnh hưởng |
-| `role.service.ts` `deleteRole`             | Xoá role       | `invalidateRole(id)` | Chỉ role đó bị ảnh hưởng |
-| `permission.service.ts` `createPermission` | Tạo permission | `invalidateAll()`    | Có thể gắn nhiều role    |
-| `permission.service.ts` `updatePermission` | Sửa permission | `invalidateAll()`    | Có thể gắn nhiều role    |
-| `permission.service.ts` `deletePermission` | Xoá permission | `invalidateAll()`    | Có thể gắn nhiều role    |
+| Nơi gọi                        | Hành động                  | Xoá gì               | Vì sao                                |
+| ------------------------------ | -------------------------- | -------------------- | ------------------------------------- |
+| `role.service.ts` `updateRole` | Sửa role                   | `invalidateRole(id)` | Chỉ role đó bị ảnh hưởng, một `DEL`   |
+| `role.service.ts` `deleteRole` | Xoá role                   | `invalidateRole(id)` | Chỉ role đó bị ảnh hưởng              |
+| Seed / sync danh mục           | Ghi grant ba role hệ thống | không gọi Redis      | Hết hạn theo TTL 300s, hoặc flush tay |
+
+API `/permissions` chỉ còn đọc, nên không còn đường ghi nào từ phía permission và `invalidateAll()`
+không còn được gọi trong request path. Nó vẫn tồn tại cho vận hành và cho tương lai.
 
 **Sửa role — invalidate có mục tiêu:**
 
@@ -945,42 +947,14 @@ sequenceDiagram
     participant K as RolePermissionCacheService
     participant R as Redis
 
-    A->>S: PATCH /roles/:id (đổi permissionIds)
+    A->>S: PUT /roles/:id (đổi permissionIds)
+    S->>S: verifyForbiddenRole — role hệ thống (isSystem) thì 403
     S->>S: roleRepository.updateRole — ghi Postgres
     Note over S: chỉ khi ghi THÀNH CÔNG mới đi tiếp
     S->>K: invalidateRole(id)
-    loop tới khi cursor về "0"
-        K->>R: SCAN cursor MATCH role-permission:{id}:* COUNT 100
-        R-->>K: [cursor kế, keys]
-    end
-    K->>R: DEL key1 key2 ... keyN
-    Note over R: cache của role này sạch<br/>request kế tiếp MISS và nạp lại giá trị mới
+    K->>R: DEL role-permission:{id}
+    Note over R: request kế tiếp của role này MISS và nạp lại giá trị mới
 ```
-
-**Sửa permission — flush cả namespace:**
-
-```mermaid
-sequenceDiagram
-    participant A as Admin
-    participant S as PermissionService
-    participant K as RolePermissionCacheService
-    participant R as Redis
-
-    A->>S: PATCH /permissions/:id (đổi rolesIds)
-    S->>S: permissionRepository.updatePermission — ghi Postgres
-    S->>K: invalidateAll()
-    loop tới khi cursor về "0"
-        K->>R: SCAN cursor MATCH role-permission:* COUNT 100
-    end
-    K->>R: DEL toàn bộ key tìm được
-    Note over R: flush sạch namespace role-permission
-```
-
-**Vì sao `invalidateAll()` chứ không xoá có mục tiêu?** Endpoint update permission nhận `rolesIds` mới
-rồi `set` lại quan hệ. Nghĩa là các role bị **gỡ khỏi** permission (không còn trong `rolesIds` mới)
-cũng cần invalidate — nhưng response của `updatePermission` không trả về danh sách role **cũ** để tính
-diff. Vì thao tác permission là hành động admin hiếm khi xảy ra, đánh đổi hit-rate lấy sự đơn giản và
-đúng-trong-mọi-trường-hợp là hợp lý.
 
 **Không invalidate khi thao tác thất bại.** Lời gọi invalidate luôn nằm **sau** `await` ghi DB — nếu
 ghi ném lỗi thì exception propagate trước khi chạm tới dòng invalidate. Hành vi này được khoá lại bằng

@@ -7,7 +7,7 @@
 
 **Cross-cutting note (applies to ALL 70 routes, not repeated per row)**: `BL006_ExternalExceptionFilter` (HTTP error mapping) and `BL007_PrismaClientExceptionFilter` (Prisma error mapping) are superseded — both are now dispatched through one `GlobalExceptionFilter`, see `behavior-logic.md` and `docs/error-handling.md`. `BL008_ResponseTransformInterceptor` (success envelope) and `BL013_PrismaClientLifecycleObserver` (DB connection lifecycle) are unaffected. All four are global `APP_FILTER`/`APP_INTERCEPTOR` registrations in `src/shared/modules/base.module.ts` that wrap every route. They are listed once here rather than in every table row to avoid noise.
 
-**Auth column key**: `public` = `@IsPublicApi()` present (auth skipped entirely); `Bearer` = default global `AuthorizationHeaderGuard` + `AccessTokenGuard` role-permission check on `(path, method)` against the `role.permissions` table (no PERM### codes exist in this artifact set — `permissions.md` was not in scope for this task).
+**Auth column key**: `public` = `@IsPublicApi()` present (auth skipped entirely); `Bearer` = default global `AuthorizationHeaderGuard` + `AccessTokenGuard` permission check against the key the handler declares with `@RequirePermission` (`resource:action:scope`) — **changed 2026-09-21**, the old `(path, method)` keying is gone; see `docs/authorization-guide.md` (no PERM### codes exist in this artifact set — `permissions.md` was not in scope for this task).
 
 ## Endpoints by Domain
 
@@ -86,15 +86,12 @@
 | GET | /media/presigned-url | BL004_S3ObjectStorage | Bearer |
 | DELETE | /media/delete | BL004_S3ObjectStorage | Bearer |
 
-### Permission (`src/routes/permission/permission.controller.ts`, prefix `permissions`)
+### Permission (`src/routes/permission/permission.controller.ts`, prefix `permissions`) — read-only since 2026-09-21
 
 | Method | Path | Handler BL### | Auth |
 |--------|------|---------------|------|
 | GET | /permissions | [UNMAPPED] | Bearer |
 | GET | /permissions/:id | [UNMAPPED] | Bearer |
-| POST | /permissions | [UNMAPPED] | Bearer |
-| PUT | /permissions/:id | [UNMAPPED] | Bearer |
-| DELETE | /permissions/:id | [UNMAPPED] | Bearer |
 
 ### Product Translation (`src/routes/product-translation/product-translation.controller.ts`, prefix `product-translations`)
 
