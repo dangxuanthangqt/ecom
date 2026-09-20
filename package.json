@@ -62,6 +62,7 @@
     "@nestjs/jwt": "11.0.0",
     "@nestjs/platform-express": "11.0.1",
     "@nestjs/swagger": "11.1.1",
+    "@nestjs/throttler": "6.7.0",
     "@prisma/client": "6.4.1",
     "bcrypt": "5.1.1",
     "class-transformer": "0.5.1",
