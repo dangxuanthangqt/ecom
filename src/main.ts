@@ -1,4 +1,5 @@
 import { NestFactory } from "@nestjs/core";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule } from "@nestjs/swagger";
 import { Logger } from "nestjs-pino";
 
@@ -8,13 +9,19 @@ import { AppConfigService } from "./shared/services/app-config.service";
 import { setupSwagger } from "./shared/utils/setup-swagger.util";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
 
   app.useLogger(app.get(Logger));
 
   const configService = app.select(SharedModule).get(AppConfigService);
+
+  // Decides which address `req.ip` reports, and so which address the rate
+  // limiter counts against. Trusting more hops than there really are in front
+  // of the app lets a caller forge `X-Forwarded-For` and get a fresh limit
+  // budget per request, so this defaults to trusting nothing.
+  app.set("trust proxy", configService.appConfig.trustProxyHops);
 
   // Enable CORS
   app.enableCors({

@@ -50,6 +50,29 @@ class EnvSchema {
   @IsString()
   OTP_EXPIRES_IN: string;
 
+  /**
+   * Turns every rate limiter off. Exists so the e2e suite can run hundreds of
+   * requests from one address without tripping a limit it is not testing; the
+   * rate-limit spec switches it back on for its own app instance. Leaving it
+   * false in a deployed environment removes the only brute-force defence the
+   * API has, so `AppModule` logs a warning at boot when it is not enabled.
+   */
+  @IsString()
+  @IsIn(["true", "false"])
+  THROTTLE_ENABLED: string;
+
+  /**
+   * How many reverse proxies sit in front of the app. It decides which entry of
+   * `X-Forwarded-For` express believes, and therefore which address the rate
+   * limiter counts against. Zero means "trust nothing": the socket address is
+   * used and the header is ignored. Setting this higher than the real number of
+   * proxies lets a caller spoof its own address and walk past every IP limit.
+   */
+  @IsNumber()
+  @Min(0)
+  @Max(10)
+  TRUST_PROXY_HOPS: number;
+
   @IsString()
   RESEND_API_KEY: string;
 

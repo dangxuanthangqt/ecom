@@ -7,6 +7,7 @@ import {
   APP_PIPE,
   Reflector,
 } from "@nestjs/core";
+import { ThrottlerModule } from "@nestjs/throttler";
 import { LoggerModule } from "nestjs-pino";
 
 import { validateEnv } from "src/validations/env.validation";
@@ -14,9 +15,12 @@ import { validateEnv } from "src/validations/env.validation";
 import { GlobalExceptionFilter } from "../filters/global-exception.filter";
 import { AccessTokenGuard } from "../guards/access-token.guard";
 import { ApiKeyGuard } from "../guards/api-key.guard";
+import { AppThrottlerGuard } from "../guards/app-throttler.guard";
 import { AuthorizationHeaderGuard } from "../guards/authorization-header.guard";
 import { AppConfigService } from "../services/app-config.service";
+import { ThrottlerRedisStorage } from "../services/throttler-redis-storage.service";
 import { loggerFactory } from "../utils/setup-logger.util";
+import { createThrottlerOptions } from "../utils/throttler-options.factory";
 import { createValidationPipe } from "../utils/validation-pipe.config";
 
 import { I18nModule } from "./i18n.module";
@@ -30,9 +34,17 @@ const filters: Provider[] = [
   },
 ];
 
+// Order matters: Nest runs global guards in registration order, and rate
+// limiting has to come first. Behind the auth guard it would never see the
+// flood of unauthenticated requests it exists to stop, and every rejected
+// request would still have paid for a token verification first.
 const guards: Provider[] = [
   AccessTokenGuard,
   ApiKeyGuard,
+  {
+    provide: APP_GUARD,
+    useClass: AppThrottlerGuard,
+  },
   {
     provide: APP_GUARD,
     useClass: AuthorizationHeaderGuard,
@@ -71,7 +83,20 @@ const providers: Provider[] = [
       useFactory: loggerFactory,
       inject: [AppConfigService], // In SharedModule, we have exported AppConfigService
     }),
+    ThrottlerModule.forRootAsync({
+      useFactory: (
+        appConfigService: AppConfigService,
+        storage: ThrottlerRedisStorage,
+      ) =>
+        createThrottlerOptions(
+          appConfigService.appConfig.throttleEnabled,
+          storage,
+        ),
+      inject: [AppConfigService, ThrottlerRedisStorage],
+    }),
     I18nModule,
+    // Exposes DiscoveryService + MetadataScanner for the permission coverage
+    // check, which has to see every controller the app registered.
   ],
   providers,
 })

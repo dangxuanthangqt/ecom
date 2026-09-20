@@ -19,7 +19,8 @@ type HttpErrorType =
   | "internal"
   | "unauthorized"
   | "forbidden"
-  | "conflict";
+  | "conflict"
+  | "tooManyRequests";
 
 const STATUS_BY_TYPE: Record<HttpErrorType, HttpStatus> = {
   badRequest: HttpStatus.BAD_REQUEST,
@@ -28,6 +29,7 @@ const STATUS_BY_TYPE: Record<HttpErrorType, HttpStatus> = {
   unauthorized: HttpStatus.UNAUTHORIZED,
   forbidden: HttpStatus.FORBIDDEN,
   conflict: HttpStatus.CONFLICT,
+  tooManyRequests: HttpStatus.TOO_MANY_REQUESTS,
   internal: HttpStatus.INTERNAL_SERVER_ERROR,
 };
 
@@ -81,6 +83,8 @@ function buildException(
       return new ForbiddenException(payload);
     case "conflict":
       return new ConflictException(payload);
+    case "tooManyRequests":
+      return new HttpException(payload, HttpStatus.TOO_MANY_REQUESTS);
     case "internal":
       return new InternalServerErrorException(payload);
     default:

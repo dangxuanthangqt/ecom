@@ -12,6 +12,10 @@ export type AppConfig = {
   // Redis
   readonly redisUrl: string;
 
+  // Rate limiting
+  readonly throttleEnabled: boolean;
+  readonly trustProxyHops: number;
+
   // Google
   readonly googleClientId: string;
   readonly googleClientSecret: string;

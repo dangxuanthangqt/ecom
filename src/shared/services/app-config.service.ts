@@ -29,6 +29,10 @@ export class AppConfigService {
       // Redis
       redisUrl: this.getString("REDIS_URL"),
 
+      // Rate limiting
+      throttleEnabled: this.getBoolean("THROTTLE_ENABLED"),
+      trustProxyHops: this.getNumber("TRUST_PROXY_HOPS"),
+
       // Google
       googleClientId: this.getString("GOOGLE_CLIENT_ID"),
       googleClientSecret: this.getString("GOOGLE_CLIENT_SECRET"),
