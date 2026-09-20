@@ -25,6 +25,7 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { CartService } from "./cart.service";
 
@@ -38,6 +39,7 @@ export class CartController {
     description: "Retrieve the caller's own cart lines with pagination.",
     summary: "Get my cart",
   })
+  @RequirePermission("cart:read:own")
   @Get()
   async getCartItems(
     @Query() query: CartPaginationQueryDto,
@@ -56,6 +58,7 @@ export class CartController {
         "Adds a SKU to the caller's cart, incrementing the quantity of an existing line for the same SKU.",
     },
   })
+  @RequirePermission("cart:update:own")
   @Post()
   async addCartItem(
     @Body() body: AddCartItemRequestDto,
@@ -82,6 +85,7 @@ export class CartController {
     description: "The unique identifier of the cart line to update.",
     format: "uuid",
   })
+  @RequirePermission("cart:update:own")
   @Put(":cartItemId")
   async updateCartItemQuantity(
     @Param("cartItemId", ParseUUIDPipe) cartItemId: CartItemSchema["id"],
@@ -109,6 +113,7 @@ export class CartController {
     description: "The unique identifier of the cart line to remove.",
     format: "uuid",
   })
+  @RequirePermission("cart:update:own")
   @Delete(":cartItemId")
   async deleteCartItem(
     @Param("cartItemId", ParseUUIDPipe) cartItemId: CartItemSchema["id"],

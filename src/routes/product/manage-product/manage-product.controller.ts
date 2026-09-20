@@ -14,9 +14,9 @@ import {
   Product as ProductSchema,
   Language as LanguageSchema,
   User as UserSchema,
-  Role as RoleSchema,
 } from "@prisma/client";
 
+import { ScopeType } from "@/constants/permission.constant";
 import {
   ProductDetailResponseDto,
   ManageProductPaginationQueryDto,
@@ -26,13 +26,14 @@ import {
   UpdateProductRequestDto,
 } from "@/dtos/product/product.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import ActiveUserRole from "@/shared/param-decorators/active-user-role.decorator";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
 import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { PermissionScope } from "@/shared/param-decorators/permission-scope.decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { ManageProductService } from "./manage-product.service";
 
@@ -46,19 +47,20 @@ export class ManageProductController {
     description: "Retrieve a list of products with pagination.",
     summary: "Get a list of products",
   })
+  @RequirePermission("product:read:own")
   @Get()
   async getManageProducts(
     @Query()
     query: ManageProductPaginationQueryDto,
     @CurrentLang() languageId: LanguageSchema["id"],
     @ActiveUser("userId") userId: UserSchema["id"],
-    @ActiveUserRole("name") roleName: RoleSchema["name"],
+    @PermissionScope(["product", "read"]) scope: ScopeType,
   ): Promise<PageDto<ProductResponseDto>> {
     const result = await this.manageProductService.getProducts({
       query,
       languageId,
       userId,
-      roleName,
+      scope,
     });
 
     return new PageDto<ProductResponseDto>(result);
@@ -77,18 +79,19 @@ export class ManageProductController {
     format: "uuid",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @RequirePermission("product:read:own")
   @Get(":id")
   async getManageProductById(
     @Param("id", ParseUUIDPipe) productId: ProductSchema["id"],
     @CurrentLang() languageId: LanguageSchema["id"],
     @ActiveUser("userId") userId: UserSchema["id"],
-    @ActiveUserRole("name") roleName: RoleSchema["name"],
+    @PermissionScope(["product", "read"]) scope: ScopeType,
   ): Promise<ProductDetailResponseDto> {
     const result = await this.manageProductService.getProductById({
       productId,
       languageId,
       userId,
-      roleName,
+      scope,
     });
 
     return new ProductDetailResponseDto(result);
@@ -101,6 +104,7 @@ export class ManageProductController {
     },
     type: ProductDetailResponseDto,
   })
+  @RequirePermission("product:create:own")
   @Post()
   async createProduct(
     @Body() data: CreateProductRequestDto,
@@ -121,18 +125,19 @@ export class ManageProductController {
     },
     type: ProductDetailResponseDto,
   })
+  @RequirePermission("product:update:own")
   @Put(":id")
   async updateProduct(
     @Body() data: UpdateProductRequestDto,
     @Param("id", ParseUUIDPipe) productId: ProductSchema["id"],
     @ActiveUser("userId") userId: UserSchema["id"],
-    @ActiveUserRole("name") roleName: RoleSchema["name"],
+    @PermissionScope(["product", "update"]) scope: ScopeType,
   ): Promise<ProductDetailResponseDto> {
     const result = await this.manageProductService.updateProduct({
       productId,
       data,
       userId,
-      roleName,
+      scope,
     });
 
     return new ProductDetailResponseDto(result);
@@ -151,16 +156,17 @@ export class ManageProductController {
     format: "uuid",
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @RequirePermission("product:delete:own")
   @Delete(":id")
   async deleteProduct(
     @Param("id", ParseUUIDPipe) productId: ProductSchema["id"],
     @ActiveUser("userId") userId: UserSchema["id"],
-    @ActiveUserRole("name") roleName: RoleSchema["name"],
+    @PermissionScope(["product", "delete"]) scope: ScopeType,
   ): Promise<DeleteProductResponseDto> {
     const result = await this.manageProductService.deleteProduct({
       productId,
       userId,
-      roleName,
+      scope,
     });
 
     return new DeleteProductResponseDto(result);

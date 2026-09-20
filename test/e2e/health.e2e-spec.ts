@@ -12,7 +12,8 @@ import { DEMO_PASSWORD, FixtureEmail } from "./support/fixtures";
  * Proves the harness itself: a real app boots against `ecom_e2e`, a public
  * route works, a protected route rejects an anonymous caller, and — the
  * canary for Key Insight 1 — a real login token is actually granted access,
- * which only happens if `syncRoutePermissions` ran during setup.
+ * which only happens if the permission catalogue sync and role grant seed
+ * (`initial-scripts/create-permission.ts`) ran during setup.
  */
 describe("e2e harness (health)", () => {
   let app: TestApp;

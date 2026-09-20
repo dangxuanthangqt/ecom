@@ -23,6 +23,7 @@ import {
   UploadFilesResponseDto,
 } from "@/dtos/media/media.dto";
 import { ApiAuth } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 import { ArrayFilesValidationPipe } from "@/shared/pipes/array-images-validation.pipe";
 // import { ImageValidationPipe } from "@/shared/pipes/image-validation.pipe";
 import { MultipleFilesValidationPipe } from "@/shared/pipes/multiple-images-validation.pipe";
@@ -68,6 +69,7 @@ export class MediaController {
         "Upload a large image from disk to S3. The image data is expected to be in the request body as a file. This is useful for large files that cannot be uploaded from memory.",
     },
   })
+  @RequirePermission("media:upload:own")
   @Post("upload/image")
   @UseInterceptors(createSingleImageDiskInterceptor("image"))
   async uploadLargeImageFromDisk(@UploadedFile() image: Express.Multer.File) {
@@ -97,6 +99,7 @@ export class MediaController {
         "Upload multiple images from buffer to S3. The images data are expected to be in the request body as an array of files.",
     },
   })
+  @RequirePermission("media:upload:own")
   @Post("upload/array-of-images")
   @UseInterceptors(FilesInterceptor("files", 10))
   async uploadArrayOfImages(
@@ -133,6 +136,7 @@ export class MediaController {
         " Upload multiple images from buffer to S3. The images data are expected to be in the request body as an array of files.",
     },
   })
+  @RequirePermission("media:upload:own")
   @Post("upload/multiple-images")
   @UseInterceptors(
     FileFieldsInterceptor([
@@ -184,6 +188,7 @@ export class MediaController {
         "Generate a presigned URL for uploading or downloading files to/from S3. Use this URL to perform the actual upload/download operation.",
     },
   })
+  @RequirePermission("media:read:any")
   @Get("presigned-url")
   async getPresignedUrl(@Query() query: PresignedUrlQueryDto) {
     const result = await this.mediaService.getPresignedUrl(query);
@@ -198,6 +203,7 @@ export class MediaController {
       description: "Delete a file from S3 using its key/path.",
     },
   })
+  @RequirePermission("media:delete:any")
   @Delete("delete")
   async deleteMedia(@Query() query: DeleteFileQueryDto) {
     const result = await this.mediaService.deleteMedia(query);

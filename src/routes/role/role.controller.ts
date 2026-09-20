@@ -25,6 +25,7 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { RoleService } from "./role.service";
 
@@ -33,6 +34,7 @@ import { RoleService } from "./role.service";
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
+  @RequirePermission("role:read:any")
   @Get()
   @ApiPageOkResponse({
     summary: "Get a list of roles",
@@ -62,6 +64,7 @@ export class RoleController {
     required: true,
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @RequirePermission("role:read:any")
   @Get(":id")
   async getRoleById(
     @Param("id", ParseUUIDPipe) id: RoleSchema["id"],
@@ -78,6 +81,7 @@ export class RoleController {
       description: "Create a new role with permissions.",
     },
   })
+  @RequirePermission("role:create:any")
   @Post()
   async createRole(
     @Body() body: CreateRoleRequestDto,
@@ -105,6 +109,7 @@ export class RoleController {
     required: true,
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @RequirePermission("role:update:any")
   @Put(":id")
   async updateRole(
     @Param("id", ParseUUIDPipe) id: RoleSchema["id"],
@@ -134,6 +139,7 @@ export class RoleController {
     required: true,
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @RequirePermission("role:delete:any")
   @Delete(":id")
   async deleteRole(
     @Param("id", ParseUUIDPipe) id: RoleSchema["id"],

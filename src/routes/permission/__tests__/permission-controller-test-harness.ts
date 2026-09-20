@@ -4,16 +4,13 @@ import { PermissionController } from "../permission.controller";
 import { PermissionService } from "../permission.service";
 
 /**
- * Test doubles for every collaborator PermissionController depends on.
- * Only the methods PermissionController actually calls are stubbed.
+ * Test doubles for every collaborator PermissionController depends on. The
+ * controller is read-only, so only the two read methods are stubbed.
  */
 export const createPermissionControllerMocks = () => ({
   permissionService: {
     getPermissions: jest.fn(),
     getPermissionById: jest.fn(),
-    createPermission: jest.fn(),
-    updatePermission: jest.fn(),
-    deletePermission: jest.fn(),
   },
 });
 
@@ -43,40 +40,39 @@ export const setupPermissionController = async () => {
   return { mocks, controller };
 };
 
-export const ACTIVE_USER_ID = "44444444-4444-4444-8444-444444444444";
 export const PERMISSION_ID = "11111111-1111-4111-8111-111111111111";
+export const ROLE_ID = "22222222-2222-4222-8222-222222222222";
 
-/** A permission with roles as the service returns it. */
+/** A catalogue row with its roles, as the service returns it. */
 export const makePermissionWithRoles = (
   overrides: Record<string, unknown> = {},
 ) => ({
   id: PERMISSION_ID,
-  name: "users.read",
-  description: "Read users",
-  roles: [{ id: "role-1", name: "ADMIN" }],
+  key: "product:update:own",
+  resource: "product",
+  action: "update",
+  scope: "own",
+  description: "Update products the caller created",
+  roles: [
+    {
+      id: ROLE_ID,
+      name: "seller",
+      description: "Seller role",
+      isActive: true,
+      isSystem: true,
+    },
+  ],
   ...overrides,
 });
 
-/** A paginated list response. */
 export const makePaginatedPermissions = (
-  overrides: Record<string, unknown> = {},
+  items = [makePermissionWithRoles()],
 ) => ({
-  items: [makePermissionWithRoles()],
-  total: 1,
-  page: 1,
-  pageSize: 10,
-  ...overrides,
+  data: items,
+  pagination: {
+    pageIndex: 1,
+    pageSize: 10,
+    totalPages: 1,
+    totalItems: items.length,
+  },
 });
-
-/**
- * `expect.objectContaining` typed back to the shape it matches, so nesting one
- * matcher inside another stays free of `any` leaking into the assertion.
- */
-export const containing = <T extends Record<string, unknown>>(shape: T): T =>
-  expect.objectContaining(shape) as unknown as T;
-
-export const stringContaining = (substring: string): string =>
-  expect.stringContaining(substring) as unknown as string;
-
-export const anyObject = (): Record<string, unknown> =>
-  expect.any(Object) as unknown as Record<string, unknown>;

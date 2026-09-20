@@ -75,6 +75,7 @@ export const makeRole = (overrides: Record<string, unknown> = {}) => ({
   name: "admin",
   description: "Admin role",
   isActive: true,
+  isSystem: false,
   createdAt: new Date("2024-01-01"),
   updatedAt: new Date("2024-01-01"),
   createdById: null,

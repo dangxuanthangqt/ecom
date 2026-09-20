@@ -27,6 +27,7 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { LanguageService } from "./language.service";
 
@@ -35,6 +36,7 @@ import { LanguageService } from "./language.service";
 export class LanguageController {
   constructor(private readonly languageService: LanguageService) {}
 
+  @RequirePermission("language:read:any")
   @Get()
   @ApiPageOkResponse({
     type: LanguageResponseDto,
@@ -50,6 +52,7 @@ export class LanguageController {
     return new PageDto<LanguageResponseDto>(result);
   }
 
+  @RequirePermission("language:read:any")
   @Get(":id")
   @ApiAuth({
     type: LanguageResponseDto,
@@ -64,6 +67,7 @@ export class LanguageController {
     return new LanguageResponseDto(result);
   }
 
+  @RequirePermission("language:create:any")
   @Post("create")
   @ApiAuth({
     type: LanguageCreateResponseDto,
@@ -81,6 +85,7 @@ export class LanguageController {
     return new LanguageCreateResponseDto(result);
   }
 
+  @RequirePermission("language:update:any")
   @Put(":id")
   @ApiAuth({
     type: LanguageUpdateResponseDto,
@@ -103,6 +108,7 @@ export class LanguageController {
     return new LanguageUpdateResponseDto(result);
   }
 
+  @RequirePermission("language:delete:any")
   @Delete(":id")
   @ApiAuth({
     type: LanguageDeleteResponseDto,

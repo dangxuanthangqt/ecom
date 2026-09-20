@@ -24,6 +24,7 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { BrandTranslationService } from "./brand-translation.service";
 
@@ -38,6 +39,7 @@ export class BrandTranslationController {
     description: "Retrieve a list of brand translations with pagination.",
     summary: "Get a list of brand translations",
   })
+  @RequirePermission("brand-translation:read:any")
   @Get()
   async getBrandTranslations(@Query() query: BrandPaginationQueryDto) {
     const result =
@@ -60,6 +62,7 @@ export class BrandTranslationController {
     required: true,
     type: String,
   })
+  @RequirePermission("brand-translation:read:any")
   @Get(":id")
   async getBrandTranslationById(@Param("id", ParseUUIDPipe) id: string) {
     const result =
@@ -75,6 +78,7 @@ export class BrandTranslationController {
       description: "Creates a new brand translation.",
     },
   })
+  @RequirePermission("brand-translation:create:any")
   @Post()
   async createBrandTranslation(
     @ActiveUser("userId") userId: User["id"],
@@ -95,6 +99,7 @@ export class BrandTranslationController {
       description: "Updates an existing brand translation.",
     },
   })
+  @RequirePermission("brand-translation:update:any")
   @Put(":id")
   async updateBrandTranslation(
     @Param("id", ParseUUIDPipe) id: string,
@@ -117,6 +122,7 @@ export class BrandTranslationController {
       description: "Deletes an existing brand translation.",
     },
   })
+  @RequirePermission("brand-translation:delete:any")
   @Delete(":id")
   async deleteBrandTranslation(
     @Param("id", ParseUUIDPipe) id: string,

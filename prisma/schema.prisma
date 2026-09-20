@@ -180,12 +180,15 @@ model RefreshToken {
 }
 
 model Permission {
-  id          String     @id @default(uuid()) @db.Uuid
-  name        String     @db.VarChar(500)
-  description String     @default("")
-  path        String     @db.VarChar(1000)
-  module      String     @db.VarChar(500)
-  method      HTTPMethod
+  id String @id @default(uuid()) @db.Uuid
+
+  /// `resource:action:scope`, e.g. `product:update:own`. Declared on handlers
+  /// with `@RequirePermission`; rows here are synced from those declarations.
+  key         String @unique @db.VarChar(200)
+  resource    String @db.VarChar(100)
+  action      String @db.VarChar(50)
+  scope       String @db.VarChar(10)
+  description String @default("")
   roles       Role[]
 
   createdById String? @db.Uuid
@@ -200,6 +203,7 @@ model Permission {
   updatedAt DateTime  @updatedAt
 
   @@index([deletedAt])
+  @@index([resource, action])
 }
 
 model Role {
@@ -207,6 +211,9 @@ model Role {
   name        String       @db.VarChar(500)
   description String       @default("")
   isActive    Boolean      @default(true)
+  /// Seeded roles (`admin`, `client`, `seller`) whose grants come from
+  /// `RolePermissionMatrix` in code. The role API refuses to edit or delete them.
+  isSystem    Boolean      @default(false)
   permissions Permission[]
   users       User[]
 

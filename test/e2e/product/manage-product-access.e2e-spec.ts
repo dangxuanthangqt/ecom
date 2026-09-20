@@ -13,9 +13,9 @@ import { prismaTestClient } from "../support/prisma-test-client";
 /**
  * `manage-product` access control: the guard's 401/403 path, the
  * `RolePermissionCacheService`-backed CLIENT-vs-SELLER permission gap
- * (`initial-scripts/sync-route-permissions.ts` grants `MANAGE-PRODUCT` only
+ * (`RolePermissionMatrix` grants `product:*:own` only
  * to SELLER/ADMIN), and the service-level cross-seller ownership check in
- * `ManageProductService.validateClientPermission`. Every denial is paired
+ * `ManageProductService.validateOwnership`. Every denial is paired
  * with a positive control on the same route so a 403 cannot be mistaken for
  * "the whole route is broken".
  */

@@ -11,6 +11,7 @@ import {
 } from "@/dtos/profile/profile.dto";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { ApiAuth } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { ProfileService } from "./profile.service";
 
@@ -19,6 +20,7 @@ import { ProfileService } from "./profile.service";
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
+  @RequirePermission("profile:read:own")
   @Get()
   @ApiAuth({
     type: ProfileResponseDto,
@@ -36,6 +38,7 @@ export class ProfileController {
     return new ProfileResponseDto(result);
   }
 
+  @RequirePermission("profile:update:own")
   @Put()
   @ApiAuth({
     type: UpdateProfileResponseDto,
@@ -64,6 +67,7 @@ export class ProfileController {
       description: "Changes the password for the authenticated user.",
     },
   })
+  @RequirePermission("profile:update:own")
   @Put("change-password")
   async changePassword(
     @ActiveUser("userId") userId: UserSchema["id"],

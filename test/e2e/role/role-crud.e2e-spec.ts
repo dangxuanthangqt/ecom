@@ -11,11 +11,9 @@ import { prismaTestClient } from "../support/prisma-test-client";
 
 /**
  * CRUD round-trip against `RoleController`, including attaching a
- * permission. Every role and permission created here is created and deleted
- * by this spec — the seeded `RoleId.ADMIN/CLIENT/SELLER` rows other specs
- * log in as are never touched. See `permission-crud.e2e-spec.ts` for why the
- * role-permission cache invalidation this triggers is safe under
- * `--runInBand`.
+ * permission from the catalogue. Every role created here is created and
+ * deleted by this spec — the seeded `RoleId.ADMIN/CLIENT/SELLER` rows other
+ * specs log in as are never touched, and `isSystem` would refuse anyway.
  */
 describe("Role CRUD (F###)", () => {
   let app: TestApp;
@@ -30,14 +28,10 @@ describe("Role CRUD (F###)", () => {
     const login = await loginAs(app, admin.email, admin.password);
     adminToken = login.accessToken;
 
-    const suffix = uuidv4().slice(0, 8);
-    const permission = await prismaTestClient.permission.create({
-      data: {
-        name: `E2E Permission For Role ${suffix}`,
-        path: `/e2e-test-permission-for-role-${suffix}`,
-        method: "GET",
-        module: "E2E-TEST-PERMISSION-FOR-ROLE",
-      },
+    // Any real catalogue row works as an attachable permission; the sync that
+    // runs in e2e setup only ever soft-deletes rows, never this spec's roles.
+    const permission = await prismaTestClient.permission.findFirstOrThrow({
+      where: { key: "brand:read:any", deletedAt: null },
     });
 
     permissionId = permission.id;
@@ -50,7 +44,6 @@ describe("Role CRUD (F###)", () => {
       });
     }
 
-    await prismaTestClient.permission.delete({ where: { id: permissionId } });
     await closeTestApp(app);
   });
 

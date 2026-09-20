@@ -31,6 +31,7 @@ import {
   ApiPageOkResponse,
   ApiPublic,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { BrandService } from "./brand.service";
 
@@ -64,6 +65,7 @@ export class BrandController {
       description: "Retrieves a specific brand by its ID.",
     },
   })
+  @RequirePermission("brand:read:any")
   @Get(":id")
   async getBrandById(
     @Param("id") param: BrandIdParamDto,
@@ -77,6 +79,7 @@ export class BrandController {
     return new BrandWithBrandTranslationsResponseDto(result);
   }
 
+  @RequirePermission("brand:create:any")
   @Post()
   @ApiAuth({
     type: CreateBrandResponseDto,
@@ -97,6 +100,7 @@ export class BrandController {
     return new CreateBrandResponseDto(result);
   }
 
+  @RequirePermission("brand:update:any")
   @Put(":id")
   async updateBrand(
     @Param() param: BrandIdParamDto,
@@ -112,6 +116,7 @@ export class BrandController {
     return new UpdateBrandResponseDto(result);
   }
 
+  @RequirePermission("brand:delete:any")
   @Delete(":id")
   async deleteBrand(
     @Param() param: BrandIdParamDto,

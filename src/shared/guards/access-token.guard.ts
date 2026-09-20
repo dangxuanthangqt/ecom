@@ -4,44 +4,31 @@ import {
   Injectable,
   Logger,
 } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
 import { TokenExpiredError } from "@nestjs/jwt";
-import { HTTPMethod, Prisma } from "@prisma/client";
 import { Request } from "express";
 
 import {
-  REQUEST_ROLE_PERMISSIONS_KEY,
+  REQUEST_GRANTED_PERMISSIONS_KEY,
   REQUEST_USER_KEY,
 } from "@/constants/auth.constant";
-import { roleWithPermissionsSelect } from "@/selectors/role.selector";
+import { PermissionKey } from "@/constants/permission.constant";
+import { PERMISSION_KEY } from "@/shared/param-decorators/require-permission.decorator";
 import { AccessTokenPayload } from "@/types/jwt-payload.type";
 
-import { PrismaService } from "../services/prisma.service";
-import { RolePermissionCacheService } from "../services/role-permission-cache.service";
+import { PermissionResolverService } from "../services/permission-resolver.service";
 import { TokenService } from "../services/token.service";
+import { satisfies } from "../utils/permission.util";
 import throwHttpException from "../utils/throw-http-exception.util";
-
-// The one place this select shape is built. Both the real query (below) and
-// the cached-value type (derived from this same function) come from here, so
-// the two can never drift apart — only the runtime path/method values differ.
-const buildRoleRoutePermissionSelect = (path: string, method: HTTPMethod) =>
-  Prisma.validator<Prisma.RoleSelect>()({
-    ...roleWithPermissionsSelect,
-    permissions: {
-      where: { deletedAt: null, path, method },
-    },
-  });
-
-type RoleWithRoutePermissions = Prisma.RoleGetPayload<{
-  select: ReturnType<typeof buildRoleRoutePermissionSelect>;
-}>;
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
   private readonly logger = new Logger(AccessTokenGuard.name);
+
   constructor(
     private readonly tokenService: TokenService,
-    private readonly prismaService: PrismaService,
-    private readonly rolePermissionCacheService: RolePermissionCacheService,
+    private readonly permissionResolverService: PermissionResolverService,
+    private readonly reflector: Reflector,
   ) {}
 
   private extractTokenFromHeader(request: Request): string | undefined {
@@ -54,7 +41,10 @@ export class AccessTokenGuard implements CanActivate {
     try {
       return await this.tokenService.verifyAccessToken(token);
     } catch (error) {
-      this.logger.error(error);
+      // A bad or stale token is ordinary client behaviour, not an incident.
+      this.logger.debug(
+        `Access token rejected: ${error instanceof Error ? error.message : String(error)}`,
+      );
 
       if (error instanceof TokenExpiredError) {
         throwHttpException({
@@ -71,78 +61,44 @@ export class AccessTokenGuard implements CanActivate {
   }
 
   /**
-   * Reads the role+permission snapshot for this route from Redis first
-   * (`RolePermissionCacheService`), falling back to Postgres on a miss and
-   * populating the cache for next time. A short TTL bounds staleness after a
-   * permission change; callers that mutate roles/permissions also invalidate
-   * the cache directly (see RoleService / PermissionService).
+   * Compares what the handler declared with `@RequirePermission` against the
+   * caller's resolved grant set.
    *
-   * Accepted trade-off: a request that starts its DB read just before a
-   * concurrent role/permission mutation invalidates the cache can still
-   * write its (now stale) result back afterward — the classic cache-aside
-   * "recovery race". Bounded by the 300s TTL and considered acceptable given
-   * every mutation path already invalidates proactively; not fixed here.
+   * Only the authorization outcome is mapped to 403. A failure to *resolve* the
+   * set (database or cache infrastructure) is left to propagate as 500: the
+   * previous guard wrapped everything in one catch and answered "forbidden",
+   * which mis-reported outages as policy and made them invisible.
    */
-  private async fetchRolePermission({
-    roleId,
-    method,
-    path,
-  }: {
-    roleId: AccessTokenPayload["roleId"];
-    method: HTTPMethod;
-    path: string;
-  }) {
-    const cachedRole =
-      await this.rolePermissionCacheService.get<RoleWithRoutePermissions>(
-        roleId,
-        method,
-        path,
+  private async verifyPermission(
+    context: ExecutionContext,
+    request: Request,
+    payload: AccessTokenPayload,
+  ): Promise<void> {
+    const required = this.reflector.getAllAndOverride<
+      PermissionKey | undefined
+    >(PERMISSION_KEY, [context.getHandler(), context.getClass()]);
+
+    if (!required) {
+      // `PermissionCoverageService` refuses to boot the app in this state, so
+      // reaching here means the check was bypassed — a wiring defect, not a
+      // client error, and the safe answer is to deny loudly.
+      this.logger.error(
+        `${context.getClass().name}.${context.getHandler().name} reached the guard without @RequirePermission`,
       );
 
-    if (cachedRole) {
-      return cachedRole;
+      throwHttpException({
+        type: "internal",
+        message: "Route has no permission declaration.",
+      });
     }
 
-    const role = await this.prismaService.role.findUniqueOrThrow({
-      where: {
-        deletedAt: null,
-        id: roleId,
-        isActive: true,
-      },
-      select: buildRoleRoutePermissionSelect(path, method),
-    });
+    const granted = await this.permissionResolverService.forRoles([
+      payload.roleId,
+    ]);
 
-    await this.rolePermissionCacheService.set(roleId, method, path, role);
+    request[REQUEST_GRANTED_PERMISSIONS_KEY] = granted;
 
-    return role;
-  }
-
-  private async verifyRolePermission(
-    request: Request,
-    decodedAccessToken: AccessTokenPayload,
-  ): Promise<void> {
-    try {
-      const path = (request.route as { path: string }).path; // check permission of the route
-
-      const method = request.method.toUpperCase() as HTTPMethod;
-
-      const role = await this.fetchRolePermission({
-        roleId: decodedAccessToken.roleId,
-        method,
-        path,
-      });
-
-      request[REQUEST_ROLE_PERMISSIONS_KEY] = role;
-
-      if (role.permissions.length === 0) {
-        throwHttpException({
-          type: "forbidden",
-          message: "You do not have permission to access this resource.",
-        });
-      }
-    } catch (error) {
-      this.logger.error(error);
-
+    if (!satisfies(granted, required)) {
       throwHttpException({
         type: "forbidden",
         message: "You do not have permission to access this resource.",
@@ -150,25 +106,23 @@ export class AccessTokenGuard implements CanActivate {
     }
   }
 
-  async canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
 
     const accessToken = this.extractTokenFromHeader(request);
 
     if (!accessToken) {
-      this.logger.error("Access token is missing.");
-
       throwHttpException({
         type: "unauthorized",
         message: "Access token is required.",
       });
     }
 
-    const decodedAccessToken = await this.verifyToken(accessToken);
+    const payload = await this.verifyToken(accessToken);
 
-    request[REQUEST_USER_KEY] = decodedAccessToken;
+    request[REQUEST_USER_KEY] = payload;
 
-    await this.verifyRolePermission(request, decodedAccessToken);
+    await this.verifyPermission(context, request, payload);
 
     return true;
   }

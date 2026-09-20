@@ -36,12 +36,16 @@ describe("ProductTranslationController - getProductTranslations", () => {
     const query = { pageIndex: 1, pageSize: 10 };
 
     // Act
-    const result = await controller.getProductTranslations(query);
+    const result = await controller.getProductTranslations(
+      query,
+      ACTIVE_USER_ID,
+      "own",
+    );
 
     // Assert
     expect(
       mocks.productTranslationService.getProductTranslations,
-    ).toHaveBeenCalledWith(query);
+    ).toHaveBeenCalledWith({ query, userId: ACTIVE_USER_ID, scope: "own" });
     expect(result.data).toEqual([productTranslation]);
     expect(result.pagination).toEqual(response.pagination);
   });
@@ -55,7 +59,11 @@ describe("ProductTranslationController - getProductTranslations", () => {
 
     // Act & Assert
     await expect(
-      controller.getProductTranslations({ pageIndex: 1, pageSize: 10 }),
+      controller.getProductTranslations(
+        { pageIndex: 1, pageSize: 10 },
+        ACTIVE_USER_ID,
+        "own",
+      ),
     ).rejects.toBe(error);
   });
 });
@@ -78,12 +86,18 @@ describe("ProductTranslationController - getProductTranslationById", () => {
     // Act
     const result = await controller.getProductTranslationById(
       PRODUCT_TRANSLATION_ID,
+      ACTIVE_USER_ID,
+      "own",
     );
 
     // Assert
     expect(
       mocks.productTranslationService.getProductTranslationById,
-    ).toHaveBeenCalledWith(PRODUCT_TRANSLATION_ID);
+    ).toHaveBeenCalledWith({
+      id: PRODUCT_TRANSLATION_ID,
+      userId: ACTIVE_USER_ID,
+      scope: "own",
+    });
     expect(result).toEqual(productTranslation);
   });
 
@@ -96,7 +110,11 @@ describe("ProductTranslationController - getProductTranslationById", () => {
 
     // Act & Assert
     await expect(
-      controller.getProductTranslationById(PRODUCT_TRANSLATION_ID),
+      controller.getProductTranslationById(
+        PRODUCT_TRANSLATION_ID,
+        ACTIVE_USER_ID,
+        "own",
+      ),
     ).rejects.toBe(error);
   });
 });
@@ -127,6 +145,7 @@ describe("ProductTranslationController - createProductTranslation", () => {
     const result = await controller.createProductTranslation(
       ACTIVE_USER_ID,
       body,
+      "own",
     );
 
     // Assert
@@ -136,6 +155,7 @@ describe("ProductTranslationController - createProductTranslation", () => {
       containing({
         data: body,
         userId: ACTIVE_USER_ID,
+        scope: "own",
       }),
     );
     expect(result).toEqual(productTranslation);
@@ -157,7 +177,7 @@ describe("ProductTranslationController - createProductTranslation", () => {
 
     // Act & Assert
     await expect(
-      controller.createProductTranslation(ACTIVE_USER_ID, body),
+      controller.createProductTranslation(ACTIVE_USER_ID, body, "own"),
     ).rejects.toBe(error);
   });
 });
@@ -184,6 +204,7 @@ describe("ProductTranslationController - updateProductTranslation", () => {
       PRODUCT_TRANSLATION_ID,
       ACTIVE_USER_ID,
       body,
+      "own",
     );
 
     // Assert
@@ -194,6 +215,7 @@ describe("ProductTranslationController - updateProductTranslation", () => {
         id: PRODUCT_TRANSLATION_ID,
         data: body,
         userId: ACTIVE_USER_ID,
+        scope: "own",
       }),
     );
     expect(result).toEqual(productTranslation);
@@ -214,6 +236,7 @@ describe("ProductTranslationController - updateProductTranslation", () => {
         PRODUCT_TRANSLATION_ID,
         ACTIVE_USER_ID,
         body,
+        "own",
       ),
     ).rejects.toBe(error);
   });
@@ -240,6 +263,7 @@ describe("ProductTranslationController - deleteProductTranslation", () => {
     const result = await controller.deleteProductTranslation(
       PRODUCT_TRANSLATION_ID,
       ACTIVE_USER_ID,
+      "own",
     );
 
     // Assert
@@ -249,6 +273,7 @@ describe("ProductTranslationController - deleteProductTranslation", () => {
       containing({
         id: PRODUCT_TRANSLATION_ID,
         userId: ACTIVE_USER_ID,
+        scope: "own",
       }),
     );
     expect(result).toEqual(productTranslation);
@@ -266,6 +291,7 @@ describe("ProductTranslationController - deleteProductTranslation", () => {
       controller.deleteProductTranslation(
         PRODUCT_TRANSLATION_ID,
         ACTIVE_USER_ID,
+        "own",
       ),
     ).rejects.toBe(error);
   });

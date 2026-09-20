@@ -1,4 +1,5 @@
 import { ORDER, ORDER_BY } from "@/constants/order";
+import { Scope } from "@/constants/permission.constant";
 import {
   CreateProductTranslationRequestDto,
   UpdateProductTranslationRequestDto,
@@ -19,6 +20,15 @@ import {
   USER_ID,
 } from "./product-translation-service-test-harness";
 
+/** The ownership fence an `own`-scoped caller is expected to carry into every query. */
+const ownTranslationFence = (userId = USER_ID) => ({
+  product: { createdById: userId, deletedAt: null },
+});
+const ownProductFence = (userId = USER_ID) => ({ createdById: userId });
+
+const asSeller = { userId: USER_ID, scope: Scope.OWN } as const;
+const asAdmin = { userId: USER_ID, scope: Scope.ANY } as const;
+
 describe("ProductTranslationService - getProductTranslations", () => {
   let service: ProductTranslationService;
   let mocks: ProductTranslationServiceMocks;
@@ -34,22 +44,25 @@ describe("ProductTranslationService - getProductTranslations", () => {
     ...overrides,
   });
 
+  const stubList = (items = [makeProductTranslation()], count = items.length) =>
+    mocks.productTranslationRepository.findManyProductTranslations.mockResolvedValue(
+      { productTranslations: items, productTranslationsCount: count },
+    );
+
   beforeEach(async () => {
     ({ service, mocks } = await setupProductTranslationService());
   });
 
-  it("fetches product translations with default pagination", async () => {
+  it("fetches with default pagination", async () => {
     // Arrange
     const translations = [makeProductTranslation()];
-    mocks.productTranslationRepository.findManyProductTranslations.mockResolvedValue(
-      {
-        productTranslations: translations,
-        productTranslationsCount: 1,
-      },
-    );
+    stubList(translations);
 
     // Act
-    const result = await service.getProductTranslations(makeQuery());
+    const result = await service.getProductTranslations({
+      query: makeQuery(),
+      ...asAdmin,
+    });
 
     // Assert
     expect(
@@ -58,129 +71,104 @@ describe("ProductTranslationService - getProductTranslations", () => {
       containing({
         skip: 0,
         take: 10,
-        orderBy: { [ORDER_BY.CREATED_AT]: "asc" },
-        where: containing({
-          name: containing({
-            contains: "",
-            mode: "insensitive",
-          }),
-        }),
+        orderBy: { createdAt: "asc" },
       }),
     );
     expect(result.data).toEqual(translations);
-    expect(result.pagination.pageIndex).toBe(1);
-    expect(result.pagination.pageSize).toBe(10);
-    expect(result.pagination.totalItems).toBe(1);
-    expect(result.pagination.totalPages).toBe(1);
+    expect(result.pagination).toEqual({
+      pageIndex: 1,
+      pageSize: 10,
+      totalPages: 1,
+      totalItems: 1,
+    });
+  });
+
+  it("scopes an `own` caller to translations of products they created", async () => {
+    // Arrange
+    stubList([]);
+
+    // Act
+    await service.getProductTranslations({ query: makeQuery(), ...asSeller });
+
+    // Assert — the fence is a where predicate, so other sellers' rows never
+    // reach the caller rather than being filtered after the fact
+    expect(
+      mocks.productTranslationRepository.findManyProductTranslations,
+    ).toHaveBeenCalledWith(
+      containing({ where: containing(ownTranslationFence()) }),
+    );
+  });
+
+  it("applies no owner fence for an `any` caller", async () => {
+    // Arrange
+    stubList([]);
+
+    // Act
+    await service.getProductTranslations({ query: makeQuery(), ...asAdmin });
+
+    // Assert
+    const firstCall = mocks.productTranslationRepository
+      .findManyProductTranslations.mock.calls[0] as unknown as [
+      { where: Record<string, unknown> },
+    ];
+    expect(firstCall[0].where).not.toHaveProperty("product");
   });
 
   it("respects custom pagination parameters", async () => {
-    // Arrange
-    const productTranslations = [makeProductTranslation()];
-    mocks.productTranslationRepository.findManyProductTranslations.mockResolvedValue(
-      {
-        productTranslations,
-        productTranslationsCount: 100,
-      },
-    );
+    stubList([makeProductTranslation()], 100);
 
-    // Act
-    const result = await service.getProductTranslations(
-      makeQuery({ pageIndex: 4, pageSize: 20 }),
-    );
+    const result = await service.getProductTranslations({
+      query: makeQuery({ pageIndex: 4, pageSize: 20 }),
+      ...asAdmin,
+    });
 
-    // Assert
     expect(
       mocks.productTranslationRepository.findManyProductTranslations,
-    ).toHaveBeenCalledWith(
-      containing({
-        skip: 60, // (4 - 1) * 20
-        take: 20,
-      }),
-    );
-    expect(result.pagination.totalPages).toBe(5); // Math.ceil(100 / 20)
+    ).toHaveBeenCalledWith(containing({ skip: 60, take: 20 }));
+    expect(result.pagination.totalPages).toBe(5);
   });
 
   it("normalizes order case to lowercase", async () => {
-    // Arrange
-    mocks.productTranslationRepository.findManyProductTranslations.mockResolvedValue(
-      {
-        productTranslations: [],
-        productTranslationsCount: 0,
-      },
-    );
+    stubList([]);
 
-    // Act
-    await service.getProductTranslations(makeQuery({ order: ORDER.DESC }));
+    await service.getProductTranslations({
+      query: makeQuery({ order: ORDER.DESC }),
+      ...asAdmin,
+    });
 
-    // Assert
     expect(
       mocks.productTranslationRepository.findManyProductTranslations,
-    ).toHaveBeenCalledWith(
-      containing({
-        orderBy: { [ORDER_BY.CREATED_AT]: "desc" },
-      }),
-    );
+    ).toHaveBeenCalledWith(containing({ orderBy: { createdAt: "desc" } }));
   });
 
-  it("applies keyword search filter with case-insensitive mode", async () => {
-    // Arrange
-    mocks.productTranslationRepository.findManyProductTranslations.mockResolvedValue(
-      {
-        productTranslations: [],
-        productTranslationsCount: 0,
-      },
-    );
+  it("applies the keyword filter case-insensitively alongside the fence", async () => {
+    stubList([]);
 
-    // Act
-    await service.getProductTranslations(makeQuery({ keyword: "iPhone" }));
+    await service.getProductTranslations({
+      query: makeQuery({ keyword: "iPhone" }),
+      ...asSeller,
+    });
 
-    // Assert
     expect(
       mocks.productTranslationRepository.findManyProductTranslations,
     ).toHaveBeenCalledWith(
       containing({
         where: containing({
-          name: containing({
-            contains: "iPhone",
-            mode: "insensitive",
-          }),
+          ...ownTranslationFence(),
+          name: { contains: "iPhone", mode: "insensitive" },
         }),
       }),
     );
   });
 
-  it("calculates totalPages correctly", async () => {
-    // Arrange
-    mocks.productTranslationRepository.findManyProductTranslations.mockResolvedValue(
-      {
-        productTranslations: [],
-        productTranslationsCount: 47,
-      },
-    );
+  it("returns empty data when nothing matches", async () => {
+    stubList([], 0);
 
-    // Act
-    const result = await service.getProductTranslations(
-      makeQuery({ pageSize: 15 }),
-    );
+    const result = await service.getProductTranslations({
+      query: makeQuery(),
+      ...asSeller,
+    });
 
-    // Assert
-    expect(result.pagination.totalPages).toBe(4); // Math.ceil(47 / 15)
-  });
-
-  it("returns empty data when no translations found", async () => {
-    // Arrange
-    mocks.productTranslationRepository.findManyProductTranslations.mockResolvedValue(
-      {
-        productTranslations: [],
-        productTranslationsCount: 0,
-      },
-    );
-
-    // Act
-    const result = await service.getProductTranslations(makeQuery());
-
-    // Assert
     expect(result.data).toEqual([]);
     expect(result.pagination.totalItems).toBe(0);
     expect(result.pagination.totalPages).toBe(0);
@@ -210,126 +198,64 @@ describe("ProductTranslationService - createProductTranslation", () => {
     );
   });
 
-  it("validates the product before creating", async () => {
-    // Arrange
-    const body = makeCreateBody();
-
-    // Act
+  it("requires an `own` caller to own the product being translated", async () => {
     await service.createProductTranslation({
-      data: body,
-      userId: USER_ID,
+      data: makeCreateBody(),
+      ...asSeller,
     });
 
-    // Assert
     expect(
       mocks.productTranslationRepository.validateProduct,
-    ).toHaveBeenCalledWith(PRODUCT_ID);
+    ).toHaveBeenCalledWith(PRODUCT_ID, ownProductFence());
   });
 
-  it("creates translation with correct structure", async () => {
-    // Arrange
-    const body = makeCreateBody({
-      name: "iPhone 15 Pro",
-      description: "Latest iPhone",
-    });
-
-    // Act
+  it("lets an `any` caller translate any existing product", async () => {
     await service.createProductTranslation({
-      data: body,
-      userId: USER_ID,
+      data: makeCreateBody(),
+      ...asAdmin,
     });
 
-    // Assert
     expect(
-      mocks.productTranslationRepository.createProductTranslation,
-    ).toHaveBeenCalledWith(
-      containing({
-        data: containing({
-          productId: PRODUCT_ID,
-          languageId: LANGUAGE_ID,
-          name: "iPhone 15 Pro",
-          description: "Latest iPhone",
-          createdById: USER_ID,
-        }),
-      }),
-    );
+      mocks.productTranslationRepository.validateProduct,
+    ).toHaveBeenCalledWith(PRODUCT_ID, {});
   });
 
-  it("stamps the creator user id", async () => {
-    // Arrange
-    const customUserId = "custom-user-123";
+  it("stamps the creator and passes the body through", async () => {
     const body = makeCreateBody();
 
-    // Act
-    await service.createProductTranslation({
-      data: body,
-      userId: customUserId,
-    });
+    await service.createProductTranslation({ data: body, ...asSeller });
 
-    // Assert
     expect(
       mocks.productTranslationRepository.createProductTranslation,
-    ).toHaveBeenCalledWith(
-      containing({
-        data: containing({
-          createdById: customUserId,
-        }),
-      }),
-    );
+    ).toHaveBeenCalledWith({ data: { ...body, createdById: USER_ID } });
   });
 
   it("returns the created translation unchanged", async () => {
-    // Arrange
-    const created = makeProductTranslation({ name: "Created Translation" });
+    const created = makeProductTranslation({ name: "Fresh" });
     mocks.productTranslationRepository.createProductTranslation.mockResolvedValue(
       created,
     );
 
-    // Act
     const result = await service.createProductTranslation({
       data: makeCreateBody(),
-      userId: USER_ID,
+      ...asSeller,
     });
 
-    // Assert
     expect(result).toBe(created);
   });
 
-  it("propagates product validation errors", async () => {
-    // Arrange
-    const validationError = new Error("Product not found");
+  it("does not create when product validation rejects (someone else's product)", async () => {
+    const denied = new Error("Product with ID product-123 not found.");
     mocks.productTranslationRepository.validateProduct.mockRejectedValue(
-      validationError,
+      denied,
     );
 
-    // Act
-    const promise = service.createProductTranslation({
-      data: makeCreateBody(),
-      userId: USER_ID,
-    });
-
-    // Assert
-    await expect(promise).rejects.toBe(validationError);
+    await expect(
+      service.createProductTranslation({ data: makeCreateBody(), ...asSeller }),
+    ).rejects.toBe(denied);
     expect(
       mocks.productTranslationRepository.createProductTranslation,
     ).not.toHaveBeenCalled();
-  });
-
-  it("awaits the product validation", async () => {
-    // Arrange
-    const body = makeCreateBody();
-
-    // Act
-    await service.createProductTranslation({
-      data: body,
-      userId: USER_ID,
-    });
-
-    // Assert
-    const calls =
-      mocks.productTranslationRepository.validateProduct.mock.results;
-    expect(calls.length).toBe(1);
-    expect(calls[0].type).toBe("return");
   });
 });
 
@@ -341,48 +267,46 @@ describe("ProductTranslationService - getProductTranslationById", () => {
     ({ service, mocks } = await setupProductTranslationService());
   });
 
-  it("fetches translation by id", async () => {
-    // Arrange
-    const translation = makeProductTranslation();
+  it("looks the row up inside the caller's ownership fence", async () => {
+    const row = makeProductTranslation();
     mocks.productTranslationRepository.findProductTranslationById.mockResolvedValue(
-      translation,
+      row,
     );
 
-    // Act
-    const result = await service.getProductTranslationById(TRANSLATION_ID);
+    const result = await service.getProductTranslationById({
+      id: TRANSLATION_ID,
+      ...asSeller,
+    });
 
-    // Assert
     expect(
       mocks.productTranslationRepository.findProductTranslationById,
-    ).toHaveBeenCalledWith(TRANSLATION_ID);
-    expect(result).toBe(translation);
+    ).toHaveBeenCalledWith(TRANSLATION_ID, ownTranslationFence());
+    expect(result).toBe(row);
   });
 
-  it("returns null when translation not found", async () => {
-    // Arrange
+  it("applies no fence for an `any` caller", async () => {
     mocks.productTranslationRepository.findProductTranslationById.mockResolvedValue(
-      null,
+      makeProductTranslation(),
     );
 
-    // Act
-    const result = await service.getProductTranslationById("non-existent-id");
+    await service.getProductTranslationById({ id: TRANSLATION_ID, ...asAdmin });
 
-    // Assert
-    expect(result).toBeNull();
+    expect(
+      mocks.productTranslationRepository.findProductTranslationById,
+    ).toHaveBeenCalledWith(TRANSLATION_ID, {});
   });
 
-  it("propagates repository errors", async () => {
-    // Arrange
-    const error = new Error("Database error");
+  it("propagates the repository's not-found for another seller's row", async () => {
+    // The repository answers 404 to a fenced miss; the service must not turn
+    // that into anything that confirms the row exists.
+    const notFound = new Error("Product translation not found.");
     mocks.productTranslationRepository.findProductTranslationById.mockRejectedValue(
-      error,
+      notFound,
     );
 
-    // Act
-    const promise = service.getProductTranslationById(TRANSLATION_ID);
-
-    // Assert
-    await expect(promise).rejects.toBe(error);
+    await expect(
+      service.getProductTranslationById({ id: TRANSLATION_ID, ...asSeller }),
+    ).rejects.toBe(notFound);
   });
 });
 
@@ -401,110 +325,97 @@ describe("ProductTranslationService - updateProductTranslation", () => {
   beforeEach(async () => {
     ({ service, mocks } = await setupProductTranslationService());
     stubProductValidation(mocks);
+    mocks.productTranslationRepository.findProductTranslationById.mockResolvedValue(
+      makeProductTranslation(),
+    );
     mocks.productTranslationRepository.updateProductTranslation.mockResolvedValue(
       makeProductTranslation(),
     );
   });
 
-  it("validates product when productId is provided", async () => {
-    // Arrange
-    const newProductId = "new-product-id";
-    const body = makeUpdateBody({ productId: newProductId });
-
-    // Act
+  it("checks ownership of the row before writing", async () => {
     await service.updateProductTranslation({
       id: TRANSLATION_ID,
-      data: body,
-      userId: USER_ID,
+      data: makeUpdateBody(),
+      ...asSeller,
     });
 
-    // Assert
     expect(
-      mocks.productTranslationRepository.validateProduct,
-    ).toHaveBeenCalledWith(newProductId);
+      mocks.productTranslationRepository.findProductTranslationById,
+    ).toHaveBeenCalledWith(TRANSLATION_ID, ownTranslationFence());
+    expect(
+      mocks.productTranslationRepository.updateProductTranslation,
+    ).toHaveBeenCalledWith({
+      id: TRANSLATION_ID,
+      data: { name: "Updated Name", updatedById: USER_ID },
+    });
   });
 
-  it("skips product validation when productId is not provided", async () => {
-    // Arrange
-    const body = makeUpdateBody();
-    delete body.productId;
+  it("refuses to move a translation onto a product the caller does not own", async () => {
+    const denied = new Error("Product with ID other not found.");
+    mocks.productTranslationRepository.validateProduct.mockRejectedValue(
+      denied,
+    );
 
-    // Act
+    await expect(
+      service.updateProductTranslation({
+        id: TRANSLATION_ID,
+        data: makeUpdateBody({ productId: "other" }),
+        ...asSeller,
+      }),
+    ).rejects.toBe(denied);
+
+    expect(
+      mocks.productTranslationRepository.validateProduct,
+    ).toHaveBeenCalledWith("other", ownProductFence());
+    expect(
+      mocks.productTranslationRepository.updateProductTranslation,
+    ).not.toHaveBeenCalled();
+  });
+
+  it("skips product validation when productId is not in the body", async () => {
     await service.updateProductTranslation({
       id: TRANSLATION_ID,
-      data: body,
-      userId: USER_ID,
+      data: makeUpdateBody(),
+      ...asAdmin,
     });
 
-    // Assert
     expect(
       mocks.productTranslationRepository.validateProduct,
     ).not.toHaveBeenCalled();
   });
 
-  it("updates translation with updatedById", async () => {
-    // Arrange
-    const body = makeUpdateBody({ name: "New Name" });
-    const customUserId = "new-user-id";
+  it("does not write when the row is outside the caller's fence", async () => {
+    const notFound = new Error("Product translation not found.");
+    mocks.productTranslationRepository.findProductTranslationById.mockRejectedValue(
+      notFound,
+    );
 
-    // Act
-    await service.updateProductTranslation({
-      id: TRANSLATION_ID,
-      data: body,
-      userId: customUserId,
-    });
-
-    // Assert
+    await expect(
+      service.updateProductTranslation({
+        id: TRANSLATION_ID,
+        data: makeUpdateBody(),
+        ...asSeller,
+      }),
+    ).rejects.toBe(notFound);
     expect(
       mocks.productTranslationRepository.updateProductTranslation,
-    ).toHaveBeenCalledWith(
-      containing({
-        id: TRANSLATION_ID,
-        data: containing({
-          name: "New Name",
-          updatedById: customUserId,
-        }),
-      }),
-    );
+    ).not.toHaveBeenCalled();
   });
 
   it("returns the updated translation unchanged", async () => {
-    // Arrange
-    const updated = makeProductTranslation({ name: "Updated" });
+    const updated = makeProductTranslation({ name: "Updated Name" });
     mocks.productTranslationRepository.updateProductTranslation.mockResolvedValue(
       updated,
     );
 
-    // Act
     const result = await service.updateProductTranslation({
       id: TRANSLATION_ID,
       data: makeUpdateBody(),
-      userId: USER_ID,
+      ...asAdmin,
     });
 
-    // Assert
     expect(result).toBe(updated);
-  });
-
-  it("propagates validation errors", async () => {
-    // Arrange
-    const validationError = new Error("Invalid product");
-    mocks.productTranslationRepository.validateProduct.mockRejectedValue(
-      validationError,
-    );
-
-    // Act
-    const promise = service.updateProductTranslation({
-      id: TRANSLATION_ID,
-      data: makeUpdateBody({ productId: "bad-id" }),
-      userId: USER_ID,
-    });
-
-    // Assert
-    await expect(promise).rejects.toBe(validationError);
-    expect(
-      mocks.productTranslationRepository.updateProductTranslation,
-    ).not.toHaveBeenCalled();
   });
 });
 
@@ -514,80 +425,50 @@ describe("ProductTranslationService - deleteProductTranslation", () => {
 
   beforeEach(async () => {
     ({ service, mocks } = await setupProductTranslationService());
+    mocks.productTranslationRepository.findProductTranslationById.mockResolvedValue(
+      makeProductTranslation(),
+    );
     mocks.productTranslationRepository.deleteProductTranslation.mockResolvedValue(
-      { id: TRANSLATION_ID },
+      makeProductTranslation(),
     );
   });
 
-  it("deletes translation with user context", async () => {
-    // Arrange & Act
-    await service.deleteProductTranslation({
-      id: TRANSLATION_ID,
-      userId: USER_ID,
-    });
+  it("checks ownership, then soft-deletes with the caller's id", async () => {
+    await service.deleteProductTranslation({ id: TRANSLATION_ID, ...asSeller });
 
-    // Assert
+    expect(
+      mocks.productTranslationRepository.findProductTranslationById,
+    ).toHaveBeenCalledWith(TRANSLATION_ID, ownTranslationFence());
     expect(
       mocks.productTranslationRepository.deleteProductTranslation,
-    ).toHaveBeenCalledWith(
-      containing({
-        id: TRANSLATION_ID,
-        userId: USER_ID,
-      }),
+    ).toHaveBeenCalledWith({ id: TRANSLATION_ID, userId: USER_ID });
+  });
+
+  it("does not delete a row outside the caller's fence", async () => {
+    const notFound = new Error("Product translation not found.");
+    mocks.productTranslationRepository.findProductTranslationById.mockRejectedValue(
+      notFound,
     );
+
+    await expect(
+      service.deleteProductTranslation({ id: TRANSLATION_ID, ...asSeller }),
+    ).rejects.toBe(notFound);
+    expect(
+      mocks.productTranslationRepository.deleteProductTranslation,
+    ).not.toHaveBeenCalled();
   });
 
   it("returns the deletion result unchanged", async () => {
-    // Arrange
-    const deletionResult = { id: TRANSLATION_ID, deletedAt: new Date() };
+    const deleted = makeProductTranslation({ deletedById: USER_ID });
     mocks.productTranslationRepository.deleteProductTranslation.mockResolvedValue(
-      deletionResult,
+      deleted,
     );
 
-    // Act
     const result = await service.deleteProductTranslation({
       id: TRANSLATION_ID,
-      userId: USER_ID,
+      ...asAdmin,
     });
 
-    // Assert
-    expect(result).toBe(deletionResult);
-  });
-
-  it("propagates repository errors", async () => {
-    // Arrange
-    const error = new Error("Deletion failed");
-    mocks.productTranslationRepository.deleteProductTranslation.mockRejectedValue(
-      error,
-    );
-
-    // Act
-    const promise = service.deleteProductTranslation({
-      id: TRANSLATION_ID,
-      userId: USER_ID,
-    });
-
-    // Assert
-    await expect(promise).rejects.toBe(error);
-  });
-
-  it("passes custom user id", async () => {
-    // Arrange
-    const customUserId = "another-user";
-
-    // Act
-    await service.deleteProductTranslation({
-      id: TRANSLATION_ID,
-      userId: customUserId,
-    });
-
-    // Assert
-    expect(
-      mocks.productTranslationRepository.deleteProductTranslation,
-    ).toHaveBeenCalledWith(
-      containing({
-        userId: customUserId,
-      }),
-    );
+    expect(result).toBe(deleted);
   });
 });

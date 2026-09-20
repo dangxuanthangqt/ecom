@@ -26,6 +26,7 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { ReviewService } from "./review.service";
 
@@ -58,6 +59,7 @@ export class ReviewController {
         "Creates a review for a delivered order's product (BR-R01). One review per product per user (BR-R02).",
     },
   })
+  @RequirePermission("review:create:own")
   @Post()
   async createReview(
     @Body() body: CreateReviewRequestDto,
@@ -86,6 +88,7 @@ export class ReviewController {
     description: "The unique identifier of the review to update.",
     format: "uuid",
   })
+  @RequirePermission("review:update:own")
   @Put(":reviewId")
   async updateReview(
     @Param("reviewId", ParseUUIDPipe) reviewId: ReviewSchema["id"],
@@ -115,6 +118,7 @@ export class ReviewController {
     description: "The unique identifier of the review to remove.",
     format: "uuid",
   })
+  @RequirePermission("review:delete:own")
   @Delete(":reviewId")
   async deleteReview(
     @Param("reviewId", ParseUUIDPipe) reviewId: ReviewSchema["id"],

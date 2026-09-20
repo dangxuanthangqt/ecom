@@ -48,6 +48,14 @@ export class RoleResponseDto {
   @Expose()
   isActive: boolean;
 
+  @ApiProperty({
+    description:
+      "Seeded role whose grants come from code; cannot be edited or deleted through the API",
+    example: false,
+  })
+  @Expose()
+  isSystem: boolean;
+
   @ApiPropertyOptional({
     description: "Role description",
     example: "Administrator role",
@@ -67,10 +75,11 @@ export class RoleWithPermissionsResponseDto extends RoleResponseDto {
     example: [
       {
         id: "123e4567-e89b-12d3-a456-426614174000",
-        name: "Login",
-        description: "Allows user to log in",
-        path: "/login",
-        method: "POST",
+        key: "product:update:own",
+        resource: "product",
+        action: "update",
+        scope: "own",
+        description: "Update products the caller created",
       },
     ],
   })

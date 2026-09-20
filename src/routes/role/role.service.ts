@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
-import { Role } from "@/constants/role.constant";
 import {
   CreateRoleRequestDto,
   DeleteRoleRequestDto,
@@ -15,8 +14,6 @@ import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 @Injectable()
 export class RoleService {
-  private forbiddenRoles: string[] = [Role.ADMIN, Role.CLIENT, Role.SELLER];
-
   constructor(
     private readonly roleRepository: RoleRepository,
     private readonly rolePermissionCacheService: RolePermissionCacheService,
@@ -100,10 +97,13 @@ export class RoleService {
   }
 
   /**
-   * Verifies if the role is forbidden to modify.
+   * System roles (`admin`, `client`, `seller`) take their grants from
+   * `RolePermissionMatrix` in code and are re-applied on every seed, so an edit
+   * through the API would be silently undone — refusing is the honest answer.
+   * The flag is data (`Role.isSystem`), not a hardcoded list of names.
    *
    * @param id - The ID of the role to verify.
-   * @throws HttpException if the role is forbidden or not found.
+   * @throws HttpException if the role is a system role or not found.
    */
   async verifyForbiddenRole(id: RoleSchema["id"]) {
     const role = await this.roleRepository.findUniqueRole(id);
@@ -115,10 +115,10 @@ export class RoleService {
       });
     }
 
-    if (this.forbiddenRoles.includes(role.name)) {
+    if (role.isSystem) {
       throwHttpException({
         type: "forbidden",
-        message: "You cannot modify this role.",
+        message: "System roles cannot be modified through the API.",
       });
     }
   }

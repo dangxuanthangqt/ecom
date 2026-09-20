@@ -64,6 +64,7 @@ export const makeRole = (overrides: Record<string, unknown> = {}) => ({
   name: "Custom Role",
   description: "A custom role for testing",
   isActive: true,
+  isSystem: false,
   createdBy: { id: CREATOR_USER_ID, name: "Creator" },
   createdById: CREATOR_USER_ID,
   updatedById: null,

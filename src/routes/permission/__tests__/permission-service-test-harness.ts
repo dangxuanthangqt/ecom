@@ -1,7 +1,6 @@
 import { Test } from "@nestjs/testing";
 
 import { PermissionRepository } from "@/repositories/permission/permission.repository";
-import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
 
 import { PermissionService } from "../permission.service";
 
@@ -13,12 +12,6 @@ export const createPermissionServiceMocks = () => ({
   permissionRepository: {
     findManyPermissions: jest.fn(),
     findUniquePermission: jest.fn(),
-    createPermission: jest.fn(),
-    updatePermission: jest.fn(),
-    deletePermission: jest.fn(),
-  },
-  rolePermissionCacheService: {
-    invalidateAll: jest.fn(),
   },
 });
 
@@ -34,10 +27,6 @@ export const buildPermissionService = async (
     providers: [
       PermissionService,
       { provide: PermissionRepository, useValue: mocks.permissionRepository },
-      {
-        provide: RolePermissionCacheService,
-        useValue: mocks.rolePermissionCacheService,
-      },
     ],
   }).compile();
 
@@ -60,11 +49,11 @@ export const CREATOR_USER_ID = "44444444-4444-4444-8444-444444444444";
 /** A persisted permission row as the repositories return it. */
 export const makePermission = (overrides: Record<string, unknown> = {}) => ({
   id: PERMISSION_ID,
-  name: "Create User",
-  description: "Allows creating new users",
-  path: "/users",
-  method: "POST",
-  module: "USERS",
+  key: "user:create:any",
+  resource: "user",
+  action: "create",
+  scope: "any",
+  description: "Create users",
   createdBy: { id: CREATOR_USER_ID, name: "Creator" },
   createdById: CREATOR_USER_ID,
   updatedById: null,

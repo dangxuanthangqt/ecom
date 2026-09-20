@@ -1,3 +1,5 @@
+import { ScopeType } from "@/constants/permission.constant";
+
 import type { ManageProductService } from "../manage-product.service";
 
 /**
@@ -34,8 +36,8 @@ export const setupManageProductController = async () => {
 export const PRODUCT_ID = "11111111-1111-4111-8111-111111111111";
 export const LANGUAGE_ID = "22222222-2222-4222-8222-222222222222";
 export const ACTIVE_USER_ID = "33333333-3333-4333-8333-333333333333";
-export const ADMIN_ROLE_NAME = "ADMIN";
-export const SELLER_ROLE_NAME = "SELLER";
+export const ADMIN_SCOPE: ScopeType = "any";
+export const SELLER_SCOPE: ScopeType = "own";
 
 /** A product response as the service returns it. */
 export const makeProductResponse = (

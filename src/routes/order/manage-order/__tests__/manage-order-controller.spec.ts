@@ -4,10 +4,10 @@ import { ManageOrderController } from "../manage-order.controller";
 
 import {
   ACTIVE_USER_ID,
-  ADMIN_ROLE_NAME,
+  ADMIN_SCOPE,
   ManageOrderControllerMocks,
   ORDER_ID,
-  SELLER_ROLE_NAME,
+  SELLER_SCOPE,
   containing,
   makeOrderResponse,
   setupManageOrderController,
@@ -21,7 +21,7 @@ describe("ManageOrderController - getManageOrders", () => {
     ({ controller, mocks } = await setupManageOrderController());
   });
 
-  it("calls the service with query, userId, and roleName and returns wrapped result", async () => {
+  it("calls the service with query, userId, and scope and returns wrapped result", async () => {
     const order = makeOrderResponse();
     const response = {
       data: [order],
@@ -34,14 +34,14 @@ describe("ManageOrderController - getManageOrders", () => {
     const result = await controller.getManageOrders(
       query,
       ACTIVE_USER_ID,
-      SELLER_ROLE_NAME,
+      SELLER_SCOPE,
     );
 
     expect(mocks.manageOrderService.getOrders).toHaveBeenCalledWith(
       containing({
         query,
         userId: ACTIVE_USER_ID,
-        roleName: SELLER_ROLE_NAME,
+        scope: SELLER_SCOPE,
       }),
     );
     expect(result.data).toEqual([order]);
@@ -56,7 +56,7 @@ describe("ManageOrderController - getManageOrders", () => {
       controller.getManageOrders(
         { pageIndex: 1, pageSize: 10 },
         ACTIVE_USER_ID,
-        SELLER_ROLE_NAME,
+        SELLER_SCOPE,
       ),
     ).rejects.toBe(error);
   });
@@ -70,21 +70,21 @@ describe("ManageOrderController - getManageOrderById", () => {
     ({ controller, mocks } = await setupManageOrderController());
   });
 
-  it("calls the service with orderId, userId, and roleName", async () => {
+  it("calls the service with orderId, userId, and scope", async () => {
     const order = makeOrderResponse();
     mocks.manageOrderService.getOrderById.mockResolvedValue(order);
 
     const result = await controller.getManageOrderById(
       ORDER_ID,
       ACTIVE_USER_ID,
-      ADMIN_ROLE_NAME,
+      ADMIN_SCOPE,
     );
 
     expect(mocks.manageOrderService.getOrderById).toHaveBeenCalledWith(
       containing({
         orderId: ORDER_ID,
         userId: ACTIVE_USER_ID,
-        roleName: ADMIN_ROLE_NAME,
+        scope: ADMIN_SCOPE,
       }),
     );
     expect(result).toEqual(order);
@@ -95,7 +95,7 @@ describe("ManageOrderController - getManageOrderById", () => {
     mocks.manageOrderService.getOrderById.mockRejectedValue(error);
 
     await expect(
-      controller.getManageOrderById(ORDER_ID, ACTIVE_USER_ID, SELLER_ROLE_NAME),
+      controller.getManageOrderById(ORDER_ID, ACTIVE_USER_ID, SELLER_SCOPE),
     ).rejects.toBe(error);
   });
 });
@@ -108,7 +108,7 @@ describe("ManageOrderController - updateOrderStatus", () => {
     ({ controller, mocks } = await setupManageOrderController());
   });
 
-  it("passes the body's status through to the service alongside orderId/userId/roleName", async () => {
+  it("passes the body's status through to the service alongside orderId/userId/scope", async () => {
     const order = makeOrderResponse({ status: OrderStatus.PENDING_PICKUP });
     mocks.manageOrderService.updateOrderStatus.mockResolvedValue(order);
 
@@ -116,7 +116,7 @@ describe("ManageOrderController - updateOrderStatus", () => {
       { status: OrderStatus.PENDING_PICKUP },
       ORDER_ID,
       ACTIVE_USER_ID,
-      SELLER_ROLE_NAME,
+      SELLER_SCOPE,
     );
 
     expect(mocks.manageOrderService.updateOrderStatus).toHaveBeenCalledWith(
@@ -124,7 +124,7 @@ describe("ManageOrderController - updateOrderStatus", () => {
         orderId: ORDER_ID,
         status: OrderStatus.PENDING_PICKUP,
         userId: ACTIVE_USER_ID,
-        roleName: SELLER_ROLE_NAME,
+        scope: SELLER_SCOPE,
       }),
     );
     expect(result).toEqual(order);
@@ -139,7 +139,7 @@ describe("ManageOrderController - updateOrderStatus", () => {
         { status: OrderStatus.CANCELLED },
         ORDER_ID,
         ACTIVE_USER_ID,
-        SELLER_ROLE_NAME,
+        SELLER_SCOPE,
       ),
     ).rejects.toBe(error);
   });

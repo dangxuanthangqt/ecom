@@ -5,6 +5,7 @@ import {
   APP_GUARD,
   APP_INTERCEPTOR,
   APP_PIPE,
+  DiscoveryModule,
   Reflector,
 } from "@nestjs/core";
 import { ThrottlerModule } from "@nestjs/throttler";
@@ -18,6 +19,7 @@ import { ApiKeyGuard } from "../guards/api-key.guard";
 import { AppThrottlerGuard } from "../guards/app-throttler.guard";
 import { AuthorizationHeaderGuard } from "../guards/authorization-header.guard";
 import { AppConfigService } from "../services/app-config.service";
+import { PermissionCoverageService } from "../services/permission-coverage.service";
 import { ThrottlerRedisStorage } from "../services/throttler-redis-storage.service";
 import { loggerFactory } from "../utils/setup-logger.util";
 import { createThrottlerOptions } from "../utils/throttler-options.factory";
@@ -71,6 +73,8 @@ const providers: Provider[] = [
   ...guards,
   serializerInterceptor,
   validationPipe,
+  // Boot-time gate: every non-public route must declare a permission.
+  PermissionCoverageService,
 ];
 @Module({
   imports: [
@@ -97,6 +101,7 @@ const providers: Provider[] = [
     I18nModule,
     // Exposes DiscoveryService + MetadataScanner for the permission coverage
     // check, which has to see every controller the app registered.
+    DiscoveryModule,
   ],
   providers,
 })

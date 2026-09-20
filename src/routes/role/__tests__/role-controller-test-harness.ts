@@ -48,10 +48,23 @@ export const makeRoleWithPermissions = (
 ) => ({
   id: ROLE_ID,
   name: "ADMIN",
+  isSystem: false,
   description: "Administrator role",
   permissions: [
-    { id: "perm-1", name: "users.read" },
-    { id: "perm-2", name: "users.write" },
+    {
+      id: "perm-1",
+      key: "user:read:any",
+      resource: "user",
+      action: "read",
+      scope: "any",
+    },
+    {
+      id: "perm-2",
+      key: "user:update:any",
+      resource: "user",
+      action: "update",
+      scope: "any",
+    },
   ],
   ...overrides,
 });

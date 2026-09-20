@@ -3,13 +3,12 @@ import {
   Order as OrderSchema,
   OrderStatus,
   Prisma,
-  Role as RoleSchema,
   User as UserSchema,
 } from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { canTransition } from "@/constants/order-status.constant";
-import { Role } from "@/constants/role.constant";
+import { Scope, ScopeType } from "@/constants/permission.constant";
 import { ManageOrderPaginationQueryDto } from "@/dtos/order/manage-order.dto";
 import { OrderStatusRepository } from "@/repositories/order/order-status.repository";
 import { OrderRepository } from "@/repositories/order/order.repository";
@@ -23,18 +22,20 @@ export class ManageOrderService {
   ) {}
 
   /**
-   * BR-O06 visibility scope: admin sees everything, seller only orders
-   * whose snapshot items reference their own products. This is a `where`
-   * predicate, never a post-fetch 403 — a miss must resolve to 404.
+   * BR-O06 visibility scope. `scope` is what the caller's grants say for
+   * `order-fulfilment` (see `@PermissionScope`): `any` sees every order,
+   * `own` only orders whose snapshot items reference the caller's products.
+   * This is a `where` predicate, never a post-fetch 403 — a miss must resolve
+   * to 404.
    */
   private buildActorScope({
     userId,
-    roleName,
+    scope,
   }: {
     userId: UserSchema["id"];
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }): Prisma.OrderWhereInput {
-    if (roleName === Role.ADMIN) {
+    if (scope === Scope.ANY) {
       return {};
     }
 
@@ -51,11 +52,11 @@ export class ManageOrderService {
       createdById,
     },
     userId,
-    roleName,
+    scope,
   }: {
     query: ManageOrderPaginationQueryDto;
     userId: UserSchema["id"];
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }) {
     const skip = (pageIndex - 1) * pageSize;
     const take = pageSize;
@@ -63,7 +64,7 @@ export class ManageOrderService {
     const where: Prisma.OrderWhereInput = {
       status,
       AND: [
-        this.buildActorScope({ userId, roleName }),
+        this.buildActorScope({ userId, scope }),
         ...(createdById ? [{ products: { some: { createdById } } }] : []),
       ],
     };
@@ -87,15 +88,15 @@ export class ManageOrderService {
   async getOrderById({
     orderId,
     userId,
-    roleName,
+    scope,
   }: {
     orderId: OrderSchema["id"];
     userId: UserSchema["id"];
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }) {
-    const scope = this.buildActorScope({ userId, roleName });
+    const actorScope = this.buildActorScope({ userId, scope });
     const order = await this.orderRepository.findUniqueOrder({
-      where: { id: orderId, ...scope },
+      where: { id: orderId, ...actorScope },
     });
 
     if (!order) {
@@ -114,12 +115,12 @@ export class ManageOrderService {
     orderId,
     status: nextStatus,
     userId,
-    roleName,
+    scope,
   }: {
     orderId: OrderSchema["id"];
     status: OrderStatus;
     userId: UserSchema["id"];
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }) {
     // BR-O04: cancellation is buyer-only, never a seller/admin action.
     if (nextStatus === OrderStatus.CANCELLED) {
@@ -129,9 +130,9 @@ export class ManageOrderService {
       });
     }
 
-    const scope = this.buildActorScope({ userId, roleName });
+    const actorScope = this.buildActorScope({ userId, scope });
     const order = await this.orderRepository.findUniqueOrder({
-      where: { id: orderId, ...scope },
+      where: { id: orderId, ...actorScope },
     });
 
     if (!order) {

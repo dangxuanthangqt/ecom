@@ -5,6 +5,7 @@ import { TwoFactorAuthenticationService } from "../services/2fa.service";
 import { AppConfigService } from "../services/app-config.service";
 import { EmailService } from "../services/email.service";
 import { HashingService } from "../services/hashing.service";
+import { PermissionResolverService } from "../services/permission-resolver.service";
 import { PrismaService } from "../services/prisma.service";
 import { RedisService } from "../services/redis.service";
 import { RolePermissionCacheService } from "../services/role-permission-cache.service";
@@ -22,6 +23,7 @@ const sharedProviders: Provider[] = [
   S3Service,
   RedisService,
   RolePermissionCacheService,
+  PermissionResolverService,
   ThrottlerRedisStorage,
 ];
 

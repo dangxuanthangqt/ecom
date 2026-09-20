@@ -4,11 +4,11 @@ import { ManageOrderService } from "../manage-order.service";
 
 import {
   ADMIN_ID,
-  ADMIN_ROLE,
+  ADMIN_SCOPE,
   ManageOrderServiceMocks,
   ORDER_ID,
   SELLER_ID,
-  SELLER_ROLE,
+  SELLER_SCOPE,
   containing,
   makeOrder,
   setupManageOrderService,
@@ -43,7 +43,7 @@ describe("ManageOrderService - updateOrderStatus (BR-O05 legal transitions)", ()
         orderId: ORDER_ID,
         status: to,
         userId: SELLER_ID,
-        roleName: SELLER_ROLE,
+        scope: SELLER_SCOPE,
       });
 
       expect(result).toEqual(makeOrder({ status: to }));
@@ -79,7 +79,7 @@ describe("ManageOrderService - updateOrderStatus (BR-O05 legal transitions)", ()
         orderId: ORDER_ID,
         status: to,
         userId: SELLER_ID,
-        roleName: SELLER_ROLE,
+        scope: SELLER_SCOPE,
       });
 
       await expect(promise).rejects.toMatchObject({ status: 400 });
@@ -108,16 +108,16 @@ describe("ManageOrderService - updateOrderStatus (BR-O05 actor rule)", () => {
   });
 
   it.each([
-    ["seller", SELLER_ID, SELLER_ROLE],
-    ["admin", ADMIN_ID, ADMIN_ROLE],
+    ["seller", SELLER_ID, SELLER_SCOPE],
+    ["admin", ADMIN_ID, ADMIN_SCOPE],
   ])(
     "rejects CANCELLED from a %s with 400, never writing",
-    async (_label, userId, roleName) => {
+    async (_label, userId, scope) => {
       const promise = service.updateOrderStatus({
         orderId: ORDER_ID,
         status: OrderStatus.CANCELLED,
         userId,
-        roleName,
+        scope,
       });
 
       await expect(promise).rejects.toMatchObject({ status: 400 });
@@ -144,7 +144,7 @@ describe("ManageOrderService - updateOrderStatus (BR-O06 visibility)", () => {
       orderId: ORDER_ID,
       status: OrderStatus.PENDING_PICKUP,
       userId: SELLER_ID,
-      roleName: SELLER_ROLE,
+      scope: SELLER_SCOPE,
     });
 
     await expect(promise).rejects.toMatchObject({ status: 404 });
@@ -177,7 +177,7 @@ describe("ManageOrderService - updateOrderStatus (concurrency passthrough)", () 
       orderId: ORDER_ID,
       status: OrderStatus.PENDING_PICKUP,
       userId: SELLER_ID,
-      roleName: SELLER_ROLE,
+      scope: SELLER_SCOPE,
     });
 
     await expect(promise).rejects.toBe(conflictError);

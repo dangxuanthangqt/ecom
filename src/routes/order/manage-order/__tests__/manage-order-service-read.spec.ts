@@ -2,11 +2,11 @@ import { ManageOrderService } from "../manage-order.service";
 
 import {
   ADMIN_ID,
-  ADMIN_ROLE,
+  ADMIN_SCOPE,
   ManageOrderServiceMocks,
   ORDER_ID,
   SELLER_ID,
-  SELLER_ROLE,
+  SELLER_SCOPE,
   containing,
   makeOrder,
   setupManageOrderService,
@@ -28,7 +28,7 @@ describe("ManageOrderService - getOrders (BR-O06)", () => {
     await service.getOrders({
       query: {},
       userId: SELLER_ID,
-      roleName: SELLER_ROLE,
+      scope: SELLER_SCOPE,
     });
 
     expect(mocks.orderRepository.findManyOrders).toHaveBeenCalledWith(
@@ -50,7 +50,7 @@ describe("ManageOrderService - getOrders (BR-O06)", () => {
     await service.getOrders({
       query: {},
       userId: ADMIN_ID,
-      roleName: ADMIN_ROLE,
+      scope: ADMIN_SCOPE,
     });
 
     const calls = mocks.orderRepository.findManyOrders.mock
@@ -69,7 +69,7 @@ describe("ManageOrderService - getOrders (BR-O06)", () => {
     const result = await service.getOrders({
       query: { pageIndex: 1, pageSize: 10 },
       userId: ADMIN_ID,
-      roleName: ADMIN_ROLE,
+      scope: ADMIN_SCOPE,
     });
 
     expect(result.data).toEqual([makeOrder()]);
@@ -93,7 +93,7 @@ describe("ManageOrderService - getOrderById (BR-O06)", () => {
     const result = await service.getOrderById({
       orderId: ORDER_ID,
       userId: SELLER_ID,
-      roleName: SELLER_ROLE,
+      scope: SELLER_SCOPE,
     });
 
     expect(result).toEqual(makeOrder());
@@ -110,7 +110,7 @@ describe("ManageOrderService - getOrderById (BR-O06)", () => {
     const promise = service.getOrderById({
       orderId: ORDER_ID,
       userId: SELLER_ID,
-      roleName: SELLER_ROLE,
+      scope: SELLER_SCOPE,
     });
 
     await expect(promise).rejects.toMatchObject({ status: 404 });
@@ -122,7 +122,7 @@ describe("ManageOrderService - getOrderById (BR-O06)", () => {
     await service.getOrderById({
       orderId: ORDER_ID,
       userId: ADMIN_ID,
-      roleName: ADMIN_ROLE,
+      scope: ADMIN_SCOPE,
     });
 
     const calls = mocks.orderRepository.findUniqueOrder.mock

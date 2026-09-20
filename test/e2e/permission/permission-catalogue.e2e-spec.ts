@@ -1,5 +1,4 @@
 import request from "supertest";
-import { v4 as uuidv4 } from "uuid";
 
 import { authed, createTestUser, loginAs } from "../support/auth.helper";
 import {
@@ -7,102 +6,98 @@ import {
   createTestApp,
   TestApp,
 } from "../support/create-test-app";
-import { prismaTestClient } from "../support/prisma-test-client";
+
+interface PermissionRow {
+  id: string;
+  key: string;
+  resource: string;
+  action: string;
+  scope: string;
+  roles?: { name: string }[];
+}
 
 /**
- * CRUD round-trip against `PermissionController`. Every permission created
- * here uses a made-up `path` (`/e2e-test-permission-*`) that no real route
- * matches, so `syncRoutePermissions` (which re-derives the ADMIN/CLIENT/SELLER
- * grants from the live router) never touches it and it can never collide with
- * a permission row a real route depends on.
- *
- * `PermissionService.createPermission`/`deletePermission` invalidate the
- * whole `RolePermissionCacheService` cache (see `docs/e2e-testing.md` §
- * "What is not covered"), which is safe here: invalidation only forces the
- * next request to fall back to Postgres, it never corrupts another spec's
- * assertions, and `--runInBand` means no other spec's request is in flight
- * while this one mutates.
+ * The permission catalogue is read-only over HTTP: rows come from
+ * `@RequirePermission` declarations synced by `create-permission.ts`, which the
+ * e2e setup runs. These specs prove the sync produced a catalogue the API can
+ * read back, and that the write routes are gone.
  */
-describe("Permission CRUD (F###)", () => {
+describe("Permission catalogue (read-only)", () => {
   let app: TestApp;
   let adminToken: string;
-  const createdPermissionIds: string[] = [];
 
   beforeAll(async () => {
     app = await createTestApp();
 
     const admin = await createTestUser({ role: "ADMIN" });
-    const login = await loginAs(app, admin.email, admin.password);
-    adminToken = login.accessToken;
+    adminToken = (await loginAs(app, admin.email, admin.password)).accessToken;
   });
 
   afterAll(async () => {
-    if (createdPermissionIds.length > 0) {
-      await prismaTestClient.permission.deleteMany({
-        where: { id: { in: createdPermissionIds } },
-      });
-    }
-
     await closeTestApp(app);
   });
 
-  it("round-trips create -> read -> update -> list -> delete -> 404", async () => {
+  it("lists catalogue rows shaped as resource:action:scope with their roles", async () => {
+    const response = await authed(app, adminToken)
+      .get("/permissions?pageSize=200")
+      .expect(200);
+
+    const { data } = response.body as { data: PermissionRow[] };
+
+    expect(data.length).toBeGreaterThan(0);
+
+    for (const row of data) {
+      expect(row.key).toBe(`${row.resource}:${row.action}:${row.scope}`);
+      expect(["own", "any"]).toContain(row.scope);
+    }
+
+    const brandCreate = data.find((row) => row.key === "brand:create:any");
+    expect(brandCreate?.roles?.map((role) => role.name)).toEqual(["admin"]);
+  });
+
+  it("reads one row by id", async () => {
     const client = authed(app, adminToken);
-    const suffix = uuidv4().slice(0, 8);
-    const path = `/e2e-test-permission-${suffix}`;
-    const name = `E2E Permission ${suffix}`;
+    const list = (await client.get("/permissions?pageSize=1").expect(200))
+      .body as { data: PermissionRow[] };
+    const [first] = list.data;
 
-    const createResponse = await client
-      .post("/permissions")
-      .send({ name, path, method: "GET" })
-      .expect(200);
+    const one = (await client.get(`/permissions/${first.id}`).expect(200))
+      .body as PermissionRow;
 
-    const created = createResponse.body as { id: string; name: string };
+    expect(one.key).toBe(first.key);
+  });
 
-    expect(created.id).toBeDefined();
-    expect(created.name).toBe(name);
-    createdPermissionIds.push(created.id);
+  it("404s an unknown id", async () => {
+    await authed(app, adminToken)
+      .get("/permissions/00000000-0000-4000-8000-000000000000")
+      .expect(404);
+  });
 
-    const readResponse = await client
-      .get(`/permissions/${created.id}`)
-      .expect(200);
-
-    expect((readResponse.body as { name: string }).name).toBe(name);
-
-    const updatedName = `${name} (updated)`;
+  it("has no write routes: the catalogue is owned by code", async () => {
+    const client = authed(app, adminToken);
 
     await client
-      .put(`/permissions/${created.id}`)
-      .send({ name: updatedName, path, method: "GET" })
-      .expect(200);
-
-    const readAfterUpdate = await client
-      .get(`/permissions/${created.id}`)
-      .expect(200);
-
-    expect((readAfterUpdate.body as { name: string }).name).toBe(updatedName);
-
-    // `getPermissions` has no `keyword` filter (unlike brand/category
-    // translations), and the default page (pageSize 10, oldest first) would
-    // otherwise never contain a row created after the ~85 route-derived
-    // fixtures — order newest-first instead.
-    const listResponse = await client
-      .get("/permissions?order=desc&pageSize=50")
-      .expect(200);
-    const list = listResponse.body as { data: { id: string }[] };
-
-    expect(list.data.some((permission) => permission.id === created.id)).toBe(
-      true,
-    );
-
-    await client.delete(`/permissions/${created.id}`).send({}).expect(200);
-
-    await client.get(`/permissions/${created.id}`).expect(404);
-
-    createdPermissionIds.length = 0;
+      .post("/permissions")
+      .send({ key: "brand:create:any" })
+      .expect(404);
+    await client
+      .put("/permissions/00000000-0000-4000-8000-000000000000")
+      .send({})
+      .expect(404);
+    await client
+      .delete("/permissions/00000000-0000-4000-8000-000000000000")
+      .expect(404);
   });
 
   it("rejects every route without a token", async () => {
     await request(app.getHttpServer()).get("/permissions").expect(401);
+  });
+
+  it("is admin-only", async () => {
+    const client = await createTestUser({ role: "CLIENT" });
+    const clientToken = (await loginAs(app, client.email, client.password))
+      .accessToken;
+
+    await authed(app, clientToken).get("/permissions").expect(403);
   });
 });

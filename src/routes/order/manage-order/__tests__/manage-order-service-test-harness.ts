@@ -1,6 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { OrderStatus } from "@prisma/client";
 
+import { ScopeType } from "@/constants/permission.constant";
 import { OrderStatusRepository } from "@/repositories/order/order-status.repository";
 import { OrderRepository } from "@/repositories/order/order.repository";
 
@@ -11,8 +12,8 @@ export const SELLER_ID = "22222222-2222-4222-8222-222222222222";
 export const OTHER_SELLER_ID = "33333333-3333-4333-8333-333333333333";
 export const ADMIN_ID = "44444444-4444-4444-8444-444444444444";
 
-export const SELLER_ROLE = "seller";
-export const ADMIN_ROLE = "admin";
+export const SELLER_SCOPE: ScopeType = "own";
+export const ADMIN_SCOPE: ScopeType = "any";
 
 /**
  * Test doubles for every collaborator `ManageOrderService` depends on.
