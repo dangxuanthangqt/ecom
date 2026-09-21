@@ -103,3 +103,44 @@ Mọi artifact được tạo ra, nhóm theo cách một bộ tài liệu chuẩ
 - [error-handling.vi.md](error-handling.vi.md) — Một lỗi trở thành response lỗi như thế nào, và tôi thêm lỗi mới ra sao?
 
 <!-- end-generated -->
+
+---
+
+<!-- hand-maintained: khối phía trên do rebuild-spec sinh lại; phần này thì không. -->
+
+## Tài liệu kỹ thuật (viết tay)
+
+Nhóm này viết tay, không phải sinh tự động, và **không** nằm trong chỉ mục phía trên. Mỗi tài liệu đào
+sâu vào một hệ con, kỹ hơn tài liệu generated.
+
+### Phân quyền
+
+| Tài liệu                                                                                               | Trả lời câu hỏi gì                                                                                                                              | Đọc khi nào                                     |
+| ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [authorization-mechanics-and-code-walkthrough.md](authorization-mechanics-and-code-walkthrough.md)     | Các mảnh của NestJS (decorator, metadata, Reflector, guard, param decorator) ráp vào nhau ra sao, rồi đi bộ qua một request thật theo từng file | Mới tiếp cận hệ phân quyền — **bắt đầu ở đây**  |
+| [authorization-guide.md](authorization-guide.md)                                                       | Vì sao chọn thiết kế `resource:action:scope`, cách thêm route hay quyền mới, cách debug một lỗi 403                                             | Sau khi đọc walkthrough, hoặc khi sắp đổi quyền |
+| [authorization-mechanics-and-code-walkthrough.html](authorization-mechanics-and-code-walkthrough.html) | Cùng nội dung walkthrough nhưng dạng trang web — sơ đồ phóng to được, sáng/tối, mở thẳng bằng trình duyệt                                       | Khi muốn đọc trực quan                          |
+| [redis-role-permission-cache.md](redis-role-permission-cache.md)                                       | Tầng Redis giữ tập quyền của từng role                                                                                                          | Khi quan tâm cache, TTL, invalidate             |
+
+### Dữ liệu và lưu trữ
+
+| Tài liệu                                                             | Trả lời câu hỏi gì                                    |
+| -------------------------------------------------------------------- | ----------------------------------------------------- |
+| [database-migration.vi.md](database-migration.vi.md)                 | Quy trình migration và luật bất biến                  |
+| [database-rollback-recovery.vi.md](database-rollback-recovery.vi.md) | Rollback một migration, và cứu khi migration hỏng     |
+| [database-seeding.vi.md](database-seeding.vi.md)                     | Hệ seed fixture và seed khối lượng lớn                |
+| [redis-caching-guide.md](redis-caching-guide.md)                     | Redis từ căn bản tới cách dự án này dùng              |
+| [race-conditions-analysis.md](race-conditions-analysis.md)           | Các điểm tranh chấp đồng thời tìm thấy trong codebase |
+
+### Hành vi API và vận hành
+
+| Tài liệu                                                                   | Trả lời câu hỏi gì                              |
+| -------------------------------------------------------------------------- | ----------------------------------------------- |
+| [error-handling.vi.md](error-handling.vi.md)                               | Một envelope lỗi duy nhất cho mọi response      |
+| [rate-limiting-guide.md](rate-limiting-guide.md)                           | Giới hạn tần suất, gồm cả các endpoint xác thực |
+| [google-oauth-login-flow.md](google-oauth-login-flow.md)                   | Luồng đăng nhập Google từ đầu tới cuối          |
+| [queue-job-worker-scheduler-guide.md](queue-job-worker-scheduler-guide.md) | Job nền, worker và scheduler                    |
+| [e2e-testing.vi.md](e2e-testing.vi.md)                                     | Bộ khung e2e và cách chạy                       |
+
+> Phần lớn tài liệu trên có bản song ngữ `.vi.md` đi kèm. Riêng `authorization-guide.md` và
+> `authorization-mechanics-and-code-walkthrough.md` chỉ có tiếng Việt, chưa có bản tiếng Anh.
