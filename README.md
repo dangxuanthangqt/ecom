@@ -4,23 +4,42 @@
 
 You need to run the following step by step.
 
-1. Generate a dot environment file and fill in your environment information
+1. Generate the environment files and fill in your environment information.
+
+   Each environment reads exactly **one** file, picked by `NODE_ENV`
+   (`src/constants/env-file.constant.ts`) — nothing falls back to another file,
+   so every file must carry the full key set from `.env.example`:
+
+   | NODE_ENV      | File               | Used by                           |
+   | ------------- | ------------------ | --------------------------------- |
+   | `development` | `.env.development` | `pnpm start:dev`, seeds (default) |
+   | `test`        | `.env.test`        | `pnpm test:e2e`                   |
+   | `production`  | `.env`             | `pnpm start:prod`, docker compose |
 
    ```bash
-   # for local development mode
+   # local development
    cp .env.example .env.development
 
-   # for local production mode or docker
-   cp .env.example .env.local
+   # local production mode or docker
+   cp .env.example .env   # then set NODE_ENV=production inside it
+
+   # e2e tests
+   cp .env.test.example .env.test
    ```
 
-2. Use the project's Node version. It is pinned in `.nvmrc`, and CI, the Docker
-   image and `engines.node` all read the same version — a mismatch fails at
-   install time rather than in CI:
+2. Use the project's Node version. `.nvmrc` is what the humans and CI read
+   (`actions/setup-node` takes `node-version-file: .nvmrc`); the `FROM` lines in
+   the Dockerfile carry the same literal because a `FROM` cannot read a file.
 
    ```bash
    nvm use   # installs/activates the version in .nvmrc
    ```
+
+   The version is _enforced_ by `devEngines.runtime` in `package.json`, not by
+   `.nvmrc` and not by `engines.node`. Since pnpm 12, `engines.node` is metadata
+   only. Any project command on the wrong Node stops with
+   `ERR_PNPM_BAD_RUNTIME_VERSION` before it runs — `pnpm install`, `pnpm start:dev`,
+   `pnpm test`, all of them. Keep the three versions in step when you bump.
 
 3. Install dependencies. pnpm comes from the `packageManager` field via corepack,
    so there is no version to pass:
@@ -32,7 +51,7 @@ You need to run the following step by step.
 
 ### In your local production mode
 
-Use `./.env.local` to load environment variables
+`docker-compose.yml` loads `./.env` as the container environment.
 
 ```bash
 $   docker-compose up -d --build
@@ -62,8 +81,8 @@ $ pnpm run db:seed:reset
 $ pnpm run db:seed:core
 ```
 
-`pnpm prisma migrate reset` runs this seed automatically via the `prisma.seed`
-hook.
+`prisma migrate reset` does **not** seed (Prisma 7 removed that hook); run
+`pnpm run db:seed` — or `pnpm exec prisma db seed` — after a reset.
 
 Demo accounts: `seller@ecom.local`, `client@ecom.local`, `client2@ecom.local` —
 all with password `Password@123`. The admin account comes from `ADMIN_EMAIL` /
@@ -98,11 +117,24 @@ $ pnpm run seed:initial-scripts:create-permission
 
 ## Database
 
+One Postgres server holds several isolated databases — `ecom_db` (development), `ecom_prod`
+(compose), `ecom_e2e` (tests) and Prisma's `ecom_shadow`. Which env file points where, how the
+container decides whether to create a database, and the errors that follow from it:
+[docs/postgres-database-management.md](docs/postgres-database-management.md)
+([vi](docs/postgres-database-management.vi.md)).
+
 ### Start Postgres Server on local
 
 ```bash
 # start the database server and init database
 $ docker compose up db -d
+```
+
+`POSTGRES_DB` in `docker-compose.yml` only creates a database while the `postgres_data` volume is
+empty. On an existing volume, create one explicitly:
+
+```bash
+$ docker exec ecom-db-1 psql -U postgres -c 'CREATE DATABASE ecom_db;'
 ```
 
 ## Redis

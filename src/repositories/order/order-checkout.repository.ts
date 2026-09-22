@@ -1,9 +1,10 @@
 import { HttpException, Injectable, Logger } from "@nestjs/common";
-import { OrderStatus, Prisma } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
+import { OrderStatus, Prisma } from "@/generated/prisma/client";
 import { createOrderDetailSelect } from "@/selectors/order.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 import {
@@ -23,7 +24,7 @@ const CHECKOUT_TRANSACTION_TIMEOUT_MS = 15000;
  * additionally needs `sku.deletedAt` and `product.images` to validate and
  * freeze a snapshot row.
  */
-const checkoutCartItemSelect = Prisma.validator<Prisma.CartItemSelect>()({
+const checkoutCartItemSelect = defineSelect<Prisma.CartItemSelect>()({
   id: true,
   quantity: true,
   sku: {

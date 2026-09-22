@@ -14,7 +14,7 @@ Làm gì khi migration hoặc deploy gặp sự cố.
 | `data_checksums`    | `off`                                                            | Corrupt page âm thầm sẽ không bị phát hiện                                 |
 | `lock_timeout`      | `0` (unlimited)                                                  | Migration có thể kẹt ở một lock vô thời hạn, chặn hết mọi traffic          |
 | `statement_timeout` | `0`                                                              | Một data migration chạy loạn sẽ không bao giờ tự dừng                      |
-| Prisma              | 6.4.1, 27 migrations                                             | Không có lệnh `migrate down`                                               |
+| Prisma              | 7.10.0, 27 migrations                                            | Không có lệnh `migrate down`                                               |
 | Hosting             | `docker-compose` một host duy nhất, named volume `postgres_data` | Không có snapshot của managed DB, không có replica                         |
 
 > **Đọc phần này trước.** Project này **hiện chưa có point-in-time recovery**. Nếu dữ liệu bị phá hủy, bạn chỉ quay lại được bản dump gần nhất từ `pnpm db:backup` — mọi thứ ghi sau bản dump đó mất sạch. Bật PITR là việc thuộc về hạ tầng (§9) và nó không cứu được gì đã mất _trước_ khi được bật.

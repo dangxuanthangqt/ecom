@@ -10,10 +10,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import {
-  CategoryTranslation as CategoryTranslationSchema,
-  User as UserSchema,
-} from "@prisma/client";
 
 import {
   CategoryTranslationPaginationQueryDto,
@@ -22,6 +18,10 @@ import {
   UpdateCategoryTranslationRequestDto,
 } from "@/dtos/category-translation/category-translation.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import {
+  CategoryTranslation as CategoryTranslationSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,

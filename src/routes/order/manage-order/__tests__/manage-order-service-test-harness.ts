@@ -1,7 +1,7 @@
 import { Test } from "@nestjs/testing";
-import { OrderStatus } from "@prisma/client";
 
 import { ScopeType } from "@/constants/permission.constant";
+import { OrderStatus } from "@/generated/prisma/client";
 import { OrderStatusRepository } from "@/repositories/order/order-status.repository";
 import { OrderRepository } from "@/repositories/order/order.repository";
 

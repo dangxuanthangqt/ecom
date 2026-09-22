@@ -1,12 +1,12 @@
 import { Injectable, Logger } from "@nestjs/common";
+
+import { ErrorCode } from "@/constants/error-codes";
 import {
   Prisma,
   Product as ProductSchema,
   ProductTranslation as ProductTranslationSchema,
   User as UserSchema,
-} from "@prisma/client";
-
-import { ErrorCode } from "@/constants/error-codes";
+} from "@/generated/prisma/client";
 import { productTranslationSelect } from "@/selectors/product-translation.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {

@@ -34,6 +34,8 @@ export const setupAppConfigService = async (
   const defaultConfig: Record<string, string> = {
     NODE_ENV: "development",
     PORT: "3000",
+    DATABASE_URL:
+      "postgresql://postgres:postgres@localhost:5432/ecom_test?schema=public",
     ACCESS_TOKEN_SECRET: "access-secret",
     ACCESS_TOKEN_EXPIRES_IN: "15m",
     REFRESH_TOKEN_SECRET: "refresh-secret",

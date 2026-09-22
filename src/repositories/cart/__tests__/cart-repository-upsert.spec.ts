@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { CartRepository } from "@/repositories/cart/cart.repository";
 
 import {
@@ -12,13 +11,13 @@ import {
 } from "./cart-repository-test-harness";
 
 const uniqueConstraintError = () =>
-  new PrismaClientKnownRequestError("Unique constraint failed.", {
+  new Prisma.PrismaClientKnownRequestError("Unique constraint failed.", {
     code: "P2002",
     clientVersion: "6.0.0",
   });
 
 const foreignKeyError = () =>
-  new PrismaClientKnownRequestError("Foreign key constraint failed.", {
+  new Prisma.PrismaClientKnownRequestError("Foreign key constraint failed.", {
     code: "P2003",
     clientVersion: "6.0.0",
   });

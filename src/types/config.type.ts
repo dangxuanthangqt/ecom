@@ -9,6 +9,9 @@ export type AppConfig = {
   readonly resendApiKey: string;
   readonly sandboxEmail?: string;
 
+  // Database — handed to the Prisma driver adapter by `PrismaService`.
+  readonly databaseUrl: string;
+
   // Redis
   readonly redisUrl: string;
 

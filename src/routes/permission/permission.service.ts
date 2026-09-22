@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { Permission } from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
+import { Permission } from "@/generated/prisma/client";
 import { PermissionRepository } from "@/repositories/permission/permission.repository";
 
 @Injectable()

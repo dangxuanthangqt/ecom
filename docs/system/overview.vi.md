@@ -6,7 +6,7 @@
 
 ## Tóm tắt
 
-`ecom` là backend thương mại điện tử headless xây trên NestJS 11 + Prisma 6 + PostgreSQL 15 (`package.json:41-69`, `prisma/schema.prisma:9-12`, `docker-compose.yml:6`). Nó chỉ expose một API REST — không có UI, không render template, không có lớp view `.tsx`/`.vue`/`.html` nào trong cả cây thư mục (`plans/260912-0113-rebuild-spec/artifacts/scout-report.md:263`). Mười bốn module route `@Controller()` phủ auth, catalog (product/brand/category + bản dịch i18n), upload media, RBAC (role/permission), profile người dùng và quản lý ngôn ngữ (`src/routes/route.module.ts:17-33`).
+`ecom` là backend thương mại điện tử headless xây trên NestJS 11 + Prisma 7 + PostgreSQL 15 (`package.json:41-69`, `prisma/schema.prisma:9-12`, `docker-compose.yml:6`). Nó chỉ expose một API REST — không có UI, không render template, không có lớp view `.tsx`/`.vue`/`.html` nào trong cả cây thư mục (`plans/260912-0113-rebuild-spec/artifacts/scout-report.md:263`). Mười bốn module route `@Controller()` phủ auth, catalog (product/brand/category + bản dịch i18n), upload media, RBAC (role/permission), profile người dùng và quản lý ngôn ngữ (`src/routes/route.module.ts:17-33`).
 
 Data model (`prisma/schema.prisma`, 21 khối model) rộng hơn phần API đã expose: `Order`, `Review`, `CartItem`, `Message`, `PaymentTransaction` và `Device` đều có model Prisma và quan hệ nhưng **không** có `@Controller()` tương ứng dưới `src/routes/**` — giỏ hàng/thanh toán/đơn hàng/đánh giá/nhắn tin đã được model hóa trong schema nhưng chưa nối vào route. [UNVERIFIED — không xác nhận được đây là phần đã lên kế hoạch nhưng chưa xây, hay đã bị bỏ; không có route, repository hay service nào tham chiếu tới chúng ngoài chính `schema.prisma`.]
 

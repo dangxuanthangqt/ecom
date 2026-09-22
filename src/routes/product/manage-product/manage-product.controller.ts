@@ -10,11 +10,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import {
-  Product as ProductSchema,
-  Language as LanguageSchema,
-  User as UserSchema,
-} from "@prisma/client";
 
 import { ScopeType } from "@/constants/permission.constant";
 import {
@@ -26,6 +21,11 @@ import {
   UpdateProductRequestDto,
 } from "@/dtos/product/product.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import {
+  Product as ProductSchema,
+  Language as LanguageSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
 import {

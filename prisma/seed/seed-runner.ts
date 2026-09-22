@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/generated/prisma/client";
 
 import { Seeder } from "./seed-context";
 import { UserId } from "./seed-ids";

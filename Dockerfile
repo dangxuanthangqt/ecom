@@ -4,7 +4,7 @@
 # updated alongside it — they drifted once already (CI on 20.17, image on 20.19)
 # and the mismatch only surfaced when a dependency's engines.node range rejected
 # the CI runner mid-install.
-FROM node:24.14.1-alpine AS base
+FROM node:24.21.0-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 # No version here: corepack reads `packageManager` from package.json, the same
@@ -38,7 +38,8 @@ WORKDIR /app
 COPY . .
 # Install dependencies based on the pnpm package manager
 RUN pnpm install --offline
-# Generate Prisma client
+# Generate the Prisma client into src/generated/prisma. Needs no DATABASE_URL:
+# prisma.config.ts omits the datasource when the variable is unset.
 RUN pnpm prisma:generate
 # Build application
 RUN pnpm build
@@ -78,7 +79,7 @@ RUN pnpm prune --prod
 # Starts from a clean pinned image, not from `base`: `base` carries the pnpm
 # store populated by `pnpm fetch`, which has no business in a runtime image.
 # Keep this tag identical to the `base` stage and to .nvmrc.
-FROM node:24.14.1-alpine AS production
+FROM node:24.21.0-alpine AS production
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 ENV NODE_ENV=production
@@ -86,9 +87,9 @@ ENV NODE_ENV=production
 COPY --chown=node:node --from=pruner /app/node_modules ./node_modules
 COPY --chown=node:node --from=pruner /app/dist ./dist
 COPY --chown=node:node --from=pruner /app/package.json ./
-# Schema is kept for the generated client's runtime lookup. Migrations are NOT
-# applied from this image.
-COPY --chown=node:node --from=pruner /app/prisma ./prisma
+# No prisma/ directory here on purpose: the Prisma 7 client is compiled into
+# dist/ with the rest of the source, and migrations are NOT applied from this
+# image (see the migrator stage).
 
 # Copy entrypoint script
 COPY --chown=node:node docker-entrypoint.sh ./

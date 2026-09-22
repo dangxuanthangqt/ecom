@@ -1,3 +1,33 @@
+# Các setting cài đặt, chuyển từ .npmrc sang: pnpm 12 không còn đọc file đó
+# cho chúng nữa. Key BẮT BUỘC viết camelCase — pnpm sẽ warn và bỏ qua key viết
+# kebab-case (ví dụ "engine-strict" thay vì "engineStrict").
+saveExact: true
+strictPeerDependencies: false
+autoInstallPeers: true
+lockfile: true
+
+# CƠ CHẾ CHẶN NODE VERSION — đọc kỹ chỗ này, nó đã đổi ở pnpm 12.
+#
+# Từ pnpm 12, "engines.node" trong package.json KHÔNG còn chặn install nữa. Nó
+# chỉ còn là metadata cho npm và các tool khác đọc. "engineStrict" dưới đây cũng
+# không nói về Node của project: nó chỉ xét các package TRONG CÂY PHỤ THUỘC —
+# install sẽ fail nếu một dependency khai báo engines range mà Node đang chạy
+# không thoả.
+#
+# Thứ thực sự chặn project này là "devEngines.runtime" trong package.json:
+#
+#   "devEngines": {
+#     "runtime": { "name": "node", "version": "^24.21.0", "onFail": "error" }
+#   }
+#
+# JSON không viết comment được nên ghi lại ở đây. Với onFail: "error", pnpm kiểm
+# tra Node TRƯỚC KHI chạy mọi lệnh thuộc project — install, run, test, prisma —
+# và dừng với ERR_PNPM_BAD_RUNTIME_VERSION nếu sai version. Chạy thẳng
+# "node dist/main.js" thì không qua pnpm nên không bị chặn.
+#
+# Bypass khi thật sự cần: PNPM_CONFIG_RUNTIME_ON_FAIL=ignore.
+engineStrict: true
+
 # pnpm 11 moved these settings out of package.json's "pnpm" field, which pnpm 12
 # no longer reads. This file is settings-only — the repo is not a monorepo, so
 # there is deliberately no `packages:` key.
@@ -9,10 +39,11 @@
 # fails outright without it.
 #
 # The rest keep the behaviour they already had under pnpm 10, where only bcrypt
-# was allowed to build — the Prisma client is generated explicitly by
-# `pnpm prisma:generate`, esbuild/swc/unrs-resolver ship their platform binary
-# as an optional dependency rather than a postinstall download, and the
-# remainder are telemetry or donation notices.
+# was allowed to build — the Prisma 7 client is plain TypeScript generated
+# explicitly by `pnpm prisma:generate` (no postinstall, no native engine),
+# esbuild/swc/unrs-resolver ship their platform binary as an optional
+# dependency rather than a postinstall download, and the remainder are
+# telemetry or donation notices.
 allowBuilds:
   bcrypt: true
   "@nestjs/core": false

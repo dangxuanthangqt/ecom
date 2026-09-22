@@ -1,14 +1,15 @@
 /* eslint-disable no-console */
-import { PrismaClient } from "@prisma/client";
 import { config } from "dotenv";
+
+import { resolveEnvFilePath } from "@/constants/env-file.constant";
+import { createStandalonePrismaClient } from "@/shared/utils/prisma-client.util";
 
 import { assertSeedableEnvironment } from "./seed/seed-environment";
 import { cleanVolumeData } from "./seed/volume/volume-clean";
 import { describeVolume, parseVolumeConfig } from "./seed/volume/volume-config";
 import { runVolumeSeed } from "./seed/volume/volume-runner";
 
-config({ path: `.env.${process.env.NODE_ENV || "development"}` });
-config();
+config({ path: resolveEnvFilePath() });
 
 /**
  * Bulk data generator, deliberately separate from `prisma/seed.ts`.
@@ -25,7 +26,7 @@ async function main() {
   assertSeedableEnvironment("generate volume data");
 
   const args = process.argv.slice(2);
-  const prisma = new PrismaClient();
+  const prisma = createStandalonePrismaClient();
 
   try {
     if (args.includes("--clean")) {

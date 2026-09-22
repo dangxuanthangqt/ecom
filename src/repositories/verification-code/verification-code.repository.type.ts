@@ -1,4 +1,4 @@
-import { VerificationCode } from "@prisma/client";
+import { VerificationCode } from "@/generated/prisma/client";
 
 export type VerificationCodeInputData = Pick<
   VerificationCode,

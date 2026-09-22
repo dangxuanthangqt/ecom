@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { BrandRepository } from "@/repositories/brand/brand.repository";
 
 import {
@@ -148,7 +147,7 @@ describe("BrandRepository - createBrand", () => {
   describe("error handling - unique constraint", () => {
     it("throws unprocessable error on duplicate brand", async () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Unique constraint failed on the fields: `name`",
         {
           code: "P2002",
@@ -185,7 +184,7 @@ describe("BrandRepository - createBrand", () => {
   describe("error handling - foreign key constraint", () => {
     it("throws unprocessable error on invalid foreign key", async () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Foreign key constraint failed",
         {
           code: "P2003",
@@ -309,7 +308,7 @@ describe("BrandRepository - updateBrand", () => {
   describe("error handling - record not found", () => {
     it("throws notFound error when brand does not exist", async () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "An operation failed because it depends on one or more records that were required but not found.",
         {
           code: "P2025",
@@ -335,7 +334,7 @@ describe("BrandRepository - updateBrand", () => {
   describe("error handling - unique constraint", () => {
     it("throws unprocessable error on duplicate brand name", async () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Unique constraint failed on the fields: `name`",
         {
           code: "P2002",
@@ -369,7 +368,7 @@ describe("BrandRepository - updateBrand", () => {
   describe("error handling - foreign key constraint", () => {
     it("throws unprocessable error on invalid foreign key", async () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Foreign key constraint failed",
         {
           code: "P2003",
@@ -462,7 +461,7 @@ describe("BrandRepository - deleteBrand", () => {
   describe("error handling - record not found", () => {
     it("throws notFound error when brand does not exist", async () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "An operation failed because it depends on one or more records that were required but not found.",
         {
           code: "P2025",

@@ -1,5 +1,6 @@
-import { VerificationCodeType } from "@prisma/client";
 import request from "supertest";
+
+import { VerificationCodeType } from "@/generated/prisma/client";
 
 import { requestOtp } from "../support/auth.helper";
 import {

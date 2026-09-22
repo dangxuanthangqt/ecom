@@ -8,7 +8,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import { Order as OrderSchema, User as UserSchema } from "@prisma/client";
 
 import { ScopeType } from "@/constants/permission.constant";
 import {
@@ -18,6 +17,10 @@ import {
 } from "@/dtos/order/manage-order.dto";
 import { BaseOrderResponseDto } from "@/dtos/order/order.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import {
+  Order as OrderSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,

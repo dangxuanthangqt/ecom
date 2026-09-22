@@ -1,9 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { Order as OrderSchema, User as UserSchema } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { OrderPaginationQueryDto } from "@/dtos/order/order.dto";
+import {
+  Order as OrderSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { OrderCancelRepository } from "@/repositories/order/order-cancel.repository";
 import { OrderCheckoutRepository } from "@/repositories/order/order-checkout.repository";
 import { OrderRepository } from "@/repositories/order/order.repository";

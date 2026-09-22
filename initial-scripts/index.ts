@@ -3,14 +3,16 @@ import { plainToInstance } from "class-transformer";
 import { IsString } from "class-validator";
 import { config } from "dotenv";
 
+import { resolveEnvFilePath } from "@/constants/env-file.constant";
 import { Role } from "@/constants/role.constant";
 import { HashingService } from "@/shared/services/hashing.service";
-import { PrismaService } from "@/shared/services/prisma.service";
+import { createStandalonePrismaClient } from "@/shared/utils/prisma-client.util";
 
-config({ path: `.env.${process.env.NODE_ENV || "development"}` });
-// Load DATABASE_URL from environment variables from .env.development
+// Loads DATABASE_URL (and the ADMIN_* seed values) from the env file that
+// matches NODE_ENV — `.env.development` by default.
+config({ path: resolveEnvFilePath() });
 
-const prismaService = new PrismaService();
+const prismaService = createStandalonePrismaClient();
 const hashingService = new HashingService();
 
 class AdminUserSchema {

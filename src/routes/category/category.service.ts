@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
-import {
-  Category as CategorySchema,
-  Language as LanguageSchema,
-  User as UserSchema,
-} from "@prisma/client";
 
 import {
   CreateCategoryRequestDto,
   UpdateCategoryRequestDto,
 } from "@/dtos/category/category.dto";
+import {
+  Category as CategorySchema,
+  Language as LanguageSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { CategoryRepository } from "@/repositories/category/category.repository";
 
 @Injectable()

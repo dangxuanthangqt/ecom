@@ -1,7 +1,7 @@
 import { HttpStatus } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
 
 import { ErrorResponseDto } from "@/dtos/error-response.dto";
+import { Prisma } from "@/generated/prisma/client";
 
 /**
  * Prisma error code -> the status and public message the client sees. Prisma's own

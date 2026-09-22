@@ -1,9 +1,9 @@
-import { Prisma } from "@prisma/client";
-
+import { Prisma } from "@/generated/prisma/client";
 import { reviewAuthorSelect } from "@/selectors/review-author.selector";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
 export const createReviewSelect = () =>
-  Prisma.validator<Prisma.ReviewSelect>()({
+  defineSelect<Prisma.ReviewSelect>()({
     id: true,
     content: true,
     rating: true,

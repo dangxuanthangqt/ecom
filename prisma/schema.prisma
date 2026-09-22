@@ -1,5 +1,12 @@
+// Prisma 7: the client is plain TypeScript emitted into src/generated/prisma
+// (gitignored, produced by `pnpm prisma:generate`) and imported through the
+// `@/generated/prisma/*` alias. Nothing is written into node_modules any more.
+// The datasource URL lives in prisma.config.ts, not here: Prisma 7 no longer
+// reads env() from the schema, and no longer auto-loads a `.env` file either.
 generator client {
-  provider = "prisma-client-js"
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
 }
 
 generator json {
@@ -8,7 +15,6 @@ generator json {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Language {

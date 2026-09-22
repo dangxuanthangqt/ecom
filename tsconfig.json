@@ -30,7 +30,8 @@
       "@/validations/*": ["src/validations/*"],
       "@/repositories/*": ["src/repositories/*"],
       "@/selectors/*": ["src/selectors/*"],
-      "@/seed/*": ["prisma/seed/*"]
+      "@/seed/*": ["prisma/seed/*"],
+      "@/generated/*": ["src/generated/*"]
     }
   },
   "include": [

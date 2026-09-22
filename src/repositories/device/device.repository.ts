@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Device, Prisma } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
+import { Device, Prisma } from "@/generated/prisma/client";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,

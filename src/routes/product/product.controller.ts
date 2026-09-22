@@ -1,9 +1,5 @@
 import { Controller, Get, Param, ParseUUIDPipe, Query } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import {
-  Language as LanguageSchema,
-  Product as ProductSchema,
-} from "@prisma/client";
 
 import {
   ProductDetailResponseDto,
@@ -11,6 +7,10 @@ import {
   ProductResponseDto,
 } from "@/dtos/product/product.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import {
+  Language as LanguageSchema,
+  Product as ProductSchema,
+} from "@/generated/prisma/client";
 import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
 import {

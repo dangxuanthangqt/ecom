@@ -1,9 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import {
-  Language as LanguageSchema,
-  User as UserSchema,
-  Product as ProductSchema,
-} from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
@@ -14,6 +9,11 @@ import {
   ProductResponseDto,
   UpdateProductRequestDto,
 } from "@/dtos/product/product.dto";
+import {
+  Language as LanguageSchema,
+  User as UserSchema,
+  Product as ProductSchema,
+} from "@/generated/prisma/client";
 import { ProductRepository } from "@/repositories/product/product.repository";
 import { createProductDetailSelect } from "@/selectors/product.selector";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";

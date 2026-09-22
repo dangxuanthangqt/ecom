@@ -1,4 +1,5 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
 /**
  * `ProductSKUSnapshot` is a denormalized copy by design (BR-O03) — reads
@@ -7,7 +8,7 @@ import { Prisma } from "@prisma/client";
  * stock even though the join is optional.
  */
 export const productSkuSnapshotSelect =
-  Prisma.validator<Prisma.ProductSKUSnapshotSelect>()({
+  defineSelect<Prisma.ProductSKUSnapshotSelect>()({
     id: true,
     productName: true,
     price: true,

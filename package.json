@@ -14,10 +14,10 @@
     "format-check": "prettier --ignore-unknown --check .",
     "format-fix": "prettier --ignore-unknown --write .",
     "lint": "concurrently --timings --names=\"check \" --prefix=\"[{name}]\" --prefix-colors=\"bgGreen.bold\" \"pnpm:*-check\"",
-    "start": "nest start",
+    "start": "NODE_ENV=development nest start",
     "start:dev": "NODE_ENV=development nest start --watch",
-    "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:debug": "NODE_ENV=development nest start --debug --watch",
+    "start:prod": "NODE_ENV=production node dist/main",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:format": "prisma format",
@@ -28,16 +28,16 @@
     "prisma:migrate:status": "prisma migrate status",
     "prisma:migrate:resolve:applied": "prisma migrate resolve --applied",
     "prisma:migrate:resolve:rolled-back": "prisma migrate resolve --rolled-back",
-    "prisma:migrate:drift": "prisma migrate diff --from-migrations ./prisma/migrations --to-schema-datamodel ./prisma/schema.prisma --shadow-database-url \"$SHADOW_DATABASE_URL\" --exit-code",
+    "prisma:migrate:drift": "prisma migrate diff --from-migrations ./prisma/migrations --to-schema ./prisma/schema.prisma --exit-code",
     "db:migrate": "sh ./scripts/run-database-migrations.sh",
     "db:migrate:dry-run": "DRY_RUN=true sh ./scripts/run-database-migrations.sh",
     "db:backup": "sh ./scripts/backup-database.sh",
     "db:restore": "sh ./scripts/restore-database.sh",
-    "db:drift:live": "prisma migrate diff --from-url \"$DATABASE_URL\" --to-schema-datamodel ./prisma/schema.prisma --exit-code",
-    "db:drift:live:script": "prisma migrate diff --from-url \"$DATABASE_URL\" --to-schema-datamodel ./prisma/schema.prisma --script",
-    "db:test:reset": "prisma migrate reset --force --skip-seed && prisma migrate status",
+    "db:drift:live": "prisma migrate diff --from-config-datasource --to-schema ./prisma/schema.prisma --exit-code",
+    "db:drift:live:script": "prisma migrate diff --from-config-datasource --to-schema ./prisma/schema.prisma --script",
+    "db:test:reset": "NODE_ENV=test sh -c 'prisma migrate reset --force && prisma migrate status'",
     "seed:initial-scripts": "ts-node initial-scripts",
-    "seed:initial-scripts:create-permission": "NODE_ENV=development ts-node initial-scripts/create-permission",
+    "seed:initial-scripts:create-permission": "ts-node initial-scripts/create-permission",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -63,7 +63,8 @@
     "@nestjs/platform-express": "11.0.1",
     "@nestjs/swagger": "11.1.1",
     "@nestjs/throttler": "6.7.0",
-    "@prisma/client": "6.4.1",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "bcrypt": "5.1.1",
     "class-transformer": "0.5.1",
     "class-validator": "0.14.1",
@@ -120,8 +121,8 @@
     "lint-staged": "15.4.3",
     "openapi-typescript": "7.7.3",
     "prettier": "3.4.2",
-    "prisma": "6.4.1",
-    "prisma-json-types-generator": "3.2.3",
+    "prisma": "7.10.0",
+    "prisma-json-types-generator": "5.1.1",
     "source-map-support": "0.5.21",
     "supertest": "7.0.0",
     "ts-jest": "29.2.5",
@@ -157,14 +158,19 @@
     "coveragePathIgnorePatterns": [
       "\\.dto\\.ts$",
       "\\.module\\.ts$",
-      "test-harness\\.ts$"
+      "test-harness\\.ts$",
+      "/generated/"
     ]
   },
-  "packageManager": "pnpm@12.4.1",
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
+  "packageManager": "pnpm@12.5.1",
   "engines": {
-    "node": ">=24.14.1"
+    "node": "^24.21.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.21.0",
+      "onFail": "error"
+    }
   }
 }

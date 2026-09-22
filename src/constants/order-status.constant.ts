@@ -1,4 +1,4 @@
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma/client";
 
 /**
  * Single source of truth for legal `OrderStatus` transitions (BR-O05).

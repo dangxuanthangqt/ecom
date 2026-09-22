@@ -46,7 +46,8 @@ Docker 'migrator' stage or a full (non-pruned) install."
 log "Waiting for database (max $((DB_WAIT_RETRIES * DB_WAIT_DELAY))s)..."
 attempt=1
 while [ "$attempt" -le "$DB_WAIT_RETRIES" ]; do
-  if echo "SELECT 1;" | "$PRISMA" db execute --stdin --url "$DATABASE_URL" >/dev/null 2>&1; then
+  # No --url: Prisma 7 removed it; prisma.config.ts supplies DATABASE_URL.
+  if echo "SELECT 1;" | "$PRISMA" db execute --stdin >/dev/null 2>&1; then
     log "Database is accepting connections."
     break
   fi

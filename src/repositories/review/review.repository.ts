@@ -1,8 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { OrderStatus, Prisma } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { publishedProductWhere } from "@/constants/product-visibility.constant";
+import { OrderStatus, Prisma } from "@/generated/prisma/client";
 import { createReviewSelect } from "@/selectors/review.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {

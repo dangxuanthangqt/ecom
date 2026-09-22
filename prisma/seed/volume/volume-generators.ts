@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
-import { OrderStatus, Prisma } from "@prisma/client";
+
+import { OrderStatus } from "@/generated/prisma/client";
 
 import { VolumeConfig } from "./volume-config";
 
@@ -60,7 +61,8 @@ export interface GeneratedProduct {
   brandId: string;
   images: string[];
   publishedAt: Date | null;
-  variants: Prisma.InputJsonValue;
+  // Typed by prisma-json-types-generator via `/// [Variants]` on the schema.
+  variants: PrismaJson.Variants;
   createdById: string;
 }
 
@@ -84,9 +86,7 @@ export const generateProducts = (
         faker.number.int({ min: 1, max: 10 }) === 1
           ? null
           : faker.date.past({ years: 2 }),
-      variants: [
-        faker.helpers.arrayElement(VARIANT_POOL),
-      ] as unknown as Prisma.InputJsonValue,
+      variants: [faker.helpers.arrayElement(VARIANT_POOL)],
       createdById: actorId,
     };
   });

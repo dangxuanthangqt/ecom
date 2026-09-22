@@ -1,9 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { VerificationCodeType } from "@prisma/client";
 import { Expose } from "class-transformer";
 import { IsEmail, IsIn } from "class-validator";
 
 import { VerificationCodeTypeType } from "@/constants/verification-code.constant";
+import { VerificationCodeType } from "@/generated/prisma/client";
 
 export class SendOTPRequestDto {
   @ApiProperty({

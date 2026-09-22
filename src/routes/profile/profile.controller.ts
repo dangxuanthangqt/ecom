@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Put } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { User as UserSchema } from "@prisma/client";
 
 import {
   ChangePasswordRequestDto,
@@ -9,6 +8,7 @@ import {
   UpdateProfileRequestDto,
   UpdateProfileResponseDto,
 } from "@/dtos/profile/profile.dto";
+import { User as UserSchema } from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { ApiAuth } from "@/shared/param-decorators/http-decorator";
 import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";

@@ -10,7 +10,6 @@ import {
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
-import { Device, User } from "@prisma/client";
 import { Response } from "express";
 
 import { AuthThrottle } from "@/constants/throttle.constant";
@@ -32,6 +31,7 @@ import {
   SendOTPRequestDto,
   SendOTPResponseDto,
 } from "@/dtos/auth/send-otp.dto";
+import { Device, User } from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
 import { ApiAuth, ApiPublic } from "@/shared/param-decorators/http-decorator";

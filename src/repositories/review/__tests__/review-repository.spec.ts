@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { ReviewRepository } from "@/repositories/review/review.repository";
 
 import {
@@ -15,13 +14,13 @@ import {
 } from "./review-repository-test-harness";
 
 const notFoundError = () =>
-  new PrismaClientKnownRequestError("Record not found.", {
+  new Prisma.PrismaClientKnownRequestError("Record not found.", {
     code: "P2025",
     clientVersion: "6.0.0",
   });
 
 const uniqueConstraintError = () =>
-  new PrismaClientKnownRequestError("Unique constraint failed.", {
+  new Prisma.PrismaClientKnownRequestError("Unique constraint failed.", {
     code: "P2002",
     clientVersion: "6.0.0",
   });

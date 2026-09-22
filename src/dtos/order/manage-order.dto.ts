@@ -3,10 +3,10 @@ import {
   ApiPropertyOptional,
   IntersectionType,
 } from "@nestjs/swagger";
-import { OrderStatus } from "@prisma/client";
 import { IsEnum, IsIn, IsOptional, IsUUID } from "class-validator";
 
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
+import { OrderStatus } from "@/generated/prisma/client";
 
 import { OrderOrderByFields, OrderOrderByFieldsType } from "./constant";
 import { OrderDetailResponseDto } from "./order.dto";

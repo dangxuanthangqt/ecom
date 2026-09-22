@@ -143,13 +143,14 @@ tới dòng) và bản HTML (trực quan, sơ đồ phóng to được).
 
 ### Dữ liệu và lưu trữ
 
-| Tài liệu                                                             | Trả lời câu hỏi gì                                    |
-| -------------------------------------------------------------------- | ----------------------------------------------------- |
-| [database-migration.vi.md](database-migration.vi.md)                 | Quy trình migration và luật bất biến                  |
-| [database-rollback-recovery.vi.md](database-rollback-recovery.vi.md) | Rollback một migration, và cứu khi migration hỏng     |
-| [database-seeding.vi.md](database-seeding.vi.md)                     | Hệ seed fixture và seed khối lượng lớn                |
-| [redis-caching-guide.md](redis-caching-guide.md)                     | Redis từ căn bản tới cách dự án này dùng              |
-| [race-conditions-analysis.md](race-conditions-analysis.md)           | Các điểm tranh chấp đồng thời tìm thấy trong codebase |
+| Tài liệu                                                             | Trả lời câu hỏi gì                                                           |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| [database-migration.vi.md](database-migration.vi.md)                 | Quy trình migration và luật bất biến                                         |
+| [database-rollback-recovery.vi.md](database-rollback-recovery.vi.md) | Rollback một migration, và cứu khi migration hỏng                            |
+| [database-seeding.vi.md](database-seeding.vi.md)                     | Hệ seed fixture và seed khối lượng lớn                                       |
+| [prisma-7-migration.vi.md](prisma-7-migration.vi.md)                 | Nâng cấp Prisma 6 → 7: nạp env, driver adapter, client sinh ra, thay đổi CLI |
+| [redis-caching-guide.md](redis-caching-guide.md)                     | Redis từ căn bản tới cách dự án này dùng                                     |
+| [race-conditions-analysis.md](race-conditions-analysis.md)           | Các điểm tranh chấp đồng thời tìm thấy trong codebase                        |
 
 ### Hành vi API và vận hành
 

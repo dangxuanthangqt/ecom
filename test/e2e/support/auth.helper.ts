@@ -1,7 +1,7 @@
-import { VerificationCodeType } from "@prisma/client";
 import request from "supertest";
 import { v4 as uuidv4 } from "uuid";
 
+import { VerificationCodeType } from "@/generated/prisma/client";
 import { HashingService } from "@/shared/services/hashing.service";
 
 import { TestApp } from "./create-test-app";

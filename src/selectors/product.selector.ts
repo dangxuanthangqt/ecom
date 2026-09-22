@@ -1,14 +1,14 @@
-import { Language as LanguageSchema, Prisma } from "@prisma/client";
-
 import { ALL_LANGUAGES } from "@/constants/language";
 import { NOT_DELETED } from "@/constants/soft-delete.constant";
+import { Language as LanguageSchema, Prisma } from "@/generated/prisma/client";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
 import { createBrandWithTranslationsSelect } from "./brand.selector";
 import { categorySelect } from "./category.selector";
 import { productTranslationSelect } from "./product-translation.selector";
 import { skuSelect } from "./sku.selector";
 
-export const productSelect = Prisma.validator<Prisma.ProductSelect>()({
+export const productSelect = defineSelect<Prisma.ProductSelect>()({
   id: true,
   name: true,
   images: true,
@@ -31,7 +31,7 @@ export const createProductListSelect = ({
 }: {
   languageId?: LanguageSchema["id"];
 } = {}) =>
-  Prisma.validator<Prisma.ProductSelect>()({
+  defineSelect<Prisma.ProductSelect>()({
     ...productSelect,
     productTranslations: {
       where: {
@@ -60,7 +60,7 @@ export const createProductDetailSelect = ({
 }: {
   languageId?: LanguageSchema["id"];
 } = {}) =>
-  Prisma.validator<Prisma.ProductSelect>()({
+  defineSelect<Prisma.ProductSelect>()({
     ...createProductListSelect({ languageId }),
     skus: {
       where: NOT_DELETED,

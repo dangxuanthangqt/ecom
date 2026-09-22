@@ -14,7 +14,7 @@ What to do when a migration or a deploy goes wrong.
 | `data_checksums`    | `off`                                                      | Silent page corruption would not be detected                                    |
 | `lock_timeout`      | `0` (unlimited)                                            | A migration can block on a lock indefinitely, queueing all traffic              |
 | `statement_timeout` | `0`                                                        | A runaway data migration never self-aborts                                      |
-| Prisma              | 6.4.1, 27 migrations                                       | No `migrate down` exists                                                        |
+| Prisma              | 7.10.0, 27 migrations                                      | No `migrate down` exists                                                        |
 | Hosting             | `docker-compose` single host, named volume `postgres_data` | No managed-DB snapshots, no replica                                             |
 
 > **Read this first.** This project has **no point-in-time recovery today**. If data is destroyed, you can only return to the last `pnpm db:backup` dump — everything written after it is gone. Enabling PITR is infrastructure work (§9) and it cannot recover anything lost _before_ it is turned on.

@@ -9,7 +9,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { User } from "@prisma/client";
 
 import {
   LanguageCreateRequestDto,
@@ -22,6 +21,7 @@ import {
   LanguageUpdateResponseDto,
 } from "@/dtos/language/language.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import { User } from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,

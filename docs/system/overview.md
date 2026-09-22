@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-`ecom` is a headless e-commerce backend built on NestJS 11 + Prisma 6 + PostgreSQL 15 (`package.json:41-69`, `prisma/schema.prisma:9-12`, `docker-compose.yml:6`). It exposes a REST API only — there is no UI, no template rendering, no `.tsx`/`.vue`/`.html` view layer anywhere in the tree (`plans/260912-0113-rebuild-spec/artifacts/scout-report.md:263`). Fourteen `@Controller()` route modules cover auth, catalog (product/brand/category + i18n translations), media upload, RBAC (role/permission), user profile, and language management (`src/routes/route.module.ts:17-33`).
+`ecom` is a headless e-commerce backend built on NestJS 11 + Prisma 7 + PostgreSQL 15 (`package.json:41-69`, `prisma/schema.prisma:9-12`, `docker-compose.yml:6`). It exposes a REST API only — there is no UI, no template rendering, no `.tsx`/`.vue`/`.html` view layer anywhere in the tree (`plans/260912-0113-rebuild-spec/artifacts/scout-report.md:263`). Fourteen `@Controller()` route modules cover auth, catalog (product/brand/category + i18n translations), media upload, RBAC (role/permission), user profile, and language management (`src/routes/route.module.ts:17-33`).
 
 The data model (`prisma/schema.prisma`, 21 model blocks) is broader than the exposed API surface: `Order`, `Review`, `CartItem`, `Message`, `PaymentTransaction`, and `Device` all have Prisma models and relations but **no** corresponding `@Controller()` under `src/routes/**` — cart/checkout/order/review/messaging are modeled in the schema but not yet wired to routes. [UNVERIFIED — could not confirm whether these are planned-but-unbuilt or deprecated; no route, no repository, and no service reference them outside `schema.prisma` itself.]
 

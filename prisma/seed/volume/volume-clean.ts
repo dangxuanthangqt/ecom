@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/generated/prisma/client";
 
 import { assertSeedableEnvironment } from "../seed-environment";
 import { UserId } from "../seed-ids";

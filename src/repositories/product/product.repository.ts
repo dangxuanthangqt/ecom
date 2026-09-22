@@ -1,11 +1,4 @@
 import { Injectable, Logger } from "@nestjs/common";
-import {
-  Category as CategorySchema,
-  Language as LanguageSchema,
-  Prisma,
-  Product as ProductSchema,
-  User as UserSchema,
-} from "@prisma/client";
 import { isDefined } from "class-validator";
 
 import { ErrorCode } from "@/constants/error-codes";
@@ -17,6 +10,13 @@ import {
   UpsertSKURequestDto,
   UpsertSKUWithIdRequestDto,
 } from "@/dtos/sku/sku.dto";
+import {
+  Category as CategorySchema,
+  Language as LanguageSchema,
+  Prisma,
+  Product as ProductSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import {
   createProductDetailSelect,
   createProductListSelect,

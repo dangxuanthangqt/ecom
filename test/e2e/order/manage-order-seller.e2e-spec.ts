@@ -1,4 +1,4 @@
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma/client";
 
 import { authed, createTestUser, loginAs } from "../support/auth.helper";
 import {

@@ -1,7 +1,7 @@
 import { HttpException, Injectable, Logger } from "@nestjs/common";
-import { OrderStatus } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
+import { OrderStatus } from "@/generated/prisma/client";
 import { createOrderDetailSelect } from "@/selectors/order.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";

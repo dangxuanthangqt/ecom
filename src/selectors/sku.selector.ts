@@ -1,6 +1,7 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
-export const skuSelect = Prisma.validator<Prisma.SKUSelect>()({
+export const skuSelect = defineSelect<Prisma.SKUSelect>()({
   id: true,
   order: true,
   image: true,

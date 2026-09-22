@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { faker } from "@faker-js/faker";
-import { Prisma, PrismaClient } from "@prisma/client";
 
+import { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { HashingService } from "@/shared/services/hashing.service";
 
 import { RoleId, UserId } from "../seed-ids";

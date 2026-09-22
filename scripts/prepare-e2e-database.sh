@@ -56,8 +56,11 @@ cp -r src/i18n dist/i18n
 # gets `node_modules/.bin` on its own PATH — `prisma migrate reset` shells out
 # to the `prisma-json-types-generator` generator binary, which only resolves
 # with that PATH augmentation in place.
+# Prisma 7's `migrate reset` never seeds (and `--skip-seed` no longer exists):
+# the seed step below is the only one. prisma.config.ts reads DATABASE_URL from
+# `.env.test` because NODE_ENV=test — the same variables exported above.
 log "Resetting and migrating ecom_e2e..."
-NODE_ENV=test pnpm exec prisma migrate reset --force --skip-seed
+NODE_ENV=test pnpm exec prisma migrate reset --force
 
 log "Seeding core + demo fixtures..."
 NODE_ENV=test pnpm exec ts-node prisma/seed.ts --reset
@@ -69,8 +72,8 @@ log "Flushing redis logical DB 1..."
 case "${REDIS_URL:-}" in
   *localhost*/1|*127.0.0.1*/1)
     # `docker compose exec` parses the whole compose file, including the
-    # `env_file: .env.local` on services this script never touches (`app`,
-    # `migrate`) — so it fails on a checkout that has no `.env.local` yet.
+    # `env_file: .env` on services this script never touches (`app`,
+    # `migrate`) — so it fails on a checkout that has no `.env` yet.
     # `ps -q` resolves just the one container id without that requirement.
     redis_container="$(docker compose ps -q redis)"
     [ -n "$redis_container" ] || fail "docker compose redis service is not running. Run: docker compose up -d redis"

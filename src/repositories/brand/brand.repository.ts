@@ -1,14 +1,14 @@
 import { Injectable, Logger } from "@nestjs/common";
+import { I18nService } from "nestjs-i18n";
+
+import { ErrorCode } from "@/constants/error-codes";
 import {
   Brand as BrandSchema,
   BrandTranslation as BrandTranslationSchema,
   Language,
   Prisma,
   User as UserSchema,
-} from "@prisma/client";
-import { I18nService } from "nestjs-i18n";
-
-import { ErrorCode } from "@/constants/error-codes";
+} from "@/generated/prisma/client";
 import { createBrandWithTranslationsSelect } from "@/selectors/brand.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {

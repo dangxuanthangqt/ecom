@@ -11,6 +11,7 @@ import {
 import { ThrottlerModule } from "@nestjs/throttler";
 import { LoggerModule } from "nestjs-pino";
 
+import { resolveEnvFilePath } from "@/constants/env-file.constant";
 import { validateEnv } from "src/validations/env.validation";
 
 import { GlobalExceptionFilter } from "../filters/global-exception.filter";
@@ -81,7 +82,8 @@ const providers: Provider[] = [
     ConfigModule.forRoot({
       isGlobal: true, // This is important to make the configuration available in the whole application , register ConfigService as global
       validate: validateEnv,
-      envFilePath: [`.env.${process.env.NODE_ENV}`, ".env"],
+      // One file per environment: .env.development, .env.test, .env (production).
+      envFilePath: resolveEnvFilePath(),
     }),
     LoggerModule.forRootAsync({
       useFactory: loggerFactory,

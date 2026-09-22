@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { CartRepository } from "@/repositories/cart/cart.repository";
 
 import {
@@ -12,7 +11,7 @@ import {
 } from "./cart-repository-test-harness";
 
 const notFoundError = () =>
-  new PrismaClientKnownRequestError("Record not found.", {
+  new Prisma.PrismaClientKnownRequestError("Record not found.", {
     code: "P2025",
     clientVersion: "6.0.0",
   });

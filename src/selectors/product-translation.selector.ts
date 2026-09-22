@@ -1,9 +1,10 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
 import { languageSelect } from "./language.selector";
 
 export const productTranslationSelect =
-  Prisma.validator<Prisma.ProductTranslationSelect>()({
+  defineSelect<Prisma.ProductTranslationSelect>()({
     id: true,
     name: true,
     description: true,

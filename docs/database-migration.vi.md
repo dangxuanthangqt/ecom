@@ -2,7 +2,8 @@
 
 Thay đổi schema đi tới từng môi trường trong repo này như thế nào.
 
-**Stack:** NestJS 11 · Prisma 6.4.1 · PostgreSQL 15 · pnpm 10.6.5
+**Stack:** NestJS 11 · Prisma 7.10.0 · PostgreSQL 15 · pnpm 12.4.1
+**Config:** [`prisma.config.ts`](../prisma.config.ts) — URL datasource, URL shadow, thư mục migrations và lệnh seed (xem [prisma-7-migration.vi.md](prisma-7-migration.vi.md))
 **Schema:** [`prisma/schema.prisma`](../prisma/schema.prisma) (một file schema duy nhất)
 **Lịch sử:** [`prisma/migrations/`](../prisma/migrations/) — 27 migration, provider khóa cứng `postgresql` trong `migration_lock.toml`
 
@@ -25,7 +26,7 @@ Thay đổi schema đi tới từng môi trường trong repo này như thế n�
 
 ## 2. Ma trận môi trường
 
-`NODE_ENV` được validate bởi [`src/validations/env.validation.ts`](../src/validations/env.validation.ts) và chỉ chấp nhận **`development` hoặc `production`**. Vì vậy các môi trường được phân biệt bằng `DATABASE_URL` và target deploy — _không phải_ bằng `NODE_ENV`.
+`NODE_ENV` được validate bởi [`src/validations/env.validation.ts`](../src/validations/env.validation.ts) và chỉ chấp nhận **`development`, `test` hoặc `production`**. Staging và production đều chạy dưới `production`, và được phân biệt bằng `DATABASE_URL` cùng target deploy — _không phải_ bằng `NODE_ENV`.
 
 | Môi trường  | `NODE_ENV`    | Lệnh migration                                                   | Ai chạy nó                                                           |
 | ----------- | ------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -34,7 +35,28 @@ Thay đổi schema đi tới từng môi trường trong repo này như thế n�
 | Staging     | `production`  | `pnpm db:migrate`                                                | Workflow `Database Migrate`, environment `staging`                   |
 | Production  | `production`  | `pnpm db:migrate`                                                | Workflow `Database Migrate`, environment `production` (cần approval) |
 
-`ConfigModule` load `.env.${NODE_ENV}` rồi tới `.env` ([`src/shared/modules/base.module.ts`](../src/shared/modules/base.module.ts)). Các môi trường deploy inject biến trực tiếp thay vì đóng gói một file — `.dockerignore` chặn mọi `.env*` khỏi image.
+### Mỗi lệnh đọc file env nào
+
+`ConfigModule` chỉ load đúng một file env, chọn theo `NODE_ENV` ([`src/constants/env-file.constant.ts`](../src/constants/env-file.constant.ts), được gắn vào [`src/shared/modules/base.module.ts`](../src/shared/modules/base.module.ts)). Không có fallback giữa các file, nên mỗi file phải đầy đủ:
+
+| `NODE_ENV`    | File env           |
+| ------------- | ------------------ |
+| `development` | `.env.development` |
+| `test`        | `.env.test`        |
+| `production`  | `.env`             |
+
+Các môi trường deploy inject biến trực tiếp thay vì đóng gói một file — `.dockerignore` chặn mọi `.env*` khỏi image.
+
+> **Prisma CLI cũng theo đúng luật này.** [`prisma.config.ts`](../prisma.config.ts) nạp đúng file mà `NODE_ENV` chọn (development khi không đặt) qua cùng một resolver, và Prisma 7 không nạp gì khác — cả CLI lẫn client sinh ra đều không tự đọc `.env` nữa. Một lệnh `prisma migrate dev` trần trên máy developer vì thế chạy với `.env.development`, không bao giờ với production. Thứ tự ưu tiên, cao nhất trước:
+>
+> 1. biến đã có sẵn trong environment (secret của CI, `DATABASE_URL=... pnpm ...`)
+> 2. file env ứng với `NODE_ENV`
+>
+> Thiếu file không phải là lỗi: checkout trên CI và image Docker không có `.env.development` và inject thẳng mọi biến. Nếu sau đó `DATABASE_URL` vẫn trống, config bỏ qua datasource, nên `prisma generate` / `validate` / `format` vẫn chạy còn mọi lệnh cần database sẽ báo "datasource.url is required".
+>
+> `NODE_ENV=test` có thêm một chốt chặn: config từ chối mọi `DATABASE_URL` không chứa `ecom_e2e`, nên `db:test:reset` và bước setup e2e không thể bị trỏ sang database khác bởi một `.env.test` cũ hay một URL production đang export trong shell.
+>
+> Các script hướng deploy (`db:migrate`, `prisma:migrate:deploy`, `prisma:migrate:resolve:*`, `db:backup`, `db:restore`) kỳ vọng `DATABASE_URL` do platform hoặc CI inject. `scripts/run-database-migrations.sh` và các script backup/restore kiểm tra biến shell và dừng ngay nếu thiếu; trên máy developer, `pnpm prisma:migrate:deploy` trần sẽ rơi về `.env.development` như mọi lệnh khác.
 
 ---
 
@@ -81,7 +103,7 @@ pnpm prisma:migrate:status  # DB local không có migration pending/failed
 pnpm prisma:migrate:drift   # lịch sử migration tái tạo đúng schema.prisma
 ```
 
-`prisma:migrate:drift` cần `SHADOW_DATABASE_URL` trỏ vào một **database dùng-một-lần riêng biệt** — Prisma sẽ reset nó. Nó exit `2` khi `schema.prisma` và lịch sử migration không khớp, đây là lỗi kinh điển "sửa schema, quên migration".
+Cả ba lệnh đều chạy với `.env.development` (do `prisma.config.ts` chọn), nên chúng không bao giờ đụng tới database mà `.env` khai báo. `prisma:migrate:drift` cần `SHADOW_DATABASE_URL` trỏ vào một **database dùng-một-lần riêng biệt** — Prisma sẽ reset nó. Nó exit `2` khi `schema.prisma` và lịch sử migration không khớp, đây là lỗi kinh điển "sửa schema, quên migration".
 
 ### Seeding
 
@@ -98,14 +120,21 @@ pnpm seed:initial-scripts:create-permission  # các dòng permission từ routes
 
 Unit test (`pnpm test`, 114 suite) mock Prisma hoàn toàn và không cần database.
 
-Với bất cứ thứ gì đụng vào database thật, trỏ `DATABASE_URL` vào một **database test riêng** và reset nó:
+Với bất cứ thứ gì đụng vào database thật, `db:test:reset` chạy với `NODE_ENV=test` nên lấy `DATABASE_URL` từ `.env.test` (copy từ `.env.test.example`, file này trỏ vào `ecom_e2e`):
+
+```bash
+cp .env.test.example .env.test   # một lần cho mỗi checkout
+pnpm db:test:reset
+```
+
+Một biến được export tường minh vẫn ưu tiên hơn file — đây là cách CI trỏ lệnh này vào service container của nó:
 
 ```bash
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ecom_test?schema=public" \
   pnpm db:test:reset
 ```
 
-`db:test:reset` chạy `prisma migrate reset --force --skip-seed` — nó **xóa và tạo lại database**. Đừng bao giờ trỏ nó vào một database bạn quan tâm.
+`db:test:reset` chạy `prisma migrate reset --force` dưới `NODE_ENV=test` — nó **xóa và tạo lại database**. Đừng bao giờ trỏ nó vào một database bạn quan tâm. `prisma.config.ts` chỉ nạp đúng file env mà `NODE_ENV` chọn (ở đây là `.env.test`) và không gì khác; Prisma 7 không còn tự đọc `.env`, nên lệnh reset không thể thừa hưởng URL production. (`--skip-seed` đã bị bỏ ở Prisma 7 vì `migrate reset` không còn seed nữa — xem [database-seeding.vi.md](database-seeding.vi.md).)
 
 CI làm điều tương tự theo cách khó hơn: nó apply toàn bộ lịch sử lên một service container Postgres 15 trống, đây là thứ chứng minh lịch sử replay được từ số 0.
 
@@ -537,21 +566,22 @@ Là writer tự động duy nhất tới một database đã deploy.
 
 ## 13. Bảng tra lệnh
 
-| Lệnh                                             | Mục đích                                                                |
-| ------------------------------------------------ | ----------------------------------------------------------------------- |
-| `pnpm prisma:migrate:dev`                        | Tạo + apply một migration (**chỉ development**)                         |
-| `pnpm prisma:migrate:dev:create-only`            | Generate SQL mà không apply — để review và sửa tay                      |
-| `pnpm prisma:migrate:deploy`                     | Apply các migration đã commit (không phải development)                  |
-| `pnpm prisma:migrate:status`                     | Hiện các migration đã apply / pending / failed                          |
-| `pnpm prisma:migrate:resolve:applied <name>`     | Đánh dấu một migration failed là đã apply                               |
-| `pnpm prisma:migrate:resolve:rolled-back <name>` | Đánh dấu một migration failed là đã rolled back                         |
-| `pnpm prisma:migrate:drift`                      | Verify lịch sử tái tạo đúng `schema.prisma` (cần `SHADOW_DATABASE_URL`) |
-| `pnpm prisma:validate`                           | Validate `schema.prisma`                                                |
-| `pnpm prisma:generate`                           | Generate lại Prisma client                                              |
-| `pnpm prisma:studio`                             | Mở Prisma Studio                                                        |
-| `pnpm db:migrate`                                | Deploy có bảo vệ: chờ DB → status → deploy → verify                     |
-| `pnpm db:migrate:dry-run`                        | Báo cáo migration đang pending, không apply gì                          |
-| `pnpm db:test:reset`                             | **Xóa và tạo lại** database test, sau đó apply mọi migration            |
-| `pnpm seed:initial-scripts`                      | Seed admin user (không bao giờ tự động)                                 |
+| Lệnh                                             | Mục đích                                                                                                               |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `pnpm prisma:migrate:dev`                        | Tạo + apply một migration rồi generate lại client (**chỉ development**, đọc `.env.development` qua `prisma.config.ts`) |
+| `pnpm prisma:migrate:dev:create-only`            | Generate SQL mà không apply — để review và sửa tay                                                                     |
+| `pnpm prisma:migrate:deploy`                     | Apply các migration đã commit (không phải development)                                                                 |
+| `pnpm prisma:migrate:status`                     | Hiện các migration đã apply / pending / failed                                                                         |
+| `pnpm prisma:migrate:resolve:applied <name>`     | Đánh dấu một migration failed là đã apply                                                                              |
+| `pnpm prisma:migrate:resolve:rolled-back <name>` | Đánh dấu một migration failed là đã rolled back                                                                        |
+| `pnpm prisma:migrate:drift`                      | Verify lịch sử tái tạo đúng `schema.prisma` (cần `SHADOW_DATABASE_URL`)                                                |
+| `pnpm prisma:validate`                           | Validate `schema.prisma`                                                                                               |
+| `pnpm prisma:generate`                           | Generate lại Prisma client vào `src/generated/prisma` (không cần database)                                             |
+| `pnpm prisma:studio`                             | Mở Prisma Studio                                                                                                       |
+| `pnpm db:migrate`                                | Deploy có bảo vệ: chờ DB → status → deploy → verify                                                                    |
+| `pnpm db:migrate:dry-run`                        | Báo cáo migration đang pending, không apply gì                                                                         |
+| `pnpm db:test:reset`                             | **Xóa và tạo lại** database test (`.env.test`), sau đó apply mọi migration                                             |
+| `NODE_ENV=<development\|test\|production> <cmd>` | Chọn file env mà `prisma.config.ts` nạp cho bất kỳ lệnh Prisma nào (mặc định: development)                             |
+| `pnpm seed:initial-scripts`                      | Seed admin user (không bao giờ tự động)                                                                                |
 
 </content>

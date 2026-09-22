@@ -1,16 +1,16 @@
 import { Injectable } from "@nestjs/common";
-import {
-  Order as OrderSchema,
-  OrderStatus,
-  Prisma,
-  User as UserSchema,
-} from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { canTransition } from "@/constants/order-status.constant";
 import { Scope, ScopeType } from "@/constants/permission.constant";
 import { ManageOrderPaginationQueryDto } from "@/dtos/order/manage-order.dto";
+import {
+  Order as OrderSchema,
+  OrderStatus,
+  Prisma,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { OrderStatusRepository } from "@/repositories/order/order-status.repository";
 import { OrderRepository } from "@/repositories/order/order.repository";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";

@@ -17,11 +17,13 @@ pnpm-debug.log*
 
 # Build outputs
 dist
+# Generated Prisma client — the builder stage regenerates it from the schema.
+src/generated
 coverage
 .nyc_output
 
 # Environment files — never bake secrets into an image layer.
-# docker-compose injects .env.local at runtime via `env_file`, which reads from
+# docker-compose injects .env at runtime via `env_file`, which reads from
 # the host and is unaffected by this file.
 .env
 .env.*

@@ -9,8 +9,6 @@ import {
   syncPermissionCatalog,
 } from "./sync-permission-catalog";
 
-const prisma = new PrismaService();
-
 /**
  * CLI entrypoint: `pnpm seed:initial-scripts:create-permission`. Boots the Nest
  * app just long enough to read its controllers (`app.init()` — no `listen()`,
@@ -21,6 +19,10 @@ const prisma = new PrismaService();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   await app.init();
+
+  // The app's own client: it is built from the validated config, so there is
+  // no second connection string to keep in step with `AppModule`.
+  const prisma = app.get(PrismaService);
 
   await syncPermissionCatalog(app, prisma);
   await seedSystemRoleGrants(prisma, app.get(RolePermissionCacheService));

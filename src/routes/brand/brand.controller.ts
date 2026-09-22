@@ -9,7 +9,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { Language as LanguageSchema, User as UserSchema } from "@prisma/client";
 
 import {
   BrandIdParamDto,
@@ -23,6 +22,10 @@ import {
   UpdateBrandResponseDto,
 } from "@/dtos/brand/brand.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import {
+  Language as LanguageSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";

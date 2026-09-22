@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { CategoryTranslationRepository } from "@/repositories/category-translation/category-translation.repository";
 
 import {
@@ -118,7 +117,7 @@ describe("CategoryTranslationRepository - findUniqueCategoryTranslation", () => 
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -159,7 +158,7 @@ describe("CategoryTranslationRepository - validateCategory", () => {
 
   it("throws notFound error when category does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -209,7 +208,7 @@ describe("CategoryTranslationRepository - createCategoryTranslation", () => {
 
   it("throws unprocessable error on unique constraint violation", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError(
+    const error = new Prisma.PrismaClientKnownRequestError(
       "Unique constraint failed",
       { code: "P2002", clientVersion: "6.0.0" },
     );
@@ -234,10 +233,13 @@ describe("CategoryTranslationRepository - createCategoryTranslation", () => {
 
   it("throws unprocessable error on foreign key constraint", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Foreign key constraint", {
-      code: "P2003",
-      clientVersion: "6.0.0",
-    });
+    const error = new Prisma.PrismaClientKnownRequestError(
+      "Foreign key constraint",
+      {
+        code: "P2003",
+        clientVersion: "6.0.0",
+      },
+    );
     mocks.prismaService.categoryTranslation.create.mockRejectedValue(error);
 
     // Act
@@ -294,7 +296,7 @@ describe("CategoryTranslationRepository - updateCategoryTranslation", () => {
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -315,10 +317,13 @@ describe("CategoryTranslationRepository - updateCategoryTranslation", () => {
 
   it("throws unprocessable error on unique constraint", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Unique constraint", {
-      code: "P2002",
-      clientVersion: "6.0.0",
-    });
+    const error = new Prisma.PrismaClientKnownRequestError(
+      "Unique constraint",
+      {
+        code: "P2002",
+        clientVersion: "6.0.0",
+      },
+    );
     mocks.prismaService.categoryTranslation.update.mockRejectedValue(error);
 
     // Act
@@ -374,7 +379,7 @@ describe("CategoryTranslationRepository - deleteCategoryTranslation", () => {
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });

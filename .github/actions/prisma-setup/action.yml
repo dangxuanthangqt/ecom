@@ -5,16 +5,19 @@ runs:
   using: "composite"
   steps:
     - name: Cache Prisma client
+      id: prisma-cache
       uses: actions/cache@v4
       with:
-        path: |
-          node_modules/@prisma/client
-          node_modules/.pnpm/**/@prisma/client/**
-          prisma/generated
-        key: ${{ runner.os }}-prisma-${{ hashFiles('**/schema.prisma') }}
+        # Prisma 7 emits the client as TypeScript into src/generated/prisma;
+        # nothing is written into node_modules any more.
+        path: src/generated/prisma
+        key: ${{ runner.os }}-prisma-${{ hashFiles('**/schema.prisma', 'pnpm-lock.yaml') }}
         restore-keys: |
           ${{ runner.os }}-prisma-
 
+    # Skipped on a cache hit: the key covers schema.prisma and the lockfile, which
+    # are the only inputs the generated output depends on.
     - name: Generate Prisma client
+      if: steps.prisma-cache.outputs.cache-hit != 'true'
       shell: bash
       run: pnpm prisma:generate

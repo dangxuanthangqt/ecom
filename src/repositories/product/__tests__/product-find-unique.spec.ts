@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { ProductRepository } from "@/repositories/product/product.repository";
 
 import {
@@ -84,7 +83,7 @@ describe("ProductRepository - findUniqueProduct", () => {
   describe("error handling - record not found", () => {
     it("throws notFound error when product does not exist", async () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "An operation failed because it depends on one or more records that were required but not found.",
         {
           code: "P2025",

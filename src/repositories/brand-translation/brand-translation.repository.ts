@@ -1,11 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
+
+import { ErrorCode } from "@/constants/error-codes";
 import {
   Brand as BrandSchema,
   BrandTranslation as BrandTranslationSchema,
   Prisma,
-} from "@prisma/client";
-
-import { ErrorCode } from "@/constants/error-codes";
+} from "@/generated/prisma/client";
 import { brandTranslationSelect } from "@/selectors/brand-translation.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
