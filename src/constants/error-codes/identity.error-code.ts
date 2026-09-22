@@ -1,0 +1,33 @@
+/**
+ * User accounts, roles, permissions and the credential-bearing rows behind a
+ * session (devices, refresh tokens, verification codes).
+ *
+ * The `*_FORBIDDEN` codes are deliberately specific. "You cannot update your own
+ * user" and "you may not promote to admin" are different rules with different
+ * remedies, and an admin screen wants to say which one it hit.
+ */
+export const IdentityErrorCode = {
+  USER_NOT_FOUND: "USER_NOT_FOUND",
+  /** Changing a password with the wrong current one. */
+  CURRENT_PASSWORD_INCORRECT: "CURRENT_PASSWORD_INCORRECT",
+  USER_ADMIN_CREATE_FORBIDDEN: "USER_ADMIN_CREATE_FORBIDDEN",
+  USER_SELF_UPDATE_FORBIDDEN: "USER_SELF_UPDATE_FORBIDDEN",
+  USER_UPDATE_FORBIDDEN: "USER_UPDATE_FORBIDDEN",
+  USER_ADMIN_PROMOTE_FORBIDDEN: "USER_ADMIN_PROMOTE_FORBIDDEN",
+  USER_ADMIN_DELETE_FORBIDDEN: "USER_ADMIN_DELETE_FORBIDDEN",
+  USER_SAME_ROLE_DELETE_FORBIDDEN: "USER_SAME_ROLE_DELETE_FORBIDDEN",
+
+  ROLE_NOT_FOUND: "ROLE_NOT_FOUND",
+  ROLE_ALREADY_EXISTS: "ROLE_ALREADY_EXISTS",
+  /** Seeded roles are owned by the system, not by the API. */
+  ROLE_SYSTEM_IMMUTABLE: "ROLE_SYSTEM_IMMUTABLE",
+  PERMISSION_NOT_FOUND: "PERMISSION_NOT_FOUND",
+  PERMISSIONS_INVALID: "PERMISSIONS_INVALID",
+
+  DEVICE_NOT_FOUND: "DEVICE_NOT_FOUND",
+  DEVICE_ALREADY_EXISTS: "DEVICE_ALREADY_EXISTS",
+  REFRESH_TOKEN_NOT_FOUND: "REFRESH_TOKEN_NOT_FOUND",
+  REFRESH_TOKEN_ALREADY_EXISTS: "REFRESH_TOKEN_ALREADY_EXISTS",
+  VERIFICATION_CODE_NOT_FOUND: "VERIFICATION_CODE_NOT_FOUND",
+  VERIFICATION_CODE_ALREADY_EXISTS: "VERIFICATION_CODE_ALREADY_EXISTS",
+} as const;

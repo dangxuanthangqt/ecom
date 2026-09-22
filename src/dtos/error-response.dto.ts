@@ -1,7 +1,7 @@
 import { HttpStatus } from "@nestjs/common";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-import { errorCodeFromStatus } from "@/constants/error-code.constant";
+import { ALL_ERROR_CODES, errorCodeFromStatus } from "@/constants/error-codes";
 import { defaultMessageForStatus } from "@/constants/error-message.constant";
 
 import { ErrorDetailDto } from "./error-detail.dto";
@@ -16,7 +16,10 @@ export class ErrorResponseDto {
 
   @ApiProperty({
     example: "VALIDATION_FAILED",
-    description: "Stable machine code. Safe to branch on; never localized.",
+    enum: ALL_ERROR_CODES,
+    description:
+      "Stable machine code. Safe to branch on; never localized. Published as an " +
+      "enum so generated clients get a union instead of a bare string.",
   })
   error: string;
 

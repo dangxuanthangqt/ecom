@@ -15,9 +15,35 @@ import {
   getSchemaPath,
 } from "@nestjs/swagger";
 
-import { ErrorCode } from "@/constants/error-code.constant";
+import { ErrorCode } from "@/constants/error-codes";
 import { ErrorResponseDto } from "@/dtos/error-response.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+
+/**
+ * The response options every error answer shares.
+ *
+ * `type` — not `schema` — is what registers `ErrorResponseDto` in
+ * `components/schemas`, and registering it is what publishes the `error` enum to
+ * generated clients. Handing Swagger only `schema.example` gives it a plain
+ * object, so the class's `@ApiProperty` metadata, enum included, is never read
+ * and every error types as `unknown` downstream.
+ */
+const errorResponse = (
+  statusCode: HttpStatus,
+  overrides: Partial<ErrorResponseDto> = {},
+) => ({
+  type: ErrorResponseDto,
+  example: new ErrorResponseDto({ statusCode, ...overrides }),
+});
+
+/** The one worked example: a field-scoped validation failure. */
+const VALIDATION_EXAMPLE: Partial<ErrorResponseDto> = {
+  error: ErrorCode.VALIDATION_FAILED,
+  message: "Validation failed",
+  details: [
+    { field: "email", code: "isEmail", message: "email must be an email" },
+  ],
+};
 
 export function ApiAuth({
   type,
@@ -35,60 +61,27 @@ export function ApiAuth({
   const arrDecorator = [
     ApiUnauthorizedResponse({
       description: "Unauthorized",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.UNAUTHORIZED,
-        }),
-      },
+      ...errorResponse(HttpStatus.UNAUTHORIZED),
     }),
     ApiForbiddenResponse({
       description: "Forbidden",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.FORBIDDEN,
-        }),
-      },
+      ...errorResponse(HttpStatus.FORBIDDEN),
     }),
     ApiInternalServerErrorResponse({
       description: "Internal Server Error",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        }),
-      },
+      ...errorResponse(HttpStatus.INTERNAL_SERVER_ERROR),
     }),
     ApiBadRequestResponse({
       description: "Bad Request",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.BAD_REQUEST,
-          error: ErrorCode.VALIDATION_FAILED,
-          message: "Validation failed",
-          details: [
-            {
-              field: "email",
-              code: "isEmail",
-              message: "email must be an email",
-            },
-          ],
-        }),
-      },
+      ...errorResponse(HttpStatus.BAD_REQUEST, VALIDATION_EXAMPLE),
     }),
     ApiUnprocessableEntityResponse({
       description: "Unprocessable Entity",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        }),
-      },
+      ...errorResponse(HttpStatus.UNPROCESSABLE_ENTITY),
     }),
     ApiNotFoundResponse({
       description: "Not Found",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.NOT_FOUND,
-        }),
-      },
+      ...errorResponse(HttpStatus.NOT_FOUND),
     }),
     ApiOperation({ summary: options?.summary }),
   ];
@@ -135,44 +128,19 @@ export function ApiPublic({
     }),
     ApiInternalServerErrorResponse({
       description: "Internal Server Error",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        }),
-      },
+      ...errorResponse(HttpStatus.INTERNAL_SERVER_ERROR),
     }),
     ApiUnprocessableEntityResponse({
       description: "Unprocessable Entity",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        }),
-      },
+      ...errorResponse(HttpStatus.UNPROCESSABLE_ENTITY),
     }),
     ApiBadRequestResponse({
       description: "Bad Request",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.BAD_REQUEST,
-          error: ErrorCode.VALIDATION_FAILED,
-          message: "Validation failed",
-          details: [
-            {
-              field: "email",
-              code: "isEmail",
-              message: "email must be an email",
-            },
-          ],
-        }),
-      },
+      ...errorResponse(HttpStatus.BAD_REQUEST, VALIDATION_EXAMPLE),
     }),
     ApiNotFoundResponse({
       description: "Not Found",
-      schema: {
-        example: new ErrorResponseDto({
-          statusCode: HttpStatus.NOT_FOUND,
-        }),
-      },
+      ...errorResponse(HttpStatus.NOT_FOUND),
     }),
     ApiOperation({ summary: options?.summary }),
     HttpCode(statusCode),

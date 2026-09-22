@@ -10,6 +10,7 @@ import {
   UnprocessableEntityException,
 } from "@nestjs/common";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ErrorDetailDto } from "@/dtos/error-detail.dto";
 
 type HttpErrorType =
@@ -38,29 +39,36 @@ const STATUS_BY_TYPE: Record<HttpErrorType, HttpStatus> = {
  * reaches the client exactly as a validation failure does. See
  * `docs/error-handling.md`.
  *
- * @param field  names the input the rule is about. It becomes one `details` entry;
- *               omit it for failures that are not scoped to a field.
- * @param code   the stable machine code for that entry. Defaults to `"invalid"`;
- *               pass something specific whenever the client must branch on it.
- * @param error  overrides the top-level machine code, which otherwise derives from
- *               the HTTP status.
+ * @param code        the registered machine code for this rule. It lands on the
+ *                    envelope's `error`, which is the field clients branch on, and
+ *                    becomes the `details` entry's code too. Omit it only for
+ *                    infrastructure failures a client cannot act on — `error` then
+ *                    derives from the HTTP status as before.
+ * @param message     English, for the log and as the client's fallback copy. Never
+ *                    the thing a client should display once `code` is registered.
+ * @param field       names the input the rule is about. It becomes one `details`
+ *                    entry; omit it for failures not scoped to a field.
+ * @param detailCode  overrides the `details` entry's code alone, for the rare entry
+ *                    that carries a constraint name (`isEmail`) rather than a rule.
  */
 function throwHttpException({
   type,
+  code,
   message,
   field,
-  code = "invalid",
-  error,
+  detailCode,
 }: {
   type: HttpErrorType;
+  code?: ErrorCode;
   message: string;
   field?: string;
-  code?: string;
-  error?: string;
+  detailCode?: string;
 }): never {
   const statusCode = STATUS_BY_TYPE[type] ?? HttpStatus.INTERNAL_SERVER_ERROR;
-  const details: ErrorDetailDto[] = field ? [{ field, code, message }] : [];
-  const payload = { statusCode, error, message, details };
+  const details: ErrorDetailDto[] = field
+    ? [{ field, code: detailCode ?? code ?? "invalid", message }]
+    : [];
+  const payload = { statusCode, error: code, message, details };
 
   throw buildException(type, payload, statusCode);
 }
