@@ -38,6 +38,23 @@ import { BaseSKUResponseDto, UpsertSKURequestDto } from "../sku/sku.dto";
 import { ProductOrderByFields, ProductOrderByFieldsType } from "./constant";
 import { IsUniqueVariant, IsValidSKUs } from "./product.validation";
 
+/**
+ * A repeated query param (`?brandIds=a&brandIds=b`) arrives as an array, but a
+ * single occurrence (`?brandIds=a`) arrives as a bare string — Express cannot
+ * tell the two apart. Without this the one-filter-selected case fails `@IsArray`
+ * while two or more pass, so every list filter normalises to an array first.
+ * An empty value drops out entirely rather than becoming `[""]`.
+ */
+const toStringArray = ({
+  value,
+}: {
+  value: unknown;
+}): unknown[] | undefined => {
+  if (value === undefined || value === null || value === "") return undefined;
+
+  return Array.isArray(value) ? (value as unknown[]) : [value];
+};
+
 export class ProductQueryDto {
   @ApiPropertyOptional({
     description: "Filter products by brand IDs",
@@ -52,6 +69,7 @@ export class ProductQueryDto {
     message: "Each brand ID must be a valid UUID.",
   })
   @IsOptional()
+  @Transform(toStringArray)
   @IsArray({ message: "Brand IDs must be an array." })
   brandIds?: string[];
 
@@ -67,6 +85,7 @@ export class ProductQueryDto {
     each: true,
     message: "Each category ID must be a valid UUID.",
   })
+  @Transform(toStringArray)
   @IsArray({ message: "Category IDs must be an array." })
   @IsOptional()
   categoryIds?: string[];

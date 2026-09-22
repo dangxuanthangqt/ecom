@@ -5,7 +5,7 @@ import {
   createTestApp,
   TestApp,
 } from "../support/create-test-app";
-import { ProductId } from "../support/fixtures";
+import { BrandId, ProductId } from "../support/fixtures";
 
 /**
  * `GET /products` / `GET /products/:id` (`ProductController`) carry
@@ -53,6 +53,40 @@ describe("Public product browsing (F007)", () => {
       expect(
         body.data.some((product) => product.id === ProductId.UNPUBLISHED_DRAFT),
       ).toBe(false);
+    });
+
+    // A single `?brandIds=x` reaches Express as a string, not a one-element
+    // array, so `@IsArray` used to reject exactly the case the UI produces most
+    // — one brand ticked. Both arities are asserted so a future refactor cannot
+    // fix one by breaking the other.
+    it("filters by a single brand id passed once in the query string", async () => {
+      const response = await request(app.getHttpServer())
+        .get("/products")
+        .query({ brandIds: BrandId.APPLE })
+        .expect(200);
+
+      const body = response.body as { data: { brand: { id: string } }[] };
+
+      expect(body.data.length).toBeGreaterThan(0);
+      expect(
+        body.data.every((product) => product.brand.id === BrandId.APPLE),
+      ).toBe(true);
+    });
+
+    it("filters by several brand ids passed as repeated query params", async () => {
+      const response = await request(app.getHttpServer())
+        .get("/products")
+        .query(`brandIds=${BrandId.APPLE}&brandIds=${BrandId.SAMSUNG}`)
+        .expect(200);
+
+      const body = response.body as { data: { brand: { id: string } }[] };
+
+      expect(body.data.length).toBeGreaterThan(0);
+      expect(
+        body.data.every((product) =>
+          [BrandId.APPLE, BrandId.SAMSUNG].includes(product.brand.id),
+        ),
+      ).toBe(true);
     });
   });
 
