@@ -158,8 +158,10 @@ has a markdown version (full detail, line links) and an HTML version (visual, zo
 | [error-handling.md](error-handling.md) | The single error envelope every response follows |
 | [rate-limiting-guide.md](rate-limiting-guide.md) | Throttling, including the authentication endpoints |
 | [google-oauth-login-flow.md](google-oauth-login-flow.md) | The Google sign-in flow end to end |
+| [totp-two-factor-authentication.md](totp-two-factor-authentication.md) | How TOTP two-factor authentication works, end to end (Vietnamese) |
 | [queue-job-worker-scheduler-guide.md](queue-job-worker-scheduler-guide.md) | Background jobs, workers and scheduling |
 | [e2e-testing.md](e2e-testing.md) | The e2e harness and how to run it |
 
-> Most of these have a `.vi.md` Vietnamese mirror alongside them. `authorization-guide.md` and
-> `authorization-mechanics-and-code-walkthrough.md` are Vietnamese-only — there is no English mirror yet.
+> Most of these have a `.vi.md` Vietnamese mirror alongside them. `authorization-guide.md`,
+> `authorization-mechanics-and-code-walkthrough.md` and `totp-two-factor-authentication.md` are
+> Vietnamese-only — there is no English mirror yet.
