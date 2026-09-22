@@ -1,0 +1,2931 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chương 6 — Module và Dependency Injection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Paper/Ink · light default ── */
+      :root {
+        --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+        --font-mono: "Azeret Mono", "SF Mono", Consolas, monospace;
+
+        --bg: #faf6f0;
+        --surface: #ffffff;
+        --surface2: #f3ece2;
+        --surface-elevated: #fffdf7;
+        --border: rgba(60, 40, 20, 0.09);
+        --border-bright: rgba(60, 40, 20, 0.2);
+        --text: #2c2a25;
+        --text-dim: #7c756a;
+        --text-bright: #1a1814;
+        --accent: #c2410c;
+        --accent-dim: rgba(194, 65, 12, 0.08);
+
+        --node-a: #c2410c;
+        --node-a-dim: rgba(194, 65, 12, 0.08);
+        --node-b: #4d7c0f;
+        --node-b-dim: rgba(77, 124, 15, 0.09);
+        --node-c: #0f766e;
+        --node-c-dim: rgba(15, 118, 110, 0.09);
+
+        --green: #3f6212;
+        --green-dim: rgba(63, 98, 18, 0.1);
+        --red: #b3261e;
+        --red-dim: rgba(179, 38, 30, 0.09);
+        --amber: #b45309;
+        --amber-dim: rgba(180, 83, 9, 0.1);
+        --sage: #65a30d;
+        --sage-dim: rgba(101, 163, 13, 0.09);
+        --teal: #0f766e;
+        --teal-dim: rgba(15, 118, 110, 0.09);
+        --plum: #9f1239;
+        --plum-dim: rgba(159, 18, 57, 0.09);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #1c1916;
+          --surface: #262220;
+          --surface2: #302a26;
+          --surface-elevated: #342e29;
+          --border: rgba(200, 180, 160, 0.09);
+          --border-bright: rgba(200, 180, 160, 0.2);
+          --text: #f0e8dc;
+          --text-dim: #a89e90;
+          --text-bright: #fbf6ee;
+          --accent: #f0743f;
+          --accent-dim: rgba(240, 116, 63, 0.13);
+          --node-a: #f0743f;
+          --node-a-dim: rgba(240, 116, 63, 0.13);
+          --node-b: #a3e635;
+          --node-b-dim: rgba(163, 230, 53, 0.11);
+          --node-c: #5eead4;
+          --node-c-dim: rgba(94, 234, 212, 0.11);
+          --green: #a3e635;
+          --green-dim: rgba(163, 230, 53, 0.12);
+          --red: #fca5a5;
+          --red-dim: rgba(252, 165, 165, 0.12);
+          --amber: #fbbf24;
+          --amber-dim: rgba(251, 191, 36, 0.12);
+          --sage: #bef264;
+          --sage-dim: rgba(190, 242, 100, 0.12);
+          --teal: #5eead4;
+          --teal-dim: rgba(94, 234, 212, 0.12);
+          --plum: #fda4af;
+          --plum-dim: rgba(253, 164, 175, 0.12);
+        }
+      }
+      [data-theme="dark"] {
+        --bg: #1c1916;
+        --surface: #262220;
+        --surface2: #302a26;
+        --surface-elevated: #342e29;
+        --border: rgba(200, 180, 160, 0.09);
+        --border-bright: rgba(200, 180, 160, 0.2);
+        --text: #f0e8dc;
+        --text-dim: #a89e90;
+        --text-bright: #fbf6ee;
+        --accent: #f0743f;
+        --accent-dim: rgba(240, 116, 63, 0.13);
+        --node-a: #f0743f;
+        --node-a-dim: rgba(240, 116, 63, 0.13);
+        --node-b: #a3e635;
+        --node-b-dim: rgba(163, 230, 53, 0.11);
+        --node-c: #5eead4;
+        --node-c-dim: rgba(94, 234, 212, 0.11);
+        --green: #a3e635;
+        --green-dim: rgba(163, 230, 53, 0.12);
+        --red: #fca5a5;
+        --red-dim: rgba(252, 165, 165, 0.12);
+        --amber: #fbbf24;
+        --amber-dim: rgba(251, 191, 36, 0.12);
+        --sage: #bef264;
+        --sage-dim: rgba(190, 242, 100, 0.12);
+        --teal: #5eead4;
+        --teal-dim: rgba(94, 234, 212, 0.12);
+        --plum: #fda4af;
+        --plum-dim: rgba(253, 164, 175, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 28px 40px 80px;
+        font-family: var(--font-body);
+        color: var(--text);
+        background-color: var(--bg);
+        background-image: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 40px,
+          var(--border) 40px,
+          var(--border) 41px
+        );
+        overflow-wrap: break-word;
+        line-height: 1.65;
+        font-size: 15.5px;
+      }
+      .grid > *,
+      .flex > * {
+        min-width: 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 300;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-dim);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      }
+      .theme-toggle:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 0 40px;
+      }
+      .main {
+        min-width: 0;
+      }
+      .toc {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        padding: 14px 0;
+        grid-row: 1 / -1;
+        max-height: calc(100dvh - 48px);
+        overflow-y: auto;
+      }
+      .toc::-webkit-scrollbar {
+        width: 3px;
+      }
+      .toc::-webkit-scrollbar-thumb {
+        background: var(--surface-elevated);
+        border-radius: 2px;
+      }
+      .toc-title {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+        padding: 0 0 10px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .toc a {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 5px 8px;
+        border-radius: 5px;
+        border-left: 2px solid transparent;
+        transition: all 0.15s;
+        line-height: 1.4;
+        margin-bottom: 1px;
+      }
+      .toc a:hover {
+        color: var(--text);
+        background: var(--surface2);
+      }
+      .toc a.active {
+        color: var(--text);
+        border-left-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .toc-series {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+      .toc-series a {
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+
+      .series-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-bottom: 18px;
+      }
+      .series-bar a {
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 4px 9px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+      .series-bar a:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .series-bar .sep {
+        opacity: 0.5;
+      }
+
+      .masthead {
+        border-bottom: 2px solid var(--border-bright);
+        padding-bottom: 22px;
+        margin-bottom: 30px;
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2.4px;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(28px, 3.4vw, 42px);
+        line-height: 1.12;
+        margin: 0 0 12px;
+        letter-spacing: -0.8px;
+        color: var(--text-bright);
+        font-weight: 800;
+      }
+      .subtitle {
+        font-size: 17px;
+        color: var(--text-dim);
+        margin: 0;
+        max-width: 70ch;
+      }
+      .masthead-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin: 50px 0 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        scroll-margin-top: 20px;
+      }
+      .sec-head__num {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent);
+        background: var(--accent-dim);
+        padding: 3px 9px;
+        border-radius: 5px;
+        flex-shrink: 0;
+      }
+      .sec-head__text {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        color: var(--text-bright);
+      }
+      h3.sub {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 26px 0 10px;
+        color: var(--text-bright);
+      }
+      p.lead {
+        font-size: 16.5px;
+        color: var(--text);
+        max-width: 72ch;
+      }
+      p.dim {
+        color: var(--text-dim);
+      }
+      .prose {
+        max-width: 74ch;
+      }
+
+      .ve-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 22px;
+        position: relative;
+      }
+      .ve-card--elevated {
+        background: var(--surface-elevated);
+        box-shadow:
+          0 2px 8px rgba(0, 0, 0, 0.07),
+          0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      .ve-card--recessed {
+        background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .ve-card--hero {
+        background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.07),
+          0 1px 3px rgba(0, 0, 0, 0.04);
+        border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+      }
+      .ve-card__label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--node-a);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ve-card__label::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+      }
+      .ve-card__label--b {
+        color: var(--node-b);
+      }
+      .ve-card__label--c {
+        color: var(--node-c);
+      }
+      .ve-card__label--plum {
+        color: var(--plum);
+      }
+      .ve-card__label--amber {
+        color: var(--amber);
+      }
+      .ve-card__label--red {
+        color: var(--red);
+      }
+      .ve-card p {
+        margin: 0 0 10px;
+      }
+      .ve-card p:last-child {
+        margin-bottom: 0;
+      }
+      .ve-card ul,
+      .ve-card ol {
+        padding-left: 1.6em;
+        margin: 6px 0 0;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+      }
+      .card-grid--2 {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .tag {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 5px;
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        display: inline-block;
+      }
+      .tag--b {
+        background: var(--node-b-dim);
+        color: var(--node-b);
+      }
+      .tag--c {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+      }
+      .tag--amber {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .tag--red {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .tag--green {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .tag--plum {
+        background: var(--plum-dim);
+        color: var(--plum);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      .status--match {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .status--gap {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .status--warn {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .status--info {
+        background: var(--accent-dim);
+        color: var(--accent);
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.88em;
+        background: var(--accent-dim);
+        color: var(--accent);
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .code-file {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .code-file__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px 15px;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .code-file__header span:first-child {
+        color: var(--text);
+      }
+      .code-file__body {
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+        line-height: 1.6;
+        padding: 15px;
+        margin: 0;
+        background: var(--surface);
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 480px;
+        overflow: auto;
+        color: var(--text);
+      }
+      .cm {
+        color: var(--text-dim);
+        font-style: italic;
+      }
+      .kw {
+        color: var(--plum);
+      }
+      .st {
+        color: var(--node-b);
+      }
+      .fn {
+        color: var(--node-c);
+      }
+      .out {
+        color: var(--text-dim);
+      }
+
+      .pipeline {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+      .pipeline__step {
+        min-width: 150px;
+        flex: 1 1 0;
+      }
+      .pipeline__step--hi {
+        border-color: color-mix(in srgb, var(--border) 40%, var(--accent) 60%);
+        background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+      }
+      .pipeline__step--mute {
+        opacity: 0.72;
+      }
+      .pipeline__arrow {
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        color: var(--border-bright);
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .node-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+      .node-list li {
+        padding-left: 15px;
+        position: relative;
+      }
+      .node-list li::before {
+        content: "›";
+        color: var(--text-dim);
+        font-weight: 600;
+        position: absolute;
+        left: 0;
+      }
+
+      .table-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .data-table th {
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        text-align: left;
+        padding: 11px 15px;
+        border-bottom: 2px solid var(--border-bright);
+        white-space: nowrap;
+      }
+      .data-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        color: var(--text);
+      }
+      .data-table tbody tr:nth-child(even) {
+        background: var(--accent-dim);
+      }
+      .data-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table code {
+        font-size: 12px;
+      }
+      .data-table small {
+        display: block;
+        color: var(--text-dim);
+        font-size: 12px;
+        margin-top: 3px;
+      }
+      .data-table .num {
+        font-family: var(--font-mono);
+        color: var(--text-dim);
+        text-align: right;
+      }
+
+      .callout {
+        padding: 16px 20px;
+        border-radius: 8px;
+        border-left: 4px solid var(--callout-border);
+        background: var(--callout-bg);
+        margin: 18px 0;
+        font-size: 15px;
+      }
+      .callout--info {
+        --callout-border: var(--accent);
+        --callout-bg: color-mix(in srgb, var(--accent) 9%, transparent);
+      }
+      .callout--warning {
+        --callout-border: var(--amber);
+        --callout-bg: color-mix(in srgb, var(--amber) 10%, transparent);
+      }
+      .callout--success {
+        --callout-border: var(--green);
+        --callout-bg: color-mix(in srgb, var(--green) 9%, transparent);
+      }
+      .callout--danger {
+        --callout-border: var(--red);
+        --callout-bg: color-mix(in srgb, var(--red) 9%, transparent);
+      }
+      .callout__title {
+        font-weight: 700;
+        margin-bottom: 7px;
+        color: var(--callout-border);
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .callout ul {
+        padding-left: 1.5em;
+        margin: 8px 0 0;
+      }
+
+      .diff-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .diff-panels > * {
+        min-width: 0;
+        overflow-wrap: break-word;
+      }
+      .diff-panel__header {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 10px 16px;
+      }
+      .diff-panel__header--a {
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        border-bottom: 2px solid var(--node-a);
+      }
+      .diff-panel__header--b {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+        border-bottom: 2px solid var(--node-c);
+      }
+      .diff-panel__header--bad {
+        background: var(--red-dim);
+        color: var(--red);
+        border-bottom: 2px solid var(--red);
+      }
+      .diff-panel__header--good {
+        background: var(--green-dim);
+        color: var(--green);
+        border-bottom: 2px solid var(--green);
+      }
+      .diff-panel__body {
+        padding: 16px;
+        background: var(--surface);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .diff-panel__body ul {
+        padding-left: 1.4em;
+        margin: 0;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 28px;
+        margin: 12px 0;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 6px;
+        bottom: 6px;
+        width: 2px;
+        background: var(--border-bright);
+      }
+      .timeline__item {
+        position: relative;
+        margin-bottom: 14px;
+      }
+      .timeline__item::before {
+        content: "";
+        position: absolute;
+        left: -24px;
+        top: 8px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 2px solid var(--accent);
+      }
+      .timeline__item--stop::before {
+        border-color: var(--red);
+        background: var(--red-dim);
+      }
+      .timeline__item--ok::before {
+        border-color: var(--green);
+        background: var(--green-dim);
+      }
+      .timeline__item--mute::before {
+        border-color: var(--border-bright);
+      }
+      .timeline__title {
+        font-weight: 700;
+        color: var(--text-bright);
+      }
+      .timeline__title code {
+        font-size: 13px;
+      }
+      .timeline__desc {
+        color: var(--text-dim);
+        font-size: 14.5px;
+        margin-top: 2px;
+      }
+
+      .diagram-shell {
+        position: relative;
+        margin: 8px 0 4px;
+      }
+      .diagram-shell__hint {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin: 0 0 8px;
+        opacity: 0.75;
+      }
+      .mermaid-wrap {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px 22px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 380px;
+        cursor: grab;
+      }
+      .mermaid-wrap.is-panning {
+        cursor: grabbing;
+        user-select: none;
+      }
+      .zoom-controls {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 2px;
+        z-index: 10;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px;
+        align-items: center;
+      }
+      .zoom-controls button {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .zoom-controls button:hover {
+        background: var(--border);
+        color: var(--text);
+      }
+      .zoom-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        padding: 0 6px;
+        white-space: nowrap;
+      }
+      .mermaid-viewport {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+      }
+      .mermaid-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .mermaid .nodeLabel {
+        color: var(--text) !important;
+        font-family: var(--font-body) !important;
+        font-size: 15px !important;
+      }
+      .mermaid .edgeLabel {
+        color: var(--text-dim) !important;
+        background-color: var(--bg) !important;
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+      .mermaid .edgeLabel rect {
+        fill: var(--bg) !important;
+      }
+      .mermaid .messageText {
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+
+      details.collapsible {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--surface);
+        margin: 12px 0;
+      }
+      details.collapsible summary {
+        padding: 13px 19px;
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text);
+      }
+      details.collapsible summary::-webkit-details-marker {
+        display: none;
+      }
+      details.collapsible summary::before {
+        content: "▸";
+        font-size: 11px;
+        color: var(--text-dim);
+        transition: transform 0.15s ease;
+      }
+      details.collapsible[open] summary::before {
+        transform: rotate(90deg);
+      }
+      .collapsible__body {
+        padding: 16px 19px;
+        border-top: 1px solid var(--border);
+        font-size: 15px;
+      }
+
+      .chapter-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .chapter-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+      .chapter-card__num {
+        font-family: var(--font-mono);
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .chapter-card__title {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--text-bright);
+        margin-bottom: 6px;
+      }
+      .chapter-card__q {
+        font-size: 14px;
+        color: var(--text-dim);
+      }
+      .chapter-card__links {
+        margin-top: 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+      .chapter-card__links a {
+        margin-right: 10px;
+      }
+
+      .footer-nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .footer-nav a {
+        text-decoration: none;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text);
+        max-width: 48%;
+      }
+      .footer-nav a:hover {
+        border-color: var(--accent);
+      }
+      .footer-nav small {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 3px;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .ve-card {
+        animation: fadeUp 0.4s ease-out both;
+        animation-delay: calc(var(--i, 0) * 0.05s);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 1000px) {
+        body {
+          padding: 0 20px 60px;
+        }
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+        .toc {
+          position: sticky;
+          top: 0;
+          z-index: 200;
+          max-height: none;
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          overflow-x: auto;
+          background: var(--bg);
+          border-bottom: 1px solid var(--border);
+          padding: 10px 20px;
+          margin: 0 -20px;
+          grid-row: auto;
+        }
+        .toc::-webkit-scrollbar {
+          display: none;
+        }
+        .toc-title,
+        .toc-series {
+          display: none;
+        }
+        .toc a {
+          white-space: nowrap;
+          flex-shrink: 0;
+          border-left: none;
+          border-bottom: 2px solid transparent;
+          border-radius: 4px 4px 0 0;
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+        .toc a.active {
+          border-left: none;
+          border-bottom-color: var(--accent);
+          background: var(--surface);
+        }
+        .main {
+          padding-top: 22px;
+        }
+        .sec-head {
+          scroll-margin-top: 56px;
+        }
+        .pipeline {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .pipeline__arrow {
+          display: none;
+        }
+        .pipeline__step {
+          min-width: 100%;
+        }
+        .diff-panels {
+          grid-template-columns: 1fr;
+        }
+        .footer-nav {
+          flex-direction: column;
+        }
+        .footer-nav a {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      class="theme-toggle"
+      id="themeToggle"
+      title="Đổi giao diện sáng/tối"
+      aria-label="Đổi giao diện sáng tối"
+    ></button>
+    <div class="wrap">
+      <nav class="toc" id="toc">
+        <div class="toc-title">Chương 6</div>
+        <a href="#s1">Ai tạo object</a>
+        <a href="#s1b">IoC · DI · Service Locator</a>
+        <a href="#s2">Bốn kiểu provider</a>
+        <a href="#s3">Bốn ô của @Module</a>
+        <a href="#s4">Quy tắc phân giải</a>
+        <a href="#s5">@Global · SharedModule</a>
+        <a href="#s6">APP_GUARD và anh em</a>
+        <a href="#s7">Module động</a>
+        <a href="#s8">Scope</a>
+        <a href="#s9">Vòng tròn</a>
+        <a href="#s10">DI trong test</a>
+        <a href="#s11">Lifecycle</a>
+        <a href="#s12">Bản đồ module</a>
+        <a href="#s13">Chỗ dễ vấp</a>
+        <a href="#s14">Tự kiểm chứng</a>
+        <div class="toc-series">
+          <a href="index.html">↑ Mục lục bộ</a
+          ><a href="05-request-lifecycle-in-this-project.html">← Chương 5</a
+          ><a href="07-dto-validation-transformation-serialization.html"
+            >→ Chương 7</a
+          >
+        </div>
+      </nav>
+
+      <div class="main">
+        <div class="series-bar">
+          <a href="index.html">Mục lục</a><span class="sep">·</span>
+          <a href="00-prototype-and-this.html">00 Prototype</a>
+          <a href="01-decorators-and-metadata.html">01 Decorator</a>
+          <a href="02-reflector-execution-context-and-discovery.html"
+            >02 Reflector</a
+          >
+          <a href="03-guards.html">03 Guard</a>
+          <a href="04-middleware.html">04 Middleware</a>
+          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
+          <span>06 Module &amp; DI</span>
+          <a href="07-dto-validation-transformation-serialization.html"
+            >07 DTO</a
+          >
+          <a href="appendix-a-reflect-metadata-internals.html"
+            >A reflect-metadata</a
+          >
+          <span class="sep">·</span
+          ><a href="06-modules-and-dependency-injection.md"
+            >bản markdown đầy đủ</a
+          >
+        </div>
+
+        <header class="masthead">
+          <div class="eyebrow">Chương 6</div>
+          <h1>Module và Dependency Injection</h1>
+          <p class="subtitle">
+            Năm chương đầu giải thích <strong>request đi qua đâu</strong>.
+            Chương này giải thích
+            <strong>những object trên đường đi đó từ đâu ra</strong> — và vì sao
+            cùng một class có thể tồn tại <em>hai bản</em> trong cùng một app.
+          </p>
+          <div class="masthead-meta">
+            <span class="tag">3 thí nghiệm chạy thật</span
+            ><span class="tag tag--b">không cần DB</span
+            ><span class="tag tag--amber">1 cái bẫy đang có trong repo</span>
+          </div>
+        </header>
+
+        <div class="sec-head" id="s1">
+          <span class="sec-head__num">01</span
+          ><span class="sec-head__text"
+            >Vấn đề: ai tạo object trong constructor</span
+          >
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/routes/role/role.service.ts</span><span>dòng 15-20</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code>@<span class="fn">Injectable</span>()
+<span class="kw">export class</span> RoleService {
+  <span class="kw">constructor</span>(
+    <span class="kw">private readonly</span> roleRepository: RoleRepository,
+    <span class="kw">private readonly</span> rolePermissionCacheService: RolePermissionCacheService,
+  ) {}
+}</code></pre>
+        </div>
+        <p class="prose">
+          Không chỗ nào trong <code>src/</code> viết
+          <code>new RoleService(...)</code>. Vậy cái <code>roleService</code> mà
+          controller gọi ở đâu ra?
+        </p>
+        <div class="diff-panels">
+          <div>
+            <div class="diff-panel__header diff-panel__header--bad">
+              Không DI — tự ráp tay
+            </div>
+            <div class="diff-panel__body">
+              <pre
+                class="code-file__body"
+                style="
+                  border: 0;
+                  padding: 0;
+                  background: transparent;
+                  font-size: 12.5px;
+                "
+              ><code><span class="kw">const</span> prisma = <span class="kw">new</span> <span class="fn">PrismaService</span>();
+<span class="kw">const</span> redis = <span class="kw">new</span> <span class="fn">RedisService</span>(config);
+<span class="kw">const</span> cache = <span class="kw">new</span> <span class="fn">RolePermissionCacheService</span>(redis);
+<span class="kw">const</span> roleRepo = <span class="kw">new</span> <span class="fn">RoleRepository</span>(prisma);
+<span class="kw">const</span> roleService = <span class="kw">new</span> <span class="fn">RoleService</span>(roleRepo, cache);</code></pre>
+              <p style="margin: 10px 0 0">
+                Sáu dòng cho <strong>một</strong> controller. Repo có 17
+                controller, 25 repository. Và phần khó hơn: phải nhớ
+                <em>dùng lại</em> object đã tạo —
+                <code>new RedisService</code> lần nữa là mở hai kết nối.
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="diff-panel__header diff-panel__header--good">
+              Có DI — đảo quyền điều khiển
+            </div>
+            <div class="diff-panel__body">
+              <p style="margin: 0 0 10px">
+                Class <strong>khai báo nó cần gì</strong>, không
+                <strong>đi lấy</strong> thứ nó cần. Container giữ sổ sách và ráp
+                hộ.
+              </p>
+              <ul class="node-list">
+                <li>
+                  <strong>Dùng lại instance</strong> — một
+                  <code>PrismaService</code>, một pool, không phải 25
+                </li>
+                <li>
+                  <strong>Thay thế được</strong> — test khai "ai hỏi X thì đưa
+                  mock này"
+                </li>
+                <li><strong>Thứ tự khởi tạo tự lo</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout--info">
+          <div class="callout__title">
+            Container biết kiểu bằng cách nào — nối về
+            <a href="01-decorators-and-metadata.html">chương 1</a>
+          </div>
+          Vì <code>RoleService</code> có decorator và tsconfig bật
+          <code>emitDecoratorMetadata</code>, compiler dán:
+          <code>Reflect.getMetadata("design:paramtypes", RoleService)</code> →
+          <code>[RoleRepository, RolePermissionCacheService]</code>.
+          <strong><code>@Injectable()</code> không "làm" gì cả</strong> — nó là
+          cái cớ để compiler emit mảng kiểu. Và vì mảng này chỉ ghi được
+          <em>class</em>, bạn không inject được theo interface.
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Gọi đúng tên</th>
+                  <th>Tên đầy đủ</th>
+                  <th>Nó là loại gì</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>IoC</strong></td>
+                  <td>Inversion of Control</td>
+                  <td>
+                    Một <strong>nguyên tắc</strong> rộng: framework giữ quyền
+                    điều khiển luồng, code của bạn <em>bị gọi</em> chứ không
+                    <em>đi gọi</em>. Câu tóm kinh điển — Hollywood Principle:
+                    <em>"Don't call us, we'll call you."</em>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>DI</strong></td>
+                  <td>Dependency Injection</td>
+                  <td>
+                    Một <strong>kỹ thuật</strong> hiện thực IoC, chỉ cho đúng
+                    một chuyện: phụ thuộc được
+                    <strong>truyền vào từ ngoài</strong> thay vì class tự đi
+                    lấy.
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>DIP</strong></td>
+                  <td>Dependency Inversion Principle</td>
+                  <td>
+                    Chữ <strong>D</strong> trong SOLID: module cấp cao đừng phụ
+                    thuộc trực tiếp vào module cấp thấp — cả hai cùng phụ thuộc
+                    vào một <strong>abstraction</strong>.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="prose">
+          IoC là cái ô lớn → DI là một cách làm IoC → DIP là lý do người ta
+          <em>muốn</em> DI. Chiều ngược lại không đúng:
+          <strong>dùng DI không tự động có DIP</strong>.
+        </p>
+        <div class="callout callout--warning">
+          <div class="callout__title">
+            Repo này có DI, và cố tình không có DIP
+          </div>
+          <code>RoleService</code> inject <code>RoleRepository</code> — một
+          <strong>class cụ thể</strong>, không phải interface. Phụ thuộc vẫn đi
+          từ ngoài vào (DI ✓), nhưng lớp cao vẫn trỏ thẳng vào lớp thấp (DIP ✗).
+          Lý do là ràng buộc kỹ thuật: <code>design:paramtypes</code> chỉ ghi
+          được <em>class</em>, nên DIP thật đòi khai token thủ công
+          (<code>@Inject("ROLE_REPOSITORY")</code>) cho mọi phụ thuộc. Dự án
+          không trả giá đó và <strong>không mất gì trong test</strong> —
+          container phân giải theo <em>token</em>, mà token ở đây chính là
+          class.
+        </div>
+        <p class="prose">
+          <strong>IoC rộng hơn DI.</strong> Ba chương trước cũng toàn IoC mà
+          không hề có injection nào:
+        </p>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Bạn viết</th>
+                  <th>Ai gọi nó</th>
+                  <th>Là gì</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>canActivate()</code> — AccessTokenGuard</td>
+                  <td>Nest gọi, trước khi vào handler</td>
+                  <td>IoC, không DI</td>
+                </tr>
+                <tr>
+                  <td><code>onModuleInit()</code> — PrismaService</td>
+                  <td>Nest gọi, lúc boot</td>
+                  <td>IoC, không DI</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>useFactory</code> trong <code>forRootAsync</code>
+                  </td>
+                  <td>Container gọi khi cần dựng provider</td>
+                  <td>IoC, không DI</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>constructor(roleRepository: RoleRepository)</code>
+                  </td>
+                  <td>Container truyền vào lúc dựng object</td>
+                  <td>IoC <strong>và</strong> DI</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="prose">
+          <code>AccessTokenGuard</code> nằm trên
+          <strong>cả hai trục cùng lúc</strong>: constructor của nó nhận 3 phụ
+          thuộc (DI), còn <code>canActivate</code> thì không chỗ nào trong
+          <code>src/</code> gọi — Nest gọi, vì nó được khai dưới token
+          <code>APP_GUARD</code> (<a href="#s6">mục 06</a>).
+        </p>
+
+        <div class="sec-head" id="s1b">
+          <span class="sec-head__num">01b</span
+          ><span class="sec-head__text"
+            >Cách thứ ba mà ai cũng vấp: Service Locator</span
+          >
+        </div>
+        <p class="lead">
+          Giữa "tự <code>new</code>" và DI còn một cách nữa, trông giống DI đến
+          mức hay bị nhầm là DI: class không <code>new</code> gì cả, nhưng nó
+          <strong>tự đi hỏi container</strong>.
+        </p>
+        <div class="card-grid card-grid--2">
+          <div class="ve-card ve-card--elevated" style="--i: 0">
+            <div class="ve-card__label ve-card__label--red">
+              1 · Tự quản — không IoC
+            </div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 13px;
+              "
+            ><code><span class="cm">// KHÔNG có trong repo</span>
+<span class="kw">private readonly</span> roleRepository =
+  <span class="kw">new</span> <span class="fn">RoleRepository</span>(<span class="kw">new</span> <span class="fn">PrismaService</span>());</code></pre>
+            <p style="margin: 10px 0 0">
+              Kết nối DB thứ hai, thứ ba, thứ hai mươi lăm.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 1">
+            <div class="ve-card__label ve-card__label--amber">
+              2 · Service Locator — IoC, không DI
+            </div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 13px;
+              "
+            ><code><span class="cm">// KHÔNG có trong repo</span>
+<span class="kw">constructor</span>(<span class="kw">private readonly</span> moduleRef: ModuleRef) {}
+
+<span class="kw">async</span> <span class="fn">getRoles</span>(query) {
+  <span class="kw">const</span> repo = <span class="kw">this</span>.moduleRef.<span class="fn">get</span>(RoleRepository, { strict: <span class="kw">false</span> });
+}</code></pre>
+            <p style="margin: 10px 0 0">
+              Không <code>new</code>, vẫn tái dùng instance — nhưng class
+              <strong>kéo</strong> thay vì được <strong>đẩy</strong>.
+            </p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>1 · Tự quản</th>
+                  <th>2 · Service Locator</th>
+                  <th>3 · DI (repo)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Nhìn constructor biết class cần gì</td>
+                  <td>Không — rải trong thân class</td>
+                  <td>
+                    <strong>Không</strong> — chỉ thấy <code>ModuleRef</code>
+                  </td>
+                  <td><strong>Có</strong> — đọc 3 giây</td>
+                </tr>
+                <tr>
+                  <td>Thiếu phụ thuộc thì vỡ lúc nào</td>
+                  <td>Lúc compile</td>
+                  <td>
+                    <strong>Lúc chạy</strong>, ngay dòng <code>.get()</code>
+                  </td>
+                  <td><strong>Lúc boot</strong>, trước request đầu tiên</td>
+                </tr>
+                <tr>
+                  <td>Thay thế trong test</td>
+                  <td>Phải <code>jest.mock</code> cả module</td>
+                  <td>Phải giả lập cả container</td>
+                  <td><code>{ provide: X, useValue: mock }</code></td>
+                </tr>
+                <tr>
+                  <td>Class có dính vào Nest không</td>
+                  <td>Không</td>
+                  <td><strong>Có</strong> — import <code>ModuleRef</code></td>
+                  <td>Không — class là POJO</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--danger">
+          <div class="callout__title">
+            Dòng đắt nhất là dòng thứ hai — thử xoá
+            <code>RoleRepository</code> khỏi <code>providers</code>
+          </div>
+          <pre
+            class="code-file__body out"
+          ><code>Với DI:              app không boot được
+                     → Nest can't resolve dependencies of the RoleService (?, RolePermissionCacheService)
+
+Với Service Locator: app boot xanh, healthcheck xanh, deploy xong
+                     → request đầu tiên vào GET /roles mới ném lỗi, trên production</code></pre>
+          DI biến một lỗi runtime thành <strong>lỗi lúc boot</strong>. Đó không
+          phải hiệu ứng phụ — đó là cái người ta mua khi chọn DI.
+        </div>
+        <div class="callout callout--success">
+          <div class="callout__title">
+            Khi Service Locator là đúng: composition root
+          </div>
+          Có đúng một chỗ hợp lệ để chạm vào container — điểm chương trình được
+          ráp lại, trước khi có class nghiệp vụ nào chạy. Repo dùng ở ba nơi, cả
+          ba hợp lệ: <code>main.ts:16-18</code> (<code>app.get(Logger)</code>),
+          <code>create-permission.ts:26</code> (script seed), và
+          <code>moduleRef.get(...)</code> trong test harness. Luật thực dụng:
+          <strong
+            >càng xa composition root, càng không được chạm vào
+            container</strong
+          >. Một <code>ModuleRef</code> trong
+          <code>src/routes/**/*.service.ts</code> gần như luôn là mùi lỗi.
+        </div>
+
+        <div class="sec-head" id="s2">
+          <span class="sec-head__num">02</span
+          ><span class="sec-head__text"
+            >Provider: bốn cách khai một "công thức tạo"</span
+          >
+        </div>
+        <p class="lead">
+          Provider = một mục trong sổ sách:
+          <em>"ai hỏi token X thì đưa thứ tạo theo cách Y"</em>. Token thường
+          chính là class.
+        </p>
+        <div class="card-grid card-grid--2">
+          <div class="ve-card ve-card--elevated" style="--i: 0">
+            <div class="ve-card__label">
+              <code>useClass</code> — dạng viết tắt
+            </div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 13px;
+              "
+            ><code>providers: [RoleService]
+<span class="cm">// tương đương:</span>
+providers: [{ provide: RoleService, useClass: RoleService }]</code></pre>
+            <p style="margin: 10px 0 0">
+              99% provider trong repo. Dạng đầy đủ có ích khi token ≠ class:
+              <code
+                >{ provide: StorageService, useClass: isProd ? S3Service :
+                LocalDiskService }</code
+              >.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              <code>useValue</code> — đưa sẵn object
+            </div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 13px;
+              "
+            ><code>{ provide: RoleRepository, useValue: mocks.roleRepository }</code></pre>
+            <p style="margin: 10px 0 0">
+              Cách test thay thật bằng giả. <code>RoleService</code> vẫn khai
+              <code>RoleRepository</code> trong constructor,
+              <strong>không sửa một dòng</strong>.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">
+              <code>useFactory</code> — tính rồi mới đưa
+            </div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 13px;
+              "
+            ><code>{
+  provide: APP_INTERCEPTOR,
+  useFactory: (reflector: Reflector) =&gt;
+    <span class="kw">new</span> <span class="fn">ClassSerializerInterceptor</span>(reflector, {
+      excludeExtraneousValues: <span class="kw">true</span>,
+    }),
+  inject: [Reflector],
+}</code></pre>
+            <p style="margin: 10px 0 0">
+              <code>ClassSerializerInterceptor</code> cần
+              <strong>hai</strong> tham số: một cái container có, một cái không.
+              <code>useClass</code> không diễn đạt được; factory thì được.
+              Factory có thể <code>async</code>.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 3">
+            <div class="ve-card__label ve-card__label--plum">
+              <code>useExisting</code> — bí danh
+            </div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 13px;
+              "
+            ><code>{ provide: <span class="st">"CONFIG"</span>, useExisting: AppConfigService }</code></pre>
+            <p style="margin: 10px 0 0">
+              Hai token, <strong>một</strong> instance. Khác
+              <code>useClass</code> — cái đó tạo instance thứ hai.
+            </p>
+          </div>
+        </div>
+        <details class="collapsible">
+          <summary>
+            Token không phải class — khi nào cần <code>@Inject()</code>
+          </summary>
+          <div class="collapsible__body">
+            <pre
+              class="code-file__body"
+              style="border: 1px solid var(--border); border-radius: 8px"
+            ><code>providers: [{ provide: <span class="st">"S3_BUCKET"</span>, useValue: process.env.S3_BUCKET }]
+
+<span class="kw">constructor</span>(@<span class="fn">Inject</span>(<span class="st">"S3_BUCKET"</span>) <span class="kw">private readonly</span> bucket: string) {}</code></pre>
+            <p style="margin: 10px 0 0">
+              Vì <code>string</code> không mang thông tin ở
+              <code>design:paramtypes</code>, phải chỉ tay bằng
+              <code>@Inject(token)</code>. Dự án không dùng cách này — nó gói
+              toàn bộ cấu hình vào <code>AppConfigService</code> rồi inject
+              class đó. Gọn hơn và có autocomplete.
+            </p>
+          </div>
+        </details>
+
+        <div class="sec-head" id="s3">
+          <span class="sec-head__num">03</span
+          ><span class="sec-head__text"
+            >Module: bốn ô của <code>@Module</code></span
+          >
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Ô</th>
+                  <th>Nghĩa</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>imports</code></td>
+                  <td>
+                    module khác mà tôi muốn dùng provider
+                    <strong>đã export</strong> của họ
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>controllers</code></td>
+                  <td>controller thuộc module này</td>
+                </tr>
+                <tr>
+                  <td><code>providers</code></td>
+                  <td>
+                    thứ container tạo, dùng được
+                    <strong>bên trong</strong> module này
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>exports</code></td>
+                  <td>trong số providers, cái nào cho module khác thấy</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--danger">
+          <div class="callout__title">
+            Đóng gói là thật — không export thì không tồn tại
+          </div>
+          <code>imports</code> một module <strong>không</strong> cho bạn thấy
+          <code>providers</code> của nó, chỉ thấy <code>exports</code>. Thực
+          nghiệm 3 (<a href="#s14">mục 14</a>) chứng minh:
+          <pre
+            class="code-file__body out"
+            style="
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              margin-top: 10px;
+            "
+          >
+Nest can't resolve dependencies of the Outsider (?). Please make sure
+that the argument Stateful at index [0]...</pre
+          >
+        </div>
+        <div class="card-grid card-grid--3">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label"><code>SharedModule</code></div>
+            <p>
+              12 service dùng chung, <code>@Global()</code> — Prisma, Redis,
+              token, hashing, email, S3…
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              <code>BaseModule</code>
+            </div>
+            <p>
+              Hạ tầng: guard/pipe/filter/interceptor toàn cục, config, logger,
+              throttler, i18n, discovery
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">
+              <code>RouteModule</code>
+            </div>
+            <p>Gom 16 module tính năng, không có gì khác</p>
+          </div>
+        </div>
+
+        <div class="sec-head" id="s4">
+          <span class="sec-head__num">04</span
+          ><span class="sec-head__text"
+            >Quy tắc phân giải: Nest tìm provider ở đâu</span
+          >
+        </div>
+        <div class="timeline">
+          <div class="timeline__item">
+            <div class="timeline__title">
+              1 · Trong <code>providers</code> của chính module đang chứa class
+              đó
+            </div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__title">
+              2 · Trong <code>exports</code> của các module mà nó
+              <code>imports</code>
+            </div>
+          </div>
+          <div class="timeline__item">
+            <div class="timeline__title">
+              3 · Trong các module <code>@Global()</code>
+            </div>
+          </div>
+          <div class="timeline__item timeline__item--stop">
+            <div class="timeline__title">
+              4 · Không thấy → ném lỗi <strong>lúc boot</strong>, không phải lúc
+              chạy
+            </div>
+          </div>
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">Hệ quả mà rất nhiều người không biết</div>
+          <strong>Instance gắn với module, không gắn với class.</strong> Cùng
+          một class khai trong hai module là
+          <strong>hai instance khác nhau</strong>. Container dedupe theo
+          <strong>(module, token)</strong>, không theo class.
+          <pre
+            class="code-file__body out"
+            style="
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              margin-top: 10px;
+            "
+          >
+AService.s.id = 2 | BService.s.id = 3 | giống nhau? false</pre
+          >
+        </div>
+
+        <h3 class="sub">Chuyện này đang xảy ra trong repo</h3>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Provider</th>
+                  <th>Khai ở</th>
+                  <th>Số instance</th>
+                  <th>Có hại?</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>SharedUserRepository</code></td>
+                  <td>Auth, Profile, User</td>
+                  <td class="num">3</td>
+                  <td>
+                    <span class="status status--match"
+                      >không — vô trạng thái</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>RoleRepository</code></td>
+                  <td>Role, Profile, User</td>
+                  <td class="num">3</td>
+                  <td>
+                    <span class="status status--match"
+                      >không — vô trạng thái</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>SharedRoleRepository</code></td>
+                  <td>Auth, User</td>
+                  <td class="num">2</td>
+                  <td>
+                    <span class="status status--warn">có cache riêng</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/repositories/role/shared-role.repository.ts</span
+            ><span>dòng 11-15</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code>@<span class="fn">Injectable</span>()
+<span class="kw">export class</span> SharedRoleRepository {
+  <span class="kw">private</span> clientRoleId: RoleId | <span class="kw">null</span> = <span class="kw">null</span>;   <span class="cm">// ← cache</span>
+  <span class="kw">private</span> adminRoleId: RoleId | <span class="kw">null</span> = <span class="kw">null</span>;    <span class="cm">// ← cache</span>
+
+  <span class="kw">constructor</span>(<span class="kw">private</span> prismaService: PrismaService) {}</code></pre>
+        </div>
+        <p class="prose">
+          Hai module khai nó → <strong>hai cache</strong>, mỗi cái tự làm nóng
+          riêng. Hôm nay <strong>không phải bug</strong> — hai cache rồi cũng
+          chứa cùng giá trị, cái giá là một query dư. Nhưng cơ chế đã sẵn: ngày
+          nào có cache <strong>kèm invalidate</strong> kiểu này, gọi
+          <code>invalidate()</code> sẽ chỉ xoá <em>một</em> trong hai, và bug
+          sinh ra cực khó tìm vì code trông hoàn toàn đúng.
+        </p>
+        <div class="callout callout--success">
+          <div class="callout__title">Cách sửa khi muốn đúng một instance</div>
+          Khai ở một module → <code>exports</code> → module khác
+          <code>imports</code>. Hoặc, như dự án làm với 12 service dùng chung:
+          đưa vào <code>SharedModule</code> global.
+        </div>
+
+        <div class="sec-head" id="s5">
+          <span class="sec-head__num">05</span
+          ><span class="sec-head__text"
+            ><code>@Global()</code> và <code>SharedModule</code></span
+          >
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/shared/modules/shared.module.ts</span
+            ><span>dòng 16-35</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">const</span> sharedProviders: Provider[] = [
+  AppConfigService, PrismaService, HashingService, TokenService, EmailService,
+  TwoFactorAuthenticationService, S3Service, RedisService,
+  RolePermissionCacheService, PermissionResolverService, ThrottlerRedisStorage,
+];
+
+@<span class="fn">Global</span>()
+@<span class="fn">Module</span>({
+  imports: [JwtModule],
+  providers: sharedProviders,
+  exports: sharedProviders, <span class="cm">// Exporting providers to be used in other modules</span>
+})
+<span class="kw">export class</span> SharedModule {}</code></pre>
+        </div>
+        <div class="diff-panels">
+          <div>
+            <div class="diff-panel__header diff-panel__header--good">
+              Vì sao 12 service này xứng đáng global
+            </div>
+            <div class="diff-panel__body">
+              <ol style="margin: 0; padding-left: 1.4em">
+                <li>
+                  <strong>Gần như module nào cũng cần</strong> —
+                  <code>PrismaService</code> có trong cả 25 repository
+                </li>
+                <li>
+                  <strong>Bắt buộc một instance</strong> — nhiều
+                  <code>PrismaService</code> làm cạn connection limit của
+                  Postgres
+                </li>
+                <li>
+                  <strong>Không thuộc tính năng nào</strong> — hashing, token,
+                  email là hạ tầng
+                </li>
+              </ol>
+              <p style="margin: 10px 0 0">
+                Không global thì 16 module phải lặp
+                <code>imports: [SharedModule]</code> — một dòng không mang thông
+                tin.
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="diff-panel__header diff-panel__header--bad">
+              Cái giá của global
+            </div>
+            <div class="diff-panel__body">
+              <p style="margin: 0 0 10px">
+                <code>@Global()</code> <strong>giấu phụ thuộc</strong>. Nhìn
+                <code>role.module.ts</code> không thể biết
+                <code>RoleService</code> cần
+                <code>RolePermissionCacheService</code> — phải mở file service.
+              </p>
+              <p style="margin: 0">
+                <strong>Global:</strong> hạ tầng, khắp nơi, bắt buộc singleton.
+                Ít, hiếm khi thêm.<br /><strong>Không global:</strong> mọi thứ
+                khác.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout--info">
+          <div class="callout__title">Chi tiết nhỏ mà hay</div>
+          <code>SharedModule</code> <code>imports: [JwtModule]</code> nhưng
+          <strong>không export lại</strong>. Nên <code>JwtService</code> chỉ
+          dùng được bên trong <code>SharedModule</code> (bởi
+          <code>TokenService</code>). Module tính năng không chạm được JWT thô —
+          chúng phải đi qua <code>TokenService</code>. Đóng gói làm đúng việc
+          của nó.
+        </div>
+
+        <div class="sec-head" id="s6">
+          <span class="sec-head__num">06</span
+          ><span class="sec-head__text"
+            >Bốn token đặc biệt: <code>APP_GUARD</code> và anh em</span
+          >
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Đăng ký cái gì</th>
+                  <th>Trong dự án</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>APP_GUARD</code></td>
+                  <td>guard toàn cục</td>
+                  <td>
+                    <code>AppThrottlerGuard</code>,
+                    <code>AuthorizationHeaderGuard</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>APP_PIPE</code></td>
+                  <td>pipe toàn cục</td>
+                  <td><code>ValidationPipe</code></td>
+                </tr>
+                <tr>
+                  <td><code>APP_FILTER</code></td>
+                  <td>exception filter toàn cục</td>
+                  <td><code>GlobalExceptionFilter</code></td>
+                </tr>
+                <tr>
+                  <td><code>APP_INTERCEPTOR</code></td>
+                  <td>interceptor toàn cục</td>
+                  <td><code>ClassSerializerInterceptor</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="prose">
+          Chúng là <strong>multi-provider</strong>: khai nhiều provider cùng một
+          token thì Nest gom lại chứ không ghi đè.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/shared/modules/base.module.ts</span
+            ><span>dòng 43-54</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">const</span> guards: Provider[] = [
+  AccessTokenGuard,   <span class="cm">// provider thường — có trong container để được TIÊM</span>
+  ApiKeyGuard,        <span class="cm">// provider thường</span>
+  { provide: APP_GUARD, useClass: AppThrottlerGuard },
+  { provide: APP_GUARD, useClass: AuthorizationHeaderGuard },
+];</code></pre>
+        </div>
+        <ul class="node-list">
+          <li>
+            <strong
+              >Chỉ mục có <code>provide: APP_GUARD</code> mới tự chạy.</strong
+            >
+            Nhầm chỗ này là tưởng app có bốn guard toàn cục; thực ra hai.
+          </li>
+          <li>
+            <strong>Thứ tự khai = thứ tự chạy</strong>, và ở đây nó là quyết
+            định bảo mật (<a href="03-guards.html">chương 3</a> §5).
+          </li>
+          <li>
+            <strong>Vì sao không <code>useGlobalGuards(new ...)</code>:</strong>
+            phải tự <code>new</code> cả cây phụ thuộc — không làm được.
+          </li>
+        </ul>
+        <div class="callout callout--success">
+          <div class="callout__title">Lợi ích kéo sang test</div>
+          <code>APP_PIPE</code> + <code>useFactory</code> nghĩa là e2e chỉ cần
+          <code>imports: [AppModule]</code> là có <strong>đúng</strong> pipe của
+          production — không có bản sao cấu hình thứ hai để lệch nhau.
+        </div>
+
+        <div class="sec-head" id="s7">
+          <span class="sec-head__num">07</span
+          ><span class="sec-head__text"
+            >Module động: <code>forRoot</code>, <code>forRootAsync</code>,
+            <code>register</code></span
+          >
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tên</th>
+                  <th>Nghĩa</th>
+                  <th>Gọi ở</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>forRoot()</code> / <code>forRootAsync()</code></td>
+                  <td>cấu hình <strong>một lần</strong> cho cả app</td>
+                  <td>module gốc</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>register()</code> / <code>registerAsync()</code>
+                  </td>
+                  <td>cấu hình <strong>mỗi lần dùng</strong></td>
+                  <td>từng module cần</td>
+                </tr>
+                <tr>
+                  <td><code>forFeature()</code></td>
+                  <td>khai thêm phần cục bộ lên cấu hình gốc</td>
+                  <td>module tính năng</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/shared/modules/i18n.module.ts</span
+            ><span>dòng 16-32</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code>NestI18nModule.<span class="fn">forRootAsync</span>({
+  useFactory: (_appConfigService: AppConfigService) =&gt; ({
+    fallbackLanguage: ALL_LANGUAGES,
+    loaderOptions: {
+      path: _appConfigService.isDevelopment
+        ? path.<span class="fn">resolve</span>(<span class="st">"src"</span>, <span class="st">"i18n"</span>)
+        : path.<span class="fn">resolve</span>(<span class="st">"dist"</span>, <span class="st">"i18n"</span>),
+      watch: <span class="kw">true</span>,
+    },
+  }),
+  resolvers: [AcceptLanguageResolver, <span class="kw">new</span> <span class="fn">HeaderResolver</span>([<span class="st">"x-lang"</span>])],
+  inject: [AppConfigService],   <span class="cm">// ← nói CẦN GÌ; useFactory nhận đúng thứ đó, đúng thứ tự</span>
+})</code></pre>
+        </div>
+        <p class="dim">
+          Hai chỗ còn lại:
+          <code>LoggerModule.forRootAsync</code> (base.module.ts:86-89) và
+          <code>ThrottlerModule.forRootAsync</code> (:90-100) — cái sau inject
+          <strong>hai</strong> thứ, cho thấy factory nhận bao nhiêu tham số cũng
+          được.
+        </p>
+
+        <div class="sec-head" id="s8">
+          <span class="sec-head__num">08</span
+          ><span class="sec-head__text">Scope của provider</span>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Scope</th>
+                  <th>Tạo khi nào</th>
+                  <th>Chi phí</th>
+                  <th>Trong repo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>Scope.DEFAULT</code></td>
+                  <td>một lần, lúc boot</td>
+                  <td>không</td>
+                  <td><strong>100%</strong></td>
+                </tr>
+                <tr>
+                  <td><code>Scope.REQUEST</code></td>
+                  <td>mỗi request một instance</td>
+                  <td>cao — lây lên trên</td>
+                  <td>0</td>
+                </tr>
+                <tr>
+                  <td><code>Scope.TRANSIENT</code></td>
+                  <td>mỗi chỗ inject một instance</td>
+                  <td>trung bình</td>
+                  <td>0</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">
+            Vì sao <code>Scope.REQUEST</code> đắt hơn người ta tưởng
+          </div>
+          Scope <strong>lây lên trên</strong>. <code>RoleRepository</code> thành
+          REQUEST → <code>RoleService</code> cũng thành REQUEST →
+          <code>RoleController</code> cũng vậy. Cả nhánh cây phải dựng lại cho
+          từng request. Một provider đổi scope có thể kéo theo nửa app.
+          <p style="margin-top: 8px">
+            Dự án không cần nó vì đã làm đúng cách khác: giữ provider
+            <strong>không trạng thái</strong>, để dữ liệu theo-request nằm trên
+            object <code>request</code> (<a href="03-guards.html">chương 3</a>
+            §9). Cần context xuyên tầng thì <code>AsyncLocalStorage</code> —
+            đúng thứ <code>nestjs-i18n</code> dùng — thường rẻ hơn.
+          </p>
+        </div>
+
+        <div class="sec-head" id="s9">
+          <span class="sec-head__num">09</span
+          ><span class="sec-head__text">Phụ thuộc vòng tròn</span>
+        </div>
+        <p class="prose">
+          Repo hiện <strong>không có</strong> vòng tròn nào. Nhưng nó sẽ xuất
+          hiện, và thông điệp lỗi không nói thẳng nguyên nhân.
+        </p>
+        <div class="card-grid card-grid--2">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label ve-card__label--red">
+              Triệu chứng &amp; nguyên nhân
+            </div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 12.5px;
+              "
+            ><code>Nest can't resolve dependencies of the AService (?).</code></pre>
+            <p style="margin: 10px 0 0">
+              A import B, B import A. Lúc A nạp, B đang nạp dở nên còn
+              <code>undefined</code> → mảng <code>design:paramtypes</code> của A
+              có một lỗ hổng.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--amber">
+              Chữa tạm: <code>forwardRef</code>
+            </div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 12.5px;
+              "
+            ><code><span class="kw">constructor</span>(@<span class="fn">Inject</span>(<span class="fn">forwardRef</span>(() =&gt; BService))
+  <span class="kw">private</span> b: BService) {}
+
+<span class="cm">// và ở cấp module:</span>
+imports: [<span class="fn">forwardRef</span>(() =&gt; BModule)]</code></pre>
+            <p style="margin: 10px 0 0">
+              Chạy được, nhưng là <strong>băng dán</strong>.
+            </p>
+          </div>
+        </div>
+        <div class="callout callout--success">
+          <div class="callout__title">
+            Cách chữa đúng — vòng tròn là dấu hiệu ranh giới vẽ sai
+          </div>
+          <ol style="margin: 0; padding-left: 1.4em">
+            <li>
+              <strong>Tách phần chung ra module thứ ba.</strong> Đây chính là lý
+              do repo có <code>SharedUserRepository</code> /
+              <code>SharedRoleRepository</code> tách khỏi
+              <code>UserRepository</code> / <code>RoleRepository</code>.
+            </li>
+            <li>
+              <strong>Đảo chiều:</strong> thay vì A gọi B, để B nghe sự kiện A
+              phát ra.
+            </li>
+            <li>
+              <strong>Gộp lại</strong> nếu hai thứ thực ra là một trách nhiệm bị
+              chẻ nhầm.
+            </li>
+          </ol>
+        </div>
+
+        <div class="sec-head" id="s10">
+          <span class="sec-head__num">10</span
+          ><span class="sec-head__text"
+            >DI trong test — nơi DI trả lại công sức</span
+          >
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/routes/role/__tests__/role-service-test-harness.ts</span
+            ><span>rút gọn</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="cm">// 1. Mock: chỉ khai method service thật sự gọi</span>
+<span class="kw">export const</span> createRoleServiceMocks = () =&gt; ({
+  roleRepository: { findManyRoles: jest.<span class="fn">fn</span>(), findUniqueRole: jest.<span class="fn">fn</span>(), <span class="cm">/* … */</span> },
+  rolePermissionCacheService: { invalidateRole: jest.<span class="fn">fn</span>() },
+});
+
+<span class="cm">// 2. Dựng service qua container THẬT, thay phụ thuộc bằng useValue</span>
+<span class="kw">const</span> moduleRef = <span class="kw">await</span> Test.<span class="fn">createTestingModule</span>({
+  providers: [
+    RoleService,
+    { provide: RoleRepository, useValue: mocks.roleRepository },
+    { provide: RolePermissionCacheService, useValue: mocks.rolePermissionCacheService },
+  ],
+}).<span class="fn">compile</span>();</code></pre>
+        </div>
+        <p class="prose">
+          Vì sao đi qua container thay vì
+          <code>new RoleService(mockA, mockB)</code>? Vì container
+          <strong>kiểm tra hợp đồng</strong>: thêm phụ thuộc vào
+          <code>RoleService</code> mà quên khai trong harness thì test đỏ ngay
+          với thông điệp rõ ràng.
+        </p>
+        <div class="callout callout--info">
+          <div class="callout__title">
+            <code>overrideProvider</code> — khi module đã cố định
+          </div>
+          E2E dựng <strong>cả</strong> <code>AppModule</code> nên không liệt kê
+          provider được. Comment ở <code>create-test-app.ts:29-37</code> nêu lý
+          do cần override: <code>ConfigModule.forRoot()</code> chụp
+          <code>process.env</code>
+          <strong>lúc <code>base.module.ts</code> được import lần đầu</strong> —
+          trước mọi <code>beforeAll</code>. Gán <code>process.env</code> trong
+          test là vô nghĩa.
+          <pre
+            class="code-file__body"
+            style="
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              margin-top: 10px;
+              font-size: 12.5px;
+            "
+          ><code>.<span class="fn">overrideProvider</span>(TokenService).<span class="fn">useValue</span>(fake)
+.<span class="fn">overrideProvider</span>(TokenService).<span class="fn">useClass</span>(FakeTokenService)
+.<span class="fn">overrideProvider</span>(TokenService).<span class="fn">useFactory</span>({ factory: () =&gt; fake, inject: [] })
+<span class="cm">// và .overrideGuard / .overridePipe / .overrideInterceptor / .overrideFilter</span></code></pre>
+        </div>
+
+        <div class="sec-head" id="s11">
+          <span class="sec-head__num">11</span
+          ><span class="sec-head__text">Vòng đời: hook nào chạy lúc nào</span>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Hook</th>
+                  <th>Chạy khi</th>
+                  <th>Trong dự án</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>onModuleInit()</code></td>
+                  <td>module <strong>đó</strong> resolve xong phụ thuộc</td>
+                  <td>
+                    <code>PrismaService</code> — <code>$connect()</code>, và
+                    <strong>ném lại lỗi</strong> nên DB chết là app không boot
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>onApplicationBootstrap()</code></td>
+                  <td><strong>mọi</strong> module đã init</td>
+                  <td>
+                    <code>PermissionCoverageService</code> — quét toàn bộ route
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>onModuleDestroy()</code></td>
+                  <td>app đóng</td>
+                  <td>
+                    <code>RedisService</code> — <code>client.quit()</code>;
+                    <code>PrismaService</code> — <code>$disconnect()</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>beforeApplicationShutdown()</code> /
+                    <code>onApplicationShutdown()</code>
+                  </td>
+                  <td>app đóng</td>
+                  <td>—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="prose">
+          Chọn hook nào, theo một câu hỏi:
+          <em>"việc này chỉ cần module của tôi sẵn sàng, hay cần cả app?"</em>
+          Mở kết nối DB → <code>onModuleInit</code>. Quét mọi controller →
+          <code>onApplicationBootstrap</code>.
+        </p>
+        <div class="callout callout--warning">
+          <div class="callout__title">Lưu ý vận hành</div>
+          <code>main.ts</code> hiện <strong>không</strong> gọi
+          <code>app.enableShutdownHooks()</code>. Nghĩa là
+          <code>onModuleDestroy</code> chạy trong test (<code>app.close()</code>
+          tường minh) nhưng <strong>không</strong> chạy khi process nhận
+          <code>SIGTERM</code> lúc deploy. Hôm nay hậu quả nhẹ — OS đóng socket
+          hộ — nhưng nếu sau này có job nền cần dừng êm, đây là dòng phải thêm.
+        </div>
+
+        <div class="sec-head" id="s12">
+          <span class="sec-head__num">12</span
+          ><span class="sec-head__text">Bản đồ module của dự án</span>
+        </div>
+        <section class="diagram-shell">
+          <p class="diagram-shell__hint">
+            Ctrl/Cmd + lăn để phóng · kéo để di chuyển · ⛶ mở tab mới
+          </p>
+          <div class="mermaid-wrap" style="min-height: 440px">
+            <div class="zoom-controls">
+              <button type="button" data-action="zoom-in">+</button
+              ><button type="button" data-action="zoom-out">&minus;</button
+              ><button type="button" data-action="zoom-fit">&#8634;</button
+              ><button type="button" data-action="zoom-one">1:1</button
+              ><button type="button" data-action="zoom-expand">&#x26F6;</button
+              ><span class="zoom-label">Đang tải...</span>
+            </div>
+            <div class="mermaid-viewport">
+              <div class="mermaid mermaid-canvas"></div>
+            </div>
+          </div>
+          <script type="text/plain" class="diagram-source">
+            flowchart TD
+                App["AppModule"] --> Shared["SharedModule<br/>@Global · 12 service dùng chung"]
+                App --> Base["BaseModule"]
+                App --> Route["RouteModule"]
+                Shared --> Jwt["JwtModule<br/>imports, KHÔNG export lại"]
+                Base --> Cfg["ConfigModule.forRoot<br/>isGlobal, validate env"]
+                Base --> Log["LoggerModule.forRootAsync"]
+                Base --> Thr["ThrottlerModule.forRootAsync"]
+                Base --> I18n["I18nModule"]
+                Base --> Disc["DiscoveryModule"]
+                Base --> Tokens["APP_GUARD x2 · APP_PIPE<br/>APP_FILTER · APP_INTERCEPTOR"]
+                Route --> F["16 module tính năng<br/>Auth · Role · User · Product · Order · Cart…"]
+                F --> P["mỗi module:<br/>controller + service + repository"]
+                classDef g fill:#c2410c22,stroke:#c2410c,stroke-width:2px
+                classDef b fill:#4d7c0f22,stroke:#4d7c0f,stroke-width:2px
+                class Shared g
+                class Tokens b
+          </script>
+        </section>
+        <p class="prose">
+          Đặc điểm: <strong>cây rất nông</strong>. Không module tính năng nào
+          <code>imports</code> module tính năng khác — chúng nói chuyện qua
+          provider global, không qua nhau. Đổi lại: không bao giờ có vòng tròn,
+          và xoá một module tính năng không làm gãy module khác.
+        </p>
+
+        <div class="sec-head" id="s13">
+          <span class="sec-head__num">13</span
+          ><span class="sec-head__text">Nâng cao và những chỗ dễ vấp</span>
+        </div>
+        <div class="card-grid">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label ve-card__label--red">
+              Quên <code>@Injectable()</code> mà vẫn chạy
+            </div>
+            <p>
+              Class không có phụ thuộc thì không cần
+              <code>design:paramtypes</code> → chạy được. Thêm tham số
+              constructor đầu tiên vào là vỡ.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--amber">
+              Khai cùng class ở hai module
+            </div>
+            <p>
+              <a href="#s4">Mục 4</a>. Đang xảy ra với ba provider trong repo.
+              Vô hại hôm nay; nhớ cơ chế.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--amber">
+              <code>@Global()</code> cho service nghiệp vụ
+            </div>
+            <p>Tiện lúc viết, đau lúc đọc. Giữ global cho hạ tầng.</p>
+          </div>
+          <div class="ve-card" style="--i: 3">
+            <div class="ve-card__label ve-card__label--b">
+              Import chỉ để lấy kiểu
+            </div>
+            <p>
+              Dùng <code>import type { X }</code> — TypeScript xoá hẳn khỏi code
+              biên dịch, nên không tạo phụ thuộc runtime, không tạo vòng tròn.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 4">
+            <div class="ve-card__label ve-card__label--b">
+              <code>moduleRef.get()</code> giữa chừng
+            </div>
+            <p>
+              Lấy provider lúc chạy thay vì qua constructor. Hữu ích cho factory
+              động; lạm dụng là quay lại service locator. Repo dùng đúng một
+              lần, trong script seed.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 5">
+            <div class="ve-card__label ve-card__label--plum">
+              Đọc lỗi "can't resolve dependencies"
+            </div>
+            <p>
+              Dấu <code>?</code> chỉ đúng vị trí tham số thiếu. Ba nguyên nhân
+              theo thứ tự hay gặp: quên khai <code>providers</code>; module quên
+              <code>exports</code>; vòng tròn import.
+            </p>
+          </div>
+        </div>
+
+        <div class="sec-head" id="s14">
+          <span class="sec-head__num">14</span
+          ><span class="sec-head__text"
+            >Tự kiểm chứng — đã chạy thật khi viết</span
+          >
+        </div>
+        <div class="ve-card ve-card--hero" style="--i: 0; margin-bottom: 16px">
+          <div class="ve-card__label">
+            Thí nghiệm gộp: ba quy tắc DI · không cần database
+          </div>
+          <p>
+            Code đầy đủ trong
+            <a href="06-modules-and-dependency-injection.md#14-tự-kiểm-chứng"
+              >bản markdown</a
+            >. Chạy <code>npx ts-node --transpile-only scratch-di.ts</code>:
+          </p>
+          <pre
+            class="code-file__body out"
+            style="border: 1px solid var(--border); border-radius: 8px"
+          >
+1. Cùng class khai ở 2 module:
+   AService.s.id = 2 | BService.s.id = 3 | giống nhau? false
+2. Provider từ @Global module:
+   AService.g.id = 1 | BService.g.id = 1 | giống nhau? true
+3. Module không export → module khác thấy được không?
+   compile THẤT BẠI: Nest can't resolve dependencies of the Outsider (?)...</pre
+          >
+          <p style="margin-top: 10px">
+            Ba dòng, ba bài học: <strong>instance gắn với module</strong> ·
+            <strong>global chia sẻ một instance</strong> ·
+            <strong>không export thì vô hình</strong>.
+          </p>
+        </div>
+        <div class="card-grid card-grid--2">
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              Thí nghiệm 4 · làm vỡ DI có chủ đích
+            </div>
+            <p>
+              Tạm xoá <code>@Injectable()</code> khỏi
+              <code>role.service.ts</code>. <code>pnpm types-check</code> vẫn
+              xanh (lỗi runtime, không phải lỗi kiểu). Chạy app →
+              <code
+                >Nest can't resolve dependencies of the RoleService (?,
+                ...)</code
+              >.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">
+              Thí nghiệm 5 · đếm instance thật
+            </div>
+            <p>
+              Thêm <code>console.log</code> vào constructor của
+              <code>SharedRoleRepository</code>, chạy app: bạn thấy
+              <strong>hai</strong> dòng — một cho <code>AuthModule</code>, một
+              cho <code>UserModule</code>, đúng như <a href="#s4">mục 4</a> mô
+              tả.
+            </p>
+          </div>
+        </div>
+
+        <div class="footer-nav">
+          <a href="05-request-lifecycle-in-this-project.html"
+            ><small>Chương trước</small>← 05 — Vòng đời một request</a
+          >
+          <a href="07-dto-validation-transformation-serialization.html"
+            ><small>Chương tiếp</small>07 — DTO: validation, transformation,
+            serialization →</a
+          >
+        </div>
+      </div>
+      <!-- /main -->
+    </div>
+    <!-- /wrap -->
+
+    <script>
+      (function () {
+        var toggle = document.getElementById("themeToggle");
+        var saved = null;
+        try {
+          saved = localStorage.getItem("theme");
+        } catch (e) {}
+        var initial =
+          saved ||
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        if (saved) document.documentElement.setAttribute("data-theme", initial);
+        toggle.textContent = initial === "dark" ? "☀" : "☾";
+        toggle.addEventListener("click", function () {
+          var current =
+            document.documentElement.getAttribute("data-theme") ||
+            (matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light");
+          var next = current === "light" ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", next);
+          try {
+            localStorage.setItem("theme", next);
+          } catch (e) {}
+          toggle.textContent = next === "dark" ? "☀" : "☾";
+        });
+      })();
+    </script>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      const config = {
+        fitPadding: 28,
+        minHeight: 320,
+        maxHeightPx: 960,
+        maxHeightVh: 0.84,
+        maxInitialZoom: 1.8,
+        minZoom: 0.08,
+        maxZoom: 6.5,
+        zoomStep: 0.14,
+        readabilityFloor: 0.58,
+      };
+      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+      let activeDrag = null;
+      addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+      addEventListener("mouseup", () => {
+        activeDrag?.onEnd();
+        activeDrag = null;
+      });
+      const attr = document.documentElement.getAttribute("data-theme");
+      const isDark =
+        attr === "dark" ||
+        (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        look: "classic",
+        themeVariables: {
+          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+          fontSize: "15px",
+          primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+          primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+          primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+          secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+          secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+          tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+          tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          lineColor: isDark ? "#a89e90" : "#7c756a",
+          noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+          noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+          actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+          actorBorder: isDark ? "#f0743f" : "#c2410c",
+          actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          signalColor: isDark ? "#a89e90" : "#7c756a",
+          signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+        },
+      });
+      function initDiagram(shell) {
+        const wrap = shell.querySelector(".mermaid-wrap"),
+          viewport = shell.querySelector(".mermaid-viewport"),
+          canvas = shell.querySelector(".mermaid-canvas"),
+          source = shell.querySelector(".diagram-source"),
+          label = shell.querySelector(".zoom-label");
+        if (!wrap || !viewport || !canvas || !source || !label) return;
+        let zoom = 1,
+          fitMode = "contain",
+          panX = 0,
+          panY = 0,
+          svgW = 0,
+          svgH = 0,
+          sx = 0,
+          sy = 0,
+          spx = 0,
+          spy = 0,
+          touchDist = 0,
+          touchCx = 0,
+          touchCy = 0;
+        function constrainPan() {
+          const vpW = viewport.clientWidth,
+            vpH = viewport.clientHeight,
+            rW = svgW * zoom,
+            rH = svgH * zoom,
+            pad = config.fitPadding;
+          panX =
+            rW + pad * 2 <= vpW
+              ? (vpW - rW) / 2
+              : clamp(panX, vpW - rW - pad, pad);
+          panY =
+            rH + pad * 2 <= vpH
+              ? (vpH - rH) / 2
+              : clamp(panY, vpH - rH - pad, pad);
+        }
+        function applyTransform() {
+          const svg = canvas.querySelector("svg");
+          if (!svg || !svgW) return;
+          constrainPan();
+          svg.style.width = svgW * zoom + "px";
+          svg.style.height = svgH * zoom + "px";
+          canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+          label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+        }
+        function canPan() {
+          return (
+            svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+            svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+          );
+        }
+        function computeSmartFit() {
+          const vpW = viewport.clientWidth,
+            vpH = viewport.clientHeight,
+            aW = Math.max(80, vpW - config.fitPadding * 2),
+            aH = Math.max(80, vpH - config.fitPadding * 2),
+            contain = Math.min(aW / svgW, aH / svgH);
+          let z = contain,
+            mode = "contain";
+          if (contain < config.readabilityFloor) {
+            const chartR = svgH / svgW,
+              vpR = vpH / Math.max(vpW, 1);
+            if (chartR >= vpR) {
+              z = aW / svgW;
+              mode = "width-priority";
+            } else {
+              z = aH / svgH;
+              mode = "height-priority";
+            }
+          }
+          return {
+            zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+            mode,
+          };
+        }
+        function fitDiagram() {
+          if (!svgW) return;
+          const fit = computeSmartFit();
+          zoom = fit.zoom;
+          fitMode = fit.mode;
+          panX = (viewport.clientWidth - svgW * zoom) / 2;
+          panY = (viewport.clientHeight - svgH * zoom) / 2;
+          applyTransform();
+        }
+        function setOneToOne() {
+          zoom = clamp(1, config.minZoom, config.maxZoom);
+          fitMode = "1:1";
+          panX = (viewport.clientWidth - svgW * zoom) / 2;
+          panY = (viewport.clientHeight - svgH * zoom) / 2;
+          applyTransform();
+        }
+        function zoomAround(factor, cx, cy) {
+          const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+            ratio = next / zoom;
+          panX = cx - ratio * (cx - panX);
+          panY = cy - ratio * (cy - panY);
+          zoom = next;
+          fitMode = "custom";
+          applyTransform();
+        }
+        function readSvgNaturalSize(svg) {
+          let w = 0,
+            h = 0;
+          if (svg.viewBox?.baseVal?.width > 0) {
+            w = svg.viewBox.baseVal.width;
+            h = svg.viewBox.baseVal.height;
+          }
+          if (!w) {
+            w = parseFloat(svg.getAttribute("width")) || 0;
+            h = parseFloat(svg.getAttribute("height")) || 0;
+          }
+          if (!w) {
+            const b = svg.getBBox();
+            w = b.width;
+            h = b.height;
+          }
+          if (!w) {
+            const r = svg.getBoundingClientRect();
+            w = r.width || 1000;
+            h = r.height || 700;
+          }
+          if (!svg.getAttribute("viewBox"))
+            svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+          return { w, h };
+        }
+        function setAdaptiveHeight() {
+          if (!svgW) return;
+          const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2),
+            idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+            maxVp = Math.floor(innerHeight * config.maxHeightVh),
+            hardMax = Math.min(
+              config.maxHeightPx,
+              Math.max(config.minHeight + 40, maxVp),
+            );
+          wrap.style.height =
+            Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+        }
+        function openInNewTab() {
+          const svg = canvas.querySelector("svg");
+          if (!svg) return;
+          const clone = svg.cloneNode(true);
+          clone.style.width = "";
+          clone.style.height = "";
+          const bg = isDark ? "#1c1916" : "#faf6f0";
+          const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+          open(
+            URL.createObjectURL(new Blob([html], { type: "text/html" })),
+            "_blank",
+          );
+        }
+        async function render() {
+          try {
+            const code = source.textContent.trim();
+            if (!code) {
+              label.textContent = "Lỗi: nguồn rỗng";
+              return;
+            }
+            const id =
+              "diagram-" +
+              Date.now() +
+              "-" +
+              Math.random().toString(36).slice(2, 8);
+            const { svg } = await mermaid.render(id, code);
+            canvas.innerHTML = svg;
+            const svgNode = canvas.querySelector("svg");
+            if (!svgNode) {
+              label.textContent = "Lỗi: không có SVG";
+              return;
+            }
+            const size = readSvgNaturalSize(svgNode);
+            svgW = size.w;
+            svgH = size.h;
+            svgNode.removeAttribute("width");
+            svgNode.removeAttribute("height");
+            svgNode.style.maxWidth = "none";
+            svgNode.style.display = "block";
+            setAdaptiveHeight();
+            fitDiagram();
+          } catch (err) {
+            console.error("Mermaid render failed:", err);
+            label.textContent = "Lỗi: " + (err.message || "render thất bại");
+          }
+        }
+        const actions = {
+          "zoom-in": () =>
+            zoomAround(
+              1 + config.zoomStep,
+              viewport.clientWidth / 2,
+              viewport.clientHeight / 2,
+            ),
+          "zoom-out": () =>
+            zoomAround(
+              1 / (1 + config.zoomStep),
+              viewport.clientWidth / 2,
+              viewport.clientHeight / 2,
+            ),
+          "zoom-fit": fitDiagram,
+          "zoom-one": setOneToOne,
+          "zoom-expand": openInNewTab,
+        };
+        Object.entries(actions).forEach(([action, handler]) => {
+          wrap
+            .querySelector(`[data-action="${action}"]`)
+            ?.addEventListener("click", handler);
+        });
+        viewport.addEventListener("dblclick", fitDiagram);
+        viewport.addEventListener(
+          "wheel",
+          (e) => {
+            if (e.ctrlKey || e.metaKey) {
+              e.preventDefault();
+              const rect = viewport.getBoundingClientRect();
+              zoomAround(
+                e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep),
+                e.clientX - rect.left,
+                e.clientY - rect.top,
+              );
+              return;
+            }
+            if (canPan()) {
+              e.preventDefault();
+              panX -= e.deltaX;
+              panY -= e.deltaY;
+              applyTransform();
+            }
+          },
+          { passive: false },
+        );
+        viewport.addEventListener("mousedown", (e) => {
+          if (e.target.closest(".zoom-controls") || !canPan()) return;
+          wrap.classList.add("is-panning");
+          sx = e.clientX;
+          sy = e.clientY;
+          spx = panX;
+          spy = panY;
+          e.preventDefault();
+          activeDrag = {
+            onMove: (ev) => {
+              panX = spx + (ev.clientX - sx);
+              panY = spy + (ev.clientY - sy);
+              applyTransform();
+            },
+            onEnd: () => wrap.classList.remove("is-panning"),
+          };
+        });
+        viewport.addEventListener(
+          "touchstart",
+          (e) => {
+            if (e.touches.length === 1) {
+              sx = e.touches[0].clientX;
+              sy = e.touches[0].clientY;
+              spx = panX;
+              spy = panY;
+            } else if (e.touches.length === 2) {
+              const dx = e.touches[0].clientX - e.touches[1].clientX,
+                dy = e.touches[0].clientY - e.touches[1].clientY;
+              touchDist = Math.sqrt(dx * dx + dy * dy);
+              const r = viewport.getBoundingClientRect();
+              touchCx =
+                (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+              touchCy =
+                (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+            }
+          },
+          { passive: true },
+        );
+        viewport.addEventListener(
+          "touchmove",
+          (e) => {
+            if (e.touches.length === 1 && canPan()) {
+              if (touchDist > 0) {
+                sx = e.touches[0].clientX;
+                sy = e.touches[0].clientY;
+                spx = panX;
+                spy = panY;
+                touchDist = 0;
+              }
+              e.preventDefault();
+              panX = spx + (e.touches[0].clientX - sx);
+              panY = spy + (e.touches[0].clientY - sy);
+              applyTransform();
+            } else if (e.touches.length === 2 && touchDist > 0) {
+              e.preventDefault();
+              const dx = e.touches[0].clientX - e.touches[1].clientX,
+                dy = e.touches[0].clientY - e.touches[1].clientY,
+                d = Math.sqrt(dx * dx + dy * dy);
+              zoomAround(d / touchDist, touchCx, touchCy);
+              touchDist = d;
+            }
+          },
+          { passive: false },
+        );
+        new ResizeObserver(() => {
+          if (svgW) {
+            setAdaptiveHeight();
+            fitDiagram();
+          }
+        }).observe(wrap);
+        render();
+      }
+      document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+    </script>
+
+    <script>
+      (function () {
+        const toc = document.getElementById("toc");
+        if (!toc) return;
+        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+        const sections = [];
+        links.forEach((link) => {
+          const id = link.getAttribute("href").slice(1);
+          const el = document.getElementById(id);
+          if (el) sections.push({ id, el, link });
+        });
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                links.forEach((l) => l.classList.remove("active"));
+                const match = sections.find((s) => s.el === entry.target);
+                if (match) {
+                  match.link.classList.add("active");
+                  if (window.innerWidth <= 1000)
+                    match.link.scrollIntoView({
+                      behavior: "smooth",
+                      block: "nearest",
+                      inline: "center",
+                    });
+                }
+              }
+            });
+          },
+          { rootMargin: "-10% 0px -80% 0px" },
+        );
+        sections.forEach((s) => observer.observe(s.el));
+        links.forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const id = link.getAttribute("href").slice(1);
+            const el = document.getElementById(id);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+              history.replaceState(null, "", "#" + id);
+            }
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

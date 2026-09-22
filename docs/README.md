@@ -113,6 +113,25 @@ Read by: Dev / SA — how it is built on the inside.
 These are written by hand, not generated, and are **not** listed in the index above. Each one goes
 deeper on a single subsystem than the generated docs do.
 
+### NestJS fundamentals (series)
+
+Read this before the authorization guides if decorators, `Reflector`, guards or middleware are new to you. Each
+chapter goes from the bare concept → how NestJS uses it → the exact file and line in this project. Every chapter
+has a markdown version (full detail, line links) and an HTML version (visual, zoomable diagrams).
+
+| Chapter | What it answers |
+|---|---|
+| [nestjs-fundamentals/README.md](nestjs-fundamentals/README.md) · [index.html](nestjs-fundamentals/index.html) | The map: request pipeline, which layer sees what, concept → file table |
+| [00 Prototype, `this` & classes](nestjs-fundamentals/00-prototype-and-this.md) · [html](nestjs-fundamentals/00-prototype-and-this.html) | The JavaScript groundwork: what `prototype` is, how it differs from `__proto__`, why methods live on the prototype and fields do not |
+| [01 Decorators & metadata](nestjs-fundamentals/01-decorators-and-metadata.md) · [html](nestjs-fundamentals/01-decorators-and-metadata.html) | What a decorator is, when it runs, what `SetMetadata` attaches where, metadata vs param decorators |
+| [02 Reflector, ExecutionContext, Discovery](nestjs-fundamentals/02-reflector-execution-context-and-discovery.md) · [html](nestjs-fundamentals/02-reflector-execution-context-and-discovery.html) | Who reads metadata back, why `[handler, class]` order is a contract, scanning the whole app at boot |
+| [03 Guards](nestjs-fundamentals/03-guards.md) · [html](nestjs-fundamentals/03-guards.html) | `CanActivate`, `false` vs `throw`, `APP_GUARD` and DI, ordering, composite guards, fail-open vs fail-closed |
+| [04 Middleware](nestjs-fundamentals/04-middleware.md) · [html](nestjs-fundamentals/04-middleware.html) | The Express layer under Nest, the four middleware this project runs, and why auth is not one of them |
+| [05 Request lifecycle in this project](nestjs-fundamentals/05-request-lifecycle-in-this-project.md) · [html](nestjs-fundamentals/05-request-lifecycle-in-this-project.html) | All 14 layers in order, what each sees and rejects with, and an error-code → layer lookup |
+| [06 Modules & DI](nestjs-fundamentals/06-modules-and-dependency-injection.md) · [html](nestjs-fundamentals/06-modules-and-dependency-injection.html) | Where the objects in a constructor come from — providers, `@Global`, `APP_GUARD`, scopes, circular deps, DI in tests |
+| [07 DTO: validation, transformation, serialization](nestjs-fundamentals/07-dto-validation-transformation-serialization.md) · [html](nestjs-fundamentals/07-dto-validation-transformation-serialization.html) | Three jobs, two libraries; `ValidationPipe` flags, custom validators, and the trap that leaks data into a response |
+| [Appendix A — `reflect-metadata` internals](nestjs-fundamentals/appendix-a-reflect-metadata-internals.md) · [html](nestjs-fundamentals/appendix-a-reflect-metadata-internals.html) | What the hidden table really is (`WeakMap` → `Map` → `Map`), how `getMetadata` walks the chain, which `design:*` entries TypeScript emits and when |
+
 ### Authorization
 
 | Document | What it answers | Read when |

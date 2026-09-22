@@ -113,6 +113,25 @@ Mọi artifact được tạo ra, nhóm theo cách một bộ tài liệu chuẩ
 Nhóm này viết tay, không phải sinh tự động, và **không** nằm trong chỉ mục phía trên. Mỗi tài liệu đào
 sâu vào một hệ con, kỹ hơn tài liệu generated.
 
+### NestJS căn bản (bộ 5 chương)
+
+Đọc trước hai tài liệu phân quyền nếu decorator, `Reflector`, guard hay middleware còn mới với bạn. Mỗi chương đi
+từ khái niệm thuần → cách NestJS dùng → đúng file, đúng dòng trong dự án. Mỗi chương có bản markdown (đầy đủ, link
+tới dòng) và bản HTML (trực quan, sơ đồ phóng to được).
+
+| Chương                                                                                                                                                                                                       | Trả lời câu hỏi gì                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| [nestjs-fundamentals/README.md](nestjs-fundamentals/README.md) · [index.html](nestjs-fundamentals/index.html)                                                                                                | Bản đồ: dây chuyền request, tầng nào thấy gì, bảng khái niệm → file                                                           |
+| [00 Prototype, `this`, và class](nestjs-fundamentals/00-prototype-and-this.md) · [html](nestjs-fundamentals/00-prototype-and-this.html)                                                                      | Nền JavaScript: `prototype` là gì, khác `__proto__` ra sao, vì sao method nằm trên prototype mà field thì không               |
+| [01 Decorator và metadata](nestjs-fundamentals/01-decorators-and-metadata.md) · [html](nestjs-fundamentals/01-decorators-and-metadata.html)                                                                  | Decorator là gì, chạy lúc nào, `SetMetadata` dán gì vào đâu, decorator metadata vs param decorator                            |
+| [02 Reflector, ExecutionContext, Discovery](nestjs-fundamentals/02-reflector-execution-context-and-discovery.md) · [html](nestjs-fundamentals/02-reflector-execution-context-and-discovery.html)             | Ai đọc lại metadata, vì sao thứ tự `[handler, class]` là hợp đồng, quét toàn app lúc boot                                     |
+| [03 Guard](nestjs-fundamentals/03-guards.md) · [html](nestjs-fundamentals/03-guards.html)                                                                                                                    | `CanActivate`, `false` hay `throw`, `APP_GUARD` và DI, thứ tự, guard ghép, fail-open / fail-closed                            |
+| [04 Middleware](nestjs-fundamentals/04-middleware.md) · [html](nestjs-fundamentals/04-middleware.html)                                                                                                       | Tầng Express dưới Nest, bốn middleware đang chạy, và vì sao auth không ở đây                                                  |
+| [05 Vòng đời request trong dự án](nestjs-fundamentals/05-request-lifecycle-in-this-project.md) · [html](nestjs-fundamentals/05-request-lifecycle-in-this-project.html)                                       | 14 tầng theo thứ tự, mỗi tầng thấy gì / từ chối bằng gì, bảng tra mã lỗi → tầng                                               |
+| [06 Module và Dependency Injection](nestjs-fundamentals/06-modules-and-dependency-injection.md) · [html](nestjs-fundamentals/06-modules-and-dependency-injection.html)                                       | Object trong constructor từ đâu ra — provider, `@Global`, `APP_GUARD`, scope, vòng tròn, DI trong test                        |
+| [07 DTO: validation, transformation, serialization](nestjs-fundamentals/07-dto-validation-transformation-serialization.md) · [html](nestjs-fundamentals/07-dto-validation-transformation-serialization.html) | Ba việc hai thư viện; các cờ `ValidationPipe`, validator tự viết, và cái bẫy làm lộ dữ liệu ra response                       |
+| [Phụ lục A — `reflect-metadata` bên trong](nestjs-fundamentals/appendix-a-reflect-metadata-internals.md) · [html](nestjs-fundamentals/appendix-a-reflect-metadata-internals.html)                            | Bảng ẩn thật ra là gì (`WeakMap` → `Map` → `Map`), `getMetadata` đi ngược chain thế nào, TypeScript tự dán `design:*` khi nào |
+
 ### Phân quyền
 
 | Tài liệu                                                                                               | Trả lời câu hỏi gì                                                                                                                              | Đọc khi nào                                     |
