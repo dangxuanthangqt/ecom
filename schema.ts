@@ -972,6 +972,184 @@ export type components = {
        */
       updatedAt: string;
     };
+    ErrorDetailDto: {
+      /**
+       * @description Dotted path to the offending field. Nested DTO failures flatten into this path.
+       * @example address.city
+       */
+      field: string;
+      /**
+       * @description The class-validator constraint name. Stable and never localized — branch on this, not on `message`.
+       * @example isNotEmpty
+       */
+      code: string;
+      /**
+       * @description Human-facing text for this one constraint.
+       * @example city should not be empty
+       */
+      message: string;
+    };
+    ErrorResponseDto: {
+      /** @example 400 */
+      statusCode: number;
+      /**
+       * @description Stable machine code. Safe to branch on; never localized. Published as an enum so generated clients get a union instead of a bare string.
+       * @example VALIDATION_FAILED
+       * @enum {string}
+       */
+      error:
+        | "VALIDATION_FAILED"
+        | "INTERNAL_SERVER_ERROR"
+        | "RATE_LIMIT_EXCEEDED"
+        | "REFERENCE_INVALID"
+        | "EMAIL_NOT_FOUND"
+        | "EMAIL_ALREADY_REGISTERED"
+        | "PASSWORD_INVALID"
+        | "VERIFICATION_CODE_INVALID"
+        | "VERIFICATION_CODE_EXPIRED"
+        | "TOTP_CODE_INVALID"
+        | "TOTP_OR_VERIFICATION_CODE_REQUIRED"
+        | "TWO_FACTOR_ALREADY_ENABLED"
+        | "TWO_FACTOR_NOT_ENABLED"
+        | "ACCESS_TOKEN_EXPIRED"
+        | "ACCESS_TOKEN_INVALID"
+        | "ACCESS_TOKEN_REQUIRED"
+        | "AUTHORIZATION_FAILED"
+        | "PERMISSION_DENIED"
+        | "USER_NOT_FOUND"
+        | "CURRENT_PASSWORD_INCORRECT"
+        | "USER_ADMIN_CREATE_FORBIDDEN"
+        | "USER_SELF_UPDATE_FORBIDDEN"
+        | "USER_UPDATE_FORBIDDEN"
+        | "USER_ADMIN_PROMOTE_FORBIDDEN"
+        | "USER_ADMIN_DELETE_FORBIDDEN"
+        | "USER_SAME_ROLE_DELETE_FORBIDDEN"
+        | "ROLE_NOT_FOUND"
+        | "ROLE_ALREADY_EXISTS"
+        | "ROLE_SYSTEM_IMMUTABLE"
+        | "PERMISSION_NOT_FOUND"
+        | "PERMISSIONS_INVALID"
+        | "DEVICE_NOT_FOUND"
+        | "DEVICE_ALREADY_EXISTS"
+        | "REFRESH_TOKEN_NOT_FOUND"
+        | "REFRESH_TOKEN_ALREADY_EXISTS"
+        | "VERIFICATION_CODE_NOT_FOUND"
+        | "VERIFICATION_CODE_ALREADY_EXISTS"
+        | "BRAND_NOT_FOUND"
+        | "BRAND_ALREADY_EXISTS"
+        | "BRAND_TRANSLATION_NOT_FOUND"
+        | "BRAND_TRANSLATION_ALREADY_EXISTS"
+        | "CATEGORY_NOT_FOUND"
+        | "CATEGORY_ALREADY_EXISTS"
+        | "CATEGORY_TRANSLATION_NOT_FOUND"
+        | "CATEGORY_TRANSLATION_ALREADY_EXISTS"
+        | "CATEGORY_PARENT_SELF_REFERENCE"
+        | "PRODUCT_NOT_FOUND"
+        | "PRODUCT_ALREADY_EXISTS"
+        | "PRODUCT_TRANSLATION_NOT_FOUND"
+        | "PRODUCT_TRANSLATION_ALREADY_EXISTS"
+        | "PRODUCT_FORBIDDEN"
+        | "TRANSLATION_REFERENCE_INVALID"
+        | "SKU_NOT_FOUND"
+        | "LANGUAGE_NOT_FOUND"
+        | "LANGUAGE_ALREADY_EXISTS"
+        | "CART_ITEM_NOT_FOUND"
+        | "CART_ITEM_INSUFFICIENT_STOCK"
+        | "CART_UPDATE_CONFLICT"
+        | "ORDER_NOT_FOUND"
+        | "ORDER_NOT_CANCELLABLE"
+        | "ORDER_CANCEL_FORBIDDEN"
+        | "ORDER_STATUS_CONFLICT"
+        | "ORDER_STATUS_TRANSITION_INVALID"
+        | "ORDER_CART_ITEM_NOT_FOUND"
+        | "SKU_UNAVAILABLE"
+        | "SKU_INSUFFICIENT_STOCK"
+        | "REVIEW_NOT_FOUND"
+        | "REVIEW_ALREADY_EXISTS"
+        | "REVIEW_NOT_PURCHASED"
+        | "FILE_REQUIRED"
+        | "FILE_COUNT_EXCEEDED"
+        | "FILE_COUNT_TOO_FEW"
+        | "FILE_TOO_LARGE"
+        | "FILE_TOO_SMALL"
+        | "FILE_TOTAL_SIZE_EXCEEDED"
+        | "FILE_TYPE_INVALID"
+        | "FILE_EXTENSION_INVALID"
+        | "FILE_NAME_INVALID"
+        | "FILE_NAME_TOO_LONG"
+        | "FILE_FIELD_UNEXPECTED"
+        | "FILE_NOT_FOUND"
+        | "FILE_ALREADY_EXISTS"
+        | "FILE_EMPTY"
+        | "PATH_NOT_A_FILE"
+        | "CONTINUE"
+        | "SWITCHING_PROTOCOLS"
+        | "PROCESSING"
+        | "EARLYHINTS"
+        | "OK"
+        | "CREATED"
+        | "ACCEPTED"
+        | "NON_AUTHORITATIVE_INFORMATION"
+        | "NO_CONTENT"
+        | "RESET_CONTENT"
+        | "PARTIAL_CONTENT"
+        | "MULTI_STATUS"
+        | "ALREADY_REPORTED"
+        | "CONTENT_DIFFERENT"
+        | "AMBIGUOUS"
+        | "MOVED_PERMANENTLY"
+        | "FOUND"
+        | "SEE_OTHER"
+        | "NOT_MODIFIED"
+        | "TEMPORARY_REDIRECT"
+        | "PERMANENT_REDIRECT"
+        | "BAD_REQUEST"
+        | "UNAUTHORIZED"
+        | "PAYMENT_REQUIRED"
+        | "FORBIDDEN"
+        | "NOT_FOUND"
+        | "METHOD_NOT_ALLOWED"
+        | "NOT_ACCEPTABLE"
+        | "PROXY_AUTHENTICATION_REQUIRED"
+        | "REQUEST_TIMEOUT"
+        | "CONFLICT"
+        | "GONE"
+        | "LENGTH_REQUIRED"
+        | "PRECONDITION_FAILED"
+        | "PAYLOAD_TOO_LARGE"
+        | "URI_TOO_LONG"
+        | "UNSUPPORTED_MEDIA_TYPE"
+        | "REQUESTED_RANGE_NOT_SATISFIABLE"
+        | "EXPECTATION_FAILED"
+        | "I_AM_A_TEAPOT"
+        | "MISDIRECTED"
+        | "UNPROCESSABLE_ENTITY"
+        | "LOCKED"
+        | "FAILED_DEPENDENCY"
+        | "PRECONDITION_REQUIRED"
+        | "TOO_MANY_REQUESTS"
+        | "UNRECOVERABLE_ERROR"
+        | "NOT_IMPLEMENTED"
+        | "BAD_GATEWAY"
+        | "SERVICE_UNAVAILABLE"
+        | "GATEWAY_TIMEOUT"
+        | "HTTP_VERSION_NOT_SUPPORTED"
+        | "INSUFFICIENT_STORAGE"
+        | "LOOP_DETECTED"
+        | "REQUEST_FAILED";
+      /**
+       * @description Always a string — never an array, never an object.
+       * @example Validation failed
+       */
+      message: string;
+      /** @description Always present. Empty for failures that are not scoped to a field. */
+      details: components["schemas"]["ErrorDetailDto"][];
+      /**
+       * @description Correlates this response with the access log line for the same request.
+       * @example 3f1b2c8e-0e4a-4a1e-9f0c-2b7d0a1c5e64
+       */
+      requestId?: string;
+    };
     LoginRequestDto: {
       /**
        * @description The user's email address
@@ -2364,7 +2542,7 @@ export type components = {
       /**
        * Format: date-time
        * @description The date when the product will be published
-       * @default 2026-09-20T18:08:25.837Z
+       * @default 2026-09-22T04:22:49.678Z
        * @example 2023-10-01T00:00:00Z
        */
       publishedAt: string;
@@ -2415,7 +2593,7 @@ export type components = {
       /**
        * Format: date-time
        * @description The date when the product will be published
-       * @default 2026-09-20T18:08:25.837Z
+       * @default 2026-09-22T04:22:49.678Z
        * @example 2023-10-01T00:00:00Z
        */
       publishedAt: string;
@@ -2851,7 +3029,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -2860,7 +3050,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -2869,7 +3065,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -2878,7 +3080,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -2911,7 +3119,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -2920,7 +3140,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -2929,7 +3155,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -2938,7 +3170,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -2971,7 +3209,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -2980,7 +3230,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -2989,7 +3245,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -2998,7 +3260,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3034,7 +3302,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3043,7 +3323,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3052,7 +3338,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3061,7 +3353,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3070,7 +3368,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3079,7 +3383,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3112,7 +3422,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3121,7 +3443,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3130,7 +3458,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3139,7 +3473,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3215,7 +3555,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3224,7 +3576,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3233,7 +3591,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3242,7 +3606,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3274,7 +3644,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3283,7 +3665,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3292,7 +3680,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3301,7 +3695,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3310,7 +3710,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3319,7 +3725,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3355,7 +3767,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3364,7 +3788,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3373,7 +3803,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3382,7 +3818,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3391,7 +3833,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3400,7 +3848,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3471,7 +3925,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3480,7 +3946,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3489,7 +3961,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3498,7 +3976,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3507,7 +3991,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3516,7 +4006,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3555,7 +4051,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3564,7 +4072,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3573,7 +4087,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3582,7 +4102,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3591,7 +4117,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3600,7 +4132,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3635,7 +4173,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3644,7 +4194,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3653,7 +4209,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3662,7 +4224,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3671,7 +4239,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3680,7 +4254,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3716,7 +4296,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3725,7 +4317,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3734,7 +4332,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3743,7 +4347,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3752,7 +4362,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3761,7 +4377,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3832,7 +4454,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3841,7 +4475,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3850,7 +4490,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3859,7 +4505,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3868,7 +4520,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3877,7 +4535,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -3949,7 +4613,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -3958,7 +4634,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -3967,7 +4649,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -3976,7 +4664,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -3985,7 +4679,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -3994,7 +4694,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4029,7 +4735,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4038,7 +4756,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4047,7 +4771,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4056,7 +4786,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4065,7 +4801,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4074,7 +4816,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4113,7 +4861,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4122,7 +4882,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4131,7 +4897,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4140,7 +4912,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4149,7 +4927,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4158,7 +4942,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4197,7 +4987,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4206,7 +5008,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4215,7 +5023,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4224,7 +5038,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4233,7 +5053,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4242,7 +5068,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4274,7 +5106,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4283,7 +5127,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4292,7 +5142,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4301,7 +5157,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4310,7 +5172,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4319,7 +5187,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4355,7 +5229,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4364,7 +5250,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4373,7 +5265,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4382,7 +5280,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4391,7 +5295,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4400,7 +5310,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4436,7 +5352,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4445,7 +5373,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4454,7 +5388,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4463,7 +5403,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4472,7 +5418,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4481,7 +5433,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4553,7 +5511,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4562,7 +5532,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4571,7 +5547,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4580,7 +5562,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4589,7 +5577,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4598,7 +5592,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4633,7 +5633,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4642,7 +5654,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4651,7 +5669,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4660,7 +5684,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4669,7 +5699,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4678,7 +5714,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4717,7 +5759,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4726,7 +5780,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4735,7 +5795,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4744,7 +5810,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4753,7 +5825,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4762,7 +5840,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4797,7 +5881,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4806,7 +5902,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4815,7 +5917,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4824,7 +5932,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4833,7 +5947,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4842,7 +5962,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4874,7 +6000,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4883,7 +6021,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4892,7 +6036,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4901,7 +6051,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4910,7 +6066,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4919,7 +6081,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -4951,7 +6119,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -4960,7 +6140,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -4969,7 +6155,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -4978,7 +6170,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -4987,7 +6185,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -4996,7 +6200,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5028,7 +6238,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5037,7 +6259,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5046,7 +6274,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5055,7 +6289,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5064,7 +6304,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5073,7 +6319,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5110,7 +6362,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5119,7 +6383,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5128,7 +6398,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5137,7 +6413,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5146,7 +6428,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5155,7 +6443,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5190,7 +6484,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5199,7 +6505,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5208,7 +6520,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5217,7 +6535,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5226,7 +6550,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5235,7 +6565,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5304,7 +6640,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5313,7 +6661,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5322,7 +6676,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5331,7 +6691,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5340,7 +6706,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5349,7 +6721,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5380,7 +6758,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5389,7 +6779,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5398,7 +6794,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5407,7 +6809,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5527,7 +6935,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5536,7 +6956,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5545,7 +6971,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5554,7 +6986,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5563,7 +7001,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5572,7 +7016,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5607,7 +7057,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5616,7 +7078,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5625,7 +7093,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5634,7 +7108,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5643,7 +7123,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5652,7 +7138,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5690,7 +7182,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5699,7 +7203,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5708,7 +7218,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5717,7 +7233,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5726,7 +7248,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5735,7 +7263,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5769,7 +7303,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5778,7 +7324,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5787,7 +7339,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5796,7 +7354,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5805,7 +7369,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5814,7 +7384,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5849,7 +7425,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5858,7 +7446,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5867,7 +7461,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5876,7 +7476,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5885,7 +7491,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5894,7 +7506,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -5930,7 +7548,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -5939,7 +7569,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -5948,7 +7584,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -5957,7 +7599,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -5966,7 +7614,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -5975,7 +7629,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6010,7 +7670,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6019,7 +7691,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6028,7 +7706,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6037,7 +7721,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6046,7 +7736,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6055,7 +7751,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6094,7 +7796,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6103,7 +7817,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6112,7 +7832,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6121,7 +7847,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6130,7 +7862,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6139,7 +7877,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6174,7 +7918,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6183,7 +7939,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6192,7 +7954,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6201,7 +7969,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6210,7 +7984,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6219,7 +7999,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6291,7 +8077,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6300,7 +8098,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6309,7 +8113,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6318,7 +8128,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6327,7 +8143,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6336,7 +8158,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6368,7 +8196,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6377,7 +8217,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6386,7 +8232,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6395,7 +8247,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6404,7 +8262,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6413,7 +8277,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6452,7 +8322,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6461,7 +8343,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6470,7 +8358,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6479,7 +8373,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6488,7 +8388,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6497,7 +8403,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6532,7 +8444,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6541,7 +8465,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6550,7 +8480,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6559,7 +8495,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6568,7 +8510,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6577,7 +8525,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6659,7 +8613,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6668,7 +8634,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6677,7 +8649,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6686,7 +8664,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6779,7 +8763,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6788,7 +8784,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6797,7 +8799,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6806,7 +8814,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6815,7 +8829,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6824,7 +8844,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6859,7 +8885,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6868,7 +8906,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6877,7 +8921,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6886,7 +8936,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6895,7 +8951,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6904,7 +8966,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -6940,7 +9008,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -6949,7 +9029,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -6958,7 +9044,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -6967,7 +9059,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -6976,7 +9074,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -6985,7 +9089,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7020,7 +9130,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7029,7 +9151,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7038,7 +9166,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7047,7 +9181,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7056,7 +9196,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7065,7 +9211,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7137,7 +9289,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7146,7 +9310,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7155,7 +9325,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7164,7 +9340,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7173,7 +9355,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7182,7 +9370,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7217,7 +9411,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7226,7 +9432,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7235,7 +9447,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7244,7 +9462,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7253,7 +9477,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7262,7 +9492,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7301,7 +9537,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7310,7 +9558,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7319,7 +9573,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7328,7 +9588,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7337,7 +9603,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7346,7 +9618,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7381,7 +9659,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7390,7 +9680,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7399,7 +9695,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7408,7 +9710,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7417,7 +9725,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7426,7 +9740,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7498,7 +9818,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7507,7 +9839,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7516,7 +9854,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7525,7 +9869,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7534,7 +9884,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7543,7 +9899,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7582,7 +9944,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7591,7 +9965,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7600,7 +9980,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7609,7 +9995,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7618,7 +10010,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7627,7 +10025,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7662,7 +10066,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7671,7 +10087,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7680,7 +10102,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7689,7 +10117,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7698,7 +10132,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7707,7 +10147,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7787,7 +10233,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7796,7 +10254,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7805,7 +10269,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7814,7 +10284,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7823,7 +10299,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7832,7 +10314,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7867,7 +10355,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7876,7 +10376,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7885,7 +10391,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7894,7 +10406,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7903,7 +10421,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7912,7 +10436,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -7947,7 +10477,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -7956,7 +10498,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -7965,7 +10513,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -7974,7 +10528,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -7983,7 +10543,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -7992,7 +10558,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -8073,7 +10645,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -8082,7 +10666,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -8091,7 +10681,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -8100,7 +10696,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -8109,7 +10711,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -8118,7 +10726,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -8157,7 +10771,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -8166,7 +10792,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -8175,7 +10807,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -8184,7 +10822,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -8193,7 +10837,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -8202,7 +10852,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -8273,7 +10929,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -8282,7 +10950,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -8291,7 +10965,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -8300,7 +10980,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -8309,7 +10995,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -8318,7 +11010,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -8357,7 +11055,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -8366,7 +11076,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -8375,7 +11091,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -8384,7 +11106,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -8393,7 +11121,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -8402,7 +11136,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
@@ -8437,7 +11177,19 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 400,
+           *       "error": "VALIDATION_FAILED",
+           *       "message": "Validation failed",
+           *       "details": [
+           *         {
+           *           "field": "email",
+           *           "code": "isEmail",
+           *           "message": "email must be an email"
+           *         }
+           *       ]
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unauthorized */
@@ -8446,7 +11198,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 401,
+           *       "error": "UNAUTHORIZED",
+           *       "message": "Unauthorized.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Forbidden */
@@ -8455,7 +11213,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 403,
+           *       "error": "FORBIDDEN",
+           *       "message": "Forbidden.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Not Found */
@@ -8464,7 +11228,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 404,
+           *       "error": "NOT_FOUND",
+           *       "message": "Not found.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Unprocessable Entity */
@@ -8473,7 +11243,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 422,
+           *       "error": "UNPROCESSABLE_ENTITY",
+           *       "message": "Unprocessable content.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
       /** @description Internal Server Error */
@@ -8482,7 +11258,13 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": unknown;
+          /** @example {
+           *       "statusCode": 500,
+           *       "error": "INTERNAL_SERVER_ERROR",
+           *       "message": "Sorry! Something went wrong on our end, please try again later.",
+           *       "details": []
+           *     } */
+          "application/json": components["schemas"]["ErrorResponseDto"];
         };
       };
     };
