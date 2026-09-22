@@ -98,7 +98,7 @@ flowchart LR
 `FR-201` `US040`
 
 **Who** · Admin *(gate A0 — § 4.4)*
-**Request** · query params `pageIndex`, `pageSize`, `order`, `orderBy` *(all optional, `PermissionPaginationQueryDto`)*
+**Request** · query params `page`, `pageSize`, `order`, `orderBy` *(all optional, `PermissionPaginationQueryDto`)*
 **BE** · `` `PermissionService#getPermissions` `` paginates and returns rows via `PermissionRepository#findManyPermissions` — `src/routes/permission/permission.service.ts:26-56`
 **Result** · read-only — **no DB write**. Returns a page of non-deleted `Permission` rows plus each row's assigned `roles` (`permissionWithRolesSelect`).
 **Source:** `src/routes/permission/permission.controller.ts:36-49` → `src/routes/permission/permission.service.ts:26-56` → `src/repositories/permission/permission.repository.ts:29-72`
@@ -223,7 +223,7 @@ sequenceDiagram
 `FR-301` `US060`
 
 **Who** · Admin *(gate A0)*
-**Request** · query params `pageIndex`, `pageSize`, `order`, `orderBy` *(optional, `PaginationQueryDto`)*
+**Request** · query params `page`, `pageSize`, `order`, `orderBy` *(optional, `PaginationQueryDto`)*
 **BE** · `` `RoleService#getRoles` `` → `` `RoleRepository#findManyRoles` `` — `src/routes/role/role.service.ts:30-57`
 **Result** · read-only — **no DB write**. Returns a page of non-deleted `Role` rows plus each role's assigned `permissions` (`roleWithPermissionsSelect`), including the 3 seeded roles.
 **Source:** `src/routes/role/role.controller.ts:36-49` → `src/routes/role/role.service.ts:30-57` → `src/repositories/role/role.repository.ts:24-59`

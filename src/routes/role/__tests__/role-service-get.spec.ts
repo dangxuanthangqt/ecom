@@ -41,7 +41,7 @@ describe("RoleService - getRoles", () => {
     expect(result).toEqual({
       data: roles,
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 2,
@@ -49,7 +49,7 @@ describe("RoleService - getRoles", () => {
     });
   });
 
-  it("respects custom pageIndex and pageSize", async () => {
+  it("respects custom page and pageSize", async () => {
     // Arrange
     const roles = [makeRole()];
     mocks.roleRepository.findManyRoles.mockResolvedValue({
@@ -58,7 +58,7 @@ describe("RoleService - getRoles", () => {
     });
 
     // Act
-    await service.getRoles({ pageIndex: 3, pageSize: 20 });
+    await service.getRoles({ page: 3, pageSize: 20 });
 
     // Assert
     expect(mocks.roleRepository.findManyRoles).toHaveBeenCalledWith(

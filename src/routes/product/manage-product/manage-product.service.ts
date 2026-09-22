@@ -54,7 +54,7 @@ export class ManageProductService {
     userId,
     scope,
     query: {
-      pageIndex = 1,
+      page = 1,
       pageSize = 10,
       order = ORDER.ASC,
       orderBy = ORDER_BY.CREATED_AT,
@@ -79,7 +79,7 @@ export class ManageProductService {
       createdById,
     });
 
-    const skip = (pageIndex - 1) * pageSize;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     // Normalize order for Prisma
@@ -115,7 +115,7 @@ export class ManageProductService {
       // applies @Expose() rules to real DTO instances, not plain Prisma rows.
       data: products.map((product) => new ProductResponseDto(product)),
       pagination: {
-        pageIndex,
+        page,
         pageSize,
         totalItems: productsCount,
         totalPages,

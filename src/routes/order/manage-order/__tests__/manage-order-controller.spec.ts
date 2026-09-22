@@ -25,11 +25,11 @@ describe("ManageOrderController - getManageOrders", () => {
     const order = makeOrderResponse();
     const response = {
       data: [order],
-      pagination: { pageIndex: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
+      pagination: { page: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
     };
     mocks.manageOrderService.getOrders.mockResolvedValue(response);
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     const result = await controller.getManageOrders(
       query,
@@ -54,7 +54,7 @@ describe("ManageOrderController - getManageOrders", () => {
 
     await expect(
       controller.getManageOrders(
-        { pageIndex: 1, pageSize: 10 },
+        { page: 1, pageSize: 10 },
         ACTIVE_USER_ID,
         SELLER_SCOPE,
       ),

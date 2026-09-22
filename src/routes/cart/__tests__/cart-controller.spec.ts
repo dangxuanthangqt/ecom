@@ -22,11 +22,11 @@ describe("CartController - getCartItems", () => {
     const cartItem = makeCartItemResponse();
     const response = {
       data: [cartItem],
-      pagination: { pageIndex: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
+      pagination: { page: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
     };
     mocks.cartService.getCartItems.mockResolvedValue(response);
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     const result = await controller.getCartItems(query, ACTIVE_USER_ID);
 

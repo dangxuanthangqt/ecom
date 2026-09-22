@@ -106,7 +106,7 @@ describe("BrandTranslationService - getBrandTranslations", () => {
     expect(result).toEqual({
       data: translations,
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 3,
@@ -134,7 +134,7 @@ describe("BrandTranslationService - getBrandTranslations", () => {
 
     // Act
     const result = await service.getBrandTranslations({
-      pageIndex: 2,
+      page: 2,
       pageSize: 5,
       order: ORDER.DESC,
       orderBy: ORDER_BY.UPDATED_AT,
@@ -144,7 +144,7 @@ describe("BrandTranslationService - getBrandTranslations", () => {
     expect(result).toEqual({
       data: translations,
       pagination: {
-        pageIndex: 2,
+        page: 2,
         pageSize: 5,
         totalPages: 1,
         totalItems: 2,
@@ -197,7 +197,7 @@ describe("BrandTranslationService - getBrandTranslations", () => {
 
     // Act
     const result = await service.getBrandTranslations({
-      pageIndex: 3,
+      page: 3,
       pageSize: 10,
     });
 

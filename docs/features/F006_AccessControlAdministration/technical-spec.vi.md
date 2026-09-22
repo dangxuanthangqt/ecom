@@ -80,7 +80,7 @@ flowchart LR
 `FR-201` `US040`
 
 **Ai** · Admin *(cổng A0 — § 4.4)*
-**Request** · tham số truy vấn `pageIndex`, `pageSize`, `order`, `orderBy` *(tất cả tùy chọn, `PermissionPaginationQueryDto`)*
+**Request** · tham số truy vấn `page`, `pageSize`, `order`, `orderBy` *(tất cả tùy chọn, `PermissionPaginationQueryDto`)*
 **BE** · `` `PermissionService#getPermissions` `` phân trang và trả về các hàng thông qua `PermissionRepository#findManyPermissions` — `src/routes/permission/permission.service.ts:26-56`
 **Kết quả** · chỉ đọc — **không ghi DB**. Trả về một trang các hàng `Permission` không bị xóa cộng với `role` được gán của mỗi hàng (`permissionWithRolesSelect`).
 **Nguồn:** `src/routes/permission/permission.controller.ts:36-49` → `src/routes/permission/permission.service.ts:26-56` → `src/repositories/permission/permission.repository.ts:29-72`
@@ -205,7 +205,7 @@ sequenceDiagram
 `FR-301` `US060`
 
 **Ai** · Admin *(cổng A0)*
-**Request** · tham số truy vấn `pageIndex`, `pageSize`, `order`, `orderBy` *(tùy chọn, `PaginationQueryDto`)*
+**Request** · tham số truy vấn `page`, `pageSize`, `order`, `orderBy` *(tùy chọn, `PaginationQueryDto`)*
 **BE** · `` `RoleService#getRoles` `` → `` `RoleRepository#findManyRoles` `` — `src/routes/role/role.service.ts:30-57`
 **Kết quả** · chỉ đọc — **không ghi DB**. Trả về một trang các hàng `Role` không bị xóa cộng với `permission` được gán của mỗi vai trò (`roleWithPermissionsSelect`), bao gồm 3 vai trò được seeded.
 **Nguồn:** `src/routes/role/role.controller.ts:36-49` → `src/routes/role/role.service.ts:30-57` → `src/repositories/role/role.repository.ts:24-59`

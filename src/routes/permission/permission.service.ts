@@ -12,19 +12,19 @@ export class PermissionService {
   /**
    * Retrieves a paginated list of permissions with optional sorting.
    *
-   * @param pageIndex - The current page index (default is 1).
+   * @param page - The current page number (default is 1).
    * @param pageSize - The number of items per page (default is 10).
    * @param order - The order direction (ASC or DESC, default is ASC).
    * @param orderBy - The field to order by (default is createdAt).
    * @returns The paginated list of permissions and pagination metadata.
    */
   async getPermissions({
-    pageIndex = 1,
+    page = 1,
     pageSize = 10,
     order = ORDER.ASC,
     orderBy = ORDER_BY.CREATED_AT,
   }: PaginationQueryDto) {
-    const skip = (pageIndex - 1) * pageSize;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     // Normalize order for Prisma
@@ -42,7 +42,7 @@ export class PermissionService {
     return {
       data: permissions,
       pagination: {
-        pageIndex,
+        page,
         pageSize,
         totalPages,
         totalItems: permissionsCount,

@@ -41,7 +41,7 @@ describe("PermissionService - getPermissions", () => {
     expect(result).toEqual({
       data: permissions,
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 2,
@@ -49,7 +49,7 @@ describe("PermissionService - getPermissions", () => {
     });
   });
 
-  it("respects custom pageIndex and pageSize", async () => {
+  it("respects custom page and pageSize", async () => {
     // Arrange
     const permissions = [makePermission()];
     mocks.permissionRepository.findManyPermissions.mockResolvedValue({
@@ -58,7 +58,7 @@ describe("PermissionService - getPermissions", () => {
     });
 
     // Act
-    await service.getPermissions({ pageIndex: 2, pageSize: 25 });
+    await service.getPermissions({ page: 2, pageSize: 25 });
 
     // Assert
     expect(mocks.permissionRepository.findManyPermissions).toHaveBeenCalledWith(

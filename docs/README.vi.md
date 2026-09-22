@@ -158,8 +158,11 @@ tới dòng) và bản HTML (trực quan, sơ đồ phóng to được).
 | [error-handling.vi.md](error-handling.vi.md)                               | Một envelope lỗi duy nhất cho mọi response      |
 | [rate-limiting-guide.md](rate-limiting-guide.md)                           | Giới hạn tần suất, gồm cả các endpoint xác thực |
 | [google-oauth-login-flow.md](google-oauth-login-flow.md)                   | Luồng đăng nhập Google từ đầu tới cuối          |
+| [totp-two-factor-authentication.md](totp-two-factor-authentication.md)     | Cơ chế TOTP / xác thực hai bước và các luồng    |
 | [queue-job-worker-scheduler-guide.md](queue-job-worker-scheduler-guide.md) | Job nền, worker và scheduler                    |
 | [e2e-testing.vi.md](e2e-testing.vi.md)                                     | Bộ khung e2e và cách chạy                       |
+| [resend-api-key-setup.vi.md](resend-api-key-setup.vi.md)                   | Lấy Resend API key và cắm vào `.env`            |
 
-> Phần lớn tài liệu trên có bản song ngữ `.vi.md` đi kèm. Riêng `authorization-guide.md` và
-> `authorization-mechanics-and-code-walkthrough.md` chỉ có tiếng Việt, chưa có bản tiếng Anh.
+> Phần lớn tài liệu trên có bản song ngữ `.vi.md` đi kèm. Riêng `authorization-guide.md`,
+> `authorization-mechanics-and-code-walkthrough.md` và `totp-two-factor-authentication.md`
+> chỉ có tiếng Việt, chưa có bản tiếng Anh.

@@ -73,7 +73,7 @@ what is rendered — each is captured as a Business Rule (§ 4.4) instead.
 `FR-201` `FR-202` `FR-204` `US052`
 
 **Who** · seller or admin *(gate A0 — § 4.4)*
-**Request** · query params `pageIndex`, `pageSize`, `order`, `orderBy`, `name`, `brandIds`,
+**Request** · query params `page`, `pageSize`, `order`, `orderBy`, `name`, `brandIds`,
 `categoryIds`, `minPrice`, `maxPrice`, `isPublic`, `createdById` — `createdById` defaults to the
 caller's own `userId` when omitted (`src/routes/product/manage-product/manage-product.service.ts:65`)
 **BE** · `` `ManageProductService#getProducts` `` — validates ownership, normalizes the sort order,

@@ -210,7 +210,7 @@ tries to create a brand linking that ID, **Then** the request is rejected and no
 ## 13. Configuration
 
 ```text
-DEFAULT_PAGE_INDEX = 1      # first page returned when no pageIndex is supplied
+DEFAULT_PAGE = 1      # first page returned when no page is supplied
 DEFAULT_PAGE_SIZE = 10      # number of brands per page when no pageSize is supplied
 DEFAULT_ORDER = ASC         # sort direction when no order is supplied
 DEFAULT_ORDER_BY = createdAt # sort field when no orderBy is supplied

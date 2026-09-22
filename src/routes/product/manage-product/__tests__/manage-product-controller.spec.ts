@@ -26,7 +26,7 @@ describe("ManageProductController - getManageProducts", () => {
     const response = {
       data: [product],
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 1,
@@ -34,7 +34,7 @@ describe("ManageProductController - getManageProducts", () => {
     };
     mocks.manageProductService.getProducts.mockResolvedValue(response);
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     // Act
     const result = await controller.getManageProducts(
@@ -62,14 +62,14 @@ describe("ManageProductController - getManageProducts", () => {
     mocks.manageProductService.getProducts.mockResolvedValue({
       data: [makeProductResponse()],
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 1,
       },
     });
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     // Act
     await controller.getManageProducts(
@@ -95,7 +95,7 @@ describe("ManageProductController - getManageProducts", () => {
     // Act & Assert
     await expect(
       controller.getManageProducts(
-        { pageIndex: 1, pageSize: 10 },
+        { page: 1, pageSize: 10 },
         LANGUAGE_ID,
         ACTIVE_USER_ID,
         SELLER_SCOPE,

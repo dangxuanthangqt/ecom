@@ -210,7 +210,7 @@ cố tạo thương hiệu liên kết tới ID đó, **Then** request bị từ
 ## 13. Cấu hình
 
 ```text
-DEFAULT_PAGE_INDEX = 1      # first page returned when no pageIndex is supplied
+DEFAULT_PAGE = 1      # first page returned when no page is supplied
 DEFAULT_PAGE_SIZE = 10      # number of brands per page when no pageSize is supplied
 DEFAULT_ORDER = ASC         # sort direction when no order is supplied
 DEFAULT_ORDER_BY = createdAt # sort field when no orderBy is supplied

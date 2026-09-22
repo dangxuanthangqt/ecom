@@ -12,8 +12,8 @@ export class ReviewService {
 
   /** BR-R05: public, newest-first, scoped to one product. */
   async getReviews({ query }: { query: ReviewPaginationQueryDto }) {
-    const { productId, pageIndex = 1, pageSize = 10 } = query;
-    const skip = (pageIndex - 1) * pageSize;
+    const { productId, page = 1, pageSize = 10 } = query;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     const { reviews, reviewsCount } =
@@ -29,7 +29,7 @@ export class ReviewService {
     return {
       data: reviews,
       pagination: {
-        pageIndex,
+        page,
         pageSize,
         totalPages,
         totalItems: reviewsCount,

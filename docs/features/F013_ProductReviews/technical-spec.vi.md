@@ -58,7 +58,7 @@ không bao giờ ghi là `N/A` hay `None.`:
 **Who** · Bất kỳ ai — không đọc token xác thực nào cả *(gate A0 — § 4.4)*.
 **FE** · *không có — headless API, không có tầng view*
 **Request** · query params qua `ReviewPaginationQueryDto` (`src/dtos/review/review.dto.ts:135-149`):
-bắt buộc `productId` (UUID), `pageIndex`, `pageSize`, `orderBy` (`ReviewOrderByFields`).
+bắt buộc `productId` (UUID), `page`, `pageSize`, `orderBy` (`ReviewOrderByFields`).
 **BE** · `` `ReviewService#getReviews` `` (`src/routes/review/review.service.ts:13-33`) luôn cố định
 `orderBy: { createdAt: "desc" }` và truyền `where: { productId }` cho
 `` `ReviewRepository#findManyReviews` `` (`src/repositories/review/review.repository.ts:20-50`),
@@ -242,7 +242,7 @@ không hiển thị mà cũng chưa từng được đặt hàng).
 ### 4.6 Configuration
 
 ```text
-DEFAULT_PAGE_INDEX = 1   # ReviewService.getReviews destructuring default (src/routes/review/review.service.ts:14-15)
+DEFAULT_PAGE = 1   # ReviewService.getReviews destructuring default (src/routes/review/review.service.ts:14-15)
 DEFAULT_PAGE_SIZE = 10   # ReviewService.getReviews destructuring default (src/routes/review/review.service.ts:14-15)
 ```
 

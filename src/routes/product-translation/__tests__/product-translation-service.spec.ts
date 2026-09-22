@@ -36,7 +36,7 @@ describe("ProductTranslationService - getProductTranslations", () => {
   const makeQuery = (
     overrides: Partial<PaginationQueryDto> = {},
   ): PaginationQueryDto => ({
-    pageIndex: 1,
+    page: 1,
     pageSize: 10,
     order: ORDER.ASC,
     orderBy: ORDER_BY.CREATED_AT,
@@ -76,7 +76,7 @@ describe("ProductTranslationService - getProductTranslations", () => {
     );
     expect(result.data).toEqual(translations);
     expect(result.pagination).toEqual({
-      pageIndex: 1,
+      page: 1,
       pageSize: 10,
       totalPages: 1,
       totalItems: 1,
@@ -118,7 +118,7 @@ describe("ProductTranslationService - getProductTranslations", () => {
     stubList([makeProductTranslation()], 100);
 
     const result = await service.getProductTranslations({
-      query: makeQuery({ pageIndex: 4, pageSize: 20 }),
+      query: makeQuery({ page: 4, pageSize: 20 }),
       ...asAdmin,
     });
 

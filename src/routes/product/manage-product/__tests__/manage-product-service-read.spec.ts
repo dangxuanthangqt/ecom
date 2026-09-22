@@ -43,7 +43,7 @@ describe("ManageProductService - getProducts", () => {
   const makeQuery = (
     overrides: Partial<ManageProductPaginationQueryDto> = {},
   ): ManageProductPaginationQueryDto => ({
-    pageIndex: 1,
+    page: 1,
     pageSize: 10,
     order: ORDER.ASC,
     orderBy: ORDER_BY.CREATED_AT,
@@ -253,7 +253,7 @@ describe("ManageProductService - getProducts", () => {
 
     // Act
     const result = await service.getProducts({
-      query: makeQuery({ pageIndex: 5, pageSize: 25 }),
+      query: makeQuery({ page: 5, pageSize: 25 }),
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
       scope: Scope.OWN,

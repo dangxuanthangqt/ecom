@@ -77,7 +77,7 @@ describe("UserService - read", () => {
       expect(result).toEqual({
         data: rows,
         pagination: {
-          pageIndex: 1,
+          page: 1,
           pageSize: 10,
           totalPages: 1,
           totalItems: 3,
@@ -98,7 +98,7 @@ describe("UserService - read", () => {
 
       // Act
       await service.getUsers({
-        pageIndex: 3,
+        page: 3,
         pageSize: 25,
         order: ORDER.DESC,
         orderBy: ORDER_BY.UPDATED_AT,
@@ -141,7 +141,7 @@ describe("UserService - read", () => {
 
       // Assert
       expect(result.pagination).toEqual({
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 3,
         totalItems: 21,

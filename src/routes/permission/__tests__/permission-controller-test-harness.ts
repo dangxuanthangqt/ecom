@@ -70,7 +70,7 @@ export const makePaginatedPermissions = (
 ) => ({
   data: items,
   pagination: {
-    pageIndex: 1,
+    page: 1,
     pageSize: 10,
     totalPages: 1,
     totalItems: items.length,

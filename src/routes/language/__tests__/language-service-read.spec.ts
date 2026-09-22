@@ -35,7 +35,7 @@ describe("LanguageService - getLanguages", () => {
     expect(result).toEqual({
       data: languages,
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 1,
@@ -60,7 +60,7 @@ describe("LanguageService - getLanguages", () => {
 
     // Act
     await service.getLanguages({
-      pageIndex: 2,
+      page: 2,
       pageSize: 20,
       order: ORDER.DESC,
       orderBy: ORDER_BY.UPDATED_AT,
@@ -112,7 +112,7 @@ describe("LanguageService - getLanguages", () => {
 
     // Assert
     expect(result.pagination).toEqual({
-      pageIndex: 1,
+      page: 1,
       pageSize: 10,
       totalPages: 3,
       totalItems: 25,

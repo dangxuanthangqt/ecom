@@ -58,7 +58,7 @@ threshold; no `sequenceDiagram` is included for any of them.
 **Who** · Anyone — no auth token is read at all *(gate A0 — § 4.4)*.
 **FE** · *none — headless API, no view layer*
 **Request** · query params via `ReviewPaginationQueryDto` (`src/dtos/review/review.dto.ts:135-149`):
-required `productId` (UUID), `pageIndex`, `pageSize`, `orderBy` (`ReviewOrderByFields`).
+required `productId` (UUID), `page`, `pageSize`, `orderBy` (`ReviewOrderByFields`).
 **BE** · `` `ReviewService#getReviews` `` (`src/routes/review/review.service.ts:13-33`) fixes
 `orderBy: { createdAt: "desc" }` unconditionally and passes `where: { productId }` to
 `` `ReviewRepository#findManyReviews` `` (`src/repositories/review/review.repository.ts:20-50`),
@@ -242,7 +242,7 @@ also never been ordered).
 ### 4.6 Configuration
 
 ```text
-DEFAULT_PAGE_INDEX = 1   # ReviewService.getReviews destructuring default (src/routes/review/review.service.ts:14-15)
+DEFAULT_PAGE = 1   # ReviewService.getReviews destructuring default (src/routes/review/review.service.ts:14-15)
 DEFAULT_PAGE_SIZE = 10   # ReviewService.getReviews destructuring default (src/routes/review/review.service.ts:14-15)
 ```
 

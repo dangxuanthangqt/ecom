@@ -23,7 +23,7 @@ describe("ProductController - getProducts", () => {
     const response = {
       data: [product],
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 1,
@@ -31,7 +31,7 @@ describe("ProductController - getProducts", () => {
     };
     mocks.productService.getProducts.mockResolvedValue(response);
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     // Act
     const result = await controller.getProducts(query, LANGUAGE_ID);
@@ -54,7 +54,7 @@ describe("ProductController - getProducts", () => {
 
     // Act & Assert
     await expect(
-      controller.getProducts({ pageIndex: 1, pageSize: 10 }, LANGUAGE_ID),
+      controller.getProducts({ page: 1, pageSize: 10 }, LANGUAGE_ID),
     ).rejects.toBe(error);
   });
 });

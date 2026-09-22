@@ -18,7 +18,7 @@ describe("LanguageController - getLanguages", () => {
   let controller: LanguageController;
   let mocks: LanguageControllerMocks;
 
-  const makePaginationQuery = () => ({ pageIndex: 0, pageSize: 10 });
+  const makePaginationQuery = () => ({ page: 1, pageSize: 10 });
 
   beforeEach(async () => {
     ({ controller, mocks } = await setupLanguageController());
@@ -50,7 +50,7 @@ describe("LanguageController - getLanguages", () => {
         totalPages: 1,
         totalItems: 2,
         pageSize: 10,
-        pageIndex: 0,
+        page: 1,
       },
     };
     mocks.languageService.getLanguages.mockResolvedValue(serviceResponse);

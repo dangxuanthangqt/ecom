@@ -23,7 +23,7 @@ describe("CategoryTranslationController - getCategoryTranslations", () => {
     const response = {
       data: [categoryTranslation],
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 1,
@@ -33,7 +33,7 @@ describe("CategoryTranslationController - getCategoryTranslations", () => {
       response,
     );
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     // Act
     const result = await controller.getCategoryTranslations(query);
@@ -55,7 +55,7 @@ describe("CategoryTranslationController - getCategoryTranslations", () => {
 
     // Act & Assert
     await expect(
-      controller.getCategoryTranslations({ pageIndex: 1, pageSize: 10 }),
+      controller.getCategoryTranslations({ page: 1, pageSize: 10 }),
     ).rejects.toBe(error);
   });
 });

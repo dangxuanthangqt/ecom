@@ -194,7 +194,7 @@ trả về 404, không phải 403 — người gọi không thể biết đượ
 ## 13. Configuration
 
 ```text
-DEFAULT_PAGE_INDEX = 1     # cart list starts at page 1 when no pageIndex is supplied
+DEFAULT_PAGE = 1     # cart list starts at page 1 when no page is supplied
 DEFAULT_PAGE_SIZE = 10     # number of cart lines returned per page when no pageSize is supplied
 ```
 </content>

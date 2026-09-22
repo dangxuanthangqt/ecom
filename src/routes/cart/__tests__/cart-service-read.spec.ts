@@ -29,7 +29,7 @@ describe("CartService - getCartItems", () => {
     );
   });
 
-  it("applies pagination defaults (pageIndex 1, pageSize 10)", async () => {
+  it("applies pagination defaults (page 1, pageSize 10)", async () => {
     mocks.cartRepository.findManyCartItems.mockResolvedValue({
       cartItems: [],
       cartItemsCount: 0,
@@ -42,14 +42,14 @@ describe("CartService - getCartItems", () => {
     );
   });
 
-  it("computes skip from a custom pageIndex/pageSize", async () => {
+  it("computes skip from a custom page/pageSize", async () => {
     mocks.cartRepository.findManyCartItems.mockResolvedValue({
       cartItems: [],
       cartItemsCount: 0,
     });
 
     await service.getCartItems({
-      query: { pageIndex: 3, pageSize: 20 },
+      query: { page: 3, pageSize: 20 },
       userId: USER_ID,
     });
 
@@ -66,14 +66,14 @@ describe("CartService - getCartItems", () => {
     });
 
     const result = await service.getCartItems({
-      query: { pageIndex: 1, pageSize: 10 },
+      query: { page: 1, pageSize: 10 },
       userId: USER_ID,
     });
 
     expect(result).toEqual({
       data: cartItems,
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 3,
         totalItems: 25,

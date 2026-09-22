@@ -24,7 +24,7 @@ describe("BrandController - getBrands", () => {
     const response = {
       data: [brand],
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 1,
@@ -32,7 +32,7 @@ describe("BrandController - getBrands", () => {
     };
     mocks.brandService.getBrands.mockResolvedValue(response);
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     // Act
     const result = await controller.getBrands(query, LANGUAGE_ID);

@@ -57,7 +57,7 @@ layer; the rung is omitted entirely per contract, never rendered as N/A.
 **Who** · admin *(gate A0 — § 4.4; note: this route's Swagger decoration omits `@ApiAuth`,
 `src/routes/user/user.controller.ts:39-52`, unlike A2-A5 — a documentation-only gap, not an auth gap: the guard
 is a global `APP_GUARD`, applied regardless of any per-handler decorator, see § 4.4)*
-**Request** · query `pageIndex`/`pageSize`/`order`/`orderBy` (`UserPaginationQueryDto`,
+**Request** · query `page`/`pageSize`/`order`/`orderBy` (`UserPaginationQueryDto`,
 `src/dtos/user/user.dto.ts:28-39`)
 **BE** · `` `UserService#getUsers` `` — builds a `where: { deletedAt: null }` filter, paginates via
 `skip`/`take`, and runs count + find concurrently. `src/routes/user/user.service.ts:55-98`

@@ -29,7 +29,7 @@ describe("ReviewService - getReviews", () => {
     );
   });
 
-  it("applies pagination defaults (pageIndex 1, pageSize 10) and newest-first order", async () => {
+  it("applies pagination defaults (page 1, pageSize 10) and newest-first order", async () => {
     mocks.reviewRepository.findManyReviews.mockResolvedValue({
       reviews: [],
       reviewsCount: 0,
@@ -42,14 +42,14 @@ describe("ReviewService - getReviews", () => {
     );
   });
 
-  it("computes skip from a custom pageIndex/pageSize", async () => {
+  it("computes skip from a custom page/pageSize", async () => {
     mocks.reviewRepository.findManyReviews.mockResolvedValue({
       reviews: [],
       reviewsCount: 0,
     });
 
     await service.getReviews({
-      query: { productId: PRODUCT_ID, pageIndex: 3, pageSize: 20 },
+      query: { productId: PRODUCT_ID, page: 3, pageSize: 20 },
     });
 
     expect(mocks.reviewRepository.findManyReviews).toHaveBeenCalledWith(
@@ -65,13 +65,13 @@ describe("ReviewService - getReviews", () => {
     });
 
     const result = await service.getReviews({
-      query: { productId: PRODUCT_ID, pageIndex: 1, pageSize: 10 },
+      query: { productId: PRODUCT_ID, page: 1, pageSize: 10 },
     });
 
     expect(result).toEqual({
       data: reviews,
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 3,
         totalItems: 25,

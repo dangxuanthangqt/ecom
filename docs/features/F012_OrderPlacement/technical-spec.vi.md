@@ -64,7 +64,7 @@ update có điều kiện đơn lẻ — cả bốn cái này đều không vư�
 **Who** · Bất kỳ caller đã xác thực nào, chỉ giới hạn ở đơn hàng của chính họ.
 **FE** · *none — headless API, không có view layer*
 **Request** · query params qua `OrderPaginationQueryDto` (`src/dtos/order/order.dto.ts:118-133`):
-`pageIndex`, `pageSize`, `order`, `orderBy` (`OrderOrderByFields`), `status` tùy chọn (`OrderStatus`).
+`page`, `pageSize`, `order`, `orderBy` (`OrderOrderByFields`), `status` tùy chọn (`OrderStatus`).
 **BE** · `` `OrderService#getOrders` `` (`src/routes/order/order.service.ts:20-49`) luôn truyền
 `where: { userId, status }` (BR-O06) cho `` `OrderRepository#findManyOrders` ``
 (`src/repositories/order/order.repository.ts:18-58`), hàm này còn ép thêm `deletedAt: null`
@@ -429,7 +429,7 @@ actor nằm ở các service gọi nó (A4, A7).
 
 ```text
 CHECKOUT_TRANSACTION_TIMEOUT_MS = 15000   # order-checkout.repository.ts:17 — Prisma's 5s interactive-transaction default is too tight for a multi-line, multi-seller checkout
-DEFAULT_PAGE_INDEX = 1                    # OrderService.getOrders / ManageOrderService.getOrders destructuring default
+DEFAULT_PAGE = 1                    # OrderService.getOrders / ManageOrderService.getOrders destructuring default
 DEFAULT_PAGE_SIZE = 10                    # same
 ```
 
