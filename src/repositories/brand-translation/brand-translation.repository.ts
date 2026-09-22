@@ -5,6 +5,7 @@ import {
   Prisma,
 } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { brandTranslationSelect } from "@/selectors/brand-translation.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -95,6 +96,7 @@ export class BrandTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.BRAND_TRANSLATION_NOT_FOUND,
           message: `Brand translation with ID ${id} not found.`,
         });
       }
@@ -126,6 +128,7 @@ export class BrandTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.BRAND_NOT_FOUND,
           message: `Brand with ID ${id} not found.`,
         });
       }
@@ -163,6 +166,7 @@ export class BrandTranslationRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.BRAND_TRANSLATION_ALREADY_EXISTS,
           message: `Brand translation with name "${data.name}" already exists.`,
           field: "brandTranslation",
         });
@@ -171,6 +175,7 @@ export class BrandTranslationRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message:
             "Failed to create brand translation due to foreign key constraint.",
           field: "brandTranslation",
@@ -214,6 +219,7 @@ export class BrandTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.BRAND_TRANSLATION_NOT_FOUND,
           message: `Brand translation with ID ${id} not found.`,
         });
       }
@@ -221,6 +227,7 @@ export class BrandTranslationRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.BRAND_TRANSLATION_ALREADY_EXISTS,
           message: `Brand translation with this brand and language already exists.`,
         });
       }
@@ -228,6 +235,7 @@ export class BrandTranslationRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message:
             "Failed to update brand translation due to foreign key constraint.",
           field: "brandTranslation",
@@ -275,6 +283,7 @@ export class BrandTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.BRAND_TRANSLATION_NOT_FOUND,
           message: `Brand translation with ID ${id} not found.`,
         });
       }

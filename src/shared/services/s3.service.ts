@@ -13,6 +13,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { HttpStatus, Injectable, Logger } from "@nestjs/common";
 import * as mime from "mime-types";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { UPLOAD_S3_DESTINATIONS } from "@/constants/upload.constant";
 
 import throwHttpException from "../utils/throw-http-exception.util";
@@ -308,6 +309,7 @@ export class S3Service {
     if (!validation.exists) {
       throwHttpException({
         type: "notFound",
+        code: ErrorCode.FILE_NOT_FOUND,
         message: `File not found: ${filePath}`,
       });
     }
@@ -315,6 +317,7 @@ export class S3Service {
     if (!validation.isFile) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.PATH_NOT_A_FILE,
         message: `Path is not a file: ${filePath}`,
       });
     }
@@ -322,6 +325,7 @@ export class S3Service {
     if (validation.size === 0) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.FILE_EMPTY,
         message: `File is empty: ${filePath}`,
       });
     }
@@ -582,6 +586,7 @@ export class S3Service {
 
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.FILE_ALREADY_EXISTS,
         message: `File already exists: ${key}`,
       });
     }
@@ -640,6 +645,7 @@ export class S3Service {
 
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.FILE_ALREADY_EXISTS,
         message: `File already exists: ${key}`,
       });
     }

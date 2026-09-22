@@ -12,6 +12,7 @@ import {
   REQUEST_GRANTED_PERMISSIONS_KEY,
   REQUEST_USER_KEY,
 } from "@/constants/auth.constant";
+import { ErrorCode } from "@/constants/error-codes";
 import { PermissionKey } from "@/constants/permission.constant";
 import { PERMISSION_KEY } from "@/shared/param-decorators/require-permission.decorator";
 import { AccessTokenPayload } from "@/types/jwt-payload.type";
@@ -49,12 +50,14 @@ export class AccessTokenGuard implements CanActivate {
       if (error instanceof TokenExpiredError) {
         throwHttpException({
           type: "unauthorized",
+          code: ErrorCode.ACCESS_TOKEN_EXPIRED,
           message: "Access token is expired.",
         });
       }
 
       throwHttpException({
         type: "unauthorized",
+        code: ErrorCode.ACCESS_TOKEN_INVALID,
         message: "Access token is invalid.",
       });
     }
@@ -101,6 +104,7 @@ export class AccessTokenGuard implements CanActivate {
     if (!satisfies(granted, required)) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.PERMISSION_DENIED,
         message: "You do not have permission to access this resource.",
       });
     }
@@ -114,6 +118,7 @@ export class AccessTokenGuard implements CanActivate {
     if (!accessToken) {
       throwHttpException({
         type: "unauthorized",
+        code: ErrorCode.ACCESS_TOKEN_REQUIRED,
         message: "Access token is required.",
       });
     }

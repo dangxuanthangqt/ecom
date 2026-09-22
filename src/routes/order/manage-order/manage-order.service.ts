@@ -6,6 +6,7 @@ import {
   User as UserSchema,
 } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { canTransition } from "@/constants/order-status.constant";
 import { Scope, ScopeType } from "@/constants/permission.constant";
@@ -100,7 +101,11 @@ export class ManageOrderService {
     });
 
     if (!order) {
-      throwHttpException({ type: "notFound", message: "Order not found." });
+      throwHttpException({
+        type: "notFound",
+        code: ErrorCode.ORDER_NOT_FOUND,
+        message: "Order not found.",
+      });
     }
 
     return order;
@@ -126,6 +131,7 @@ export class ManageOrderService {
     if (nextStatus === OrderStatus.CANCELLED) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.ORDER_CANCEL_FORBIDDEN,
         message: "Only the buyer may cancel an order.",
       });
     }
@@ -136,12 +142,17 @@ export class ManageOrderService {
     });
 
     if (!order) {
-      throwHttpException({ type: "notFound", message: "Order not found." });
+      throwHttpException({
+        type: "notFound",
+        code: ErrorCode.ORDER_NOT_FOUND,
+        message: "Order not found.",
+      });
     }
 
     if (!canTransition({ from: order.status, to: nextStatus })) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.ORDER_STATUS_TRANSITION_INVALID,
         message: `Cannot transition order from ${order.status} to ${nextStatus}.`,
       });
     }

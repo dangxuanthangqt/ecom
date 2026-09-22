@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -36,6 +37,7 @@ export class RefreshTokenRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.REFRESH_TOKEN_NOT_FOUND,
           message: "Refresh token not found.",
         });
       }
@@ -95,6 +97,7 @@ export class RefreshTokenRepository {
 
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFRESH_TOKEN_ALREADY_EXISTS,
           message: "Refresh token already exists.",
         });
       }
@@ -102,6 +105,7 @@ export class RefreshTokenRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key constraint.",
         });
       }

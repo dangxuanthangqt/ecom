@@ -6,6 +6,7 @@ import {
   User as UserSchema,
 } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { categoryTranslationSelect } from "@/selectors/category-translation.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -98,6 +99,7 @@ export class CategoryTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CATEGORY_TRANSLATION_NOT_FOUND,
           message: "Category translation not found",
         });
       }
@@ -127,6 +129,7 @@ export class CategoryTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CATEGORY_NOT_FOUND,
           message: "Category not found",
         });
       }
@@ -164,6 +167,7 @@ export class CategoryTranslationRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.CATEGORY_TRANSLATION_ALREADY_EXISTS,
           message: "Category translation with this name already exists.",
         });
       }
@@ -171,6 +175,7 @@ export class CategoryTranslationRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message:
             "Failed to create category translation due to foreign key constraint.",
         });
@@ -213,6 +218,7 @@ export class CategoryTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CATEGORY_TRANSLATION_NOT_FOUND,
           message: "Category translation not found.",
         });
       }
@@ -220,6 +226,7 @@ export class CategoryTranslationRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.CATEGORY_TRANSLATION_ALREADY_EXISTS,
           message: "Category translation with this name already exists.",
         });
       }
@@ -227,6 +234,7 @@ export class CategoryTranslationRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message:
             "Failed to update category translation due to foreign key constraint.",
         });
@@ -272,6 +280,7 @@ export class CategoryTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CATEGORY_TRANSLATION_NOT_FOUND,
           message: "Category translation not found.",
         });
       }

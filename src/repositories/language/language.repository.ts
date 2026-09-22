@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Language, Prisma, User } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { languageSelect } from "@/selectors/language.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -89,6 +90,7 @@ export class LanguageRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.LANGUAGE_NOT_FOUND,
           message: `Language ${id} not found.`,
         });
       }
@@ -130,6 +132,7 @@ export class LanguageRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.LANGUAGE_ALREADY_EXISTS,
           message: `Language ${id} already exists.`,
         });
       }
@@ -137,6 +140,7 @@ export class LanguageRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: `Invalid foreign key constraint.`,
         });
       }
@@ -175,6 +179,7 @@ export class LanguageRepository {
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.LANGUAGE_NOT_FOUND,
           message: `Language ${id} not found or already deleted.`,
         });
       }
@@ -182,6 +187,7 @@ export class LanguageRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.LANGUAGE_ALREADY_EXISTS,
           message: `Language ${id} already exists.`,
         });
       }
@@ -189,6 +195,7 @@ export class LanguageRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: `Invalid foreign key constraint.`,
         });
       }
@@ -240,6 +247,7 @@ export class LanguageRepository {
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.LANGUAGE_NOT_FOUND,
           message: `Language ${id} not found or already deleted.`,
         });
       }

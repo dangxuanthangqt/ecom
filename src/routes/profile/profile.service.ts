@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { User as UserSchema } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import {
   ChangePasswordRequestDto,
   ChangePasswordResponseDto,
@@ -41,6 +42,7 @@ export class ProfileService {
     if (!result) {
       throwHttpException({
         type: "notFound",
+        code: ErrorCode.USER_NOT_FOUND,
         message: "User not found.",
       });
     }
@@ -125,6 +127,7 @@ export class ProfileService {
     if (!isCurrentPasswordValid) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.CURRENT_PASSWORD_INCORRECT,
         message: "Current password is incorrect.",
       });
     }

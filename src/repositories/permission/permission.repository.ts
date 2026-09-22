@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Permission, Prisma } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { permissionWithRolesSelect } from "@/selectors/permission.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import { isRecordNotFoundPrismaError } from "@/shared/utils/prisma-error";
@@ -89,6 +90,7 @@ export class PermissionRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PERMISSION_NOT_FOUND,
           message: "Permission not found.",
         });
       }

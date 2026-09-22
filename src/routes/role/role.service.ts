@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import {
   CreateRoleRequestDto,
@@ -111,6 +112,7 @@ export class RoleService {
     if (!role) {
       throwHttpException({
         type: "notFound",
+        code: ErrorCode.ROLE_NOT_FOUND,
         message: "Role not found",
       });
     }
@@ -118,6 +120,7 @@ export class RoleService {
     if (role.isSystem) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.ROLE_SYSTEM_IMMUTABLE,
         message: "System roles cannot be modified through the API.",
       });
     }

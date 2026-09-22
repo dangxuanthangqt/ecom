@@ -5,6 +5,7 @@ import {
   Product as ProductSchema,
 } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { Scope, ScopeType } from "@/constants/permission.constant";
 import {
@@ -40,6 +41,7 @@ export class ManageProductService {
     if (scope === Scope.OWN && userIdRequest !== createdById) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.PRODUCT_FORBIDDEN,
         message: "You do not have permission to interact with this product.",
       });
     }
@@ -146,6 +148,7 @@ export class ManageProductService {
     if (!product) {
       throwHttpException({
         type: "notFound",
+        code: ErrorCode.PRODUCT_NOT_FOUND,
         message: "Product not found.",
       });
     }

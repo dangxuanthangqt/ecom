@@ -2,6 +2,8 @@ import { ExecutionContext, Injectable } from "@nestjs/common";
 import { ThrottlerGuard, ThrottlerLimitDetail } from "@nestjs/throttler";
 import { Response } from "express";
 
+import { ErrorCode } from "@/constants/error-codes";
+
 import throwHttpException from "../utils/throw-http-exception.util";
 
 /**
@@ -36,6 +38,7 @@ export class AppThrottlerGuard extends ThrottlerGuard {
 
     throwHttpException({
       type: "tooManyRequests",
+      code: ErrorCode.RATE_LIMIT_EXCEEDED,
       // Deliberately says nothing about which limit was hit or how much budget
       // is left: that is a free oracle for tuning an attack.
       message: "Too many requests. Please try again later.",

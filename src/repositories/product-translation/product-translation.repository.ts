@@ -6,6 +6,7 @@ import {
   User as UserSchema,
 } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { productTranslationSelect } from "@/selectors/product-translation.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -103,6 +104,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_TRANSLATION_NOT_FOUND,
           message: "Product translation not found.",
         });
       }
@@ -138,6 +140,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_NOT_FOUND,
           message: `Product with ID ${id} not found.`,
         });
       }
@@ -175,6 +178,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_TRANSLATION_NOT_FOUND,
           message: "Product translation not found.",
         });
       }
@@ -182,6 +186,7 @@ export class ProductTranslationRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key reference in product translation.",
         });
       }
@@ -223,6 +228,7 @@ export class ProductTranslationRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.PRODUCT_TRANSLATION_ALREADY_EXISTS,
           message:
             "Product translation with this product and language already exists.",
         });
@@ -231,6 +237,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_TRANSLATION_NOT_FOUND,
           message: `Product translation with ID ${id} not found.`,
         });
       }
@@ -238,6 +245,7 @@ export class ProductTranslationRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key reference in product translation.",
         });
       }
@@ -282,6 +290,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_TRANSLATION_NOT_FOUND,
           message: `Product translation with ID ${id} not found.`,
         });
       }

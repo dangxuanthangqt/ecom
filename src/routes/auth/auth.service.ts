@@ -3,6 +3,7 @@ import { Device, User } from "@prisma/client";
 import { addMilliseconds } from "date-fns";
 import ms from "ms";
 
+import { ErrorCode } from "@/constants/error-codes";
 import {
   VerificationCodeType,
   VerificationCodeTypeType,
@@ -83,6 +84,7 @@ export class AuthService {
     if (!verificationCode) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.VERIFICATION_CODE_INVALID,
         message: "Verification code is not valid.",
       });
     }
@@ -90,6 +92,7 @@ export class AuthService {
     if (verificationCode.expiresAt < new Date()) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.VERIFICATION_CODE_EXPIRED,
         message: "Verification code is expired.",
       });
     }
@@ -165,6 +168,7 @@ export class AuthService {
     if (!user) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.EMAIL_NOT_FOUND,
         message: "Email is not found.",
         field: "email",
       });
@@ -174,6 +178,7 @@ export class AuthService {
       if (!body.totpCode && !body.code) {
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.TOTP_OR_VERIFICATION_CODE_REQUIRED,
           field: "totpCode",
           message: "TOTP or verification code is required.",
         });
@@ -190,6 +195,7 @@ export class AuthService {
         if (!isTOTPCodeValid) {
           throwHttpException({
             type: "unprocessable",
+            code: ErrorCode.TOTP_CODE_INVALID,
             message: "TOTP code is not valid.",
           });
         }
@@ -211,6 +217,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.PASSWORD_INVALID,
         message: "Password is not valid.",
         field: "password",
       });
@@ -402,6 +409,7 @@ export class AuthService {
     if (data.type === VerificationCodeType.REGISTER && user) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.EMAIL_ALREADY_REGISTERED,
         message: "Email is already exist.",
       });
     }
@@ -409,6 +417,7 @@ export class AuthService {
     if (data.type === VerificationCodeType.FORGOT_PASSWORD && !user) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.EMAIL_NOT_FOUND,
         message: "Email is not exist.",
       });
     }
@@ -511,6 +520,7 @@ export class AuthService {
     if (user.totpSecret) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.TWO_FACTOR_ALREADY_ENABLED,
         message: "2FA is already enabled.",
       });
     }
@@ -564,6 +574,7 @@ export class AuthService {
     if (!user.totpSecret) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.TWO_FACTOR_NOT_ENABLED,
         message: "2FA is not enabled.",
       });
     }
@@ -579,6 +590,7 @@ export class AuthService {
       if (!isValidTOTPCode) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.TOTP_CODE_INVALID,
           message: "TOTP code is not valid.",
         });
       }

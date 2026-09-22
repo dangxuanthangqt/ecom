@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { publishedProductWhere } from "@/constants/product-visibility.constant";
 import { createCartItemSelect } from "@/selectors/cart-item.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
@@ -142,6 +143,7 @@ export class CartRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CART_ITEM_NOT_FOUND,
           message: "Cart item not found.",
         });
       }
@@ -173,6 +175,7 @@ export class CartRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CART_ITEM_NOT_FOUND,
           message: "Cart item not found.",
         });
       }

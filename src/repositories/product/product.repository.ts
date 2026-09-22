@@ -8,6 +8,7 @@ import {
 } from "@prisma/client";
 import { isDefined } from "class-validator";
 
+import { ErrorCode } from "@/constants/error-codes";
 import {
   ProductManageQueryDto,
   UpdateProductRequestDto,
@@ -166,6 +167,7 @@ export class ProductRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_NOT_FOUND,
           message: "Product not found",
         });
       }
@@ -195,6 +197,7 @@ export class ProductRepository {
     if (categories.length !== categoryIds.length) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.REFERENCE_INVALID,
         message: "Some categories do not exist or are deleted.",
       });
     }
@@ -222,6 +225,7 @@ export class ProductRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.PRODUCT_ALREADY_EXISTS,
           message: "Product with the same name already exists.",
         });
       }
@@ -229,6 +233,7 @@ export class ProductRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key reference.",
         });
       }
@@ -392,6 +397,7 @@ export class ProductRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_NOT_FOUND,
           message: "Product not found.",
         });
       }
@@ -399,6 +405,7 @@ export class ProductRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.PRODUCT_ALREADY_EXISTS,
           message:
             "Product with the same name already exists or duplicate SKU values.",
         });
@@ -407,6 +414,7 @@ export class ProductRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key reference.",
         });
       }
@@ -487,6 +495,7 @@ export class ProductRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_NOT_FOUND,
           message: "Product not found.",
         });
       }

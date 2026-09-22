@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -36,6 +37,7 @@ export class SharedUserRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.USER_NOT_FOUND,
           message: "User not found.",
         });
       }
@@ -91,6 +93,7 @@ export class SharedUserRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.USER_NOT_FOUND,
           message: "User not found.",
         });
       }
@@ -163,6 +166,7 @@ export class SharedUserRepository {
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.USER_NOT_FOUND,
           message: "User not found.",
         });
       }
@@ -194,6 +198,7 @@ export class SharedUserRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.EMAIL_ALREADY_REGISTERED,
           message: "Email is already exist.",
         });
       }
@@ -201,6 +206,7 @@ export class SharedUserRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key constraint.",
         });
       }
@@ -232,6 +238,7 @@ export class SharedUserRepository {
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.USER_NOT_FOUND,
           message: "User not found.",
         });
       }
@@ -239,6 +246,7 @@ export class SharedUserRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key constraint.",
         });
       }

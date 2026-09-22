@@ -1,5 +1,6 @@
 import { Logger } from "@nestjs/common";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { createCartItemSelect } from "@/selectors/cart-item.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -54,7 +55,11 @@ export async function upsertCartItemWithConflictRetry({
     }
 
     if (isForeignKeyConstraintPrismaError(error)) {
-      throwHttpException({ type: "notFound", message: "SKU not found." });
+      throwHttpException({
+        type: "notFound",
+        code: ErrorCode.SKU_NOT_FOUND,
+        message: "SKU not found.",
+      });
     }
 
     throwHttpException({
@@ -82,6 +87,7 @@ async function retryAsIncrement({
 
     throwHttpException({
       type: "badRequest",
+      code: ErrorCode.CART_UPDATE_CONFLICT,
       message:
         "Could not add item to cart due to a conflicting update. Please try again.",
     });

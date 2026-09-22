@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Review as ReviewSchema, User as UserSchema } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ReviewPaginationQueryDto } from "@/dtos/review/review.dto";
 import { ReviewRepository } from "@/repositories/review/review.repository";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
@@ -57,7 +58,11 @@ export class ReviewService {
     });
 
     if (!product) {
-      throwHttpException({ type: "notFound", message: "Product not found." });
+      throwHttpException({
+        type: "notFound",
+        code: ErrorCode.PRODUCT_NOT_FOUND,
+        message: "Product not found.",
+      });
     }
 
     const deliveredOrder =
@@ -69,6 +74,7 @@ export class ReviewService {
     if (!deliveredOrder) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.REVIEW_NOT_PURCHASED,
         message: "You can only review a product you have received.",
       });
     }

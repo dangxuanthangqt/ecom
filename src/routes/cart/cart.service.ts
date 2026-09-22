@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { CartItem as CartItemSchema, User as UserSchema } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { CartPaginationQueryDto } from "@/dtos/cart/cart.dto";
 import { CartRepository } from "@/repositories/cart/cart.repository";
@@ -60,7 +61,11 @@ export class CartService {
     const sku = await this.cartRepository.findAddableSku({ skuId, userId });
 
     if (!sku) {
-      throwHttpException({ type: "notFound", message: "SKU not found." });
+      throwHttpException({
+        type: "notFound",
+        code: ErrorCode.SKU_NOT_FOUND,
+        message: "SKU not found.",
+      });
     }
 
     const currentQuantity = sku.cartItems[0]?.quantity ?? 0;
@@ -69,6 +74,7 @@ export class CartService {
     if (resultingQuantity > sku.stock) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.CART_ITEM_INSUFFICIENT_STOCK,
         message: `Only ${sku.stock} left in stock for this SKU.`,
       });
     }
@@ -94,6 +100,7 @@ export class CartService {
     if (!cartItem) {
       throwHttpException({
         type: "notFound",
+        code: ErrorCode.CART_ITEM_NOT_FOUND,
         message: "Cart item not found.",
       });
     }
@@ -101,6 +108,7 @@ export class CartService {
     if (quantity > cartItem.sku.stock) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.CART_ITEM_INSUFFICIENT_STOCK,
         message: `Only ${cartItem.sku.stock} left in stock for this SKU.`,
       });
     }

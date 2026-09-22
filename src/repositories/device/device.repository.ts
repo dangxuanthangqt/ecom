@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Device, Prisma } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -40,6 +41,7 @@ export class DeviceRepository {
         // Handle unique constraint violation (e.g., duplicate device)
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.DEVICE_ALREADY_EXISTS,
           message: `Device already exists.`,
         });
       }
@@ -49,6 +51,7 @@ export class DeviceRepository {
 
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: `Invalid foreign key constraint.`,
         });
       }
@@ -73,6 +76,7 @@ export class DeviceRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.DEVICE_NOT_FOUND,
           message: "Device not found.",
         });
       }
@@ -80,6 +84,7 @@ export class DeviceRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.DEVICE_ALREADY_EXISTS,
           message: "Device already exists.",
         });
       }
@@ -87,6 +92,7 @@ export class DeviceRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key constraint.",
         });
       }
