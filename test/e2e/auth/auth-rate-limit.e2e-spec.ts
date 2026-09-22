@@ -3,6 +3,7 @@ import { VerificationCodeType } from "@prisma/client";
 import request from "supertest";
 import { v4 as uuidv4 } from "uuid";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { RedisService } from "@/shared/services/redis.service";
 import { ThrottlerRedisStorage } from "@/shared/services/throttler-redis-storage.service";
 import { createThrottlerOptions } from "@/shared/utils/throttler-options.factory";
@@ -105,7 +106,7 @@ describe("auth rate limiting", () => {
     // Assert
     expect(body).toMatchObject({
       statusCode: 429,
-      error: "TOO_MANY_REQUESTS",
+      error: ErrorCode.RATE_LIMIT_EXCEEDED,
       message: "Too many requests. Please try again later.",
       details: [],
     });
