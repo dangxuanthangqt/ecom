@@ -19,7 +19,7 @@ export class LanguageService {
   /**
    * Retrieves a paginated list of languages with optional filtering and sorting.
    *
-   * @param pageIndex - The current page index (default is 1).
+   * @param page - The current page number (default is 1).
    * @param pageSize - The number of items per page (default is 10).
    * @param order - The order direction (ASC or DESC, default is ASC).
    * @param orderBy - The field to order by (default is createdAt).
@@ -27,13 +27,13 @@ export class LanguageService {
    * @returns An object containing the paginated list of languages and pagination metadata.
    */
   async getLanguages({
-    pageIndex = 1,
+    page = 1,
     pageSize = 10,
     order = ORDER.ASC,
     orderBy = ORDER_BY.CREATED_AT,
     keyword = "",
   }: PaginationQueryDto) {
-    const skip = (pageIndex - 1) * pageSize;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     // Normalize order for Prisma
@@ -57,7 +57,7 @@ export class LanguageService {
     return {
       data: languages,
       pagination: {
-        pageIndex,
+        page,
         pageSize,
         totalPages,
         totalItems: languagesCount,

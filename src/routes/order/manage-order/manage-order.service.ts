@@ -45,7 +45,7 @@ export class ManageOrderService {
 
   async getOrders({
     query: {
-      pageIndex = 1,
+      page = 1,
       pageSize = 10,
       order = ORDER.ASC,
       orderBy = ORDER_BY.CREATED_AT,
@@ -59,7 +59,7 @@ export class ManageOrderService {
     userId: UserSchema["id"];
     scope: ScopeType;
   }) {
-    const skip = (pageIndex - 1) * pageSize;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     const where: Prisma.OrderWhereInput = {
@@ -81,7 +81,7 @@ export class ManageOrderService {
 
     return {
       data: orders,
-      pagination: { pageIndex, pageSize, totalPages, totalItems: ordersCount },
+      pagination: { page, pageSize, totalPages, totalItems: ordersCount },
     };
   }
 

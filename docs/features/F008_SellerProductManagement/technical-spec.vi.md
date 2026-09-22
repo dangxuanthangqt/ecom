@@ -73,7 +73,7 @@ phải nhánh render — mỗi cái được ghi lại thành một Business Rul
 `FR-201` `FR-202` `FR-204` `US052`
 
 **Ai** · seller hoặc admin *(gate A0 — § 4.4)*
-**Request** · query param `pageIndex`, `pageSize`, `order`, `orderBy`, `name`, `brandIds`,
+**Request** · query param `page`, `pageSize`, `order`, `orderBy`, `name`, `brandIds`,
 `categoryIds`, `minPrice`, `maxPrice`, `isPublic`, `createdById` — `createdById` mặc định lấy
 `userId` của chính người gọi khi bỏ trống
 (`src/routes/product/manage-product/manage-product.service.ts:65`)

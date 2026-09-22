@@ -42,7 +42,7 @@ describe("ReviewController - getReviews", () => {
     const review = makeReviewResponse();
     const response = {
       data: [review],
-      pagination: { pageIndex: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
+      pagination: { page: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
     };
     mocks.reviewService.getReviews.mockResolvedValue(response);
 

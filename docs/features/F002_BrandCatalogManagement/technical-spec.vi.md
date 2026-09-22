@@ -54,10 +54,10 @@ A5 chỉ ghi đúng một bảng (`brand`), đồng bộ, không có nhánh nào
 `FR-001` `FR-201` `BR-001` `BR-002` · `US010`
 
 **Who** · bất kỳ caller nào, không cần session *(gate A0 không áp dụng — route này là `@IsPublicApi()`)*
-**Request** · query params `pageIndex` (mặc định 1), `pageSize` (mặc định 10), `order` (mặc định
+**Request** · query params `page` (mặc định 1), `pageSize` (mặc định 10), `order` (mặc định
 `ASC`), `orderBy` (mặc định `createdAt`), `keyword` (mặc định `""`); ngôn ngữ lấy từ
 `@CurrentLang()`.
-**BE** · `` `BrandService#getBrands` `` tính `skip`/`take` từ `pageIndex`/`pageSize`, rồi
+**BE** · `` `BrandService#getBrands` `` tính `skip`/`take` từ `page`/`pageSize`, rồi
 gọi `` `BrandRepository#findManyBrands` ``. `src/routes/brand/brand.service.ts:30-72`
 **Rule** · **BR-001 — Danh sách mặc định về trang 1/size 10, sắp tăng dần theo `createdAt`, và lọc
 theo chuỗi con không phân biệt hoa thường trên `name` khi có `keyword`; các dòng đã soft-delete luôn
@@ -65,7 +65,7 @@ bị loại.** Repository luôn merge `where: { deletedAt: null }` vào mọi qu
 bao giờ lộ ra một brand đã bị xoá. `src/repositories/brand/brand.repository.ts:58-61`
 **BR-002 — mọi thao tác đọc/ghi brand đều trả về brand kèm translation giới hạn theo ngôn ngữ hiện
 tại của caller**, qua shape select dùng chung `createBrandWithTranslationsSelect` (§ 4.4). *(§ 4.4)*
-**Result** · chỉ đọc — **không ghi DB**. Trả về `{ data: brands, pagination: { pageIndex,
+**Result** · chỉ đọc — **không ghi DB**. Trả về `{ data: brands, pagination: { page,
 pageSize, totalPages, totalItems } }`, `totalPages = Math.ceil(brandsCount / pageSize)`.
 `src/routes/brand/brand.service.ts:61-71`
 **Source:** `src/routes/brand/brand.controller.ts:42-58` → `src/routes/brand/brand.service.ts:30-72` → `src/repositories/brand/brand.repository.ts:49-87`

@@ -20,7 +20,7 @@ describe("UserController - getUsers", () => {
   let controller: UserController;
   let mocks: UserControllerMocks;
 
-  const makePaginationQuery = () => ({ pageIndex: 0, pageSize: 10 });
+  const makePaginationQuery = () => ({ page: 1, pageSize: 10 });
 
   beforeEach(async () => {
     ({ controller, mocks } = await setupUserController());
@@ -50,7 +50,7 @@ describe("UserController - getUsers", () => {
         totalPages: 1,
         totalItems: 2,
         pageSize: 10,
-        pageIndex: 0,
+        page: 1,
       },
     };
     mocks.userService.getUsers.mockResolvedValue(serviceResponse);
@@ -66,7 +66,7 @@ describe("UserController - getUsers", () => {
   it("passes optional query parameters to service", async () => {
     // Arrange
     const query: UserPaginationQueryDto = {
-      pageIndex: 1,
+      page: 1,
       pageSize: 20,
       keyword: "john",
     };

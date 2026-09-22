@@ -55,10 +55,10 @@ a diagram.
 `FR-001` `FR-201` `BR-001` `BR-002` · `US010`
 
 **Who** · any caller, no session required *(gate A0 does not apply — this route is `@IsPublicApi()`)*
-**Request** · query params `pageIndex` (default 1), `pageSize` (default 10), `order` (default
+**Request** · query params `page` (default 1), `pageSize` (default 10), `order` (default
 `ASC`), `orderBy` (default `createdAt`), `keyword` (default `""`); language resolved from
 `@CurrentLang()`.
-**BE** · `` `BrandService#getBrands` `` computes `skip`/`take` from `pageIndex`/`pageSize`, then
+**BE** · `` `BrandService#getBrands` `` computes `skip`/`take` from `page`/`pageSize`, then
 calls `` `BrandRepository#findManyBrands` ``. `src/routes/brand/brand.service.ts:30-72`
 **Rule** · **BR-001 — Listing defaults to page 1/size 10, ascending by `createdAt`, and filters by
 a case-insensitive substring match on `name` when `keyword` is given; soft-deleted rows are always
@@ -67,7 +67,7 @@ never surface a deleted brand. `src/repositories/brand/brand.repository.ts:58-61
 **BR-002 — every brand read/write returns the brand together with its translations scoped to the
 caller's current language**, via the shared `createBrandWithTranslationsSelect` select shape
 (§ 4.4). *(§ 4.4)*
-**Result** · read-only — **no DB write**. Returns `{ data: brands, pagination: { pageIndex,
+**Result** · read-only — **no DB write**. Returns `{ data: brands, pagination: { page,
 pageSize, totalPages, totalItems } }`, `totalPages = Math.ceil(brandsCount / pageSize)`.
 `src/routes/brand/brand.service.ts:61-71`
 **Source:** `src/routes/brand/brand.controller.ts:42-58` → `src/routes/brand/brand.service.ts:30-72` → `src/repositories/brand/brand.repository.ts:49-87`

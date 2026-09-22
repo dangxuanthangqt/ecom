@@ -17,7 +17,7 @@ describe("RoleController - getRoles", () => {
   let controller: RoleController;
   let mocks: RoleControllerMocks;
 
-  const makePaginationQuery = () => ({ pageIndex: 0, pageSize: 10 });
+  const makePaginationQuery = () => ({ page: 1, pageSize: 10 });
 
   beforeEach(async () => {
     ({ controller, mocks } = await setupRoleController());
@@ -47,7 +47,7 @@ describe("RoleController - getRoles", () => {
         totalPages: 1,
         totalItems: 2,
         pageSize: 10,
-        pageIndex: 0,
+        page: 1,
       },
     };
     mocks.roleService.getRoles.mockResolvedValue(serviceResponse);

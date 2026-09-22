@@ -25,11 +25,11 @@ export class PaginationResponseDto {
   pageSize: number;
 
   @ApiProperty({
-    description: "Current page index (starts from 0)",
-    example: 0,
+    description: "Current page number (starts from 1)",
+    example: 1,
   })
   @Expose()
-  pageIndex: number;
+  page: number;
 
   constructor(partial: Partial<PaginationResponseDto>) {
     Object.assign(this, partial);
@@ -45,14 +45,14 @@ export class PaginationQueryDto {
   pageSize?: number;
 
   @ApiPropertyOptional({
-    description: "Page index (starts from 0)",
-    example: 0,
+    description: "Page number (starts from 1)",
+    example: 1,
   })
-  @IsInt({ message: "pageIndex must be an integer" })
-  @Min(0, { message: "pageIndex must be 0 or greater." })
+  @IsInt({ message: "page must be an integer" })
+  @Min(1, { message: "page must be 1 or greater." })
   @IsOptional()
   @Type(() => Number) // Parser for string to number
-  pageIndex?: number;
+  page?: number;
 
   @ApiPropertyOptional({
     description: "Sort order",

@@ -24,7 +24,7 @@ describe("ProductService - getProducts", () => {
   const makeQuery = (
     overrides: Partial<ProductPaginationQueryDto> = {},
   ): ProductPaginationQueryDto => ({
-    pageIndex: 1,
+    page: 1,
     pageSize: 10,
     order: ORDER.ASC,
     orderBy: ORDER_BY.CREATED_AT,
@@ -63,13 +63,13 @@ describe("ProductService - getProducts", () => {
       LANGUAGE_ID,
     );
     expect(result.data).toEqual(products);
-    expect(result.pagination.pageIndex).toBe(1);
+    expect(result.pagination.page).toBe(1);
     expect(result.pagination.pageSize).toBe(10);
     expect(result.pagination.totalItems).toBe(2);
     expect(result.pagination.totalPages).toBe(1);
   });
 
-  it("respects custom pageIndex and pageSize", async () => {
+  it("respects custom page and pageSize", async () => {
     // Arrange
     const products = [makeProduct()];
     mocks.productRepository.findManyProducts.mockResolvedValue({
@@ -79,7 +79,7 @@ describe("ProductService - getProducts", () => {
 
     // Act
     await service.getProducts({
-      query: makeQuery({ pageIndex: 3, pageSize: 20 }),
+      query: makeQuery({ page: 3, pageSize: 20 }),
       languageId: LANGUAGE_ID,
     });
 

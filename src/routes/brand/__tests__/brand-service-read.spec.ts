@@ -36,7 +36,7 @@ describe("BrandService - getBrands", () => {
     expect(result).toEqual({
       data: brands,
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 3,
@@ -67,7 +67,7 @@ describe("BrandService - getBrands", () => {
     // Act
     const result = await service.getBrands(
       {
-        pageIndex: 2,
+        page: 2,
         pageSize: 5,
         order: ORDER.DESC,
         orderBy: ORDER_BY.UPDATED_AT,
@@ -79,7 +79,7 @@ describe("BrandService - getBrands", () => {
     expect(result).toEqual({
       data: brands,
       pagination: {
-        pageIndex: 2,
+        page: 2,
         pageSize: 5,
         totalPages: 1,
         totalItems: 2,
@@ -127,7 +127,7 @@ describe("BrandService - getBrands", () => {
 
     // Act
     const result = await service.getBrands(
-      { pageIndex: 3, pageSize: 10 },
+      { page: 3, pageSize: 10 },
       LANGUAGE_ID,
     );
 

@@ -17,7 +17,7 @@ describe("PermissionController - getPermissions", () => {
   let controller: PermissionController;
   let mocks: PermissionControllerMocks;
 
-  const makePaginationQuery = () => ({ pageIndex: 0, pageSize: 10 });
+  const makePaginationQuery = () => ({ page: 1, pageSize: 10 });
 
   beforeEach(async () => {
     ({ controller, mocks } = await setupPermissionController());

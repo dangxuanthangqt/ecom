@@ -19,7 +19,7 @@ describe("OrderController - getOrders", () => {
     const { controller, mocks } = await setupOrderController();
     const result = {
       data: [makeOrderResponse()],
-      pagination: { pageIndex: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
+      pagination: { page: 1, pageSize: 10, totalPages: 1, totalItems: 1 },
     };
     mocks.orderService.getOrders.mockResolvedValue(result);
 

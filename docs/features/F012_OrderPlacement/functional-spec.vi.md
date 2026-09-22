@@ -216,7 +216,7 @@ xem các tham chiếu `(ROUTE###)` ở § 4 Yêu cầu của `technical-spec.md 
 ## 13. Cấu hình
 
 ```text
-DEFAULT_PAGE_INDEX = 1     # order list starts at page 1 when no pageIndex is supplied
+DEFAULT_PAGE = 1     # order list starts at page 1 when no page is supplied
 DEFAULT_PAGE_SIZE = 10     # number of orders returned per page when no pageSize is supplied
 CHECKOUT_TRANSACTION_TIMEOUT_MS = 15000   # extended interactive-transaction timeout for multi-line, multi-seller checkout
 ```

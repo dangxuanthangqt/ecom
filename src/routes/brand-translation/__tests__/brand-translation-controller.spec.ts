@@ -23,7 +23,7 @@ describe("BrandTranslationController - getBrandTranslations", () => {
     const response = {
       data: [brandTranslation],
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 1,
@@ -33,7 +33,7 @@ describe("BrandTranslationController - getBrandTranslations", () => {
       response,
     );
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     // Act
     const result = await controller.getBrandTranslations(query);
@@ -53,7 +53,7 @@ describe("BrandTranslationController - getBrandTranslations", () => {
 
     // Act & Assert
     await expect(
-      controller.getBrandTranslations({ pageIndex: 1, pageSize: 10 }),
+      controller.getBrandTranslations({ page: 1, pageSize: 10 }),
     ).rejects.toBe(error);
   });
 });

@@ -64,7 +64,7 @@ single conditional update — none of these four cross the threshold.
 **Who** · Any authenticated caller, scoped to their own orders.
 **FE** · *none — headless API, no view layer*
 **Request** · query params via `OrderPaginationQueryDto` (`src/dtos/order/order.dto.ts:118-133`):
-`pageIndex`, `pageSize`, `order`, `orderBy` (`OrderOrderByFields`), optional `status` (`OrderStatus`).
+`page`, `pageSize`, `order`, `orderBy` (`OrderOrderByFields`), optional `status` (`OrderStatus`).
 **BE** · `` `OrderService#getOrders` `` (`src/routes/order/order.service.ts:20-49`) always passes
 `where: { userId, status }` (BR-O06) to `` `OrderRepository#findManyOrders` ``
 (`src/repositories/order/order.repository.ts:18-58`), which additionally forces `deletedAt: null`
@@ -428,7 +428,7 @@ A7).
 
 ```text
 CHECKOUT_TRANSACTION_TIMEOUT_MS = 15000   # order-checkout.repository.ts:17 — Prisma's 5s interactive-transaction default is too tight for a multi-line, multi-seller checkout
-DEFAULT_PAGE_INDEX = 1                    # OrderService.getOrders / ManageOrderService.getOrders destructuring default
+DEFAULT_PAGE = 1                    # OrderService.getOrders / ManageOrderService.getOrders destructuring default
 DEFAULT_PAGE_SIZE = 10                    # same
 ```
 

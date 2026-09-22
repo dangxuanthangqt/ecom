@@ -19,13 +19,13 @@ export class CategoryTranslationService {
   ) {}
 
   async getCategoryTranslations({
-    pageIndex = 1,
+    page = 1,
     pageSize = 10,
     order = ORDER.ASC,
     orderBy = ORDER_BY.CREATED_AT,
     keyword = "",
   }: PaginationQueryDto) {
-    const skip = (pageIndex - 1) * pageSize;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
     // Normalize order for Prisma
     const normalizedOrder = order.toLowerCase();
@@ -48,7 +48,7 @@ export class CategoryTranslationService {
     return {
       data: categoryTranslations,
       pagination: {
-        pageIndex,
+        page,
         pageSize,
         totalPages,
         totalItems: categoryTranslationsCount,

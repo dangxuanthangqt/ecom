@@ -56,13 +56,13 @@ action nền/async-step — cả hai đều dưới ngưỡng; không có `seque
 **Who** · Guest Shopper hoặc bất kỳ caller nào đã xác thực — không kiểm tra role *(gate A0 — § 4.4)*
 **FE** · *không có — headless API, không có view layer*
 **Request** · query params qua `ProductPaginationQueryDto` (`src/dtos/product/product.dto.ts:120-123`):
-`pageIndex` (mặc định 1), `pageSize` (mặc định 10), `order` (`asc`/`desc`), `orderBy` (`name`,
+`page` (mặc định 1), `pageSize` (mặc định 10), `order` (`asc`/`desc`), `orderBy` (`name`,
 `basePrice`, `virtualPrice`, `publishedAt`, `createdAt`, `updatedAt`, `sale`), `name` (match từng
 phần), `brandIds[]`/`categoryIds[]` (mảng UUID), `minPrice`/`maxPrice`.
 Locale được resolve phía server từ request qua `@CurrentLang()` (`src/shared/param-decorators/current-lang.decorator.ts:6-11`,
 đọc `I18nContext.current(ctx).lang`) — không phải query param.
 **BE** · `` `ProductService#getProducts` `` (`src/routes/product/product.service.ts:18-79`) dựng
-phân trang (`skip = (pageIndex-1)*pageSize`), dựng `orderBy` (xử lý riêng trường hợp `sale` thành sort
+phân trang (`skip = (page-1)*pageSize`), dựng `orderBy` (xử lý riêng trường hợp `sale` thành sort
 theo `orders._count`, `:42-48`), và luôn truyền `isPublic: true` xuống repository — `:59`.
 `` `ProductRepository#findManyProducts` `` (`src/repositories/product/product.repository.ts:46-132`)
 chạy truy vấn đã lọc và một count song song, cùng trong một `$transaction`.
@@ -254,7 +254,7 @@ None.
 ### 4.6 Cấu hình
 
 ```text
-DEFAULT_PAGE_INDEX = 1   # ProductService.getProducts destructuring default (src/routes/product/product.service.ts:21)
+DEFAULT_PAGE = 1   # ProductService.getProducts destructuring default (src/routes/product/product.service.ts:21)
 DEFAULT_PAGE_SIZE = 10   # ProductService.getProducts destructuring default (src/routes/product/product.service.ts:21)
 ```
 

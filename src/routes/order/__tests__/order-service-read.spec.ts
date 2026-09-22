@@ -42,7 +42,7 @@ describe("OrderService - getOrders", () => {
       containing({ take: 10, skip: 0 }),
     );
     expect(result.pagination).toEqual({
-      pageIndex: 1,
+      page: 1,
       pageSize: 10,
       totalPages: 1,
       totalItems: 1,

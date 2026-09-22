@@ -196,6 +196,6 @@ request is rejected with 409, and the existing review is unchanged.
 ## 13. Configuration
 
 ```text
-DEFAULT_PAGE_INDEX = 1     # review list starts at page 1 when no pageIndex is supplied
+DEFAULT_PAGE = 1     # review list starts at page 1 when no page is supplied
 DEFAULT_PAGE_SIZE = 10     # number of reviews returned per page when no pageSize is supplied
 ```

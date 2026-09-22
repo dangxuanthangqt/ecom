@@ -56,13 +56,13 @@ either (see each block's own note).
 **Who** · Guest Shopper or any authenticated caller — no role is checked *(gate A0 — § 4.4)*
 **FE** · *none — headless API, no view layer*
 **Request** · query params via `ProductPaginationQueryDto` (`src/dtos/product/product.dto.ts:120-123`):
-`pageIndex` (default 1), `pageSize` (default 10), `order` (`asc`/`desc`), `orderBy` (`name`,
+`page` (default 1), `pageSize` (default 10), `order` (`asc`/`desc`), `orderBy` (`name`,
 `basePrice`, `virtualPrice`, `publishedAt`, `createdAt`, `updatedAt`, `sale`), `name` (partial
 match), `brandIds[]`/`categoryIds[]` (UUID arrays), `minPrice`/`maxPrice`.
 Locale is resolved server-side from the request via `@CurrentLang()` (`src/shared/param-decorators/current-lang.decorator.ts:6-11`,
 reading `I18nContext.current(ctx).lang`) — not a query param.
 **BE** · `` `ProductService#getProducts` `` (`src/routes/product/product.service.ts:18-79`) builds
-pagination (`skip = (pageIndex-1)*pageSize`), composes `orderBy` (special-cases `sale` into an
+pagination (`skip = (page-1)*pageSize`), composes `orderBy` (special-cases `sale` into an
 `orders._count` sort, `:42-48`), and always passes `isPublic: true` to the repository — `:59`.
 `` `ProductRepository#findManyProducts` `` (`src/repositories/product/product.repository.ts:46-132`)
 runs the filtered query and a parallel count in one `$transaction`.
@@ -254,7 +254,7 @@ None.
 ### 4.6 Configuration
 
 ```text
-DEFAULT_PAGE_INDEX = 1   # ProductService.getProducts destructuring default (src/routes/product/product.service.ts:21)
+DEFAULT_PAGE = 1   # ProductService.getProducts destructuring default (src/routes/product/product.service.ts:21)
 DEFAULT_PAGE_SIZE = 10   # ProductService.getProducts destructuring default (src/routes/product/product.service.ts:21)
 ```
 

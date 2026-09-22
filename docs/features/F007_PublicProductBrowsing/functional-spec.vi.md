@@ -177,6 +177,6 @@ yêu cầu chi tiết của nó, **Then** response không tìm thấy được t
 ## 13. Cấu hình
 
 ```text
-DEFAULT_PAGE_INDEX = 1     # product list starts at page 1 when no pageIndex is supplied
+DEFAULT_PAGE = 1     # product list starts at page 1 when no page is supplied
 DEFAULT_PAGE_SIZE = 10     # number of products returned per page when no pageSize is supplied
 ```

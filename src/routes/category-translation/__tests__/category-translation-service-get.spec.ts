@@ -52,7 +52,7 @@ describe("CategoryTranslationService - getCategoryTranslations", () => {
 
     // Act
     await service.getCategoryTranslations({
-      pageIndex: 2,
+      page: 2,
       pageSize: 20,
     });
 
@@ -78,7 +78,7 @@ describe("CategoryTranslationService - getCategoryTranslations", () => {
 
     // Act
     await service.getCategoryTranslations({
-      pageIndex: 3,
+      page: 3,
       pageSize: 10,
     });
 
@@ -200,13 +200,13 @@ describe("CategoryTranslationService - getCategoryTranslations", () => {
 
     // Act
     const result = await service.getCategoryTranslations({
-      pageIndex: 1,
+      page: 1,
       pageSize: 10,
     });
 
     // Assert
     expect(result.pagination).toEqual({
-      pageIndex: 1,
+      page: 1,
       pageSize: 10,
       totalPages: 1,
       totalItems: 1,

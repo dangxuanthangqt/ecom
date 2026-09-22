@@ -56,7 +56,7 @@ type — no `sequenceDiagram` is included for any of them.
 **Who** · Any authenticated caller (client/seller/admin), scoped to their own rows.
 **FE** · *none — headless API, no view layer*
 **Request** · query params via `CartPaginationQueryDto` (`src/dtos/cart/cart.dto.ts:130-141`):
-`pageIndex` (default 1), `pageSize` (default 10), `order` (`asc`/`desc`), `orderBy` (from
+`page` (default 1), `pageSize` (default 10), `order` (`asc`/`desc`), `orderBy` (from
 `CartItemOrderByFields`).
 **BE** · `` `CartService#getCartItems` `` (`src/routes/cart/cart.service.ts:14-49`) builds
 pagination and always passes `where: { userId }` (BR-C01) to
@@ -224,7 +224,7 @@ None.
 ### 4.6 Configuration
 
 ```text
-DEFAULT_PAGE_INDEX = 1   # CartService.getCartItems destructuring default (src/routes/cart/cart.service.ts:16-19)
+DEFAULT_PAGE = 1   # CartService.getCartItems destructuring default (src/routes/cart/cart.service.ts:16-19)
 DEFAULT_PAGE_SIZE = 10   # CartService.getCartItems destructuring default (src/routes/cart/cart.service.ts:16-19)
 ```
 

@@ -20,7 +20,7 @@ export class OrderService {
   /** BR-O06/O08: always scoped to the caller's own orders. */
   async getOrders({
     query: {
-      pageIndex = 1,
+      page = 1,
       pageSize = 10,
       order = ORDER.ASC,
       orderBy = ORDER_BY.CREATED_AT,
@@ -31,7 +31,7 @@ export class OrderService {
     query: OrderPaginationQueryDto;
     userId: UserSchema["id"];
   }) {
-    const skip = (pageIndex - 1) * pageSize;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     const { orders, ordersCount } = await this.orderRepository.findManyOrders({
@@ -45,7 +45,7 @@ export class OrderService {
 
     return {
       data: orders,
-      pagination: { pageIndex, pageSize, totalPages, totalItems: ordersCount },
+      pagination: { page, pageSize, totalPages, totalItems: ordersCount },
     };
   }
 

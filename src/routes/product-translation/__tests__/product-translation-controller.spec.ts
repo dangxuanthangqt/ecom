@@ -23,7 +23,7 @@ describe("ProductTranslationController - getProductTranslations", () => {
     const response = {
       data: [productTranslation],
       pagination: {
-        pageIndex: 1,
+        page: 1,
         pageSize: 10,
         totalPages: 1,
         totalItems: 1,
@@ -33,7 +33,7 @@ describe("ProductTranslationController - getProductTranslations", () => {
       response,
     );
 
-    const query = { pageIndex: 1, pageSize: 10 };
+    const query = { page: 1, pageSize: 10 };
 
     // Act
     const result = await controller.getProductTranslations(
@@ -60,7 +60,7 @@ describe("ProductTranslationController - getProductTranslations", () => {
     // Act & Assert
     await expect(
       controller.getProductTranslations(
-        { pageIndex: 1, pageSize: 10 },
+        { page: 1, pageSize: 10 },
         ACTIVE_USER_ID,
         "own",
       ),

@@ -57,7 +57,7 @@ loại entity — nên không action nào kèm `sequenceDiagram`.
 **Who** · Bất kỳ caller đã xác thực nào (client/seller/admin), chỉ trong phạm vi row của chính họ.
 **FE** · *không có — API headless, không có view layer*
 **Request** · query param qua `CartPaginationQueryDto` (`src/dtos/cart/cart.dto.ts:130-141`):
-`pageIndex` (mặc định 1), `pageSize` (mặc định 10), `order` (`asc`/`desc`), `orderBy` (lấy từ
+`page` (mặc định 1), `pageSize` (mặc định 10), `order` (`asc`/`desc`), `orderBy` (lấy từ
 `CartItemOrderByFields`).
 **BE** · `` `CartService#getCartItems` `` (`src/routes/cart/cart.service.ts:14-49`) dựng phân
 trang và luôn truyền `where: { userId }` (BR-C01) cho
@@ -227,7 +227,7 @@ Không có.
 ### 4.6 Cấu hình
 
 ```text
-DEFAULT_PAGE_INDEX = 1   # CartService.getCartItems destructuring default (src/routes/cart/cart.service.ts:16-19)
+DEFAULT_PAGE = 1   # CartService.getCartItems destructuring default (src/routes/cart/cart.service.ts:16-19)
 DEFAULT_PAGE_SIZE = 10   # CartService.getCartItems destructuring default (src/routes/cart/cart.service.ts:16-19)
 ```
 

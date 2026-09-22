@@ -50,7 +50,7 @@ export class ProductTranslationService {
 
   async getProductTranslations({
     query: {
-      pageIndex = 1,
+      page = 1,
       pageSize = 10,
       order = ORDER.ASC,
       orderBy = ORDER_BY.CREATED_AT,
@@ -59,7 +59,7 @@ export class ProductTranslationService {
     userId,
     scope,
   }: { query: PaginationQueryDto } & Actor) {
-    const skip = (pageIndex - 1) * pageSize;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     // Normalize order for Prisma
@@ -84,7 +84,7 @@ export class ProductTranslationService {
     return {
       data: productTranslations,
       pagination: {
-        pageIndex,
+        page,
         pageSize,
         totalPages,
         totalItems: productTranslationsCount,

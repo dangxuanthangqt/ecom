@@ -14,7 +14,7 @@ export class CartService {
   /** BR-C01: always scoped to the caller's own cart lines. */
   async getCartItems({
     query: {
-      pageIndex = 1,
+      page = 1,
       pageSize = 10,
       order = ORDER.ASC,
       orderBy = ORDER_BY.CREATED_AT,
@@ -24,7 +24,7 @@ export class CartService {
     query: CartPaginationQueryDto;
     userId: UserSchema["id"];
   }) {
-    const skip = (pageIndex - 1) * pageSize;
+    const skip = (page - 1) * pageSize;
     const take = pageSize;
 
     const { cartItems, cartItemsCount } =
@@ -40,7 +40,7 @@ export class CartService {
     return {
       data: cartItems,
       pagination: {
-        pageIndex,
+        page,
         pageSize,
         totalPages,
         totalItems: cartItemsCount,

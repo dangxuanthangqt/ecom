@@ -57,7 +57,7 @@ rung này bị bỏ hẳn theo quy ước, không bao giờ hiển thị là N/A
 **Ai** · admin *(cổng A0 — § 4.4; lưu ý: route này thiếu decorator Swagger `@ApiAuth`,
 `src/routes/user/user.controller.ts:39-52`, khác với A2-A5 — chỉ thiếu ở tài liệu, không thiếu ở phần xác thực: guard
 là global `APP_GUARD`, áp dụng bất kể handler có decorator hay không, xem § 4.4)*
-**Request** · query `pageIndex`/`pageSize`/`order`/`orderBy` (`UserPaginationQueryDto`,
+**Request** · query `page`/`pageSize`/`order`/`orderBy` (`UserPaginationQueryDto`,
 `src/dtos/user/user.dto.ts:28-39`)
 **BE** · `` `UserService#getUsers` `` — dựng filter `where: { deletedAt: null }`, phân trang bằng
 `skip`/`take`, chạy count và find song song. `src/routes/user/user.service.ts:55-98`

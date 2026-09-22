@@ -67,14 +67,14 @@ describe("ManageOrderService - getOrders (BR-O06)", () => {
 
   it("returns paginated data shaped for the controller", async () => {
     const result = await service.getOrders({
-      query: { pageIndex: 1, pageSize: 10 },
+      query: { page: 1, pageSize: 10 },
       userId: ADMIN_ID,
       scope: ADMIN_SCOPE,
     });
 
     expect(result.data).toEqual([makeOrder()]);
     expect(result.pagination).toEqual(
-      containing({ pageIndex: 1, pageSize: 10, totalItems: 1 }),
+      containing({ page: 1, pageSize: 10, totalItems: 1 }),
     );
   });
 });

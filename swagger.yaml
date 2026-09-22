@@ -653,12 +653,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -1112,12 +1112,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -1278,12 +1278,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -2012,12 +2012,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -2936,12 +2936,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -3200,12 +3200,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -4130,12 +4130,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -4585,12 +4585,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -4836,12 +4836,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -5270,12 +5270,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -5722,12 +5722,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -6079,12 +6079,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -6467,12 +6467,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -6734,12 +6734,12 @@ paths:
           schema:
             example: 20
             type: number
-        - name: pageIndex
+        - name: page
           required: false
           in: query
-          description: Page index (starts from 0)
+          description: Page number (starts from 1)
           schema:
-            example: 0
+            example: 1
             type: number
         - name: order
           required: false
@@ -7603,15 +7603,15 @@ components:
           type: number
           description: Number of items per page
           example: 20
-        pageIndex:
+        page:
           type: number
-          description: Current page index (starts from 0)
-          example: 0
+          description: Current page number (starts from 1)
+          example: 1
       required:
         - totalPages
         - totalItems
         - pageSize
-        - pageIndex
+        - page
     PageDto:
       type: object
       properties:
@@ -9035,7 +9035,7 @@ components:
           type: string
           description: The date when the product will be published
           example: 2023-10-01T00:00:00Z
-          default: 2026-09-22T04:22:49.678Z
+          default: 2026-09-22T09:17:21.930Z
         name:
           type: string
           description: The name of the product
@@ -9097,7 +9097,7 @@ components:
           type: string
           description: The date when the product will be published
           example: 2023-10-01T00:00:00Z
-          default: 2026-09-22T04:22:49.678Z
+          default: 2026-09-22T09:17:21.930Z
         name:
           type: string
           description: The name of the product
