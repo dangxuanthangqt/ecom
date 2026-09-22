@@ -35,15 +35,19 @@ Mọi lỗi mà API này có thể phát sinh đều đi qua đúng một hàm v
 
 `ErrorDetailDto`:
 
-| Field     | Example                      | What it is                                                                     |
-| --------- | ---------------------------- | ------------------------------------------------------------------------------ |
-| `field`   | `"address.city"`             | Dotted path to the offending input. Nested DTOs flatten into this path.        |
-| `code`    | `"isNotEmpty"`               | The class-validator constraint name. Stable across message and locale changes. |
-| `message` | `"city should not be empty"` | Text for this one constraint.                                                  |
+| Field     | Example                      | What it is                                                                                                                                                     |
+| --------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `field`   | `"address.city"`             | Dotted path to the offending input. Nested DTOs flatten into this path.                                                                                        |
+| `code`    | `"isNotEmpty"`               | Hoặc là một `ErrorCode` đã đăng ký (lỗi nghiệp vụ), hoặc là tên constraint của class-validator (lỗi validate DTO). Ổn định qua các lần đổi message hay locale. |
+| `message` | `"city should not be empty"` | Text for this one constraint.                                                                                                                                  |
 
 ### Hai quy tắc dành cho client
 
-**Rẽ nhánh theo `error` và `details[].code`, không bao giờ theo `message`.** `message` là văn bản dành cho người đọc; nó sẽ được viết lại, và sớm muộn cũng sẽ được đa ngôn ngữ hóa. Các code mới là phần thuộc contract, chỉ đổi khi API có version mới.
+**Rẽ nhánh theo `error` và `details[].code`, không bao giờ theo `message`.** `message` là
+tiếng Anh, dành cho log và developer — không bao giờ là copy hiển thị cho người dùng, và có
+thể bị viết lại bất cứ lúc nào. Việc đa ngôn ngữ hóa nằm ở frontend: frontend dịch `error` và
+`details[].code` sang bản dịch theo locale, chỉ fallback về `message` khi không còn gì khác.
+Các code mới là phần thuộc contract, chỉ đổi khi API có version mới.
 
 **Coi `details` là một list, không phải một map.** Một field bị fail hai constraint sẽ cho ra hai entry cùng `field`. Cần gộp lại phía client nếu form chỉ muốn hiển thị một message cho mỗi input.
 
@@ -156,18 +160,18 @@ trước kia.
 
 ## Các thành phần
 
-| File                                                                                                | Trách nhiệm                                                                   |
-| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| [`src/dtos/error-response.dto.ts`](../src/dtos/error-response.dto.ts)                               | Khuôn dạng response lỗi. Tự điền `error` và `message` từ status khi chưa có.  |
-| [`src/dtos/error-detail.dto.ts`](../src/dtos/error-detail.dto.ts)                                   | Một constraint fail trên một field.                                           |
-| [`src/shared/filters/global-exception.filter.ts`](../src/shared/filters/global-exception.filter.ts) | Nơi duy nhất ghi ra error response. Dispatch, `requestId`, logging.           |
-| [`src/shared/filters/http-exception.mapper.ts`](../src/shared/filters/http-exception.mapper.ts)     | `HttpException` → khuôn dạng response lỗi.                                    |
-| [`src/shared/filters/prisma-error.mapper.ts`](../src/shared/filters/prisma-error.mapper.ts)         | Code lỗi Prisma → status + message công khai.                                 |
-| [`src/shared/exceptions/validate.exception.ts`](../src/shared/exceptions/validate.exception.ts)     | Được validation pipe throw ra; mang theo khuôn dạng response lỗi làm payload. |
-| [`src/shared/utils/app.util.ts`](../src/shared/utils/app.util.ts)                                   | San phẳng cây lỗi của class-validator thành `ErrorDetailDto[]`.               |
-| [`src/shared/utils/validation-pipe.config.ts`](../src/shared/utils/validation-pipe.config.ts)       | Cấu hình pipe duy nhất.                                                       |
-| [`src/constants/error-code.constant.ts`](../src/constants/error-code.constant.ts)                   | Các code có chủ đích + `errorCodeFromStatus`.                                 |
-| [`src/constants/error-message.constant.ts`](../src/constants/error-message.constant.ts)             | Text fallback theo từng status.                                               |
+| File                                                                                                | Trách nhiệm                                                                                          |
+| --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| [`src/dtos/error-response.dto.ts`](../src/dtos/error-response.dto.ts)                               | Khuôn dạng response lỗi. Tự điền `error` và `message` từ status khi chưa có.                         |
+| [`src/dtos/error-detail.dto.ts`](../src/dtos/error-detail.dto.ts)                                   | Một constraint fail trên một field.                                                                  |
+| [`src/shared/filters/global-exception.filter.ts`](../src/shared/filters/global-exception.filter.ts) | Nơi duy nhất ghi ra error response. Dispatch, `requestId`, logging.                                  |
+| [`src/shared/filters/http-exception.mapper.ts`](../src/shared/filters/http-exception.mapper.ts)     | `HttpException` → khuôn dạng response lỗi.                                                           |
+| [`src/shared/filters/prisma-error.mapper.ts`](../src/shared/filters/prisma-error.mapper.ts)         | Code lỗi Prisma → status + message công khai.                                                        |
+| [`src/shared/exceptions/validate.exception.ts`](../src/shared/exceptions/validate.exception.ts)     | Được validation pipe throw ra; mang theo khuôn dạng response lỗi làm payload.                        |
+| [`src/shared/utils/app.util.ts`](../src/shared/utils/app.util.ts)                                   | San phẳng cây lỗi của class-validator thành `ErrorDetailDto[]`.                                      |
+| [`src/shared/utils/validation-pipe.config.ts`](../src/shared/utils/validation-pipe.config.ts)       | Cấu hình pipe duy nhất.                                                                              |
+| [`src/constants/error-codes/index.ts`](../src/constants/error-codes/index.ts)                       | Gộp 8 file code theo domain thành `ErrorCode` (84 code) + `errorCodeFromStatus` + `ALL_ERROR_CODES`. |
+| [`src/constants/error-message.constant.ts`](../src/constants/error-message.constant.ts)             | Text fallback theo từng status.                                                                      |
 
 Cả pipe và filter đều được đăng ký đúng một lần, trong
 [`src/shared/modules/base.module.ts`](../src/shared/modules/base.module.ts), làm `APP_PIPE`
@@ -213,6 +217,21 @@ bảng ánh xạ ngược có sẵn của `HttpStatus` — 404 thành `"NOT_FOUN
 `VALIDATION_FAILED` là code duy nhất được set tường minh, vì "DTO fail validate" là một việc
 khác với "request sai" dù cả hai đều là 400.
 
+`ErrorCode` được gộp lại trong
+[`src/constants/error-codes/index.ts`](../src/constants/error-codes/index.ts) từ một file
+cho mỗi domain (`infra`, `auth`, `identity`, `catalog`, `cart`, `order`, `review`,
+`upload`) — tổng cộng 84 code, giữ dưới giới hạn kích thước file của dự án. `index.ts` còn
+export một type cùng tên `ErrorCode`, là union đóng của mọi giá trị trong object đó; tham số
+`code` của `throwHttpException` được type theo union này, nên một code sai chính tả hoặc
+chưa đăng ký sẽ fail ngay lúc compile thay vì tới được client mà client không rẽ nhánh nổi.
+
+`http-decorator.ts` đăng ký mọi error response với `type: ErrorResponseDto`, không chỉ
+`schema.example` — đó là thứ đưa `ErrorResponseDto` vào `components/schemas`, và nhờ đó
+`@ApiProperty({ enum: ALL_ERROR_CODES })` của `error` mới lên được `swagger.yaml` dưới dạng
+enum thay vì `string` trần. `ALL_ERROR_CODES` (cũng từ `error-codes/index.ts`) là registry
+cộng với mọi tên do `HttpStatus` sinh ra, vì cả hai đều thực sự lên tới response. Đây là lý
+do một client được generate có thể type `error` thành một union.
+
 ## Prisma
 
 Lỗi từ repository không bao giờ tới thẳng client — message gốc của Prisma nêu tên table,
@@ -257,46 +276,62 @@ trong response. Các field nhạy cảm của request (`authorization`, `passwor
 response lỗi giúp bạn:
 
 ```ts
+import { ErrorCode } from "@/constants/error-codes";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 throwHttpException({
   type: "unprocessable",
+  code: ErrorCode.VERIFICATION_CODE_INVALID,
   message: "Verification code is not valid.",
 });
-// -> { statusCode: 422, error: "UNPROCESSABLE_ENTITY",
+// -> { statusCode: 422, error: "VERIFICATION_CODE_INVALID",
 //      message: "Verification code is not valid.", details: [], requestId: "…" }
 ```
 
 `type` là một trong `badRequest`, `notFound`, `unprocessable`, `unauthorized`, `forbidden`,
-`conflict`, `internal`, và quyết định status trả về.
+`conflict`, `tooManyRequests`, `internal`, và quyết định status trả về.
 
-Truyền `field` khi lỗi gắn với một input cụ thể. Nó sẽ thành một entry trong `details`, để
-form có thể highlight đúng ô:
+Truyền `code` mỗi khi client cần rẽ nhánh theo lỗi đó chứ không chỉ hiển thị nó — đó là lý
+do field này tồn tại. `code` là một `ErrorCode` đã đăng ký, và nó set cả `error` ở top-level
+lẫn `details[].code` cho field mà throw này nêu tên:
 
 ```ts
 throwHttpException({
   type: "conflict",
   message: "SKU is out of stock.",
   field: "items.0.skuId",
-  code: "outOfStock",
+  code: ErrorCode.SKU_INSUFFICIENT_STOCK,
 });
-// details: [{ field: "items.0.skuId", code: "outOfStock", message: "SKU is out of stock." }]
+// -> { error: "SKU_INSUFFICIENT_STOCK",
+//      details: [{ field: "items.0.skuId", code: "SKU_INSUFFICIENT_STOCK",
+//                   message: "SKU is out of stock." }] }
 ```
 
-`code` mặc định là `"invalid"`. Truyền một code thật mỗi khi client cần rẽ nhánh theo lỗi đó
-chứ không chỉ hiển thị nó — đó là lý do field này tồn tại. `error` cũng ghi đè code máy ở
-top-level theo cách tương tự:
+Truyền `detailCode` thay vào đó khi entry trong `details` cần mang một giá trị khác với
+`code` — trường hợp thật là tên constraint của class-validator:
 
 ```ts
 throwHttpException({
   type: "conflict",
   message: "Some items are no longer available.",
-  error: "CART_ITEMS_UNAVAILABLE",
+  field: "items.0.skuId",
+  code: ErrorCode.SKU_UNAVAILABLE,
+  detailCode: "isOptional",
 });
+// details[].code là "isOptional"; error ở top-level vẫn là "SKU_UNAVAILABLE"
 ```
 
-Nếu bạn thêm một giá trị `error` mới ở top-level, hãy thêm nó vào `ErrorCode` để dễ tra cứu,
-và báo cho frontend — một giá trị `error` mới là một thay đổi API.
+`details[].code` chỉ fallback về literal `"invalid"` khi cả `code` lẫn `detailCode` đều
+không được truyền.
+
+Chỉ bỏ qua `code` với `type: "internal"` — client không thể hành động gì trước một lỗi hạ
+tầng, nên `error` vẫn được suy ra từ HTTP status như trước. Mọi throw nghiệp vụ khác đều
+phải có `code`:
+[`error-code-coverage.spec.ts`](../src/shared/utils/__tests__/error-code-coverage.spec.ts)
+quét mọi lời gọi `throwHttpException` và làm fail build nếu một lời gọi không phải
+`internal` mà thiếu `code: ErrorCode.…`. Nếu bạn thêm một giá trị `ErrorCode` mới, hãy thêm
+nó vào file domain tương ứng trong `src/constants/error-codes/` và báo cho frontend — một
+giá trị `error` mới là một thay đổi API.
 
 ### Throw thẳng exception của Nest
 
