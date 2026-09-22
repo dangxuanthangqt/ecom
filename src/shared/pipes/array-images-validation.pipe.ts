@@ -1,5 +1,7 @@
 import { Injectable, Logger, PipeTransform } from "@nestjs/common";
 
+import { ErrorCode } from "@/constants/error-codes";
+
 import throwHttpException from "../utils/throw-http-exception.util";
 
 interface ArrayFilesValidationOptions {
@@ -35,6 +37,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
       );
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.FILE_REQUIRED,
         message: "At least one file is required",
       });
     }
@@ -47,6 +50,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
 
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.FILE_COUNT_EXCEEDED,
         message: `Too many files. Maximum allowed: ${maxCount}. Got: ${files.length}`,
       });
     }
@@ -57,6 +61,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
       );
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.FILE_COUNT_TOO_FEW,
         message: `Too few files. Minimum required: ${minCount}. Got: ${files.length}`,
       });
     }
@@ -72,6 +77,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
         );
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_TOO_LARGE,
           message: `${filePrefix} (${file.originalname}): File size ${file.size} exceeds maximum size of ${maxSize} bytes.`,
           field: filePrefix,
         });
@@ -83,6 +89,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
         );
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_TOO_SMALL,
           message: `${filePrefix} (${file.originalname}): File size ${file.size} is too small. Minimum size: ${minSize} bytes.`,
           field: filePrefix,
         });
@@ -96,6 +103,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
 
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_TYPE_INVALID,
           message: `${filePrefix} (${file.originalname}): Invalid file type '${file.mimetype}'. Allowed: ${allowedMimeTypes.join(", ")}`,
           field: filePrefix,
         });
@@ -111,6 +119,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
         );
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_EXTENSION_INVALID,
           message: `${filePrefix} (${file.originalname}): Invalid file extension. Allowed: ${allowedExtensions.join(", ")}`,
           field: filePrefix,
         });
@@ -121,6 +130,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
         this.logger.error(`${filePrefix}: File must have a valid name`);
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_NAME_INVALID,
           message: `${filePrefix}: File must have a valid name`,
           field: filePrefix,
         });
@@ -132,6 +142,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
         );
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_NAME_TOO_LONG,
           message: `${filePrefix} (${file.originalname}): Filename is too long. Maximum length: 255 characters.`,
           field: filePrefix,
         });
@@ -163,6 +174,7 @@ export class ArrayFilesValidationPipe implements PipeTransform {
 
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.FILE_TOTAL_SIZE_EXCEEDED,
         message: `Total files size too large. Maximum: ${maxTotalSize / (1024 * 1024)}MB. Got: ${(totalSize / (1024 * 1024)).toFixed(2)}MB`,
         field: "totalSize",
       });

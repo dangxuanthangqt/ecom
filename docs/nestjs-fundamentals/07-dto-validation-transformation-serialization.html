@@ -1,0 +1,2640 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chương 7 — DTO: validation, transformation, serialization</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Paper/Ink · light default ── */
+      :root {
+        --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+        --font-mono: "Azeret Mono", "SF Mono", Consolas, monospace;
+
+        --bg: #faf6f0;
+        --surface: #ffffff;
+        --surface2: #f3ece2;
+        --surface-elevated: #fffdf7;
+        --border: rgba(60, 40, 20, 0.09);
+        --border-bright: rgba(60, 40, 20, 0.2);
+        --text: #2c2a25;
+        --text-dim: #7c756a;
+        --text-bright: #1a1814;
+        --accent: #c2410c;
+        --accent-dim: rgba(194, 65, 12, 0.08);
+
+        --node-a: #c2410c;
+        --node-a-dim: rgba(194, 65, 12, 0.08);
+        --node-b: #4d7c0f;
+        --node-b-dim: rgba(77, 124, 15, 0.09);
+        --node-c: #0f766e;
+        --node-c-dim: rgba(15, 118, 110, 0.09);
+
+        --green: #3f6212;
+        --green-dim: rgba(63, 98, 18, 0.1);
+        --red: #b3261e;
+        --red-dim: rgba(179, 38, 30, 0.09);
+        --amber: #b45309;
+        --amber-dim: rgba(180, 83, 9, 0.1);
+        --sage: #65a30d;
+        --sage-dim: rgba(101, 163, 13, 0.09);
+        --teal: #0f766e;
+        --teal-dim: rgba(15, 118, 110, 0.09);
+        --plum: #9f1239;
+        --plum-dim: rgba(159, 18, 57, 0.09);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #1c1916;
+          --surface: #262220;
+          --surface2: #302a26;
+          --surface-elevated: #342e29;
+          --border: rgba(200, 180, 160, 0.09);
+          --border-bright: rgba(200, 180, 160, 0.2);
+          --text: #f0e8dc;
+          --text-dim: #a89e90;
+          --text-bright: #fbf6ee;
+          --accent: #f0743f;
+          --accent-dim: rgba(240, 116, 63, 0.13);
+          --node-a: #f0743f;
+          --node-a-dim: rgba(240, 116, 63, 0.13);
+          --node-b: #a3e635;
+          --node-b-dim: rgba(163, 230, 53, 0.11);
+          --node-c: #5eead4;
+          --node-c-dim: rgba(94, 234, 212, 0.11);
+          --green: #a3e635;
+          --green-dim: rgba(163, 230, 53, 0.12);
+          --red: #fca5a5;
+          --red-dim: rgba(252, 165, 165, 0.12);
+          --amber: #fbbf24;
+          --amber-dim: rgba(251, 191, 36, 0.12);
+          --sage: #bef264;
+          --sage-dim: rgba(190, 242, 100, 0.12);
+          --teal: #5eead4;
+          --teal-dim: rgba(94, 234, 212, 0.12);
+          --plum: #fda4af;
+          --plum-dim: rgba(253, 164, 175, 0.12);
+        }
+      }
+      [data-theme="dark"] {
+        --bg: #1c1916;
+        --surface: #262220;
+        --surface2: #302a26;
+        --surface-elevated: #342e29;
+        --border: rgba(200, 180, 160, 0.09);
+        --border-bright: rgba(200, 180, 160, 0.2);
+        --text: #f0e8dc;
+        --text-dim: #a89e90;
+        --text-bright: #fbf6ee;
+        --accent: #f0743f;
+        --accent-dim: rgba(240, 116, 63, 0.13);
+        --node-a: #f0743f;
+        --node-a-dim: rgba(240, 116, 63, 0.13);
+        --node-b: #a3e635;
+        --node-b-dim: rgba(163, 230, 53, 0.11);
+        --node-c: #5eead4;
+        --node-c-dim: rgba(94, 234, 212, 0.11);
+        --green: #a3e635;
+        --green-dim: rgba(163, 230, 53, 0.12);
+        --red: #fca5a5;
+        --red-dim: rgba(252, 165, 165, 0.12);
+        --amber: #fbbf24;
+        --amber-dim: rgba(251, 191, 36, 0.12);
+        --sage: #bef264;
+        --sage-dim: rgba(190, 242, 100, 0.12);
+        --teal: #5eead4;
+        --teal-dim: rgba(94, 234, 212, 0.12);
+        --plum: #fda4af;
+        --plum-dim: rgba(253, 164, 175, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 28px 40px 80px;
+        font-family: var(--font-body);
+        color: var(--text);
+        background-color: var(--bg);
+        background-image: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 40px,
+          var(--border) 40px,
+          var(--border) 41px
+        );
+        overflow-wrap: break-word;
+        line-height: 1.65;
+        font-size: 15.5px;
+      }
+      .grid > *,
+      .flex > * {
+        min-width: 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 300;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-dim);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      }
+      .theme-toggle:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 0 40px;
+      }
+      .main {
+        min-width: 0;
+      }
+      .toc {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        padding: 14px 0;
+        grid-row: 1 / -1;
+        max-height: calc(100dvh - 48px);
+        overflow-y: auto;
+      }
+      .toc::-webkit-scrollbar {
+        width: 3px;
+      }
+      .toc::-webkit-scrollbar-thumb {
+        background: var(--surface-elevated);
+        border-radius: 2px;
+      }
+      .toc-title {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+        padding: 0 0 10px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .toc a {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 5px 8px;
+        border-radius: 5px;
+        border-left: 2px solid transparent;
+        transition: all 0.15s;
+        line-height: 1.4;
+        margin-bottom: 1px;
+      }
+      .toc a:hover {
+        color: var(--text);
+        background: var(--surface2);
+      }
+      .toc a.active {
+        color: var(--text);
+        border-left-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .toc-series {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+      .toc-series a {
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+
+      .series-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-bottom: 18px;
+      }
+      .series-bar a {
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 4px 9px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+      .series-bar a:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .series-bar .sep {
+        opacity: 0.5;
+      }
+
+      .masthead {
+        border-bottom: 2px solid var(--border-bright);
+        padding-bottom: 22px;
+        margin-bottom: 30px;
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2.4px;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(28px, 3.4vw, 42px);
+        line-height: 1.12;
+        margin: 0 0 12px;
+        letter-spacing: -0.8px;
+        color: var(--text-bright);
+        font-weight: 800;
+      }
+      .subtitle {
+        font-size: 17px;
+        color: var(--text-dim);
+        margin: 0;
+        max-width: 70ch;
+      }
+      .masthead-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin: 50px 0 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        scroll-margin-top: 20px;
+      }
+      .sec-head__num {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent);
+        background: var(--accent-dim);
+        padding: 3px 9px;
+        border-radius: 5px;
+        flex-shrink: 0;
+      }
+      .sec-head__text {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        color: var(--text-bright);
+      }
+      h3.sub {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 26px 0 10px;
+        color: var(--text-bright);
+      }
+      p.lead {
+        font-size: 16.5px;
+        color: var(--text);
+        max-width: 72ch;
+      }
+      p.dim {
+        color: var(--text-dim);
+      }
+      .prose {
+        max-width: 74ch;
+      }
+
+      .ve-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 22px;
+        position: relative;
+      }
+      .ve-card--elevated {
+        background: var(--surface-elevated);
+        box-shadow:
+          0 2px 8px rgba(0, 0, 0, 0.07),
+          0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      .ve-card--recessed {
+        background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .ve-card--hero {
+        background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.07),
+          0 1px 3px rgba(0, 0, 0, 0.04);
+        border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+      }
+      .ve-card__label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--node-a);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ve-card__label::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+      }
+      .ve-card__label--b {
+        color: var(--node-b);
+      }
+      .ve-card__label--c {
+        color: var(--node-c);
+      }
+      .ve-card__label--plum {
+        color: var(--plum);
+      }
+      .ve-card__label--amber {
+        color: var(--amber);
+      }
+      .ve-card__label--red {
+        color: var(--red);
+      }
+      .ve-card p {
+        margin: 0 0 10px;
+      }
+      .ve-card p:last-child {
+        margin-bottom: 0;
+      }
+      .ve-card ul,
+      .ve-card ol {
+        padding-left: 1.6em;
+        margin: 6px 0 0;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+      }
+      .card-grid--2 {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .tag {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 5px;
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        display: inline-block;
+      }
+      .tag--b {
+        background: var(--node-b-dim);
+        color: var(--node-b);
+      }
+      .tag--c {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+      }
+      .tag--amber {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .tag--red {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .tag--green {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .tag--plum {
+        background: var(--plum-dim);
+        color: var(--plum);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      .status--match {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .status--gap {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .status--warn {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .status--info {
+        background: var(--accent-dim);
+        color: var(--accent);
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.88em;
+        background: var(--accent-dim);
+        color: var(--accent);
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .code-file {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .code-file__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px 15px;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .code-file__header span:first-child {
+        color: var(--text);
+      }
+      .code-file__body {
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+        line-height: 1.6;
+        padding: 15px;
+        margin: 0;
+        background: var(--surface);
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 480px;
+        overflow: auto;
+        color: var(--text);
+      }
+      .cm {
+        color: var(--text-dim);
+        font-style: italic;
+      }
+      .kw {
+        color: var(--plum);
+      }
+      .st {
+        color: var(--node-b);
+      }
+      .fn {
+        color: var(--node-c);
+      }
+      .out {
+        color: var(--text-dim);
+      }
+
+      .pipeline {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+      .pipeline__step {
+        min-width: 150px;
+        flex: 1 1 0;
+      }
+      .pipeline__step--hi {
+        border-color: color-mix(in srgb, var(--border) 40%, var(--accent) 60%);
+        background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+      }
+      .pipeline__step--mute {
+        opacity: 0.72;
+      }
+      .pipeline__arrow {
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        color: var(--border-bright);
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .node-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+      .node-list li {
+        padding-left: 15px;
+        position: relative;
+      }
+      .node-list li::before {
+        content: "›";
+        color: var(--text-dim);
+        font-weight: 600;
+        position: absolute;
+        left: 0;
+      }
+
+      .table-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .data-table th {
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        text-align: left;
+        padding: 11px 15px;
+        border-bottom: 2px solid var(--border-bright);
+        white-space: nowrap;
+      }
+      .data-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        color: var(--text);
+      }
+      .data-table tbody tr:nth-child(even) {
+        background: var(--accent-dim);
+      }
+      .data-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table code {
+        font-size: 12px;
+      }
+      .data-table small {
+        display: block;
+        color: var(--text-dim);
+        font-size: 12px;
+        margin-top: 3px;
+      }
+      .data-table .num {
+        font-family: var(--font-mono);
+        color: var(--text-dim);
+        text-align: right;
+      }
+
+      .callout {
+        padding: 16px 20px;
+        border-radius: 8px;
+        border-left: 4px solid var(--callout-border);
+        background: var(--callout-bg);
+        margin: 18px 0;
+        font-size: 15px;
+      }
+      .callout--info {
+        --callout-border: var(--accent);
+        --callout-bg: color-mix(in srgb, var(--accent) 9%, transparent);
+      }
+      .callout--warning {
+        --callout-border: var(--amber);
+        --callout-bg: color-mix(in srgb, var(--amber) 10%, transparent);
+      }
+      .callout--success {
+        --callout-border: var(--green);
+        --callout-bg: color-mix(in srgb, var(--green) 9%, transparent);
+      }
+      .callout--danger {
+        --callout-border: var(--red);
+        --callout-bg: color-mix(in srgb, var(--red) 9%, transparent);
+      }
+      .callout__title {
+        font-weight: 700;
+        margin-bottom: 7px;
+        color: var(--callout-border);
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .callout ul {
+        padding-left: 1.5em;
+        margin: 8px 0 0;
+      }
+
+      .diff-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .diff-panels > * {
+        min-width: 0;
+        overflow-wrap: break-word;
+      }
+      .diff-panel__header {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 10px 16px;
+      }
+      .diff-panel__header--a {
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        border-bottom: 2px solid var(--node-a);
+      }
+      .diff-panel__header--b {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+        border-bottom: 2px solid var(--node-c);
+      }
+      .diff-panel__header--bad {
+        background: var(--red-dim);
+        color: var(--red);
+        border-bottom: 2px solid var(--red);
+      }
+      .diff-panel__header--good {
+        background: var(--green-dim);
+        color: var(--green);
+        border-bottom: 2px solid var(--green);
+      }
+      .diff-panel__body {
+        padding: 16px;
+        background: var(--surface);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .diff-panel__body ul {
+        padding-left: 1.4em;
+        margin: 0;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 28px;
+        margin: 12px 0;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 6px;
+        bottom: 6px;
+        width: 2px;
+        background: var(--border-bright);
+      }
+      .timeline__item {
+        position: relative;
+        margin-bottom: 14px;
+      }
+      .timeline__item::before {
+        content: "";
+        position: absolute;
+        left: -24px;
+        top: 8px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 2px solid var(--accent);
+      }
+      .timeline__item--stop::before {
+        border-color: var(--red);
+        background: var(--red-dim);
+      }
+      .timeline__item--ok::before {
+        border-color: var(--green);
+        background: var(--green-dim);
+      }
+      .timeline__item--mute::before {
+        border-color: var(--border-bright);
+      }
+      .timeline__title {
+        font-weight: 700;
+        color: var(--text-bright);
+      }
+      .timeline__title code {
+        font-size: 13px;
+      }
+      .timeline__desc {
+        color: var(--text-dim);
+        font-size: 14.5px;
+        margin-top: 2px;
+      }
+
+      .diagram-shell {
+        position: relative;
+        margin: 8px 0 4px;
+      }
+      .diagram-shell__hint {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin: 0 0 8px;
+        opacity: 0.75;
+      }
+      .mermaid-wrap {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px 22px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 380px;
+        cursor: grab;
+      }
+      .mermaid-wrap.is-panning {
+        cursor: grabbing;
+        user-select: none;
+      }
+      .zoom-controls {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 2px;
+        z-index: 10;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px;
+        align-items: center;
+      }
+      .zoom-controls button {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .zoom-controls button:hover {
+        background: var(--border);
+        color: var(--text);
+      }
+      .zoom-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        padding: 0 6px;
+        white-space: nowrap;
+      }
+      .mermaid-viewport {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+      }
+      .mermaid-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .mermaid .nodeLabel {
+        color: var(--text) !important;
+        font-family: var(--font-body) !important;
+        font-size: 15px !important;
+      }
+      .mermaid .edgeLabel {
+        color: var(--text-dim) !important;
+        background-color: var(--bg) !important;
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+      .mermaid .edgeLabel rect {
+        fill: var(--bg) !important;
+      }
+      .mermaid .messageText {
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+
+      details.collapsible {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--surface);
+        margin: 12px 0;
+      }
+      details.collapsible summary {
+        padding: 13px 19px;
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text);
+      }
+      details.collapsible summary::-webkit-details-marker {
+        display: none;
+      }
+      details.collapsible summary::before {
+        content: "▸";
+        font-size: 11px;
+        color: var(--text-dim);
+        transition: transform 0.15s ease;
+      }
+      details.collapsible[open] summary::before {
+        transform: rotate(90deg);
+      }
+      .collapsible__body {
+        padding: 16px 19px;
+        border-top: 1px solid var(--border);
+        font-size: 15px;
+      }
+
+      .chapter-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .chapter-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+      .chapter-card__num {
+        font-family: var(--font-mono);
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .chapter-card__title {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--text-bright);
+        margin-bottom: 6px;
+      }
+      .chapter-card__q {
+        font-size: 14px;
+        color: var(--text-dim);
+      }
+      .chapter-card__links {
+        margin-top: 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+      .chapter-card__links a {
+        margin-right: 10px;
+      }
+
+      .footer-nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .footer-nav a {
+        text-decoration: none;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text);
+        max-width: 48%;
+      }
+      .footer-nav a:hover {
+        border-color: var(--accent);
+      }
+      .footer-nav small {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 3px;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .ve-card {
+        animation: fadeUp 0.4s ease-out both;
+        animation-delay: calc(var(--i, 0) * 0.05s);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 1000px) {
+        body {
+          padding: 0 20px 60px;
+        }
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+        .toc {
+          position: sticky;
+          top: 0;
+          z-index: 200;
+          max-height: none;
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          overflow-x: auto;
+          background: var(--bg);
+          border-bottom: 1px solid var(--border);
+          padding: 10px 20px;
+          margin: 0 -20px;
+          grid-row: auto;
+        }
+        .toc::-webkit-scrollbar {
+          display: none;
+        }
+        .toc-title,
+        .toc-series {
+          display: none;
+        }
+        .toc a {
+          white-space: nowrap;
+          flex-shrink: 0;
+          border-left: none;
+          border-bottom: 2px solid transparent;
+          border-radius: 4px 4px 0 0;
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+        .toc a.active {
+          border-left: none;
+          border-bottom-color: var(--accent);
+          background: var(--surface);
+        }
+        .main {
+          padding-top: 22px;
+        }
+        .sec-head {
+          scroll-margin-top: 56px;
+        }
+        .pipeline {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .pipeline__arrow {
+          display: none;
+        }
+        .pipeline__step {
+          min-width: 100%;
+        }
+        .diff-panels {
+          grid-template-columns: 1fr;
+        }
+        .footer-nav {
+          flex-direction: column;
+        }
+        .footer-nav a {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      class="theme-toggle"
+      id="themeToggle"
+      title="Đổi giao diện sáng/tối"
+      aria-label="Đổi giao diện sáng tối"
+    ></button>
+    <div class="wrap">
+      <nav class="toc" id="toc">
+        <div class="toc-title">Chương 7</div>
+        <a href="#s1">Ba việc, hai thư viện</a>
+        <a href="#s2">Vì sao phải là class</a>
+        <a href="#s3">Chiều vào: ValidationPipe</a>
+        <a href="#s4">Lỗi → response</a>
+        <a href="#s5">Validator tự viết</a>
+        <a href="#s6">Serialization: chiều ra</a>
+        <a href="#s7">Bẫy @Type</a>
+        <a href="#s8">Pipe &amp; upload file</a>
+        <a href="#s9">Swagger</a>
+        <a href="#s10">Chỗ dễ vấp</a>
+        <a href="#s11">Trong dự án</a>
+        <a href="#s12">Tự kiểm chứng</a>
+        <div class="toc-series">
+          <a href="index.html">↑ Mục lục bộ</a
+          ><a href="06-modules-and-dependency-injection.html">← Chương 6</a>
+        </div>
+      </nav>
+
+      <div class="main">
+        <div class="series-bar">
+          <a href="index.html">Mục lục</a><span class="sep">·</span>
+          <a href="00-prototype-and-this.html">00 Prototype</a>
+          <a href="01-decorators-and-metadata.html">01 Decorator</a>
+          <a href="02-reflector-execution-context-and-discovery.html"
+            >02 Reflector</a
+          >
+          <a href="03-guards.html">03 Guard</a>
+          <a href="04-middleware.html">04 Middleware</a>
+          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
+          <a href="06-modules-and-dependency-injection.html"
+            >06 Module &amp; DI</a
+          >
+          <span>07 DTO</span>
+          <a href="appendix-a-reflect-metadata-internals.html"
+            >A reflect-metadata</a
+          >
+          <span class="sep">·</span
+          ><a href="07-dto-validation-transformation-serialization.md"
+            >bản markdown đầy đủ</a
+          >
+        </div>
+
+        <header class="masthead">
+          <div class="eyebrow">Chương 7</div>
+          <h1>DTO: validation, transformation, serialization</h1>
+          <p class="subtitle">
+            Repo có <strong>28 file DTO</strong>, và ai cũng bắt đầu bằng cùng
+            một hiểu nhầm: nghĩ "DTO" là <em>một</em> thứ. Thực ra là
+            <strong>ba việc, hai thư viện, hai đầu ngược nhau</strong> của
+            request.
+          </p>
+          <div class="masthead-meta">
+            <span class="tag tag--red">1 bẫy làm lộ dữ liệu</span
+            ><span class="tag tag--b">3 thí nghiệm chạy thật</span
+            ><span class="tag tag--c">không cần DB</span>
+          </div>
+        </header>
+
+        <div class="sec-head" id="s1">
+          <span class="sec-head__num">01</span
+          ><span class="sec-head__text">Ba việc, hai thư viện</span>
+        </div>
+        <div class="diff-panels">
+          <div>
+            <div class="diff-panel__header diff-panel__header--a">
+              Chiều vào — JSON của client
+            </div>
+            <div class="diff-panel__body">
+              <p style="margin: 0 0 10px">
+                <strong>VALIDATION</strong> — dữ liệu hợp lệ không?
+                <span class="tag">class-validator</span>
+              </p>
+              <p style="margin: 0 0 10px">
+                <strong>TRANSFORMATION</strong> — chuỗi → số/Date, object →
+                instance <span class="tag tag--b">class-transformer</span>
+              </p>
+              <p style="margin: 0; color: var(--text-dim)">
+                Cả hai do <code>ValidationPipe</code> chạy · tầng 9
+              </p>
+            </div>
+          </div>
+          <div>
+            <div class="diff-panel__header diff-panel__header--b">
+              Chiều ra — object trong service
+            </div>
+            <div class="diff-panel__body">
+              <p style="margin: 0 0 10px">
+                <strong>SERIALIZATION</strong> — field nào được ra ngoài?
+                <span class="tag tag--b">class-transformer</span>
+              </p>
+              <p style="margin: 0 0 10px">&nbsp;</p>
+              <p style="margin: 0; color: var(--text-dim)">
+                <code>ClassSerializerInterceptor</code> chạy · tầng 14
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Thư viện</th>
+                  <th>Decorator</th>
+                  <th>Làm gì</th>
+                  <th>Chạy ở</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>class-validator</code></td>
+                  <td>
+                    <code>@IsString()</code> <code>@IsInt()</code>
+                    <code>@IsOptional()</code> <code>@Length()</code>
+                  </td>
+                  <td>Kiểm dữ liệu, <strong>không</strong> đổi dữ liệu</td>
+                  <td>chiều vào</td>
+                </tr>
+                <tr>
+                  <td><code>class-transformer</code></td>
+                  <td><code>@Type()</code></td>
+                  <td>Đổi kiểu</td>
+                  <td>chiều vào</td>
+                </tr>
+                <tr>
+                  <td><code>class-transformer</code></td>
+                  <td><code>@Expose()</code> <code>@Exclude()</code></td>
+                  <td>Chọn field ra ngoài</td>
+                  <td><strong>chiều ra</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--info">
+          <div class="callout__title">Mẹo nhớ</div>
+          <strong
+            ><code>@Is...</code> là người gác cổng vào. <code>@Expose</code> là
+            người soát vé ra.</strong
+          >
+          Chúng không bao giờ gặp nhau. Nhìn <code>login.dto.ts</code>:
+          <code>LoginRequestDto</code> chỉ có <code>@Is...</code>,
+          <code>LoginResponseDto</code> chỉ có <code>@Expose()</code>. Hai
+          class, hai chiều — quy ước tốt, nên giữ.
+        </div>
+
+        <div class="sec-head" id="s2">
+          <span class="sec-head__num">02</span
+          ><span class="sec-head__text">Vì sao DTO bắt buộc phải là class</span>
+        </div>
+        <p class="lead">
+          <em
+            >"DTO chỉ mô tả hình dạng, sao không dùng <code>interface</code> cho
+            nhẹ?"</em
+          >
+          — Vì <code>interface</code>
+          <strong>biến mất sau khi biên dịch</strong>, mà cả hai thư viện đều
+          cần đọc thông tin <strong>lúc chạy</strong>.
+        </p>
+        <p class="prose">
+          Nối về <a href="01-decorators-and-metadata.html#s5">chương 1 §5</a>:
+          nhờ <code>emitDecoratorMetadata</code>, Nest lấy kiểu của tham số
+          <code>@Body()</code> từ <code>design:paramtypes</code> và truyền cho
+          pipe dưới tên <strong><code>metatype</code></strong
+          >. <code>ValidationPipe</code> mở đầu bằng câu hỏi:
+          <em>metatype này có phải class có decorator không?</em> Nếu không —
+          <strong>nó không làm gì cả</strong>:
+        </p>
+        <pre
+          class="code-file__body out"
+          style="border: 1px solid var(--border); border-radius: 8px"
+        >
+6. metatype = Object → bỏ qua, trả nguyên: {"x":1}</pre
+        >
+        <div class="callout callout--danger">
+          <div class="callout__title">Hệ quả rất thực tế</div>
+          Khai <code>@Body() body: SomeInterface</code> thì
+          <code>metatype</code> là <code>Object</code>, pipe im lặng bỏ qua, và
+          <strong>endpoint của bạn không hề được validate</strong> — không lỗi,
+          không cảnh báo. Loại bug tệ nhất: nó trông như đang hoạt động.
+          <p style="margin-top: 8px">
+            Cùng lý do, <code>String</code>, <code>Number</code>,
+            <code>Boolean</code>, <code>Array</code>, <code>Object</code> đều bị
+            bỏ qua. Validate tham số nguyên thuỷ thì dùng pipe riêng
+            (<code>ParseUUIDPipe</code>, <code>ParseIntPipe</code>).
+          </p>
+        </div>
+
+        <div class="sec-head" id="s3">
+          <span class="sec-head__num">03</span
+          ><span class="sec-head__text"
+            >Chiều vào: <code>ValidationPipe</code></span
+          >
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/shared/utils/validation-pipe.config.ts</span
+            ><span>dòng 15-22</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">export const</span> validationPipeOptions: ValidationPipeOptions = {
+  whitelist: <span class="kw">true</span>,
+  forbidNonWhitelisted: <span class="kw">true</span>,
+  transform: <span class="kw">true</span>,
+  errorHttpStatusCode: HttpStatus.BAD_REQUEST,
+  exceptionFactory: (errors) =&gt; <span class="kw">new</span> <span class="fn">ValidateException</span>(<span class="fn">transformValidateObject</span>(errors)),
+};</code></pre>
+        </div>
+        <p class="prose">
+          Năm dòng, mỗi dòng một quyết định. Bảng dưới là kết quả
+          <strong>chạy thật</strong> với input
+          <code>{ name: "a", pageSize: "10", hacker: 1 }</code>:
+        </p>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Cấu hình</th>
+                  <th>Kết quả</th>
+                  <th>Nhận xét</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>mặc định (không cờ nào)</td>
+                  <td><code>{"name":"a","pageSize":"10","hacker":1}</code></td>
+                  <td>
+                    <span class="status status--gap"
+                      >field lạ đi thẳng vào service</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>whitelist: true</code></td>
+                  <td><code>{"name":"a","pageSize":10}</code></td>
+                  <td><code>hacker</code> bị lược im lặng</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>whitelist</code> + <code>forbidNonWhitelisted</code>
+                  </td>
+                  <td>
+                    <strong>THROW</strong>
+                    <code>["property hacker should not exist"]</code>
+                  </td>
+                  <td>
+                    <span class="status status--match"
+                      >báo lỗi thay vì lược</span
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>transform: false</code></td>
+                  <td>
+                    <code>{"pageSize":"10"}</code>,
+                    <code>instanceof Dto</code> = <strong>false</strong>
+                  </td>
+                  <td>trả object thường</td>
+                </tr>
+                <tr>
+                  <td><code>transform: true</code></td>
+                  <td>
+                    <code>{"pageSize":10}</code>, <code>instanceof Dto</code> =
+                    <strong>true</strong>
+                  </td>
+                  <td>
+                    <span class="status status--match"
+                      >trả instance DTO thật</span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-grid card-grid--3">
+          <div class="ve-card ve-card--elevated" style="--i: 0">
+            <div class="ve-card__label ve-card__label--red">
+              <code>whitelist</code> — mặc định là bỏ
+            </div>
+            <p>
+              Không bật, mọi field client gửi đều lọt vào service. Đó là chỗ
+              sinh lỗ hổng <strong>mass assignment</strong>: client thêm
+              <code>{"isSystem": true}</code> vào body, và nếu service spread
+              thẳng xuống Prisma thì field đó được ghi.
+            </p>
+            <p style="margin-top: 8px">
+              Bật lên:
+              <strong>chỉ field có decorator validate mới đi qua</strong>.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 1">
+            <div class="ve-card__label ve-card__label--amber">
+              <code>forbidNonWhitelisted</code> — báo thay vì lược
+            </div>
+            <p>
+              Lược im lặng thì client gửi sai tên field (<code>pageSizes</code>)
+              sẽ thấy API "không nhận giá trị của tôi" mà không hiểu vì sao. Bật
+              lên, họ nhận <code>property pageSizes should not exist</code>.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 2">
+            <div class="ve-card__label ve-card__label--b">
+              <code>transform</code> — và query string
+            </div>
+            <p>
+              HTTP không có kiểu. <code>?pageSize=10</code> đến server là
+              <strong>chuỗi</strong> <code>"10"</code>, luôn luôn. Không
+              transform, <code>@IsInt()</code> trượt với <em>mọi</em> request.
+            </p>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/dtos/shared/pagination.dto.ts</span
+            ><span>dòng 40-45</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code>@<span class="fn">ApiPropertyOptional</span>({ description: <span class="st">"Number of items per page"</span>, example: 20 })
+@<span class="fn">IsInt</span>({ message: <span class="st">"pageSize must be an integer"</span> })
+@<span class="fn">Type</span>(() =&gt; Number)          <span class="cm">// ← chuỗi "10" → số 10, TRƯỚC khi validate</span>
+@<span class="fn">IsPositive</span>({ message: <span class="st">"pageSize must be greater than 0"</span> })
+@<span class="fn">IsOptional</span>()
+pageSize?: number;</code></pre>
+        </div>
+        <p class="prose">
+          Thứ tự thật sự xảy ra: <strong>transform trước, validate sau</strong>.
+          Và <code>transform: true</code> còn có tác dụng thứ hai, quan trọng
+          cho <a href="#s6">mục 6</a>: giá trị handler nhận được là
+          <strong>instance của DTO class</strong>.
+        </p>
+
+        <div class="sec-head" id="s4">
+          <span class="sec-head__num">04</span
+          ><span class="sec-head__text">Từ lỗi validate tới response</span>
+        </div>
+        <div class="pipeline">
+          <div class="pipeline__step ve-card" style="--i: 0">
+            <div class="ve-card__label">1 · class-validator</div>
+            <p style="font-size: 13.5px">
+              trả <code>ValidationError[]</code> <strong>lồng nhau</strong> —
+              lỗi field con nằm trong <code>children</code> của cha
+            </p>
+          </div>
+          <div class="pipeline__arrow">→</div>
+          <div class="pipeline__step ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              2 · <code>transformValidateObject</code>
+            </div>
+            <p style="font-size: 13.5px">
+              duyệt đệ quy, dựng đường dẫn <code>a.b.c</code>
+            </p>
+          </div>
+          <div class="pipeline__arrow">→</div>
+          <div class="pipeline__step ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">
+              3 · <code>ValidateException</code>
+            </div>
+            <p style="font-size: 13.5px">
+              kế thừa <code>BadRequestException</code>
+            </p>
+          </div>
+          <div class="pipeline__arrow">→</div>
+          <div class="pipeline__step ve-card" style="--i: 3">
+            <div class="ve-card__label ve-card__label--plum">
+              4 · <code>GlobalExceptionFilter</code>
+            </div>
+            <p style="font-size: 13.5px">
+              envelope chung + <code>requestId</code>
+            </p>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>response cuối</span><span>400</span>
+          </div>
+          <pre class="code-file__body"><code>{
+  <span class="st">"statusCode"</span>: 400,
+  <span class="st">"error"</span>: <span class="st">"VALIDATION_FAILED"</span>,
+  <span class="st">"message"</span>: <span class="st">"Validation failed"</span>,
+  <span class="st">"details"</span>: [{ <span class="st">"field"</span>: <span class="st">"inner.code"</span>, <span class="st">"code"</span>: <span class="st">"isString"</span>, <span class="st">"message"</span>: <span class="st">"code must be a string"</span> }],
+  <span class="st">"requestId"</span>: <span class="st">"9b1e…"</span>
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>field: "inner.code"</code> chứ không phải <code>"code"</code> —
+          client biết chính xác field nào trong cấu trúc lồng bị sai.
+          <code>code</code> (<code>isString</code>, <code>isInt</code>,
+          <code>whitelistValidation</code>…) là tên constraint của
+          class-validator; frontend map <code>code</code> sang thông điệp tiếng
+          Việt của mình, <strong>không parse <code>message</code></strong> tiếng
+          Anh.
+        </p>
+
+        <div class="sec-head" id="s5">
+          <span class="sec-head__num">05</span
+          ><span class="sec-head__text">Validator tự viết</span>
+        </div>
+        <div class="diff-panels">
+          <div>
+            <div class="diff-panel__header diff-panel__header--a">
+              Kiểu 1 · validator inline
+            </div>
+            <div class="diff-panel__body">
+              <p style="margin: 0 0 8px">
+                Gọn, dùng một chỗ — <code>is-password-match.decorator.ts</code>
+              </p>
+              <pre
+                class="code-file__body"
+                style="
+                  border: 0;
+                  padding: 0;
+                  background: transparent;
+                  font-size: 12.5px;
+                "
+              ><code><span class="fn">registerDecorator</span>({
+  name: <span class="st">"matchPassword"</span>,
+  target: object.constructor,
+  propertyName,
+  constraints: [property],   <span class="cm">// ← tham số</span>
+  validator: {
+    <span class="fn">validate</span>(value, args) { <span class="cm">/* … */</span> },
+    <span class="fn">defaultMessage</span>(args) { <span class="cm">/* … */</span> },
+  },
+});</code></pre>
+            </div>
+          </div>
+          <div>
+            <div class="diff-panel__header diff-panel__header--b">
+              Kiểu 2 · class <code>@ValidatorConstraint</code>
+            </div>
+            <div class="diff-panel__body">
+              <p style="margin: 0 0 8px">
+                Tách logic ra class, test được độc lập —
+                <code>is-only-one-exists.ts</code>
+              </p>
+              <pre
+                class="code-file__body"
+                style="
+                  border: 0;
+                  padding: 0;
+                  background: transparent;
+                  font-size: 12.5px;
+                "
+              ><code>@<span class="fn">ValidatorConstraint</span>({ name: <span class="st">"mutuallyExclusive"</span>, async: <span class="kw">false</span> })
+<span class="kw">export class</span> OnlyOneExistsConstraint
+  <span class="kw">implements</span> ValidatorConstraintInterface {
+  <span class="fn">validate</span>(value, args) { <span class="cm">/* … */</span> }
+  <span class="fn">defaultMessage</span>(args) { <span class="cm">/* … */</span> }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">
+            <code>async: true</code> — cân nhắc kỹ
+          </div>
+          Class-constraint hỗ trợ validate cần I/O ("email này đã tồn tại
+          chưa"). Nhưng nó đưa truy vấn vào tầng pipe, và tạo race condition
+          kinh điển — kiểm "chưa tồn tại" rồi insert vẫn có thể đụng unique
+          constraint. Dự án chọn cách khác: để DB làm trọng tài, map
+          <code>P2002</code> → 409.
+        </div>
+        <h3 class="sub">
+          Chìa khoá của luật liên trường: <code>args.object</code>
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>args.object là CẢ DTO — đó là cách nhìn sang field khác</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">const</span> object = args.object <span class="kw">as</span> LoginRequestDto;
+<span class="kw">const</span> relatedPropertyName = args.constraints[0] <span class="kw">as keyof</span> LoginRequestDto;
+<span class="kw">const</span> relatedPropertyValue = object[relatedPropertyName];
+<span class="kw">if</span> (value !== <span class="kw">undefined</span> &amp;&amp; relatedPropertyValue !== <span class="kw">undefined</span>) <span class="kw">return false</span>;  <span class="cm">// cả hai cùng có → sai</span></code></pre>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Validator</th>
+                  <th>Luật</th>
+                  <th>Dùng ở</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>IsPasswordMatch</code></td>
+                  <td>field này phải khớp field kia</td>
+                  <td>register, forgot-password, đổi mật khẩu</td>
+                </tr>
+                <tr>
+                  <td><code>IsOnlyOneExists</code></td>
+                  <td>nhiều nhất một trong hai</td>
+                  <td>login (<code>totpCode</code> / <code>code</code>)</td>
+                </tr>
+                <tr>
+                  <td><code>IsExactlyOneExists</code></td>
+                  <td><strong>đúng</strong> một trong hai</td>
+                  <td>tắt 2FA</td>
+                </tr>
+                <tr>
+                  <td><code>IsUniqueStringArray</code></td>
+                  <td>mảng không có phần tử trùng</td>
+                  <td>danh sách id</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">Chỗ dễ vấp trong repo</div>
+          <code>is-only-one-exists.ts</code>
+          <code>import { LoginRequestDto }</code> chỉ để ép kiểu. Điều đó buộc
+          một tiện ích dùng chung phải biết về một DTO cụ thể — mầm mống vòng
+          tròn import (<a href="06-modules-and-dependency-injection.html#s9"
+            >chương 6 §9</a
+          >). Sửa: dùng <code>Record&lt;string, unknown&gt;</code> như
+          <code>IsPasswordMatch</code> đang làm, hoặc <code>import type</code>.
+        </div>
+
+        <div class="sec-head" id="s6">
+          <span class="sec-head__num">06</span
+          ><span class="sec-head__text">Serialization: chiều ra</span>
+        </div>
+        <div class="ve-card ve-card--hero" style="--i: 0; margin-bottom: 16px">
+          <div class="ve-card__label ve-card__label--red">
+            Mục quan trọng nhất của chương. Đọc kỹ.
+          </div>
+          <p style="margin: 0">
+            <code>excludeExtraneousValues: true</code> nghĩa là
+            <strong>chỉ field có <code>@Expose()</code> mới ra ngoài</strong> —
+            mặc định không lộ gì, phải khai mới lộ. Nhưng có một điều kiện mà
+            rất nhiều người bỏ sót.
+          </p>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>ClassSerializerInterceptor — mã nguồn Nest, rút gọn</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="fn">serialize</span>(response, options) {
+  <span class="kw">if</span> (!<span class="fn">isObject</span>(response) || response <span class="kw">instanceof</span> StreamableFile) <span class="kw">return</span> response;
+  <span class="kw">return</span> Array.<span class="fn">isArray</span>(response)
+    ? response.<span class="fn">map</span>(item =&gt; <span class="kw">this</span>.<span class="fn">transformToPlain</span>(item, options))
+    : <span class="kw">this</span>.<span class="fn">transformToPlain</span>(response, options);
+}</code></pre>
+        </div>
+        <p class="prose">
+          Nó gọi <code>classToPlain</code> lên
+          <strong>bất cứ thứ gì</strong> handler trả về. Vậy nếu handler trả
+          <strong>object Prisma thô</strong> thay vì instance DTO thì sao?
+        </p>
+        <div class="callout callout--danger">
+          <div class="callout__title">Trực giác sai — và kết quả chạy thật</div>
+          <p style="margin: 0 0 10px">
+            Nhiều người (kể cả tôi khi viết
+            <a href="05-request-lifecycle-in-this-project.html">chương 5</a> lần
+            đầu) đoán
+            <em
+              >"không có <code>@Expose()</code> nào, chắc bị lọc thành
+              <code>{}</code>"</em
+            >. <strong>Sai.</strong>
+          </p>
+          <pre
+            class="code-file__body out"
+            style="border: 1px solid var(--border); border-radius: 8px"
+          >
+1. instance DTO + excludeExtraneousValues:
+    { id: 'r1', name: 'admin' }                                    ← password, secret bị bỏ ✓
+2. object THÔ (không phải instance) + excludeExtraneousValues:
+    { id: 'r1', name: 'admin', password: 'hash', secret: 'x' }     ← LỘ HẾT ✗
+3. instance DTO, KHÔNG bật cờ:
+    { id: 'r1', name: 'admin', password: 'hash', secret: 'x' }     ← LỘ HẾT ✗
+4. DTO lồng object thô bên trong:
+    { inner: { id: 'r1', name: 'admin', password: 'hash', secret: 'x' } }  ← LỘ HẾT ✗</pre
+          >
+          <p style="margin: 10px 0 0">
+            <code>excludeExtraneousValues</code> áp
+            <strong>luật <code>@Expose()</code> của một class</strong>. Object
+            thường không thuộc class nào →
+            <strong>không có luật nào để áp</strong> → đi thẳng ra nguyên vẹn.
+          </p>
+          <p style="margin: 10px 0 0">
+            <strong
+              >Hỏng ở đây hỏng theo hướng lộ dữ liệu, không phải mất dữ
+              liệu.</strong
+            >
+            Không exception, không log, response trông vẫn hợp lệ. Bạn chỉ phát
+            hiện khi ai đó mở DevTools và thấy <code>password</code> trong JSON.
+          </p>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span
+              >src/routes/product/manage-product/manage-product.service.ts</span
+            ><span>dòng 111-114 — comment đã cảnh báo</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="cm">// Wrap each row in the response DTO so ClassSerializerInterceptor
+// (excludeExtraneousValues) can actually strip fields — it only
+// applies @Expose() rules to real DTO instances, not plain Prisma rows.</span>
+data: products.<span class="fn">map</span>((product) =&gt; <span class="kw">new</span> <span class="fn">ProductResponseDto</span>(product)),</code></pre>
+        </div>
+        <div class="card-grid card-grid--3">
+          <div class="ve-card ve-card--elevated" style="--i: 0">
+            <div class="ve-card__label">Quy tắc 1</div>
+            <p>
+              <strong>Handler luôn trả instance DTO.</strong>
+              <code>return new XResponseDto(result)</code>, không
+              <code>return result</code>.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">Quy tắc 2</div>
+            <p>
+              <strong>Danh sách phải map từng phần tử.</strong> Một
+              <code>PageDto</code> bọc mảng object thô vẫn lộ — như kết quả 4
+              cho thấy.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">Quy tắc 3</div>
+            <p>
+              <strong>Object lồng nhau cũng cần DTO riêng</strong> —
+              <a href="#s7">mục 7</a>.
+            </p>
+          </div>
+        </div>
+        <div class="callout callout--success">
+          <div class="callout__title">
+            Tuyến phòng thủ thứ hai: <code>select</code> của Prisma
+          </div>
+          Nếu query không bao giờ <em>lấy</em> <code>password</code> lên thì
+          quên <code>@Expose()</code> cũng không lộ. Đó là việc của
+          <code>selectors/</code> — mỗi entity một <code>select</code> tường
+          minh, và
+          <code>Prisma.validator&lt;Prisma.RoleSelect&gt;()</code> khiến gõ sai
+          tên field là lỗi compile. <strong>Hai tuyến độc lập</strong>: selector
+          chặn ở tầng truy vấn, DTO chặn ở tầng response. Giữ cả hai.
+        </div>
+        <details class="collapsible">
+          <summary>
+            <code>PageDto&lt;T&gt;</code> — generic chỉ tồn tại ở tầng kiểu
+          </summary>
+          <div class="collapsible__body">
+            <pre
+              class="code-file__body"
+              style="border: 1px solid var(--border); border-radius: 8px"
+            ><code><span class="kw">export class</span> PageDto&lt;T&gt; {
+  @<span class="fn">Expose</span>() data: T[];
+  @<span class="fn">Expose</span>() @<span class="fn">ApiProperty</span>() pagination: PaginationResponseDto;
+}</code></pre>
+            <p style="margin: 10px 0 0">
+              Lúc chạy, class-transformer không biết <code>T</code> là gì. Nên
+              <code>data</code> phải <strong>đã là</strong> mảng instance DTO
+              trước khi vào đây — <code>PageDto</code> không tự bọc hộ. Swagger
+              cũng không suy ra được <code>T</code>, phải khai tay bằng
+              <code>ApiExtraModels</code> + <code>getSchemaPath</code> (<a
+                href="#s9"
+                >mục 9</a
+              >).
+            </p>
+          </div>
+        </details>
+
+        <div class="sec-head" id="s7">
+          <span class="sec-head__num">07</span
+          ><span class="sec-head__text"
+            >DTO lồng nhau và cái bẫy <code>@Type</code></span
+          >
+        </div>
+        <p class="prose">
+          Khi một field là object, <code>class-transformer</code>
+          <strong>không biết</strong> phải dựng nó thành class nào — kiểu
+          TypeScript đã bị xoá. Bạn phải nói bằng <code>@Type()</code>.
+        </p>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Trường hợp</th>
+                  <th>Input</th>
+                  <th>Kết quả (cấu hình thật của dự án)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Có <code>@Type</code>, inner sai kiểu</td>
+                  <td><code>{ inner: { code: 123 } }</code></td>
+                  <td>
+                    <code
+                      >{"field":"inner.code","code":"isString","message":"code
+                      must be a string"}</code
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td>Có <code>@Type</code>, inner đúng</td>
+                  <td><code>{ inner: { code: "ok" } }</code></td>
+                  <td>
+                    <span class="status status--match">OK</span>,
+                    <code>inner instanceof Inner</code> = <strong>true</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <strong>Thiếu <code>@Type</code></strong
+                    >, inner sai kiểu
+                  </td>
+                  <td><code>{ inner: { code: 123 } }</code></td>
+                  <td>
+                    <span class="status status--gap"
+                      ><code>"property code should not exist"</code></span
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--danger">
+          <div class="callout__title">
+            Dòng cuối là chỗ người mới mất cả buổi
+          </div>
+          Lỗi nói <strong><code>property code should not exist</code></strong> —
+          nghe như bạn gửi thừa field. Sự thật hoàn toàn khác: vì không có
+          <code>@Type()</code>, class-transformer không dựng
+          <code>inner</code> thành <code>Inner</code>, nên
+          <code>whitelist</code> nhìn vào và thấy <strong>mọi</strong> field bên
+          trong đều "không được khai" → lược sạch và báo thừa.
+          <p style="margin-top: 10px">
+            <strong>Quy tắc:</strong> thấy <code>whitelistValidation</code> /
+            <code>should not exist</code> trên field mà bạn
+            <em>biết chắc</em> đã khai — kiểm ngay xem field cha có
+            <code>@Type(() =&gt; …)</code> chưa. Gần như luôn là nguyên nhân.
+          </p>
+        </div>
+        <p class="dim">
+          <code>@Type()</code> cũng là thứ đã dùng cho <code>pageSize</code> ở
+          <a href="#s3">mục 3</a> — cùng một decorator, hai công dụng: đổi kiểu
+          nguyên thuỷ, và chỉ định class cho object lồng.
+        </p>
+
+        <div class="sec-head" id="s8">
+          <span class="sec-head__num">08</span
+          ><span class="sec-head__text"
+            >Pipe tự viết, và luồng upload file</span
+          >
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/shared/pipes/image-validation.pipe.ts</span
+            ><span>rút gọn</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code>@<span class="fn">Injectable</span>()
+<span class="kw">export class</span> ImageValidationPipe <span class="kw">implements</span> PipeTransform {
+  <span class="fn">transform</span>(file: Express.Multer.File) {
+    <span class="kw">if</span> (!file) <span class="kw">throw new</span> <span class="fn">BadRequestException</span>(<span class="st">"File is required."</span>);
+    <span class="kw">if</span> (file.size &gt; <span class="kw">this</span>.maxSize) <span class="kw">throw new</span> <span class="fn">BadRequestException</span>(<span class="st">`File too large…`</span>);
+    <span class="kw">if</span> (!<span class="kw">this</span>.allowedMimeTypes.<span class="fn">includes</span>(file.mimetype)) <span class="kw">throw new</span> <span class="fn">BadRequestException</span>(<span class="cm">/* … */</span>);
+    <span class="kw">return</span> file;       <span class="cm">// ← trả về GIÁ TRỊ handler sẽ nhận</span>
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Pipe khác guard ở chỗ: guard trả <code>boolean</code> (cho qua hay
+          không), pipe trả <strong>giá trị</strong> (có thể đã biến đổi). Pipe
+          là nơi duy nhất vừa validate vừa transform một tham số cụ thể.
+        </p>
+        <h3 class="sub">Vì sao upload file cần cả interceptor lẫn pipe</h3>
+        <div class="pipeline">
+          <div class="pipeline__step ve-card pipeline__step--hi" style="--i: 0">
+            <div class="ve-card__label">multer interceptor</div>
+            <p style="font-size: 13.5px">
+              đọc multipart, ghi ra đĩa/bộ nhớ, gắn vào <code>req.file</code>
+            </p>
+          </div>
+          <div class="pipeline__arrow">→</div>
+          <div class="pipeline__step ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">pipe</div>
+            <p style="font-size: 13.5px">
+              <code>@UploadedFile(ImageValidationPipe)</code> — kiểm size /
+              mimetype
+            </p>
+          </div>
+          <div class="pipeline__arrow">→</div>
+          <div class="pipeline__step ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">handler</div>
+          </div>
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">
+            Hệ quả khó chịu của thứ tự đó — comment ở
+            <code>media.controller.ts:60-62</code>
+          </div>
+          <em
+            >"If validate with pipe in <code>@UploadedFile</code>, file size
+            will be available, but it will be after the file is uploaded. Now
+            file is uploaded to disk first, then validated."</em
+          >
+          <p style="margin-top: 8px">
+            Pipe <strong>không</strong> ngăn được file 2 GB được ghi ra đĩa — nó
+            chỉ từ chối <em>sau khi</em> ghi xong. Muốn chặn sớm, giới hạn phải
+            đặt ở chính multer (<code>limits.fileSize</code>), tức ở
+            interceptor. Ví dụ tốt cho nguyên tắc
+            <a href="05-request-lifecycle-in-this-project.html#s6"
+              >chương 5 §6</a
+            >: <em>sớm nhất có thể, nhưng không sớm hơn dữ liệu bạn cần</em>.
+          </p>
+        </div>
+        <p class="prose">
+          Repo cũng ghi nhận lý do chọn disk thay vì buffer:
+          <em
+            >"buffer will cause memory issue (OUT OF MEMORY) when uploading
+            large files"</em
+          >. Ba pipe file: <code>ImageValidationPipe</code> (một file),
+          <code>MultipleFilesValidationPipe</code>,
+          <code>ArrayFilesValidationPipe</code> (mảng,
+          <strong>có cấu hình</strong> nên phải <code>new</code> tại chỗ dùng).
+        </p>
+        <div class="callout callout--info">
+          <div class="callout__title">Pipe có sẵn</div>
+          <code>ParseUUIDPipe</code> chặn id rác <strong>trước khi</strong> chạm
+          DB — không có nó, id sai định dạng thành lỗi Prisma và ra 500 thay vì
+          400. Anh em: <code>ParseIntPipe</code>, <code>ParseBoolPipe</code>,
+          <code>ParseArrayPipe</code>, <code>ParseEnumPipe</code>,
+          <code>DefaultValuePipe</code>.
+        </div>
+
+        <div class="sec-head" id="s9">
+          <span class="sec-head__num">09</span
+          ><span class="sec-head__text">Swagger ăn theo DTO</span>
+        </div>
+        <p class="prose">
+          DTO phục vụ <strong>ba</strong> khách hàng, không phải hai: validate,
+          serialize, và sinh tài liệu API. Ba composite decorator gói sẵn hợp
+          đồng lỗi cho ba nhóm route (<a
+            href="01-decorators-and-metadata.html#s9"
+            >chương 1 §9</a
+          >): <code>ApiAuth</code> (có 401/403), <code>ApiPublic</code> (không),
+          <code>ApiPageOkResponse</code> (danh sách phân trang — ghép tay
+          <code>ApiExtraModels</code> + <code>getSchemaPath</code> +
+          <code>allOf</code> vì Swagger không suy ra được <code>T</code>).
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>đừng quên sau khi đổi DTO</span><span>bash</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code>pnpm build:swagger   <span class="cm"># sinh lại swagger.yaml</span>
+pnpm build:schema    <span class="cm"># swagger.yaml → schema.ts cho frontend</span></code></pre>
+        </div>
+        <p class="dim">
+          Bỏ qua thì <code>swagger.yaml</code> (265 KB) và
+          <code>schema.ts</code> (204 KB) lệch với code, và frontend gõ theo
+          kiểu cũ.
+        </p>
+
+        <div class="sec-head" id="s10">
+          <span class="sec-head__num">10</span
+          ><span class="sec-head__text">Nâng cao và những chỗ dễ vấp</span>
+        </div>
+        <div class="card-grid">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label">
+              Request và response nên là hai class
+            </div>
+            <p>
+              Trộn chung thì <code>@Expose()</code> và <code>@Is...</code> nằm
+              lẫn, và field chỉ dành cho input (<code>confirmPassword</code>) có
+              nguy cơ bị expose ra response. Repo đang tách đúng.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              <code>@Exclude()</code> gần như thừa
+            </div>
+            <p>
+              Với <code>excludeExtraneousValues: true</code>, không
+              <code>@Expose()</code> là đã bị loại. <code>@Exclude()</code> chỉ
+              có nghĩa ở class <strong>không</strong> bật cờ đó.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">
+              Đổi tên / đổi giá trị khi ra
+            </div>
+            <p>
+              <code>@Expose({ name: "created_at" })</code> đổi tên field;
+              <code>@Transform(({ value }) =&gt; …)</code> đổi giá trị. Hữu ích
+              khi hợp đồng API khác tên cột DB.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 3">
+            <div class="ve-card__label ve-card__label--plum">
+              <code>@SerializeOptions({ groups })</code>
+            </div>
+            <p>
+              Cùng một DTO lộ nhiều hay ít tuỳ route (kết hợp
+              <code>@Expose({ groups })</code>). Interceptor đọc nó bằng
+              <code>Reflector</code> — lại đúng cơ chế
+              <a href="02-reflector-execution-context-and-discovery.html"
+                >chương 2</a
+              >.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 4">
+            <div class="ve-card__label ve-card__label--red">
+              <code>whitelist</code> không cứu nếu service spread body
+            </div>
+            <p>
+              <code>data: { ...body }</code> xuống Prisma vẫn nguy hiểm nếu một
+              ngày ai đó thêm field vào DTO mà quên nghĩ tới ghi DB. Liệt kê
+              field tường minh ở tầng repository.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 5">
+            <div class="ve-card__label ve-card__label--amber">
+              <code>@IsOptional()</code> bỏ qua mọi validator khác
+            </div>
+            <p>
+              khi giá trị là <code>undefined</code> <em>hoặc</em>
+              <code>null</code>. Muốn "cho phép vắng mặt nhưng nếu có thì không
+              được null" thì dùng
+              <code>@ValidateIf((o) =&gt; o.x !== undefined)</code>.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 6">
+            <div class="ve-card__label ve-card__label--b">
+              Thứ tự decorator validate không quan trọng
+            </div>
+            <p>
+              nhưng <code>@Type()</code> <strong>luôn</strong> chạy trước mọi
+              <code>@Is...</code> vì nó thuộc pha transform.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 7">
+            <div class="ve-card__label ve-card__label--amber">
+              <code>transform: true</code> có chi phí
+            </div>
+            <p>
+              Mỗi request dựng một instance DTO. Không đáng kể ở quy mô này,
+              nhưng là lý do không nên đặt DTO khổng lồ lồng nhiều tầng.
+            </p>
+          </div>
+        </div>
+
+        <div class="sec-head" id="s11">
+          <span class="sec-head__num">11</span
+          ><span class="sec-head__text">Trong dự án này</span>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Mảnh</th>
+                  <th>File</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Cấu hình pipe duy nhất</td>
+                  <td><code>utils/validation-pipe.config.ts</code></td>
+                  <td>dùng chung cho <code>main.ts</code> và e2e</td>
+                </tr>
+                <tr>
+                  <td>Đăng ký pipe toàn cục</td>
+                  <td><code>modules/base.module.ts:66-69</code></td>
+                  <td><code>APP_PIPE</code> + <code>useFactory</code></td>
+                </tr>
+                <tr>
+                  <td>Làm phẳng lỗi validate</td>
+                  <td><code>utils/app.util.ts</code></td>
+                  <td>
+                    đệ quy, dựng <code>field</code> dạng <code>a.b.c</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Exception validate</td>
+                  <td><code>exceptions/validate.exception.ts</code></td>
+                  <td>kế thừa <code>BadRequestException</code></td>
+                </tr>
+                <tr>
+                  <td>Serializer toàn cục</td>
+                  <td><code>modules/base.module.ts:56-64</code></td>
+                  <td><code>excludeExtraneousValues: true</code></td>
+                </tr>
+                <tr>
+                  <td>4 validator tự viết</td>
+                  <td><code>validations/decorators/</code></td>
+                  <td>ba cái là luật liên trường</td>
+                </tr>
+                <tr>
+                  <td>3 pipe file</td>
+                  <td><code>shared/pipes/</code></td>
+                  <td>một / nhiều / mảng có cấu hình</td>
+                </tr>
+                <tr>
+                  <td>DTO generic phân trang</td>
+                  <td>
+                    <code>dtos/shared/page.dto.ts</code> ·
+                    <code>pagination.dto.ts</code>
+                  </td>
+                  <td><code>@Type(() =&gt; Number)</code> cho query</td>
+                </tr>
+                <tr>
+                  <td>Composite Swagger</td>
+                  <td><code>param-decorators/http-decorator.ts</code></td>
+                  <td>
+                    <code>ApiAuth</code> / <code>ApiPublic</code> /
+                    <code>ApiPageOkResponse</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Tuyến phòng thủ 2</td>
+                  <td><code>selectors/</code></td>
+                  <td><code>Prisma.validator</code> — 16 file</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="sec-head" id="s12">
+          <span class="sec-head__num">12</span
+          ><span class="sec-head__text"
+            >Tự kiểm chứng — đã chạy thật khi viết</span
+          >
+        </div>
+        <div class="stack">
+          <div class="ve-card ve-card--hero" style="--i: 0">
+            <div class="ve-card__label ve-card__label--red">
+              A · serialization (quan trọng nhất)
+            </div>
+            <p>
+              Code đầy đủ trong
+              <a
+                href="07-dto-validation-transformation-serialization.md#12-tự-kiểm-chứng"
+                >bản markdown</a
+              >. Bốn dòng output, <strong>chỉ dòng 1 an toàn</strong> — ba dòng
+              còn lại đều lộ <code>password</code> và <code>secret</code>, ba
+              cách khác nhau để làm rò dữ liệu mà không có lỗi nào báo.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              B · bốn cờ của <code>ValidationPipe</code>
+            </div>
+            <p>
+              <code>ValidationPipe</code> gọi trực tiếp được, không cần boot
+              Nest. Đối chiếu với bảng ở <a href="#s3">mục 3</a>:
+            </p>
+            <pre
+              class="code-file__body out"
+              style="border: 1px solid var(--border); border-radius: 8px"
+            >
+1. mặc định, field lạ       → OK    {"name":"a","pageSize":"10","hacker":1} | instance? false
+2. whitelist                → OK    {"name":"a","pageSize":10}
+3. whitelist+forbidNonWL    → THROW ["property hacker should not exist"]
+4. KHÔNG transform          → OK    {"name":"a","pageSize":"10"} | instance? false
+5. transform (query string) → OK    {"name":"a","pageSize":10}   | instance? true
+6. metatype = Object       → bỏ qua, trả nguyên: {"x":1}</pre
+            >
+          </div>
+          <div class="ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">
+              C · bẫy <code>@Type</code> với cấu hình thật
+            </div>
+            <p>
+              Import thẳng <code>validationPipeOptions</code> từ repo, nên kết
+              quả đúng bằng production. Dòng thứ ba trả
+              <code>property code should not exist</code> — thông điệp
+              <strong>không liên quan gì</strong> tới nguyên nhân thật là thiếu
+              <code>@Type()</code>. Biết trước điều này tiết kiệm cho bạn nửa
+              buổi debug.
+            </p>
+          </div>
+        </div>
+
+        <div class="footer-nav">
+          <a href="06-modules-and-dependency-injection.html"
+            ><small>Chương trước</small>← 06 — Module và Dependency Injection</a
+          >
+          <a href="index.html"><small>Về đầu</small>Mục lục bộ tài liệu →</a>
+        </div>
+      </div>
+      <!-- /main -->
+    </div>
+    <!-- /wrap -->
+
+    <script>
+      (function () {
+        var toggle = document.getElementById("themeToggle");
+        var saved = null;
+        try {
+          saved = localStorage.getItem("theme");
+        } catch (e) {}
+        var initial =
+          saved ||
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        if (saved) document.documentElement.setAttribute("data-theme", initial);
+        toggle.textContent = initial === "dark" ? "☀" : "☾";
+        toggle.addEventListener("click", function () {
+          var current =
+            document.documentElement.getAttribute("data-theme") ||
+            (matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light");
+          var next = current === "light" ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", next);
+          try {
+            localStorage.setItem("theme", next);
+          } catch (e) {}
+          toggle.textContent = next === "dark" ? "☀" : "☾";
+        });
+      })();
+    </script>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      const config = {
+        fitPadding: 28,
+        minHeight: 320,
+        maxHeightPx: 960,
+        maxHeightVh: 0.84,
+        maxInitialZoom: 1.8,
+        minZoom: 0.08,
+        maxZoom: 6.5,
+        zoomStep: 0.14,
+        readabilityFloor: 0.58,
+      };
+      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+      let activeDrag = null;
+      addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+      addEventListener("mouseup", () => {
+        activeDrag?.onEnd();
+        activeDrag = null;
+      });
+      const attr = document.documentElement.getAttribute("data-theme");
+      const isDark =
+        attr === "dark" ||
+        (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        look: "classic",
+        themeVariables: {
+          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+          fontSize: "15px",
+          primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+          primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+          primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+          secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+          secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+          tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+          tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          lineColor: isDark ? "#a89e90" : "#7c756a",
+          noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+          noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+          actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+          actorBorder: isDark ? "#f0743f" : "#c2410c",
+          actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          signalColor: isDark ? "#a89e90" : "#7c756a",
+          signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+        },
+      });
+      function initDiagram(shell) {
+        const wrap = shell.querySelector(".mermaid-wrap"),
+          viewport = shell.querySelector(".mermaid-viewport"),
+          canvas = shell.querySelector(".mermaid-canvas"),
+          source = shell.querySelector(".diagram-source"),
+          label = shell.querySelector(".zoom-label");
+        if (!wrap || !viewport || !canvas || !source || !label) return;
+        let zoom = 1,
+          fitMode = "contain",
+          panX = 0,
+          panY = 0,
+          svgW = 0,
+          svgH = 0,
+          sx = 0,
+          sy = 0,
+          spx = 0,
+          spy = 0,
+          touchDist = 0,
+          touchCx = 0,
+          touchCy = 0;
+        function constrainPan() {
+          const vpW = viewport.clientWidth,
+            vpH = viewport.clientHeight,
+            rW = svgW * zoom,
+            rH = svgH * zoom,
+            pad = config.fitPadding;
+          panX =
+            rW + pad * 2 <= vpW
+              ? (vpW - rW) / 2
+              : clamp(panX, vpW - rW - pad, pad);
+          panY =
+            rH + pad * 2 <= vpH
+              ? (vpH - rH) / 2
+              : clamp(panY, vpH - rH - pad, pad);
+        }
+        function applyTransform() {
+          const svg = canvas.querySelector("svg");
+          if (!svg || !svgW) return;
+          constrainPan();
+          svg.style.width = svgW * zoom + "px";
+          svg.style.height = svgH * zoom + "px";
+          canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+          label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+        }
+        function canPan() {
+          return (
+            svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+            svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+          );
+        }
+        function computeSmartFit() {
+          const vpW = viewport.clientWidth,
+            vpH = viewport.clientHeight,
+            aW = Math.max(80, vpW - config.fitPadding * 2),
+            aH = Math.max(80, vpH - config.fitPadding * 2),
+            contain = Math.min(aW / svgW, aH / svgH);
+          let z = contain,
+            mode = "contain";
+          if (contain < config.readabilityFloor) {
+            const chartR = svgH / svgW,
+              vpR = vpH / Math.max(vpW, 1);
+            if (chartR >= vpR) {
+              z = aW / svgW;
+              mode = "width-priority";
+            } else {
+              z = aH / svgH;
+              mode = "height-priority";
+            }
+          }
+          return {
+            zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+            mode,
+          };
+        }
+        function fitDiagram() {
+          if (!svgW) return;
+          const fit = computeSmartFit();
+          zoom = fit.zoom;
+          fitMode = fit.mode;
+          panX = (viewport.clientWidth - svgW * zoom) / 2;
+          panY = (viewport.clientHeight - svgH * zoom) / 2;
+          applyTransform();
+        }
+        function setOneToOne() {
+          zoom = clamp(1, config.minZoom, config.maxZoom);
+          fitMode = "1:1";
+          panX = (viewport.clientWidth - svgW * zoom) / 2;
+          panY = (viewport.clientHeight - svgH * zoom) / 2;
+          applyTransform();
+        }
+        function zoomAround(factor, cx, cy) {
+          const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+            ratio = next / zoom;
+          panX = cx - ratio * (cx - panX);
+          panY = cy - ratio * (cy - panY);
+          zoom = next;
+          fitMode = "custom";
+          applyTransform();
+        }
+        function readSvgNaturalSize(svg) {
+          let w = 0,
+            h = 0;
+          if (svg.viewBox?.baseVal?.width > 0) {
+            w = svg.viewBox.baseVal.width;
+            h = svg.viewBox.baseVal.height;
+          }
+          if (!w) {
+            w = parseFloat(svg.getAttribute("width")) || 0;
+            h = parseFloat(svg.getAttribute("height")) || 0;
+          }
+          if (!w) {
+            const b = svg.getBBox();
+            w = b.width;
+            h = b.height;
+          }
+          if (!w) {
+            const r = svg.getBoundingClientRect();
+            w = r.width || 1000;
+            h = r.height || 700;
+          }
+          if (!svg.getAttribute("viewBox"))
+            svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+          return { w, h };
+        }
+        function setAdaptiveHeight() {
+          if (!svgW) return;
+          const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2),
+            idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+            maxVp = Math.floor(innerHeight * config.maxHeightVh),
+            hardMax = Math.min(
+              config.maxHeightPx,
+              Math.max(config.minHeight + 40, maxVp),
+            );
+          wrap.style.height =
+            Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+        }
+        function openInNewTab() {
+          const svg = canvas.querySelector("svg");
+          if (!svg) return;
+          const clone = svg.cloneNode(true);
+          clone.style.width = "";
+          clone.style.height = "";
+          const bg = isDark ? "#1c1916" : "#faf6f0";
+          const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+          open(
+            URL.createObjectURL(new Blob([html], { type: "text/html" })),
+            "_blank",
+          );
+        }
+        async function render() {
+          try {
+            const code = source.textContent.trim();
+            if (!code) {
+              label.textContent = "Lỗi: nguồn rỗng";
+              return;
+            }
+            const id =
+              "diagram-" +
+              Date.now() +
+              "-" +
+              Math.random().toString(36).slice(2, 8);
+            const { svg } = await mermaid.render(id, code);
+            canvas.innerHTML = svg;
+            const svgNode = canvas.querySelector("svg");
+            if (!svgNode) {
+              label.textContent = "Lỗi: không có SVG";
+              return;
+            }
+            const size = readSvgNaturalSize(svgNode);
+            svgW = size.w;
+            svgH = size.h;
+            svgNode.removeAttribute("width");
+            svgNode.removeAttribute("height");
+            svgNode.style.maxWidth = "none";
+            svgNode.style.display = "block";
+            setAdaptiveHeight();
+            fitDiagram();
+          } catch (err) {
+            console.error("Mermaid render failed:", err);
+            label.textContent = "Lỗi: " + (err.message || "render thất bại");
+          }
+        }
+        const actions = {
+          "zoom-in": () =>
+            zoomAround(
+              1 + config.zoomStep,
+              viewport.clientWidth / 2,
+              viewport.clientHeight / 2,
+            ),
+          "zoom-out": () =>
+            zoomAround(
+              1 / (1 + config.zoomStep),
+              viewport.clientWidth / 2,
+              viewport.clientHeight / 2,
+            ),
+          "zoom-fit": fitDiagram,
+          "zoom-one": setOneToOne,
+          "zoom-expand": openInNewTab,
+        };
+        Object.entries(actions).forEach(([action, handler]) => {
+          wrap
+            .querySelector(`[data-action="${action}"]`)
+            ?.addEventListener("click", handler);
+        });
+        viewport.addEventListener("dblclick", fitDiagram);
+        viewport.addEventListener(
+          "wheel",
+          (e) => {
+            if (e.ctrlKey || e.metaKey) {
+              e.preventDefault();
+              const rect = viewport.getBoundingClientRect();
+              zoomAround(
+                e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep),
+                e.clientX - rect.left,
+                e.clientY - rect.top,
+              );
+              return;
+            }
+            if (canPan()) {
+              e.preventDefault();
+              panX -= e.deltaX;
+              panY -= e.deltaY;
+              applyTransform();
+            }
+          },
+          { passive: false },
+        );
+        viewport.addEventListener("mousedown", (e) => {
+          if (e.target.closest(".zoom-controls") || !canPan()) return;
+          wrap.classList.add("is-panning");
+          sx = e.clientX;
+          sy = e.clientY;
+          spx = panX;
+          spy = panY;
+          e.preventDefault();
+          activeDrag = {
+            onMove: (ev) => {
+              panX = spx + (ev.clientX - sx);
+              panY = spy + (ev.clientY - sy);
+              applyTransform();
+            },
+            onEnd: () => wrap.classList.remove("is-panning"),
+          };
+        });
+        viewport.addEventListener(
+          "touchstart",
+          (e) => {
+            if (e.touches.length === 1) {
+              sx = e.touches[0].clientX;
+              sy = e.touches[0].clientY;
+              spx = panX;
+              spy = panY;
+            } else if (e.touches.length === 2) {
+              const dx = e.touches[0].clientX - e.touches[1].clientX,
+                dy = e.touches[0].clientY - e.touches[1].clientY;
+              touchDist = Math.sqrt(dx * dx + dy * dy);
+              const r = viewport.getBoundingClientRect();
+              touchCx =
+                (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+              touchCy =
+                (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+            }
+          },
+          { passive: true },
+        );
+        viewport.addEventListener(
+          "touchmove",
+          (e) => {
+            if (e.touches.length === 1 && canPan()) {
+              if (touchDist > 0) {
+                sx = e.touches[0].clientX;
+                sy = e.touches[0].clientY;
+                spx = panX;
+                spy = panY;
+                touchDist = 0;
+              }
+              e.preventDefault();
+              panX = spx + (e.touches[0].clientX - sx);
+              panY = spy + (e.touches[0].clientY - sy);
+              applyTransform();
+            } else if (e.touches.length === 2 && touchDist > 0) {
+              e.preventDefault();
+              const dx = e.touches[0].clientX - e.touches[1].clientX,
+                dy = e.touches[0].clientY - e.touches[1].clientY,
+                d = Math.sqrt(dx * dx + dy * dy);
+              zoomAround(d / touchDist, touchCx, touchCy);
+              touchDist = d;
+            }
+          },
+          { passive: false },
+        );
+        new ResizeObserver(() => {
+          if (svgW) {
+            setAdaptiveHeight();
+            fitDiagram();
+          }
+        }).observe(wrap);
+        render();
+      }
+      document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+    </script>
+
+    <script>
+      (function () {
+        const toc = document.getElementById("toc");
+        if (!toc) return;
+        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+        const sections = [];
+        links.forEach((link) => {
+          const id = link.getAttribute("href").slice(1);
+          const el = document.getElementById(id);
+          if (el) sections.push({ id, el, link });
+        });
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                links.forEach((l) => l.classList.remove("active"));
+                const match = sections.find((s) => s.el === entry.target);
+                if (match) {
+                  match.link.classList.add("active");
+                  if (window.innerWidth <= 1000)
+                    match.link.scrollIntoView({
+                      behavior: "smooth",
+                      block: "nearest",
+                      inline: "center",
+                    });
+                }
+              }
+            });
+          },
+          { rootMargin: "-10% 0px -80% 0px" },
+        );
+        sections.forEach((s) => observer.observe(s.el));
+        links.forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const id = link.getAttribute("href").slice(1);
+            const el = document.getElementById(id);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+              history.replaceState(null, "", "#" + id);
+            }
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

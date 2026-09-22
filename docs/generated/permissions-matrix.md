@@ -4,6 +4,16 @@
 **Generated**: 2026-09-12
 **Analysis Scope**: Headless backend API, 70 routes (see route-list.md)
 
+> **⚠️ Superseded on 2026-09-21.** This matrix documents the *pre-refactor* route-based model
+> (permissions identified by `path` + HTTP method, granted by URL-module allowlist). That model was
+> replaced by semantic keys of the form `resource:action:scope` declared on each handler with
+> `@RequirePermission`. Also changed: `POST/PUT/DELETE /permissions` were removed (the catalogue is
+> code-owned and read-only over HTTP), and the hardcoded `forbiddenRoles` array was replaced by a
+> `Role.isSystem` column. The PERM### rows below no longer match the code. Read
+> [../authorization-guide.md](../authorization-guide.md) for the current design and
+> [../system/permissions.md](../system/permissions.md) for the current curated view; re-run
+> `rebuild-spec` to regenerate this file.
+
 > **Raw PERM### matrix.** Machine-generated inventory of every permission item with full
 > per-permission detail. The plain-language curated view lives at
 > [permissions.md](permissions.md). This file is written FIRST; permissions.md is derived from it.

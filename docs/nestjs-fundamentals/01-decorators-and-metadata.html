@@ -1,0 +1,3443 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chương 1 — Decorator và metadata</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Paper/Ink · light default ── */
+      :root {
+        --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+        --font-mono: "Azeret Mono", "SF Mono", Consolas, monospace;
+
+        --bg: #faf6f0;
+        --surface: #ffffff;
+        --surface2: #f3ece2;
+        --surface-elevated: #fffdf7;
+        --border: rgba(60, 40, 20, 0.09);
+        --border-bright: rgba(60, 40, 20, 0.2);
+        --text: #2c2a25;
+        --text-dim: #7c756a;
+        --text-bright: #1a1814;
+        --accent: #c2410c;
+        --accent-dim: rgba(194, 65, 12, 0.08);
+
+        --node-a: #c2410c;
+        --node-a-dim: rgba(194, 65, 12, 0.08);
+        --node-b: #4d7c0f;
+        --node-b-dim: rgba(77, 124, 15, 0.09);
+        --node-c: #0f766e;
+        --node-c-dim: rgba(15, 118, 110, 0.09);
+
+        --green: #3f6212;
+        --green-dim: rgba(63, 98, 18, 0.1);
+        --red: #b3261e;
+        --red-dim: rgba(179, 38, 30, 0.09);
+        --amber: #b45309;
+        --amber-dim: rgba(180, 83, 9, 0.1);
+        --sage: #65a30d;
+        --sage-dim: rgba(101, 163, 13, 0.09);
+        --teal: #0f766e;
+        --teal-dim: rgba(15, 118, 110, 0.09);
+        --plum: #9f1239;
+        --plum-dim: rgba(159, 18, 57, 0.09);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #1c1916;
+          --surface: #262220;
+          --surface2: #302a26;
+          --surface-elevated: #342e29;
+          --border: rgba(200, 180, 160, 0.09);
+          --border-bright: rgba(200, 180, 160, 0.2);
+          --text: #f0e8dc;
+          --text-dim: #a89e90;
+          --text-bright: #fbf6ee;
+          --accent: #f0743f;
+          --accent-dim: rgba(240, 116, 63, 0.13);
+          --node-a: #f0743f;
+          --node-a-dim: rgba(240, 116, 63, 0.13);
+          --node-b: #a3e635;
+          --node-b-dim: rgba(163, 230, 53, 0.11);
+          --node-c: #5eead4;
+          --node-c-dim: rgba(94, 234, 212, 0.11);
+          --green: #a3e635;
+          --green-dim: rgba(163, 230, 53, 0.12);
+          --red: #fca5a5;
+          --red-dim: rgba(252, 165, 165, 0.12);
+          --amber: #fbbf24;
+          --amber-dim: rgba(251, 191, 36, 0.12);
+          --sage: #bef264;
+          --sage-dim: rgba(190, 242, 100, 0.12);
+          --teal: #5eead4;
+          --teal-dim: rgba(94, 234, 212, 0.12);
+          --plum: #fda4af;
+          --plum-dim: rgba(253, 164, 175, 0.12);
+        }
+      }
+      [data-theme="dark"] {
+        --bg: #1c1916;
+        --surface: #262220;
+        --surface2: #302a26;
+        --surface-elevated: #342e29;
+        --border: rgba(200, 180, 160, 0.09);
+        --border-bright: rgba(200, 180, 160, 0.2);
+        --text: #f0e8dc;
+        --text-dim: #a89e90;
+        --text-bright: #fbf6ee;
+        --accent: #f0743f;
+        --accent-dim: rgba(240, 116, 63, 0.13);
+        --node-a: #f0743f;
+        --node-a-dim: rgba(240, 116, 63, 0.13);
+        --node-b: #a3e635;
+        --node-b-dim: rgba(163, 230, 53, 0.11);
+        --node-c: #5eead4;
+        --node-c-dim: rgba(94, 234, 212, 0.11);
+        --green: #a3e635;
+        --green-dim: rgba(163, 230, 53, 0.12);
+        --red: #fca5a5;
+        --red-dim: rgba(252, 165, 165, 0.12);
+        --amber: #fbbf24;
+        --amber-dim: rgba(251, 191, 36, 0.12);
+        --sage: #bef264;
+        --sage-dim: rgba(190, 242, 100, 0.12);
+        --teal: #5eead4;
+        --teal-dim: rgba(94, 234, 212, 0.12);
+        --plum: #fda4af;
+        --plum-dim: rgba(253, 164, 175, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 28px 40px 80px;
+        font-family: var(--font-body);
+        color: var(--text);
+        background-color: var(--bg);
+        background-image: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 40px,
+          var(--border) 40px,
+          var(--border) 41px
+        );
+        overflow-wrap: break-word;
+        line-height: 1.65;
+        font-size: 15.5px;
+      }
+      .grid > *,
+      .flex > * {
+        min-width: 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 300;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-dim);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      }
+      .theme-toggle:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 0 40px;
+      }
+      .main {
+        min-width: 0;
+      }
+      .toc {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        padding: 14px 0;
+        grid-row: 1 / -1;
+        max-height: calc(100dvh - 48px);
+        overflow-y: auto;
+      }
+      .toc::-webkit-scrollbar {
+        width: 3px;
+      }
+      .toc::-webkit-scrollbar-thumb {
+        background: var(--surface-elevated);
+        border-radius: 2px;
+      }
+      .toc-title {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+        padding: 0 0 10px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .toc a {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 5px 8px;
+        border-radius: 5px;
+        border-left: 2px solid transparent;
+        transition: all 0.15s;
+        line-height: 1.4;
+        margin-bottom: 1px;
+      }
+      .toc a:hover {
+        color: var(--text);
+        background: var(--surface2);
+      }
+      .toc a.active {
+        color: var(--text);
+        border-left-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .toc-series {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+      .toc-series a {
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+
+      .series-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-bottom: 18px;
+      }
+      .series-bar a {
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 4px 9px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+      .series-bar a:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .series-bar .sep {
+        opacity: 0.5;
+      }
+
+      .masthead {
+        border-bottom: 2px solid var(--border-bright);
+        padding-bottom: 22px;
+        margin-bottom: 30px;
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2.4px;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(28px, 3.4vw, 42px);
+        line-height: 1.12;
+        margin: 0 0 12px;
+        letter-spacing: -0.8px;
+        color: var(--text-bright);
+        font-weight: 800;
+      }
+      .subtitle {
+        font-size: 17px;
+        color: var(--text-dim);
+        margin: 0;
+        max-width: 70ch;
+      }
+      .masthead-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin: 50px 0 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        scroll-margin-top: 20px;
+      }
+      .sec-head__num {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent);
+        background: var(--accent-dim);
+        padding: 3px 9px;
+        border-radius: 5px;
+        flex-shrink: 0;
+      }
+      .sec-head__text {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        color: var(--text-bright);
+      }
+      h3.sub {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 26px 0 10px;
+        color: var(--text-bright);
+      }
+      p.lead {
+        font-size: 16.5px;
+        color: var(--text);
+        max-width: 72ch;
+      }
+      p.dim {
+        color: var(--text-dim);
+      }
+      .prose {
+        max-width: 74ch;
+      }
+
+      .ve-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 22px;
+        position: relative;
+      }
+      .ve-card--elevated {
+        background: var(--surface-elevated);
+        box-shadow:
+          0 2px 8px rgba(0, 0, 0, 0.07),
+          0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      .ve-card--recessed {
+        background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .ve-card--hero {
+        background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.07),
+          0 1px 3px rgba(0, 0, 0, 0.04);
+        border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+      }
+      .ve-card__label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--node-a);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ve-card__label::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+      }
+      .ve-card__label--b {
+        color: var(--node-b);
+      }
+      .ve-card__label--c {
+        color: var(--node-c);
+      }
+      .ve-card__label--plum {
+        color: var(--plum);
+      }
+      .ve-card__label--amber {
+        color: var(--amber);
+      }
+      .ve-card__label--red {
+        color: var(--red);
+      }
+      .ve-card p {
+        margin: 0 0 10px;
+      }
+      .ve-card p:last-child {
+        margin-bottom: 0;
+      }
+      .ve-card ul,
+      .ve-card ol {
+        padding-left: 1.6em;
+        margin: 6px 0 0;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+      }
+      .card-grid--2 {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .tag {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 5px;
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        display: inline-block;
+      }
+      .tag--b {
+        background: var(--node-b-dim);
+        color: var(--node-b);
+      }
+      .tag--c {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+      }
+      .tag--amber {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .tag--red {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .tag--green {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .tag--plum {
+        background: var(--plum-dim);
+        color: var(--plum);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      .status--match {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .status--gap {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .status--warn {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .status--info {
+        background: var(--accent-dim);
+        color: var(--accent);
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.88em;
+        background: var(--accent-dim);
+        color: var(--accent);
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .code-file {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .code-file__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px 15px;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .code-file__header span:first-child {
+        color: var(--text);
+      }
+      .code-file__body {
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+        line-height: 1.6;
+        padding: 15px;
+        margin: 0;
+        background: var(--surface);
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 480px;
+        overflow: auto;
+        color: var(--text);
+      }
+      .cm {
+        color: var(--text-dim);
+        font-style: italic;
+      }
+      .kw {
+        color: var(--plum);
+      }
+      .st {
+        color: var(--node-b);
+      }
+      .fn {
+        color: var(--node-c);
+      }
+      .out {
+        color: var(--text-dim);
+      }
+
+      .pipeline {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+      .pipeline__step {
+        min-width: 150px;
+        flex: 1 1 0;
+      }
+      .pipeline__step--hi {
+        border-color: color-mix(in srgb, var(--border) 40%, var(--accent) 60%);
+        background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+      }
+      .pipeline__step--mute {
+        opacity: 0.72;
+      }
+      .pipeline__arrow {
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        color: var(--border-bright);
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .node-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+      .node-list li {
+        padding-left: 15px;
+        position: relative;
+      }
+      .node-list li::before {
+        content: "›";
+        color: var(--text-dim);
+        font-weight: 600;
+        position: absolute;
+        left: 0;
+      }
+
+      .table-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .data-table th {
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        text-align: left;
+        padding: 11px 15px;
+        border-bottom: 2px solid var(--border-bright);
+        white-space: nowrap;
+      }
+      .data-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        color: var(--text);
+      }
+      .data-table tbody tr:nth-child(even) {
+        background: var(--accent-dim);
+      }
+      .data-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table code {
+        font-size: 12px;
+      }
+      .data-table small {
+        display: block;
+        color: var(--text-dim);
+        font-size: 12px;
+        margin-top: 3px;
+      }
+      .data-table .num {
+        font-family: var(--font-mono);
+        color: var(--text-dim);
+        text-align: right;
+      }
+
+      .callout {
+        padding: 16px 20px;
+        border-radius: 8px;
+        border-left: 4px solid var(--callout-border);
+        background: var(--callout-bg);
+        margin: 18px 0;
+        font-size: 15px;
+      }
+      .callout--info {
+        --callout-border: var(--accent);
+        --callout-bg: color-mix(in srgb, var(--accent) 9%, transparent);
+      }
+      .callout--warning {
+        --callout-border: var(--amber);
+        --callout-bg: color-mix(in srgb, var(--amber) 10%, transparent);
+      }
+      .callout--success {
+        --callout-border: var(--green);
+        --callout-bg: color-mix(in srgb, var(--green) 9%, transparent);
+      }
+      .callout--danger {
+        --callout-border: var(--red);
+        --callout-bg: color-mix(in srgb, var(--red) 9%, transparent);
+      }
+      .callout__title {
+        font-weight: 700;
+        margin-bottom: 7px;
+        color: var(--callout-border);
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .callout ul {
+        padding-left: 1.5em;
+        margin: 8px 0 0;
+      }
+
+      .diff-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .diff-panels > * {
+        min-width: 0;
+        overflow-wrap: break-word;
+      }
+      .diff-panel__header {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 10px 16px;
+      }
+      .diff-panel__header--a {
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        border-bottom: 2px solid var(--node-a);
+      }
+      .diff-panel__header--b {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+        border-bottom: 2px solid var(--node-c);
+      }
+      .diff-panel__header--bad {
+        background: var(--red-dim);
+        color: var(--red);
+        border-bottom: 2px solid var(--red);
+      }
+      .diff-panel__header--good {
+        background: var(--green-dim);
+        color: var(--green);
+        border-bottom: 2px solid var(--green);
+      }
+      .diff-panel__body {
+        padding: 16px;
+        background: var(--surface);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .diff-panel__body ul {
+        padding-left: 1.4em;
+        margin: 0;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 28px;
+        margin: 12px 0;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 6px;
+        bottom: 6px;
+        width: 2px;
+        background: var(--border-bright);
+      }
+      .timeline__item {
+        position: relative;
+        margin-bottom: 14px;
+      }
+      .timeline__item::before {
+        content: "";
+        position: absolute;
+        left: -24px;
+        top: 8px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 2px solid var(--accent);
+      }
+      .timeline__item--stop::before {
+        border-color: var(--red);
+        background: var(--red-dim);
+      }
+      .timeline__item--ok::before {
+        border-color: var(--green);
+        background: var(--green-dim);
+      }
+      .timeline__item--mute::before {
+        border-color: var(--border-bright);
+      }
+      .timeline__title {
+        font-weight: 700;
+        color: var(--text-bright);
+      }
+      .timeline__title code {
+        font-size: 13px;
+      }
+      .timeline__desc {
+        color: var(--text-dim);
+        font-size: 14.5px;
+        margin-top: 2px;
+      }
+
+      .diagram-shell {
+        position: relative;
+        margin: 8px 0 4px;
+      }
+      .diagram-shell__hint {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin: 0 0 8px;
+        opacity: 0.75;
+      }
+      .mermaid-wrap {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px 22px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 380px;
+        cursor: grab;
+      }
+      .mermaid-wrap.is-panning {
+        cursor: grabbing;
+        user-select: none;
+      }
+      .zoom-controls {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 2px;
+        z-index: 10;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px;
+        align-items: center;
+      }
+      .zoom-controls button {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .zoom-controls button:hover {
+        background: var(--border);
+        color: var(--text);
+      }
+      .zoom-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        padding: 0 6px;
+        white-space: nowrap;
+      }
+      .mermaid-viewport {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+      }
+      .mermaid-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .mermaid .nodeLabel {
+        color: var(--text) !important;
+        font-family: var(--font-body) !important;
+        font-size: 15px !important;
+      }
+      .mermaid .edgeLabel {
+        color: var(--text-dim) !important;
+        background-color: var(--bg) !important;
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+      .mermaid .edgeLabel rect {
+        fill: var(--bg) !important;
+      }
+      .mermaid .messageText {
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+
+      details.collapsible {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--surface);
+        margin: 12px 0;
+      }
+      details.collapsible summary {
+        padding: 13px 19px;
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text);
+      }
+      details.collapsible summary::-webkit-details-marker {
+        display: none;
+      }
+      details.collapsible summary::before {
+        content: "▸";
+        font-size: 11px;
+        color: var(--text-dim);
+        transition: transform 0.15s ease;
+      }
+      details.collapsible[open] summary::before {
+        transform: rotate(90deg);
+      }
+      .collapsible__body {
+        padding: 16px 19px;
+        border-top: 1px solid var(--border);
+        font-size: 15px;
+      }
+
+      .chapter-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .chapter-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+      .chapter-card__num {
+        font-family: var(--font-mono);
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .chapter-card__title {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--text-bright);
+        margin-bottom: 6px;
+      }
+      .chapter-card__q {
+        font-size: 14px;
+        color: var(--text-dim);
+      }
+      .chapter-card__links {
+        margin-top: 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+      .chapter-card__links a {
+        margin-right: 10px;
+      }
+
+      .footer-nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .footer-nav a {
+        text-decoration: none;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text);
+        max-width: 48%;
+      }
+      .footer-nav a:hover {
+        border-color: var(--accent);
+      }
+      .footer-nav small {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 3px;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .ve-card {
+        animation: fadeUp 0.4s ease-out both;
+        animation-delay: calc(var(--i, 0) * 0.05s);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 1000px) {
+        body {
+          padding: 0 20px 60px;
+        }
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+        .toc {
+          position: sticky;
+          top: 0;
+          z-index: 200;
+          max-height: none;
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          overflow-x: auto;
+          background: var(--bg);
+          border-bottom: 1px solid var(--border);
+          padding: 10px 20px;
+          margin: 0 -20px;
+          grid-row: auto;
+        }
+        .toc::-webkit-scrollbar {
+          display: none;
+        }
+        .toc-title,
+        .toc-series {
+          display: none;
+        }
+        .toc a {
+          white-space: nowrap;
+          flex-shrink: 0;
+          border-left: none;
+          border-bottom: 2px solid transparent;
+          border-radius: 4px 4px 0 0;
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+        .toc a.active {
+          border-left: none;
+          border-bottom-color: var(--accent);
+          background: var(--surface);
+        }
+        .main {
+          padding-top: 22px;
+        }
+        .sec-head {
+          scroll-margin-top: 56px;
+        }
+        .pipeline {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .pipeline__arrow {
+          display: none;
+        }
+        .pipeline__step {
+          min-width: 100%;
+        }
+        .diff-panels {
+          grid-template-columns: 1fr;
+        }
+        .footer-nav {
+          flex-direction: column;
+        }
+        .footer-nav a {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      class="theme-toggle"
+      id="themeToggle"
+      title="Đổi giao diện sáng/tối"
+      aria-label="Đổi giao diện sáng tối"
+    ></button>
+    <div class="wrap">
+      <nav class="toc" id="toc">
+        <div class="toc-title">Chương 1</div>
+        <a href="#s1">Decorator là hàm</a>
+        <a href="#s2">Bốn loại</a>
+        <a href="#s3">Factory</a>
+        <a href="#s4">Thứ tự chạy</a>
+        <a href="#s5">Hai cờ tsconfig</a>
+        <a href="#s6">Bảng ẩn metadata</a>
+        <a href="#s7">SetMetadata</a>
+        <a href="#s8">Hai loại decorator</a>
+        <a href="#s9">applyDecorators</a>
+        <a href="#s10">Nest cũng chỉ là metadata</a>
+        <a href="#s11">Chỗ dễ vấp</a>
+        <a href="#s12">Trong dự án</a>
+        <a href="#s13">Tự kiểm chứng</a>
+        <div class="toc-series">
+          <a href="index.html">↑ Mục lục bộ</a
+          ><a href="00-prototype-and-this.html">← Chương 0</a
+          ><a href="02-reflector-execution-context-and-discovery.html"
+            >→ Chương 2</a
+          >
+        </div>
+      </nav>
+
+      <div class="main">
+        <div class="series-bar">
+          <a href="index.html">Mục lục</a><span class="sep">·</span>
+          <a href="00-prototype-and-this.html">00 Prototype</a>
+          <span>01 Decorator</span>
+          <a href="02-reflector-execution-context-and-discovery.html"
+            >02 Reflector</a
+          >
+          <a href="03-guards.html">03 Guard</a>
+          <a href="04-middleware.html">04 Middleware</a>
+          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
+          <a href="06-modules-and-dependency-injection.html"
+            >06 Module &amp; DI</a
+          >
+          <a href="07-dto-validation-transformation-serialization.html"
+            >07 DTO</a
+          >
+          <a href="appendix-a-reflect-metadata-internals.html"
+            >A reflect-metadata</a
+          >
+          <span class="sep">·</span
+          ><a href="01-decorators-and-metadata.md">bản markdown đầy đủ</a>
+        </div>
+
+        <header class="masthead">
+          <div class="eyebrow">Chương 1</div>
+          <h1>Decorator và metadata</h1>
+          <p class="subtitle">
+            Decorator <strong>là gì</strong>, <strong>chạy lúc nào</strong>, dán
+            dữ liệu <strong>vào đâu</strong> — và vì sao
+            <code>@RequirePermission</code> chỉ có hai dòng mà vẫn đủ.
+          </p>
+        </header>
+
+        <div class="callout callout--info">
+          <div class="callout__title">Chưa vững <code>prototype</code>?</div>
+          Chương này dùng <code>X.prototype</code> ở rất nhiều chỗ.
+          <a href="00-prototype-and-this.html"
+            >Chương 0 — Prototype, <code>this</code>, và class</a
+          >
+          giải thích nó bằng JavaScript thuần trước, rồi nối ngược về đây. Đọc
+          20 phút, tiết kiệm cả chương.
+        </div>
+
+        <div class="sec-head" id="s1">
+          <span class="sec-head__num">01</span
+          ><span class="sec-head__text"
+            >Decorator là một hàm, không phải cú pháp ma thuật</span
+          >
+        </div>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>TypeScript thuần, không Nest</span><span>ví dụ</span>
+            </div>
+            <pre
+              class="code-file__body"
+            ><code><span class="kw">function</span> <span class="fn">log</span>(target: object, key: string) {
+  console.log(<span class="st">`đang định nghĩa method ${key}`</span>);
+}
+
+<span class="kw">class</span> Foo {
+  @log
+  <span class="fn">hello</span>() {}
+}
+
+console.log(<span class="st">"xong phần định nghĩa class"</span>);</code></pre>
+          </div>
+          <div class="stack">
+            <div class="code-file" style="margin: 0">
+              <div class="code-file__header"><span>output</span></div>
+              <pre class="code-file__body out">
+đang định nghĩa method hello
+xong phần định nghĩa class</pre
+              >
+            </div>
+            <div class="ve-card ve-card--hero" style="--i: 0">
+              <div class="ve-card__label">Hai điều cần thấy</div>
+              <ol style="margin: 0; padding-left: 1.4em">
+                <li>
+                  <code>@log</code> chỉ là cách viết khác của
+                  <strong>gọi hàm <code>log</code></strong
+                  >.
+                </li>
+                <li>
+                  Nó chạy <strong>lúc class được định nghĩa</strong> — khi file
+                  được import — không phải lúc gọi <code>hello()</code>. Chưa có
+                  request, chưa có instance. Đúng một lần.
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">Nhầm phổ biến nhất</div>
+          Decorator <strong>không</strong> là "hook chạy trước method". Nó là
+          code chạy lúc khai báo, và thứ nó để lại (metadata) mới là cái được
+          dùng sau này.
+        </div>
+
+        <div class="sec-head" id="s2">
+          <span class="sec-head__num">02</span
+          ><span class="sec-head__text"
+            >Bốn loại decorator và chữ ký của chúng</span
+          >
+        </div>
+        <div class="ve-card ve-card--hero" style="--i: 0; margin-bottom: 16px">
+          <div class="ve-card__label">Nguyên tắc chung</div>
+          <p style="margin: 0; font-size: 16px">
+            Decorator là một hàm — hàm đó nhận tham số gì thì tuỳ
+            <strong>chỗ bạn dán nó</strong>. TypeScript trao cho decorator
+            <strong>toạ độ của chỗ nó vừa được dán</strong>, đủ để tìm lại đúng
+            nơi đó sau này.
+          </p>
+        </div>
+
+        <h3 class="sub" id="s2.1">2.1 · Nhìn tận mắt</h3>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>dán bốn loại lên một class</span>
+            </div>
+            <pre class="code-file__body"><code>@ClassDec
+<span class="kw">class</span> Foo {
+  @PropDec name: string;
+  <span class="kw">constructor</span>(@ParamDec dep: string) {}
+  @MethodDec <span class="fn">hello</span>(@ParamDec a: number, @ParamDec b: string) {}
+}</code></pre>
+          </div>
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header"><span>output thật</span></div>
+            <pre class="code-file__body out">
+PROPERTY  | target = [object Foo.prototype] | key = "name"  | desc = undefined
+PARAM     | target = [object Foo.prototype] | key = "hello" | index = 1
+PARAM     | target = [object Foo.prototype] | key = "hello" | index = 0
+METHOD    | target = [object Foo.prototype] | key = "hello" | desc.value = [Function hello]
+PARAM     | target = [Function Foo]         | key = undefined | index = 0
+CLASS     | target = [Function Foo]</pre
+            >
+          </div>
+        </div>
+        <div class="card-grid card-grid--3">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label ve-card__label--red">
+              1 · <code>target</code> là <code>prototype</code>
+            </div>
+            <p>
+              Trừ decorator dán lên chính class và lên tham số constructor — khi
+              đó <code>target</code> là constructor.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--amber">
+              2 · Tham số constructor có <code>key = undefined</code>
+            </div>
+            <p>
+              Vì constructor không có tên method. Đây là chỗ DI đọc
+              <code>design:paramtypes</code>.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--b">
+              3 · Tham số chạy <strong>ngược</strong>
+            </div>
+            <p>
+              <code>index = 1</code> trước <code>index = 0</code> — hệ quả của
+              quy tắc "áp từ dưới lên" ở <a href="#s4">mục 4</a>.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="sub" id="s2.2">2.2 · Bảng tra</h3>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Loại</th>
+                  <th>Dán lên</th>
+                  <th><code>target</code></th>
+                  <th>Tham số 2</th>
+                  <th>Tham số 3</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Class</strong></td>
+                  <td><code>class X {}</code></td>
+                  <td>constructor <code>X</code></td>
+                  <td>—</td>
+                  <td>—</td>
+                </tr>
+                <tr>
+                  <td><strong>Method</strong></td>
+                  <td><code>foo() {}</code></td>
+                  <td><code>X.prototype</code></td>
+                  <td>tên method</td>
+                  <td><code>PropertyDescriptor</code></td>
+                </tr>
+                <tr>
+                  <td><strong>Property</strong></td>
+                  <td><code>bar: string</code></td>
+                  <td><code>X.prototype</code></td>
+                  <td>tên property</td>
+                  <td>
+                    <strong><code>undefined</code></strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Parameter</strong> (method)</td>
+                  <td><code>foo(@D a)</code></td>
+                  <td><code>X.prototype</code></td>
+                  <td>tên method</td>
+                  <td><strong>chỉ số</strong></td>
+                </tr>
+                <tr>
+                  <td><strong>Parameter</strong> (constructor)</td>
+                  <td><code>constructor(@D a)</code></td>
+                  <td>constructor <code>X</code></td>
+                  <td>
+                    <strong><code>undefined</code></strong>
+                  </td>
+                  <td><strong>chỉ số</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <details class="collapsible">
+          <summary>Chữ ký để tra khi cần</summary>
+          <div class="collapsible__body">
+            <pre
+              class="code-file__body"
+              style="border: 1px solid var(--border); border-radius: 8px"
+            ><code><span class="kw">type</span> ClassDecorator     = (target: Function) =&gt; <span class="kw">void</span>;
+<span class="kw">type</span> MethodDecorator    = (target: object, key: string, descriptor: PropertyDescriptor) =&gt; <span class="kw">void</span>;
+<span class="kw">type</span> PropertyDecorator  = (target: object, key: string) =&gt; <span class="kw">void</span>;
+<span class="kw">type</span> ParameterDecorator = (target: object, key: string | <span class="kw">undefined</span>, index: number) =&gt; <span class="kw">void</span>;</code></pre>
+          </div>
+        </details>
+
+        <h3 class="sub" id="s2.3">
+          2.3 · <code>descriptor.value</code> chính là hàm method
+        </h3>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>PropertyDescriptor của một method</span>
+            </div>
+            <pre
+              class="code-file__body"
+            ><code>Object.<span class="fn">getOwnPropertyDescriptor</span>(Foo.prototype, <span class="st">"hello"</span>);</code></pre>
+            <pre
+              class="code-file__body out"
+              style="border-top: 1px solid var(--border)"
+            >
+{ value: [Function: hello], writable: true,
+  enumerable: false, configurable: true }</pre
+            >
+          </div>
+          <div class="ve-card ve-card--hero" style="--i: 0">
+            <div class="ve-card__label">Mắt xích của cả chương 1 và 2</div>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                margin: 0 0 10px;
+              "
+            ><code>Foo.prototype.hello === descriptor.value; <span class="cm">// true</span></code></pre>
+            <p style="margin: 0">
+              <code>SetMetadata</code> dán nhãn lên
+              <code>descriptor.value</code> (<a href="#s7">mục 7</a>), còn
+              <code>context.getHandler()</code> của guard trả về
+              <strong>chính hàm đó</strong> (<a
+                href="02-reflector-execution-context-and-discovery.html"
+                >chương 2</a
+              >). Hai bên gặp nhau ở cùng một object.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="sub" id="s2.4">
+          2.4 · Property decorator không có <code>descriptor</code>
+        </h3>
+        <p class="prose">
+          Tham số thứ ba là <code>undefined</code>, và điều đó có lý: lúc
+          decorator chạy, property <strong>chưa tồn tại</strong> — nó chỉ được
+          gán khi ai đó <code>new</code> class ra. Nên property decorator chỉ
+          làm một việc:
+          <strong
+            >dán nhãn lên cặp <code>(prototype, tên property)</code></strong
+          >.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/dtos/role/role.dto.ts</span
+            ><span>cách class-validator và Swagger hoạt động</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">export class</span> CreateRoleRequestDto {
+  @<span class="fn">ApiProperty</span>({ description: <span class="st">"Role name"</span> })
+  @<span class="fn">IsString</span>()
+  name: string;   <span class="cm">// ← hai nhãn ghi vào (CreateRoleRequestDto.prototype, "name")</span>
+}</code></pre>
+        </div>
+
+        <h3 class="sub" id="s2.5">
+          2.5 · Parameter decorator một mình không làm được gì
+        </h3>
+        <p class="prose">
+          Nó <strong>chỉ</strong> biết:
+          <em
+            >"tham số thứ <code>index</code> của method <code>key</code> vừa
+            được đánh dấu"</em
+          >. Không <code>descriptor</code>, không cách nào chạm vào giá trị tham
+          số.
+        </p>
+        <div class="callout callout--info">
+          <div class="callout__title">
+            Vậy <code>@Body()</code>, <code>@ActiveUser("userId")</code> lấy giá
+            trị bằng cách nào?
+          </div>
+          Chúng <strong>không</strong> lấy. Chúng ghi một dòng metadata kiểu
+          <em>"tham số số 2 của method này lấy giá trị bằng hàm factory kia"</em
+          >, rồi <strong>Nest</strong> đọc dòng đó mỗi request và gọi factory hộ
+          — đó là <code>createParamDecorator</code> ở <a href="#s8">mục 8</a>.
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">Hệ quả thực tế</div>
+          Vì <code>@Inject("TOKEN")</code> ghi metadata theo <code>index</code>,
+          thêm hay bớt một tham số ở giữa constructor sẽ làm lệch chỉ số. Một lý
+          do nữa để inject bằng class thay vì token chuỗi.
+        </div>
+
+        <h3 class="sub" id="s2.6">2.6 · Mỗi loại trong dự án dùng để làm gì</h3>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Loại</th>
+                  <th>Trong dự án</th>
+                  <th>File</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Class</td>
+                  <td>
+                    <code>@Controller("roles")</code>,
+                    <code>@Injectable()</code>, <code>@Module()</code>,
+                    <code>@Global()</code>, <code>@Catch()</code>
+                  </td>
+                  <td>mọi nơi</td>
+                </tr>
+                <tr>
+                  <td>Method</td>
+                  <td>
+                    <code>@Get()</code> <code>@Post()</code>,
+                    <code>@RequirePermission()</code>,
+                    <code>@IsPublicApi()</code>, <code>@Throttle()</code>,
+                    <code>@HttpCode()</code>
+                  </td>
+                  <td>controller</td>
+                </tr>
+                <tr>
+                  <td>Property</td>
+                  <td>
+                    <code>@IsString()</code> <code>@IsInt()</code> (validate),
+                    <code>@Expose()</code> (serialize),
+                    <code>@ApiProperty()</code> (Swagger)
+                  </td>
+                  <td><code>src/dtos/</code></td>
+                </tr>
+                <tr>
+                  <td>Parameter</td>
+                  <td>
+                    <code>@Body()</code> <code>@Param()</code>
+                    <code>@Query()</code>, <code>@ActiveUser()</code>,
+                    <code>@PermissionScope()</code>, <code>@CurrentLang()</code>
+                  </td>
+                  <td>controller</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>một controller thật dùng cả bốn</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code>@<span class="fn">Controller</span>(<span class="st">"manage-product/products"</span>)          <span class="cm">// ← class</span>
+<span class="kw">export class</span> ManageProductController {
+  @<span class="fn">RequirePermission</span>(<span class="st">"product:read:own"</span>)        <span class="cm">// ← method</span>
+  @<span class="fn">Get</span>()
+  <span class="kw">async</span> <span class="fn">getManageProducts</span>(
+    @<span class="fn">Query</span>() query: ManageProductPaginationQueryDto,        <span class="cm">// ← parameter</span>
+    @<span class="fn">ActiveUser</span>(<span class="st">"userId"</span>) userId: UserSchema[<span class="st">"id"</span>],         <span class="cm">// ← parameter</span>
+    @<span class="fn">PermissionScope</span>([<span class="st">"product"</span>, <span class="st">"read"</span>]) scope: ScopeType, <span class="cm">// ← parameter</span>
+  ) {}
+}</code></pre>
+        </div>
+        <p class="dim">
+          Còn <code>ManageProductPaginationQueryDto</code> bên trong đầy
+          <strong>property</strong> decorator. Bốn loại, bốn vai trò, không
+          chồng lấn.
+        </p>
+
+        <h3 class="sub" id="s2.7">
+          2.7 · Ba thứ TypeScript cho phép mà Nest không dùng
+        </h3>
+        <p class="prose">
+          Gặp trong tài liệu ngoài thì biết là gì, đừng mang vào dự án này:
+        </p>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Thứ</th>
+                  <th>Là gì</th>
+                  <th>Vì sao Nest không dùng</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Decorator trên <code>static</code></td>
+                  <td>
+                    <code>target</code> thành constructor thay vì prototype
+                  </td>
+                  <td>Nest chỉ quét method instance của controller</td>
+                </tr>
+                <tr>
+                  <td>
+                    Accessor decorator (<code>get</code>/<code>set</code>)
+                  </td>
+                  <td>
+                    cùng chữ ký method; <code>descriptor</code> có
+                    <code>get</code>/<code>set</code> thay <code>value</code>
+                  </td>
+                  <td>route và DTO không dùng accessor</td>
+                </tr>
+                <tr>
+                  <td>Bọc hàm / thay class</td>
+                  <td>
+                    method decorator gán lại <code>descriptor.value</code>;
+                    class decorator <code>return</code> class mới
+                  </td>
+                  <td>
+                    bọc hàm là
+                    <strong>một chiều và không quan sát được</strong> — hai
+                    decorator cùng bọc thì thứ tự quyết định hành vi, và không
+                    ai nhìn ra chuyện gì đã xảy ra
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--success">
+          <div class="callout__title">Quyết định thiết kế đáng nhớ nhất</div>
+          <strong>Nest có thể bọc hàm nhưng chọn không.</strong> Toàn bộ
+          framework xây trên "dán nhãn rồi đọc lại" thay vì "thay thế hành vi" —
+          nhãn đọc được, kiểm tra được lúc boot, và guard/pipe làm phần "bọc" ở
+          tầng riêng của chúng.
+        </div>
+
+        <div class="sec-head" id="s3">
+          <span class="sec-head__num">03</span
+          ><span class="sec-head__text"
+            >Decorator factory — vì sao có dấu ngoặc</span
+          >
+        </div>
+        <div class="pipeline" style="margin-bottom: 14px">
+          <div class="pipeline__step ve-card" style="--i: 0">
+            <div class="ve-card__label">Bạn viết</div>
+            <p style="font-family: var(--font-mono); font-size: 13px">
+              @RequirePermission("x")
+            </p>
+          </div>
+          <div class="pipeline__arrow">=</div>
+          <div class="pipeline__step ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">Gọi factory</div>
+            <p style="font-family: var(--font-mono); font-size: 13px">
+              RequirePermission("x")
+            </p>
+            <p style="font-size: 13px; color: var(--text-dim)">
+              trả về kết quả của…
+            </p>
+          </div>
+          <div class="pipeline__arrow">→</div>
+          <div class="pipeline__step ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">Gọi factory nữa</div>
+            <p style="font-family: var(--font-mono); font-size: 13px">
+              SetMetadata(KEY, "x")
+            </p>
+            <p style="font-size: 13px; color: var(--text-dim)">trả về…</p>
+          </div>
+          <div class="pipeline__arrow">→</div>
+          <div class="pipeline__step ve-card pipeline__step--hi" style="--i: 3">
+            <div class="ve-card__label ve-card__label--plum">
+              Decorator thật
+            </div>
+            <p style="font-family: var(--font-mono); font-size: 13px">
+              (target, key, descriptor) =&gt; …
+            </p>
+            <p style="font-size: 13px; color: var(--text-dim)">
+              TypeScript áp cái này lên method
+            </p>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span
+              >src/shared/param-decorators/require-permission.decorator.ts</span
+            ><span>dòng 12-13</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">export const</span> <span class="fn">RequirePermission</span> = (key: PermissionKey) =&gt;
+  <span class="fn">SetMetadata</span>(PERMISSION_KEY, key);</code></pre>
+        </div>
+        <p class="prose">
+          Ba tầng gọi hàm, không tầng nào có logic. <code>@log</code> (không
+          ngoặc) thì <code>log</code> <em>là</em> decorator;
+          <code>@Get("users")</code> (có ngoặc) thì <code>Get</code> là factory
+          <em>trả về</em> decorator.
+        </p>
+
+        <div class="sec-head" id="s4">
+          <span class="sec-head__num">04</span
+          ><span class="sec-head__text">Thứ tự chạy — ba quy tắc</span>
+        </div>
+        <div class="card-grid">
+          <div class="ve-card ve-card--elevated" style="--i: 0">
+            <div class="ve-card__label">1 · Cùng một method</div>
+            <p>
+              Factory chạy <strong>từ trên xuống</strong>, decorator áp
+              <strong>từ dưới lên</strong>.
+            </p>
+            <p style="font-size: 14px">
+              Hệ quả với <code>SetMetadata</code> cùng key: cái dưới ghi trước,
+              cái trên ghi đè → <strong>decorator trên cùng thắng</strong>.
+              Không có cảnh báo.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              2 · Trong một class
+            </div>
+            <p>Parameter → method/property → class.</p>
+            <p style="font-size: 14px">
+              <code>@Controller()</code> chạy cuối, nên nó "nhìn thấy" mọi
+              <code>@Get()</code> đã dán xong.
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">
+              3 · <code>@Get</code> vs <code>@RequirePermission</code>
+            </div>
+            <p>Thứ tự <strong>không quan trọng</strong>.</p>
+            <p style="font-size: 14px">
+              Hai key khác nhau trên cùng một hàm; không cái nào đọc cái nào. Dự
+              án để <code>@RequirePermission</code> trên vì dễ đọc.
+            </p>
+          </div>
+        </div>
+
+        <div class="sec-head" id="s5">
+          <span class="sec-head__num">05</span
+          ><span class="sec-head__text"
+            >Hai cờ tsconfig quyết định mọi thứ</span
+          >
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>tsconfig.json</span><span>dòng 8-9</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="st">"emitDecoratorMetadata"</span>: <span class="kw">true</span>,
+<span class="st">"experimentalDecorators"</span>: <span class="kw">true</span>,</code></pre>
+        </div>
+        <div class="card-grid card-grid--2">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label">
+              <code>experimentalDecorators</code>
+            </div>
+            <p>
+              Bật cú pháp decorator "legacy" mà Nest dùng. TS 5 có chuẩn mới
+              (TC39 stage 3) với chữ ký <code>(value, context)</code> khác hẳn —
+              <strong>Nest không dùng chuẩn đó</strong>. Tắt cờ này là toàn bộ
+              Nest không compile.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              <code>emitDecoratorMetadata</code>
+            </div>
+            <p>
+              Bảo compiler tự dán thêm metadata về <strong>kiểu</strong> lên bất
+              kỳ thứ gì có decorator: <code>design:type</code>,
+              <code>design:paramtypes</code>, <code>design:returntype</code>.
+            </p>
+          </div>
+        </div>
+        <div class="callout callout--success">
+          <div class="callout__title">
+            Đây là lý do DI của Nest hoạt động mà bạn không khai báo gì
+          </div>
+          Class có <code>@Injectable()</code> → compiler dán
+          <code
+            >design:paramtypes = [RoleRepository,
+            RolePermissionCacheService]</code
+          >
+          lên class → Nest đọc mảng đó, tra container, tiêm vào.
+          <strong>Bỏ <code>@Injectable()</code> là mảng không được dán</strong>
+          và Nest báo "can't resolve dependencies" — không phải vì
+          <code>@Injectable</code> làm gì, mà vì nó là cái cớ để compiler emit
+          metadata. Cùng cơ chế: <code>ValidationPipe</code> biết DTO class của
+          <code>@Body()</code> nhờ <code>design:paramtypes</code> của handler.
+          <p style="margin-top: 8px">
+            <strong>Giới hạn:</strong> chỉ ghi được <em>class</em>. Interface,
+            union, generic thành <code>Object</code>. Vì thế DTO phải là class.
+          </p>
+        </div>
+
+        <div class="sec-head" id="s6">
+          <span class="sec-head__num">06</span
+          ><span class="sec-head__text"
+            >Metadata: bảng ẩn của <code>reflect-metadata</code></span
+          >
+        </div>
+        <div class="callout callout--info">
+          <div class="callout__title">Mục này dừng ở cách dùng</div>
+          Bảng ẩn thật ra là <code>WeakMap</code> gì, <code>getMetadata</code>
+          đi ngược chain bằng đoạn code nào, TypeScript tự dán
+          <code>design:*</code> theo quy tắc gì — xem
+          <a href="appendix-a-reflect-metadata-internals.html">phụ lục A</a>
+          sau khi đọc xong chương này.
+        </div>
+
+        <h3 class="sub" id="s6.1">6.1 · Câu hỏi cụ thể: chuỗi đó đi đâu?</h3>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header"><span>dòng quen thuộc</span></div>
+            <pre
+              class="code-file__body"
+            ><code>@<span class="fn">RequirePermission</span>(<span class="st">"product:read:own"</span>)
+@<span class="fn">Get</span>()
+<span class="kw">async</span> <span class="fn">getManageProducts</span>(...) {}</code></pre>
+          </div>
+          <div class="ve-card ve-card--hero" style="--i: 0">
+            <div class="ve-card__label">Câu hỏi</div>
+            <p style="margin: 0">
+              Decorator chạy <strong>một lần</strong> lúc class được định nghĩa,
+              rồi xong. Vậy chuỗi <code>"product:read:own"</code> —
+              <strong>nó nằm ở đâu</strong> để guard đọc lại được khi có
+              request, vài giờ sau?
+            </p>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>nó KHÔNG nằm trong hàm — thử in ra</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code>console.log(Object.<span class="fn">keys</span>(ManageProductController.prototype.getManageProducts));      <span class="cm">// []</span>
+console.log(ManageProductController.prototype.getManageProducts.required_permission); <span class="cm">// undefined</span></code></pre>
+        </div>
+        <p class="prose">
+          Hàm sạch trơn, y như trước khi dán. Vậy chuỗi đó
+          <strong>ở chỗ khác</strong>. Mục này nói về cái "chỗ khác" ấy.
+        </p>
+
+        <h3 class="sub" id="s6.2">
+          6.2 · Hình dung: cuốn sổ riêng của thủ thư
+        </h3>
+        <div class="ve-card ve-card--hero" style="--i: 0; margin-bottom: 16px">
+          <p style="margin: 0; font-size: 16.5px">
+            Object của bạn là <strong>quyển sách</strong>.
+            <code>reflect-metadata</code> là
+            <strong>cuốn sổ riêng của thủ thư</strong>.
+          </p>
+          <p style="margin: 10px 0 0">
+            Thủ thư không viết gì vào sách. Ông ghi vào sổ của mình:
+            <em>"quyển sách này → ghi chú kia"</em>. Ai mượn sách về đọc sẽ
+            <strong>không thấy</strong> ghi chú. Muốn biết, phải cầm sách đến
+            hỏi thủ thư.
+          </p>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Trong đời thật</th>
+                  <th>Trong code</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Sách không bị viết vào</td>
+                  <td>
+                    Object không đổi — <code>Object.keys</code>,
+                    <code>JSON.stringify</code>, spread đều không thấy
+                  </td>
+                </tr>
+                <tr>
+                  <td>Phải cầm <strong>đúng quyển sách</strong> đến hỏi</td>
+                  <td>
+                    <code>getMetadata(key, target)</code> — phải đưa đúng object
+                    đã dán
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sách bị huỷ thì dòng trong sổ bỏ đi</td>
+                  <td>
+                    Sổ là <code>WeakMap</code>, object bị thu gom rác thì
+                    metadata mất theo, không rò bộ nhớ
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="prose">
+          Cuốn sổ đó, sau khi Nest chạy xong, trông đại khái thế này:
+        </p>
+        <pre
+          class="dir-tree"
+          style="
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.7;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 12px 0;
+          "
+        >Sổ của thủ thư  (WeakMap: object → { key → value })
+│
+├── <span style="color:var(--node-a); font-weight:600;">ManageProductController</span>                    <span style="color:var(--text-dim); font-style:italic;">(class)</span>
+│      └── "path"                = "manage-product/products"
+│      └── "__controller__"      = true
+│
+├── <span style="color:var(--node-b); font-weight:600;">...prototype.getManageProducts</span>             <span style="color:var(--text-dim); font-style:italic;">(HÀM — không phải class)</span>
+│      └── "path"                = "/"
+│      └── "method"              = 0
+│      └── "required_permission" = "product:read:own"      <span style="color:var(--accent); font-weight:600;">← chuỗi ở đây!</span>
+│
+└── <span style="color:var(--node-c); font-weight:600;">CreateRoleRequestDto.prototype</span>             <span style="color:var(--text-dim); font-style:italic;">(prototype của DTO)</span>
+       └── ["name"]                                         <span style="color:var(--text-dim); font-style:italic;">← ngăn riêng cho property "name"</span>
+              └── "design:type"  = String</pre>
+        <p class="prose">
+          Ba loại "quyển sách" khác nhau — class, hàm, prototype — mỗi loại một
+          trang riêng trong sổ. Và ở dòng cuối còn thêm một tầng nữa: ghi chú
+          không dán cho cả quyển, mà cho <strong>một trang cụ thể</strong>.
+          <a href="#s6.5">Mục 6.5</a> nói về tầng đó.
+        </p>
+
+        <h3 class="sub" id="s6.3">6.3 · Ba hàm đầu tiên</h3>
+        <p class="prose">Chỉ cần ba hàm là hiểu được 90% những gì Nest làm:</p>
+        <div class="code-file">
+          <div class="code-file__header"><span>ba hàm</span></div>
+          <pre
+            class="code-file__body"
+          ><code>Reflect.<span class="fn">defineMetadata</span>(key, value, target);  <span class="cm">// ghi vào sổ</span>
+Reflect.<span class="fn">getMetadata</span>(key, target);            <span class="cm">// tra sổ</span>
+Reflect.<span class="fn">getMetadataKeys</span>(target);             <span class="cm">// quyển này có những ghi chú nào?</span></code></pre>
+        </div>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span
+                >làm thử — đúng việc <code>@Controller("roles")</code> làm</span
+              >
+            </div>
+            <pre
+              class="code-file__body"
+            ><code><span class="kw">class</span> RoleController { <span class="fn">createRole</span>() {} }
+
+<span class="cm">// 1. chưa dán gì</span>
+Reflect.<span class="fn">getMetadata</span>(<span class="st">"path"</span>, RoleController);  <span class="cm">// undefined</span>
+
+<span class="cm">// 2. dán nhãn</span>
+Reflect.<span class="fn">defineMetadata</span>(<span class="st">"path"</span>, <span class="st">"roles"</span>, RoleController);
+Reflect.<span class="fn">getMetadata</span>(<span class="st">"path"</span>, RoleController);  <span class="cm">// "roles"</span></code></pre>
+          </div>
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>kiểm tra lời hứa "object không đổi"</span>
+            </div>
+            <pre class="code-file__body out">
+Object.keys(RoleController)  = []
+"path" in RoleController     = false
+RoleController.path          = undefined</pre
+            >
+            <div
+              style="
+                padding: 14px 15px;
+                border-top: 1px solid var(--border);
+                font-size: 14.5px;
+              "
+            >
+              Nhãn đọc được, mà class thì
+              <strong>hoàn toàn không biết</strong> mình có nhãn. Đó là toàn bộ
+              ý tưởng.
+            </div>
+          </div>
+        </div>
+
+        <h3 class="sub" id="s6.4">
+          6.4 · Một class, một hàm — hai quyển sách khác nhau
+        </h3>
+        <p class="prose">
+          Chỗ này người mới hay nhầm. <code>@Controller("roles")</code> dán lên
+          <strong>class</strong>. <code>@Get()</code> và
+          <code>@RequirePermission()</code> dán lên <strong>hàm</strong>. Hai
+          chỗ cất tách biệt hoàn toàn:
+        </p>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header"><span>dán vào hai chỗ</span></div>
+            <pre
+              class="code-file__body"
+            ><code><span class="kw">const</span> handler = RoleController.prototype.createRole;
+
+Reflect.<span class="fn">defineMetadata</span>(<span class="st">"path"</span>, <span class="st">"roles"</span>, RoleController);            <span class="cm">// ← lên class</span>
+Reflect.<span class="fn">defineMetadata</span>(<span class="st">"required_permission"</span>, <span class="st">"role:create:any"</span>, handler); <span class="cm">// ← lên hàm</span>
+Reflect.<span class="fn">defineMetadata</span>(<span class="st">"method"</span>, 1, handler);                          <span class="cm">// ← lên hàm</span></code></pre>
+          </div>
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>output — hai danh sách rời nhau</span>
+            </div>
+            <pre class="code-file__body out">
+trên hàm  : [ 'required_permission', 'method' ]
+trên class: [ 'path' ]</pre
+            >
+            <div
+              style="
+                padding: 14px 15px;
+                border-top: 1px solid var(--border);
+                font-size: 14.5px;
+              "
+            >
+              Hỏi sổ về class thì không bao giờ ra được nhãn của hàm, và ngược
+              lại.
+            </div>
+          </div>
+        </div>
+        <div class="callout callout--success">
+          <div class="callout__title">
+            Đây chính là lý do guard phải hỏi <em>hai lần</em>
+          </div>
+          <pre
+            class="code-file__body"
+            style="
+              border: 1px solid var(--border);
+              border-radius: 8px;
+              margin: 10px 0 0;
+            "
+          ><code><span class="kw">this</span>.reflector.<span class="fn">getAllAndOverride</span>(PERMISSION_KEY, [
+  context.<span class="fn">getHandler</span>(),   <span class="cm">// hỏi về HÀM trước</span>
+  context.<span class="fn">getClass</span>(),     <span class="cm">// không có thì hỏi về CLASS</span>
+]);</code></pre>
+          <p style="margin: 10px 0 0">
+            Không phải Nest làm phức tạp cho vui — mà vì thật sự có
+            <strong>hai quyển sổ riêng</strong>, và nhãn có thể nằm ở quyển nào
+            cũng được. Chi tiết ở
+            <a href="02-reflector-execution-context-and-discovery.html#s2"
+              >chương 2 §2</a
+            >.
+          </p>
+        </div>
+
+        <h3 class="sub" id="s6.5">6.5 · Dán cho cả quyển, hay cho một trang</h3>
+        <p class="prose">
+          Thêm một tầng nữa, và là tầng cuối. Ghi chú có thể gắn cho
+          <strong>cả object</strong>, hoặc cho
+          <strong>một property cụ thể</strong> — cùng hàm
+          <code>defineMetadata</code>, chỉ khác tham số thứ tư:
+        </p>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Cách viết</th>
+                  <th>Nghĩa</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>defineMetadata(key, value, target)</code></td>
+                  <td>ghi chú cho <strong>cả quyển sách</strong></td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>defineMetadata(key, value, target, "name")</code>
+                  </td>
+                  <td>
+                    ghi chú cho <strong>trang tên <code>"name"</code></strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>đọc phải đúng chỗ đã ghi</span>
+            </div>
+            <pre
+              class="code-file__body"
+            ><code><span class="kw">class</span> CreateRoleDto { name: string; }
+
+Reflect.<span class="fn">defineMetadata</span>(<span class="st">"design:type"</span>, String, CreateRoleDto.prototype, <span class="st">"name"</span>);</code></pre>
+            <pre
+              class="code-file__body out"
+              style="border-top: 1px solid var(--border)"
+            >
+getMetadata('design:type', proto, 'name') = String      ← đúng chỗ
+getMetadata('design:type', proto)         = undefined   ← thiếu tham số thứ 4</pre
+            >
+          </div>
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label ve-card__label--b">
+              Vì sao cần tầng này?
+            </div>
+            <p>
+              Vì một DTO có <strong>nhiều field</strong>, mỗi field ràng buộc
+              riêng:
+            </p>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 12.5px;
+              "
+            ><code>@<span class="fn">IsString</span>()   name: string;            <span class="cm">// trang "name"</span>
+@<span class="fn">IsOptional</span>() description: string;   <span class="cm">// trang "description"</span>
+@<span class="fn">IsArray</span>()    permissionIds: string[]; <span class="cm">// trang "permissionIds"</span></code></pre>
+            <p style="margin-top: 10px">
+              Cả ba cùng dán lên <code>CreateRoleRequestDto.prototype</code>.
+              Không có tham số thứ tư thì ba ghi chú
+              <strong>đè lên nhau</strong> và chỉ còn một cái sống sót.
+            </p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Decorator</th>
+                  <th>Dán vào</th>
+                  <th>Dạng</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>@Controller("roles")</code></td>
+                  <td>class <code>RoleController</code></td>
+                  <td>cả quyển</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>@Get()</code>, <code>@RequirePermission()</code>,
+                    <code>@HttpCode()</code>
+                  </td>
+                  <td><strong>hàm</strong> <code>descriptor.value</code></td>
+                  <td>cả quyển</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>@IsString()</code>, <code>@Expose()</code>,
+                    <code>@ApiProperty()</code>
+                  </td>
+                  <td><code>(Dto.prototype, "tên field")</code></td>
+                  <td>một trang</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--info">
+          <div class="callout__title">
+            Dòng giữa là mắt xích của cả hệ phân quyền
+          </div>
+          <code>SetMetadata</code> dán lên <code>descriptor.value</code> —
+          <strong>chính hàm</strong> (<a href="#s2">mục 2.3</a>) — và
+          <code>context.getHandler()</code> của guard trả về
+          <strong>chính hàm đó</strong>. Cùng một quyển sách, hai người cùng cầm
+          đến hỏi thủ thư.
+        </div>
+
+        <h3 class="sub" id="s6.6">
+          6.6 · Sai địa chỉ: <code>Example</code> hay
+          <code>Example.prototype</code>?
+        </h3>
+        <p class="prose">
+          Tham số thứ tư đúng rồi vẫn còn một chỗ sai được:
+          <strong>tham số thứ ba</strong>. Câu hỏi hay gặp nhất khi tự gọi
+          <code>defineMetadata</code> bằng tay:
+        </p>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>sai — ghi vào constructor</span>
+            </div>
+            <pre
+              class="code-file__body"
+            ><code><span class="kw">class</span> Example { name: string; }
+
+Reflect.<span class="fn">defineMetadata</span>(<span class="st">"description"</span>, <span class="st">"Name of the person"</span>, Example, <span class="st">"name"</span>);</code></pre>
+            <pre
+              class="code-file__body out"
+              style="border-top: 1px solid var(--border)"
+            >
+getMetadata('description', Example, 'name')           = 'Name of the person'  ← ghi vào đây
+getMetadata('description', Example.prototype, 'name') = undefined             ← mọi người đọc ở đây</pre
+            >
+          </div>
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>đúng — ghi vào prototype</span>
+            </div>
+            <pre
+              class="code-file__body"
+            ><code>Reflect.<span class="fn">defineMetadata</span>(<span class="st">"description"</span>, <span class="st">"Name of the person"</span>, Example.prototype, <span class="st">"name"</span>);</code></pre>
+            <div
+              style="
+                padding: 14px 15px;
+                border-top: 1px solid var(--border);
+                font-size: 14.5px;
+              "
+            >
+              <code>Example</code> là <strong>constructor</strong> — quyển sổ
+              của bản thân class. <code>name</code> là field của
+              <strong>instance</strong>, mà mọi thứ thuộc instance đều mô tả
+              trên <code>Example.prototype</code>.
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Thứ được mô tả</th>
+                  <th><code>target</code> đúng</th>
+                  <th>Ai dán trong dự án</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Field của instance (<code>name: string</code>)</td>
+                  <td><code>X.prototype</code></td>
+                  <td>
+                    <code>@IsString()</code>, <code>@Expose()</code>,
+                    <code>@ApiProperty()</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Method của instance (<code>createRole() {}</code>)</td>
+                  <td><code>X.prototype</code></td>
+                  <td>rồi Nest dán tiếp lên <code>descriptor.value</code></td>
+                </tr>
+                <tr>
+                  <td>Field / method <code>static</code></td>
+                  <td><code>X</code> (constructor)</td>
+                  <td>không dùng</td>
+                </tr>
+                <tr>
+                  <td>Cả class</td>
+                  <td><code>X</code> (constructor)</td>
+                  <td>
+                    <code>@Controller()</code>, <code>@Injectable()</code>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">Vì sao nó hỏng lặng lẽ</div>
+          <code>defineMetadata</code> nhận
+          <strong>bất kỳ object nào</strong> làm target. Nó không biết
+          <code>"name"</code> có tồn tại trên object đó hay không, và cũng không
+          cần biết — nó chỉ <code>Map.set</code>. Ghi sai địa chỉ không ra lỗi,
+          chỉ ra <code>undefined</code> ở phía người đọc. Trong dự án, triệu
+          chứng sẽ là <code>ValidationPipe</code> cho qua một field lẽ ra phải
+          chặn, hoặc Swagger không hiện field — không dòng log nào nói vì sao.
+        </div>
+        <p class="prose">
+          <strong
+            >Cách tránh hẳn: đừng gọi <code>defineMetadata</code> bằng
+            tay.</strong
+          >
+          Viết decorator, vì decorator
+          <strong>được trao sẵn <code>target</code> đúng</strong>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>decorator nhận đúng cặp (prototype, "name")</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">import</span> <span class="st">"reflect-metadata"</span>;
+
+<span class="kw">const</span> Description = (text: string) =&gt; Reflect.<span class="fn">metadata</span>(<span class="st">"description"</span>, text);
+
+<span class="kw">class</span> Example {
+  @<span class="fn">Description</span>(<span class="st">"Name of the person"</span>) name: string;
+}
+
+Reflect.<span class="fn">getMetadata</span>(<span class="st">"description"</span>, Example.prototype, <span class="st">"name"</span>); <span class="cm">// 'Name of the person'</span></code></pre>
+        </div>
+        <p class="prose">
+          Với metadata trên method/class thì Nest có sẵn
+          <code>SetMetadata</code> (<a href="#s7">mục 7</a>), và dự án dùng đúng
+          nó. Gọi <code>defineMetadata</code> trực tiếp chỉ nên xuất hiện trong
+          <strong>script thử nghiệm</strong> và trong ruột thư viện — trong
+          <code>src/</code> của dự án không có dòng nào.
+        </p>
+
+        <h3 class="sub" id="s6.7">6.7 · Kế thừa: con đọc được nhãn của cha</h3>
+        <div class="card-grid card-grid--2">
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header"><span>cha khai, con đọc</span></div>
+            <pre
+              class="code-file__body"
+            ><code><span class="kw">class</span> BaseAdminController {}
+<span class="kw">class</span> UserController <span class="kw">extends</span> BaseAdminController {}
+
+Reflect.<span class="fn">defineMetadata</span>(<span class="st">"required_permission"</span>, <span class="st">"user:read:any"</span>, BaseAdminController);</code></pre>
+            <pre
+              class="code-file__body out"
+              style="border-top: 1px solid var(--border)"
+            >
+getMetadata(UserController)    = user:read:any   ← thấy, kế thừa
+getOwnMetadata(UserController) = undefined       ← chỉ nhìn chính nó</pre
+            >
+          </div>
+          <div class="code-file" style="margin: 0">
+            <div class="code-file__header">
+              <span>con tự khai thì đè lên</span>
+            </div>
+            <pre class="code-file__body out">
+getMetadata(UserController)      = user:update:any
+getMetadata(BaseAdminController) = user:read:any   ← cha không đổi</pre
+            >
+            <div
+              style="
+                padding: 14px 15px;
+                border-top: 1px solid var(--border);
+                font-size: 14.5px;
+              "
+            >
+              <code>getMetadata</code> trả lời
+              <em>"hiệu lực thực tế là gì"</em>; <code>getOwnMetadata</code> trả
+              lời <em>"chính class này có tự khai không"</em>. Nest dùng
+              <code>getMetadata</code>.
+            </div>
+          </div>
+        </div>
+        <p class="dim">
+          Trong dự án chưa có controller nào <code>extends</code> controller
+          khác, nên chuyện này chưa xảy ra. Nhưng khi gặp một route có quyền "từ
+          trên trời rơi xuống", đây là chỗ đầu tiên nên nhìn.
+        </p>
+
+        <h3 class="sub" id="s6.8">6.8 · Xem metadata thật trong dự án</h3>
+        <p class="prose">
+          Lý thuyết xong. Đây là <strong>toàn bộ</strong> ghi chú đang thật sự
+          nằm trong sổ cho <code>RoleController</code>, đọc ra mà chưa boot
+          Nest, chưa có request nào:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>output thật</span
+            ><span
+              >npx ts-node -r tsconfig-paths/register --transpile-only</span
+            >
+          </div>
+          <pre class="code-file__body out">
+A. Trên CLASS RoleController:
+    design:paramtypes      [[class RoleService]]
+    __controller__         true
+    path                   "roles"
+    swagger/apiUseTags     ["Roles"]
+
+B. Trên HÀM createRole:
+    path                   "/"
+    method                 1
+    required_permission    "role:create:any"
+    swagger/apiOperation   {"summary":"Create a new role"}
+    __httpCode__           200
+
+C. design:paramtypes của RoleService — DI đọc đúng mảng này:
+    [[class RoleRepository], [class RolePermissionCacheService]]
+
+D. Trên PROPERTY của DTO (dạng "một trang"):
+    name            design:type, swagger/apiModelProperties
+    permissionIds   design:type, swagger/apiModelProperties
+    design:type của 'name'          = [class String]
+    design:type của 'permissionIds' = [class Array]</pre
+          >
+        </div>
+        <div class="ve-card ve-card--hero" style="--i: 0">
+          <div class="ve-card__label">Đọc bảng này là hiểu cả framework</div>
+          <ul class="node-list">
+            <li>
+              <code>path</code>, <code>method</code>,
+              <code>__httpCode__</code> — Nest dùng để dựng router.
+              <code>method: 1</code> là <strong>số</strong>: đó là
+              <code>RequestMethod.POST</code> trong enum.
+            </li>
+            <li>
+              <code>required_permission</code> — <strong>của dự án</strong>. Nằm
+              <strong>ngang hàng</strong> với nhãn của framework, không có gì
+              đặc biệt hơn. Cùng một cuốn sổ, cùng một API.
+            </li>
+            <li>
+              <code>swagger/*</code> — thư viện thứ ba, dùng tiền tố riêng để
+              khỏi đụng tên.
+            </li>
+            <li>
+              <code>design:paramtypes</code> trên <code>RoleService</code> —
+              mảng class mà DI container đọc (<a
+                href="06-modules-and-dependency-injection.html"
+                >chương 6</a
+              >).
+            </li>
+            <li>
+              <code>design:type</code> của <code>permissionIds</code> là
+              <code>[class Array]</code>, <strong>không</strong> phải
+              <code>string[]</code> — metadata kiểu không giữ được tham số
+              generic (<a href="#s5">mục 5</a>). Vì thế
+              <code>class-validator</code> cần <code>@IsArray()</code>
+              <strong>và</strong> <code>{ each: true }</code>.
+            </li>
+          </ul>
+        </div>
+        <div class="callout callout--danger">
+          <div class="callout__title">Bẫy khi tự viết script in metadata</div>
+          <code>JSON.stringify</code> biến function thành <code>null</code>, nên
+          <code
+            >JSON.stringify(Reflect.getMetadata("design:paramtypes",
+            RoleService))</code
+          >
+          in ra <code>[null,null]</code> và trông như DI bị hỏng. Hãy in
+          <code>.name</code> của từng phần tử.
+          <strong>Tôi đã mắc đúng lỗi này khi soạn mục này.</strong>
+        </div>
+
+        <h3 class="sub" id="s6.9">6.9 · Bảng tra API</h3>
+        <p class="prose">
+          Ba hàm ở <a href="#s6.3">mục 6.3</a> là đủ dùng hằng ngày. Đây là danh
+          sách đầy đủ để tra khi cần:
+        </p>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Hàm</th>
+                  <th>Làm gì</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <code>defineMetadata(key, value, target[, prop])</code>
+                  </td>
+                  <td>ghi (ghi đè im lặng nếu trùng key)</td>
+                </tr>
+                <tr>
+                  <td><code>getMetadata(key, target[, prop])</code></td>
+                  <td>đọc, <strong>đi ngược</strong> lên class cha</td>
+                </tr>
+                <tr>
+                  <td><code>getOwnMetadata(key, target[, prop])</code></td>
+                  <td>đọc, chỉ chính nó</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>hasMetadata</code> / <code>hasOwnMetadata</code>
+                  </td>
+                  <td>có hay không, không lấy giá trị</td>
+                </tr>
+                <tr>
+                  <td>
+                    <code>getMetadataKeys</code> /
+                    <code>getOwnMetadataKeys</code>
+                  </td>
+                  <td>liệt kê mọi key</td>
+                </tr>
+                <tr>
+                  <td><code>deleteMetadata(key, target[, prop])</code></td>
+                  <td>xoá</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-grid card-grid--2">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label">Key thường là chuỗi</div>
+            <p>
+              Nest đặt theo quy ước để tránh đụng: <code>"path"</code>,
+              <code>"method"</code>, <code>"__guards__"</code>,
+              <code>"swagger/apiOperation"</code>. Dự án theo đúng quy ước:
+            </p>
+            <pre
+              class="code-file__body"
+              style="
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 12.5px;
+              "
+            ><code><span class="kw">export const</span> PERMISSION_KEY = <span class="st">"required_permission"</span>;</code></pre>
+            <p style="margin-top: 10px">
+              Đặt vào hằng số export ra là quan trọng: người
+              <strong>ghi</strong> và người <strong>đọc</strong> phải dùng đúng
+              cùng một chuỗi. Gõ tay hai nơi thì sai một ký tự là im lặng hỏng.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--amber">
+              Khi viết script <code>ts-node</code> độc lập
+            </div>
+            <p>
+              <code>import "reflect-metadata"</code> chỉ cần
+              <strong>một lần</strong> cho cả tiến trình — nó vá vào global
+              <code>Reflect</code>. Trong dự án Nest đã import sẵn nên bạn không
+              thấy dòng này ở đâu trong <code>src/</code>. Nhưng script tự viết
+              thì <strong>phải</strong> tự import, nếu không sẽ báo
+              <code>undefined is not a function</code>.
+            </p>
+            <p style="margin-top: 10px">
+              Key cũng có thể là <strong>symbol</strong>, khi đó không thể đụng
+              tên với bất kỳ thư viện nào. Dự án không cần tới mức đó.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="sub" id="s6.10">6.10 · Hai điều nên nhớ</h3>
+        <div class="card-grid card-grid--2">
+          <div class="ve-card ve-card--elevated" style="--i: 0">
+            <div class="ve-card__label ve-card__label--amber">
+              Metadata gắn với hàm/class, không gắn với instance
+            </div>
+            <p>
+              Mọi instance của <code>RoleController</code> dùng chung một
+              <code>RoleController.prototype.createRole</code>, nên dùng chung
+              một bộ ghi chú. Đừng lưu trạng thái theo-request vào metadata —
+              chỗ của nó là object <code>request</code> (<a
+                href="03-guards.html#s9"
+                >chương 3 §9</a
+              >).
+            </p>
+          </div>
+          <div class="ve-card ve-card--elevated" style="--i: 1">
+            <div class="ve-card__label ve-card__label--c">
+              Metadata chỉ là nơi cất, không phải cơ chế thi hành
+            </div>
+            <p>
+              Dán <code>required_permission</code> lên một hàm
+              <strong>không</strong> làm hàm đó được bảo vệ — y như viết "phòng
+              này cấm vào" lên giấy nhớ không khoá được cửa. Phải có ai đó đọc
+              và hành động, và đó là nội dung hai chương tiếp theo.
+            </p>
+          </div>
+        </div>
+
+        <div class="sec-head" id="s7">
+          <span class="sec-head__num">07</span
+          ><span class="sec-head__text"
+            ><code>SetMetadata</code> — decorator metadata trong một dòng</span
+          >
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>@nestjs/common — mã nguồn thật, rút gọn comment</span
+            ><span>set-metadata.decorator.js</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">const</span> <span class="fn">SetMetadata</span> = (metadataKey, metadataValue) =&gt; {
+  <span class="kw">const</span> decoratorFactory = (target, key, descriptor) =&gt; {
+    <span class="kw">if</span> (descriptor) {                                                    <span class="cm">// method</span>
+      Reflect.<span class="fn">defineMetadata</span>(metadataKey, metadataValue, descriptor.value); <span class="cm">// ← lên chính hàm</span>
+      <span class="kw">return</span> descriptor;
+    }
+    Reflect.<span class="fn">defineMetadata</span>(metadataKey, metadataValue, target);           <span class="cm">// class → constructor</span>
+    <span class="kw">return</span> target;
+  };
+  decoratorFactory.KEY = metadataKey;
+  <span class="kw">return</span> decoratorFactory;
+};</code></pre>
+        </div>
+        <div class="callout callout--info">
+          <div class="callout__title">
+            Vậy <code>@RequirePermission("product:read:own")</code> trên
+            <code>getManageProducts</code> cuối cùng là
+          </div>
+          <code
+            >Reflect.defineMetadata("required_permission", "product:read:own",
+            ManageProductController.prototype.getManageProducts)</code
+          >
+          — không hơn. Dán một nhãn lên hàm. Ai đọc, đọc lúc nào, làm gì — là
+          chuyện
+          <a href="02-reflector-execution-context-and-discovery.html"
+            >chương 2</a
+          >
+          và 3.
+        </div>
+        <details class="collapsible">
+          <summary>
+            Biến thể có kiểu: <code>Reflector.createDecorator</code> (Nest
+            10.2+)
+          </summary>
+          <div class="collapsible__body">
+            <pre
+              class="code-file__body"
+              style="border: 1px solid var(--border); border-radius: 8px"
+            ><code><span class="kw">export const</span> RequirePermission = Reflector.<span class="fn">createDecorator</span>&lt;PermissionKey&gt;();
+<span class="cm">// dùng:  @RequirePermission("product:read:own")
+// đọc:   reflector.get(RequirePermission, handler)  // kiểu PermissionKey | undefined, không cần &lt;T&gt;</span></code></pre>
+            <p style="margin: 10px 0 0">
+              Dự án chọn <code>SetMetadata</code> + hằng số. Tương đương về hành
+              vi; typo vẫn bị compile bắt ở tham số
+              <code>key: PermissionKey</code>.
+            </p>
+          </div>
+        </details>
+
+        <div class="sec-head" id="s8">
+          <span class="sec-head__num">08</span
+          ><span class="sec-head__text"
+            >Ngã ba quan trọng nhất: hai loại decorator sống chung một thư
+            mục</span
+          >
+        </div>
+        <div class="diff-panels">
+          <div>
+            <div class="diff-panel__header diff-panel__header--a">
+              Decorator metadata
+            </div>
+            <div class="diff-panel__body">
+              <ul>
+                <li>Tạo bằng <code>SetMetadata</code></li>
+                <li>Dán lên method hoặc class</li>
+                <li>Chạy <strong>một lần</strong> khi class được định nghĩa</li>
+                <li>Dán nhãn để ai đó đọc sau</li>
+                <li>
+                  <code>@RequirePermission</code>, <code>@AuthApi</code>,
+                  <code>@IsPublicApi</code>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <div class="diff-panel__header diff-panel__header--b">
+              Param decorator
+            </div>
+            <div class="diff-panel__body">
+              <ul>
+                <li>Tạo bằng <code>createParamDecorator</code></li>
+                <li>Dán lên <strong>tham số</strong> của method</li>
+                <li>
+                  Factory chạy <strong>mỗi request</strong>, ngay trước handler
+                </li>
+                <li><strong>Tính ra giá trị</strong> truyền vào tham số</li>
+                <li>
+                  <code>@ActiveUser</code>, <code>@PermissionScope</code>,
+                  <code>@CurrentLang</code>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/shared/param-decorators/active-user.decorator.ts</span
+            ><span>dòng 7-16</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">const</span> ActiveUser = <span class="fn">createParamDecorator</span>(
+  (field: <span class="kw">keyof</span> AccessTokenPayload, context: ExecutionContext) =&gt; {
+    <span class="kw">const</span> request = context.<span class="fn">switchToHttp</span>().<span class="fn">getRequest</span>&lt;Request&gt;();
+    <span class="kw">const</span> user = request[REQUEST_USER_KEY] <span class="kw">as</span> AccessTokenPayload;
+
+    <span class="kw">return</span> field ? user[field] : user;   <span class="cm">// @ActiveUser("userId") → field = "userId"; @ActiveUser() → cả payload</span>
+  },
+);
+
+<span class="kw">export default</span> ActiveUser;   <span class="cm">// default export → import không có ngoặc nhọn</span></code></pre>
+        </div>
+        <p class="prose">
+          Nói cho chính xác:
+          <strong>mọi decorator đều chạy lúc định nghĩa</strong>; nhưng param
+          decorator dán vào một <em>hàm factory</em> mà Nest sẽ gọi lại mỗi
+          request, và kết quả của factory <em>chính là</em> giá trị tham số. Còn
+          nhận thêm pipe: <code>@ActiveUser("userId", ParseUUIDPipe)</code>.
+        </p>
+
+        <div class="sec-head" id="s9">
+          <span class="sec-head__num">09</span
+          ><span class="sec-head__text"
+            ><code>applyDecorators</code> — ghép nhiều thành một</span
+          >
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/shared/param-decorators/http-decorator.ts</span
+            ><span>dòng 22-117, rút gọn</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="kw">export function</span> <span class="fn">ApiAuth</span>({ type, options, statusCode = HttpStatus.OK }): MethodDecorator {
+  <span class="kw">const</span> arrDecorator = [
+    <span class="fn">ApiUnauthorizedResponse</span>({ ... }), <span class="fn">ApiForbiddenResponse</span>({ ... }),
+    <span class="fn">ApiInternalServerErrorResponse</span>({ ... }), <span class="fn">ApiBadRequestResponse</span>({ ... }),
+    <span class="fn">ApiUnprocessableEntityResponse</span>({ ... }), <span class="fn">ApiNotFoundResponse</span>({ ... }),
+    <span class="fn">ApiOperation</span>({ summary: options?.summary }),
+    <span class="fn">ApiOkResponse</span>({ type, description: options?.description ?? <span class="st">"OK"</span> }),
+  ];
+  <span class="kw">return</span> <span class="fn">applyDecorators</span>(...arrDecorator, <span class="fn">ApiHeaders</span>(arrHeader), <span class="fn">HttpCode</span>(statusCode));
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>applyDecorators</code> trả về một decorator; khi áp lên method
+          nó lần lượt gọi từng decorator con với cùng
+          <code>(target, key, descriptor)</code> — một vòng <code>for</code>.
+          Điều đáng học: <code>ApiAuth</code>, <code>ApiPublic</code>,
+          <code>ApiPageOkResponse</code> là ba composite
+          <strong>vì ba nhóm route có hợp đồng lỗi khác nhau</strong> — route
+          public không thể 401/403. Composite decorator là chỗ mã hoá quy ước dự
+          án thành một từ.
+        </p>
+
+        <div class="sec-head" id="s10">
+          <span class="sec-head__num">10</span
+          ><span class="sec-head__text"
+            >Decorator có sẵn của Nest cũng chỉ là metadata</span
+          >
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Decorator</th>
+                  <th>Key (<code>@nestjs/common/constants</code>)</th>
+                  <th>Gắn lên</th>
+                  <th>Giá trị</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>@Controller("brands")</code></td>
+                  <td><code>PATH_METADATA</code> = <code>"path"</code></td>
+                  <td>class</td>
+                  <td><code>"brands"</code></td>
+                </tr>
+                <tr>
+                  <td><code>@Get(":id")</code></td>
+                  <td>
+                    <code>PATH_METADATA</code> + <code>METHOD_METADATA</code>
+                  </td>
+                  <td>method</td>
+                  <td>
+                    <code>":id"</code> + <code>RequestMethod.GET</code> (=
+                    <code>0</code>)
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>@UseGuards(X)</code></td>
+                  <td>
+                    <code>GUARDS_METADATA</code> = <code>"__guards__"</code>
+                  </td>
+                  <td>method/class</td>
+                  <td><code>[X]</code></td>
+                </tr>
+                <tr>
+                  <td><code>@HttpCode(201)</code></td>
+                  <td><code>HTTP_CODE_METADATA</code></td>
+                  <td>method</td>
+                  <td><code>201</code></td>
+                </tr>
+                <tr>
+                  <td><code>@Injectable()</code></td>
+                  <td><code>INJECTABLE_WATERMARK</code></td>
+                  <td>class</td>
+                  <td><code>true</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">
+            <span>src/shared/utils/collect-route-permissions.util.ts</span
+            ><span>dòng 57-61</span>
+          </div>
+          <pre
+            class="code-file__body"
+          ><code><span class="cm">// Only methods Nest registered as routes carry PATH_METADATA; plain
+// helper methods on a controller do not and are skipped.</span>
+<span class="kw">if</span> (Reflect.<span class="fn">getMetadata</span>(PATH_METADATA, handler) === <span class="kw">undefined</span>) {
+  <span class="kw">continue</span>;
+}</code></pre>
+        </div>
+        <p class="prose">
+          Muốn biết một method có phải route không? Hỏi bảng metadata xem nó có
+          <code>PATH_METADATA</code> không. Không cần API riêng của Nest.
+        </p>
+
+        <div class="sec-head" id="s11">
+          <span class="sec-head__num">11</span
+          ><span class="sec-head__text">Nâng cao: những chỗ dễ vấp</span>
+        </div>
+        <div class="card-grid">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label ve-card__label--red">
+              Arrow-property + <code>@Get()</code> nổ lúc định nghĩa
+            </div>
+            <p>
+              <code>@Get() list = () =&gt; {}</code> →
+              <code
+                >TypeError: Cannot read properties of undefined (reading
+                'value')</code
+              >. Property decorator không có <code>descriptor</code>, mà
+              <code>@Get()</code> dán lên <code>descriptor.value</code>. Lỗi
+              hiện khi import file, trước cả khi Nest boot. Luôn dùng method
+              thật.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--amber">
+              Kế thừa controller
+            </div>
+            <p>
+              Nest dùng <code>getMetadata</code> (đi ngược chain) → decorator
+              trên class cha được con thừa hưởng. Tiện khi muốn nhãn mặc định
+              cho một nhóm; nhưng sửa cha là đổi mọi con, và không nhìn thấy ở
+              file con.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--amber">
+              Metadata dùng chung mọi instance
+            </div>
+            <p>
+              Dán lên hàm trên prototype → mọi instance thấy cùng một giá trị.
+              Đừng lưu trạng thái theo-request vào metadata — dùng
+              <code>request</code> (<a href="03-guards.html">chương 3</a>).
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 3">
+            <div class="ve-card__label ve-card__label--red">
+              Circular import → <code>design:paramtypes</code> có lỗ
+            </div>
+            <p>
+              A import B, B import A → lúc decorator chạy một class chưa được
+              định nghĩa → Nest báo "cannot resolve dependency at index N". Phá
+              vòng import hoặc <code>forwardRef</code>.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 4">
+            <div class="ve-card__label ve-card__label--amber">
+              Service không dependency vẫn chạy mà thiếu
+              <code>@Injectable()</code>
+            </div>
+            <p>
+              Vì không cần <code>design:paramtypes</code>. Thêm dependency vào
+              là vỡ. Luôn để <code>@Injectable()</code>.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 5">
+            <div class="ve-card__label ve-card__label--red">
+              <code>defineMetadata</code> vào class thay vì
+              <code>prototype</code>
+            </div>
+            <p>
+              Tự gọi tay với <code>target</code> là class trong khi mô tả field
+              của instance: không lỗi, không cảnh báo, người đọc chỉ thấy
+              <code>undefined</code> (<a href="#s6.6">mục 6.6</a>). Dùng
+              decorator thay vì gọi tay thì không vấp được chỗ này.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 6">
+            <div class="ve-card__label ve-card__label--amber">
+              Tắt <code>experimentalDecorators</code>
+            </div>
+            <p>
+              Decorator của Nest báo lỗi khó hiểu về chữ ký
+              <code>(value, context)</code>. Nguyên nhân luôn là cờ tsconfig.
+            </p>
+          </div>
+        </div>
+
+        <div class="sec-head" id="s12">
+          <span class="sec-head__num">12</span
+          ><span class="sec-head__text">Trong dự án này</span>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>File (<code>src/shared/param-decorators/</code>)</th>
+                  <th>Loại</th>
+                  <th>Dán gì / tính gì</th>
+                  <th>Ai đọc</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>require-permission.decorator.ts</code></td>
+                  <td><span class="tag">Metadata</span></td>
+                  <td>key quyền handler cần</td>
+                  <td>
+                    <code>AccessTokenGuard</code>,
+                    <code>collectRoutePermissions</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>auth-api.decorator.ts</code></td>
+                  <td><span class="tag">Metadata</span></td>
+                  <td>
+                    policy xác thực; <code>@IsPublicApi()</code> =
+                    <code>None</code>
+                  </td>
+                  <td>
+                    <code>AuthorizationHeaderGuard</code>,
+                    <code>collectRoutePermissions</code>
+                  </td>
+                </tr>
+                <tr>
+                  <td><code>active-user.decorator.ts</code></td>
+                  <td><span class="tag tag--c">Param</span></td>
+                  <td>một trường của JWT payload trên <code>request</code></td>
+                  <td>handler</td>
+                </tr>
+                <tr>
+                  <td><code>permission-scope.decorator.ts</code></td>
+                  <td><span class="tag tag--c">Param</span></td>
+                  <td>
+                    <code>own</code>/<code>any</code> từ tập quyền trên
+                    <code>request</code>
+                  </td>
+                  <td>handler → service</td>
+                </tr>
+                <tr>
+                  <td><code>current-lang.decorator.ts</code></td>
+                  <td><span class="tag tag--c">Param</span></td>
+                  <td>
+                    mã ngôn ngữ từ <code>I18nContext</code> (middleware i18n đã
+                    đặt)
+                  </td>
+                  <td>handler</td>
+                </tr>
+                <tr>
+                  <td><code>http-decorator.ts</code></td>
+                  <td><span class="tag tag--b">Composite</span></td>
+                  <td>
+                    gom decorator Swagger + <code>HttpCode</code> theo ba hợp
+                    đồng
+                  </td>
+                  <td>Swagger, Nest</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="callout callout--warning">
+          <div class="callout__title">Một chi tiết kiểu dữ liệu</div>
+          <code>request[REQUEST_USER_KEY]</code> compile được trên kiểu
+          <code>Request</code> của Express
+          <strong
+            >vì <code>tsconfig.json:19</code> đặt
+            <code>noImplicitAny: false</code></strong
+          >. Bật cờ này lên là hai chỗ ghi/đọc đỏ; cách sửa đúng là
+          <code>declare module "express"</code> mở rộng <code>Request</code>.
+        </div>
+
+        <div class="sec-head" id="s13">
+          <span class="sec-head__num">13</span
+          ><span class="sec-head__text"
+            >Tự kiểm chứng — đã chạy thật khi viết</span
+          >
+        </div>
+        <div class="stack">
+          <div class="ve-card" style="--i: 0">
+            <div class="ve-card__label">
+              01 · Decorator chạy lúc định nghĩa, cái trên cùng thắng
+            </div>
+            <p>
+              Tạo <code>scratch-decorator.ts</code> ở gốc repo với hai
+              <code>@Tag("trên")</code> <code>@Tag("dưới")</code> trên một
+              method (code đầy đủ trong bản markdown), chạy
+              <code>npx ts-node --transpile-only scratch-decorator.ts</code>:
+            </p>
+            <pre
+              class="code-file__body out"
+              style="border: 1px solid var(--border); border-radius: 8px"
+            >
+[định nghĩa] hello ← dưới
+[định nghĩa] hello ← trên
+--- class đã định nghĩa, chưa gọi gì ---
+[gọi] hello
+tag cuối cùng: trên</pre
+            >
+          </div>
+          <div class="ve-card" style="--i: 1">
+            <div class="ve-card__label ve-card__label--b">
+              02 · Đọc metadata thật của một handler, không boot Nest
+            </div>
+            <p>
+              Import <code>ManageProductController</code>, đọc
+              <code>PATH_METADATA</code>, <code>METHOD_METADATA</code>,
+              <code>"required_permission"</code> trên
+              <code>prototype.getManageProducts</code>:
+            </p>
+            <pre
+              class="code-file__body out"
+              style="border: 1px solid var(--border); border-radius: 8px"
+            >
+path: /
+method: 0
+permission: product:read:own
+controller path: manage-product/products</pre
+            >
+            <p style="font-size: 14px; color: var(--text-dim)">
+              <code>@Get()</code> không tham số được ghi là <code>"/"</code>;
+              <code>method</code> là số — <code>0</code> là
+              <code>RequestMethod.GET</code>.
+            </p>
+          </div>
+          <div class="ve-card" style="--i: 2">
+            <div class="ve-card__label ve-card__label--c">
+              03 · Làm vỡ DI để thấy <code>emitDecoratorMetadata</code>
+            </div>
+            <p>
+              Tạm xoá <code>@Injectable()</code> trên
+              <code>role.service.ts</code>. <code>pnpm types-check</code> vẫn
+              xanh (lỗi runtime), chạy app →
+              <code
+                >Nest can't resolve dependencies of the RoleService (?,
+                ...)</code
+              >. Khôi phục.
+            </p>
+          </div>
+        </div>
+
+        <div class="footer-nav">
+          <a href="00-prototype-and-this.html"
+            ><small>Chương trước</small>← 00 — Prototype, this, và class</a
+          >
+          <a href="02-reflector-execution-context-and-discovery.html"
+            ><small>Chương tiếp</small>02 — Reflector, ExecutionContext,
+            Discovery →</a
+          >
+        </div>
+      </div>
+      <!-- /main -->
+    </div>
+    <!-- /wrap -->
+
+    <script>
+      (function () {
+        var toggle = document.getElementById("themeToggle");
+        var saved = null;
+        try {
+          saved = localStorage.getItem("theme");
+        } catch (e) {}
+        var initial =
+          saved ||
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        if (saved) document.documentElement.setAttribute("data-theme", initial);
+        toggle.textContent = initial === "dark" ? "☀" : "☾";
+        toggle.addEventListener("click", function () {
+          var current =
+            document.documentElement.getAttribute("data-theme") ||
+            (matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light");
+          var next = current === "light" ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", next);
+          try {
+            localStorage.setItem("theme", next);
+          } catch (e) {}
+          toggle.textContent = next === "dark" ? "☀" : "☾";
+        });
+      })();
+    </script>
+
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      const config = {
+        fitPadding: 28,
+        minHeight: 320,
+        maxHeightPx: 960,
+        maxHeightVh: 0.84,
+        maxInitialZoom: 1.8,
+        minZoom: 0.08,
+        maxZoom: 6.5,
+        zoomStep: 0.14,
+        readabilityFloor: 0.58,
+      };
+      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+      let activeDrag = null;
+      addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+      addEventListener("mouseup", () => {
+        activeDrag?.onEnd();
+        activeDrag = null;
+      });
+      const attr = document.documentElement.getAttribute("data-theme");
+      const isDark =
+        attr === "dark" ||
+        (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        look: "classic",
+        themeVariables: {
+          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+          fontSize: "15px",
+          primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+          primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+          primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+          secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+          secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+          tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+          tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          lineColor: isDark ? "#a89e90" : "#7c756a",
+          noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+          noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+          actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+          actorBorder: isDark ? "#f0743f" : "#c2410c",
+          actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          signalColor: isDark ? "#a89e90" : "#7c756a",
+          signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+        },
+      });
+      function initDiagram(shell) {
+        const wrap = shell.querySelector(".mermaid-wrap"),
+          viewport = shell.querySelector(".mermaid-viewport"),
+          canvas = shell.querySelector(".mermaid-canvas"),
+          source = shell.querySelector(".diagram-source"),
+          label = shell.querySelector(".zoom-label");
+        if (!wrap || !viewport || !canvas || !source || !label) return;
+        let zoom = 1,
+          fitMode = "contain",
+          panX = 0,
+          panY = 0,
+          svgW = 0,
+          svgH = 0,
+          sx = 0,
+          sy = 0,
+          spx = 0,
+          spy = 0,
+          touchDist = 0,
+          touchCx = 0,
+          touchCy = 0;
+        function constrainPan() {
+          const vpW = viewport.clientWidth,
+            vpH = viewport.clientHeight,
+            rW = svgW * zoom,
+            rH = svgH * zoom,
+            pad = config.fitPadding;
+          panX =
+            rW + pad * 2 <= vpW
+              ? (vpW - rW) / 2
+              : clamp(panX, vpW - rW - pad, pad);
+          panY =
+            rH + pad * 2 <= vpH
+              ? (vpH - rH) / 2
+              : clamp(panY, vpH - rH - pad, pad);
+        }
+        function applyTransform() {
+          const svg = canvas.querySelector("svg");
+          if (!svg || !svgW) return;
+          constrainPan();
+          svg.style.width = svgW * zoom + "px";
+          svg.style.height = svgH * zoom + "px";
+          canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+          label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+        }
+        function canPan() {
+          return (
+            svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+            svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+          );
+        }
+        function computeSmartFit() {
+          const vpW = viewport.clientWidth,
+            vpH = viewport.clientHeight,
+            aW = Math.max(80, vpW - config.fitPadding * 2),
+            aH = Math.max(80, vpH - config.fitPadding * 2),
+            contain = Math.min(aW / svgW, aH / svgH);
+          let z = contain,
+            mode = "contain";
+          if (contain < config.readabilityFloor) {
+            const chartR = svgH / svgW,
+              vpR = vpH / Math.max(vpW, 1);
+            if (chartR >= vpR) {
+              z = aW / svgW;
+              mode = "width-priority";
+            } else {
+              z = aH / svgH;
+              mode = "height-priority";
+            }
+          }
+          return {
+            zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+            mode,
+          };
+        }
+        function fitDiagram() {
+          if (!svgW) return;
+          const fit = computeSmartFit();
+          zoom = fit.zoom;
+          fitMode = fit.mode;
+          panX = (viewport.clientWidth - svgW * zoom) / 2;
+          panY = (viewport.clientHeight - svgH * zoom) / 2;
+          applyTransform();
+        }
+        function setOneToOne() {
+          zoom = clamp(1, config.minZoom, config.maxZoom);
+          fitMode = "1:1";
+          panX = (viewport.clientWidth - svgW * zoom) / 2;
+          panY = (viewport.clientHeight - svgH * zoom) / 2;
+          applyTransform();
+        }
+        function zoomAround(factor, cx, cy) {
+          const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+            ratio = next / zoom;
+          panX = cx - ratio * (cx - panX);
+          panY = cy - ratio * (cy - panY);
+          zoom = next;
+          fitMode = "custom";
+          applyTransform();
+        }
+        function readSvgNaturalSize(svg) {
+          let w = 0,
+            h = 0;
+          if (svg.viewBox?.baseVal?.width > 0) {
+            w = svg.viewBox.baseVal.width;
+            h = svg.viewBox.baseVal.height;
+          }
+          if (!w) {
+            w = parseFloat(svg.getAttribute("width")) || 0;
+            h = parseFloat(svg.getAttribute("height")) || 0;
+          }
+          if (!w) {
+            const b = svg.getBBox();
+            w = b.width;
+            h = b.height;
+          }
+          if (!w) {
+            const r = svg.getBoundingClientRect();
+            w = r.width || 1000;
+            h = r.height || 700;
+          }
+          if (!svg.getAttribute("viewBox"))
+            svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+          return { w, h };
+        }
+        function setAdaptiveHeight() {
+          if (!svgW) return;
+          const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2),
+            idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+            maxVp = Math.floor(innerHeight * config.maxHeightVh),
+            hardMax = Math.min(
+              config.maxHeightPx,
+              Math.max(config.minHeight + 40, maxVp),
+            );
+          wrap.style.height =
+            Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+        }
+        function openInNewTab() {
+          const svg = canvas.querySelector("svg");
+          if (!svg) return;
+          const clone = svg.cloneNode(true);
+          clone.style.width = "";
+          clone.style.height = "";
+          const bg = isDark ? "#1c1916" : "#faf6f0";
+          const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+          open(
+            URL.createObjectURL(new Blob([html], { type: "text/html" })),
+            "_blank",
+          );
+        }
+        async function render() {
+          try {
+            const code = source.textContent.trim();
+            if (!code) {
+              label.textContent = "Lỗi: nguồn rỗng";
+              return;
+            }
+            const id =
+              "diagram-" +
+              Date.now() +
+              "-" +
+              Math.random().toString(36).slice(2, 8);
+            const { svg } = await mermaid.render(id, code);
+            canvas.innerHTML = svg;
+            const svgNode = canvas.querySelector("svg");
+            if (!svgNode) {
+              label.textContent = "Lỗi: không có SVG";
+              return;
+            }
+            const size = readSvgNaturalSize(svgNode);
+            svgW = size.w;
+            svgH = size.h;
+            svgNode.removeAttribute("width");
+            svgNode.removeAttribute("height");
+            svgNode.style.maxWidth = "none";
+            svgNode.style.display = "block";
+            setAdaptiveHeight();
+            fitDiagram();
+          } catch (err) {
+            console.error("Mermaid render failed:", err);
+            label.textContent = "Lỗi: " + (err.message || "render thất bại");
+          }
+        }
+        const actions = {
+          "zoom-in": () =>
+            zoomAround(
+              1 + config.zoomStep,
+              viewport.clientWidth / 2,
+              viewport.clientHeight / 2,
+            ),
+          "zoom-out": () =>
+            zoomAround(
+              1 / (1 + config.zoomStep),
+              viewport.clientWidth / 2,
+              viewport.clientHeight / 2,
+            ),
+          "zoom-fit": fitDiagram,
+          "zoom-one": setOneToOne,
+          "zoom-expand": openInNewTab,
+        };
+        Object.entries(actions).forEach(([action, handler]) => {
+          wrap
+            .querySelector(`[data-action="${action}"]`)
+            ?.addEventListener("click", handler);
+        });
+        viewport.addEventListener("dblclick", fitDiagram);
+        viewport.addEventListener(
+          "wheel",
+          (e) => {
+            if (e.ctrlKey || e.metaKey) {
+              e.preventDefault();
+              const rect = viewport.getBoundingClientRect();
+              zoomAround(
+                e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep),
+                e.clientX - rect.left,
+                e.clientY - rect.top,
+              );
+              return;
+            }
+            if (canPan()) {
+              e.preventDefault();
+              panX -= e.deltaX;
+              panY -= e.deltaY;
+              applyTransform();
+            }
+          },
+          { passive: false },
+        );
+        viewport.addEventListener("mousedown", (e) => {
+          if (e.target.closest(".zoom-controls") || !canPan()) return;
+          wrap.classList.add("is-panning");
+          sx = e.clientX;
+          sy = e.clientY;
+          spx = panX;
+          spy = panY;
+          e.preventDefault();
+          activeDrag = {
+            onMove: (ev) => {
+              panX = spx + (ev.clientX - sx);
+              panY = spy + (ev.clientY - sy);
+              applyTransform();
+            },
+            onEnd: () => wrap.classList.remove("is-panning"),
+          };
+        });
+        viewport.addEventListener(
+          "touchstart",
+          (e) => {
+            if (e.touches.length === 1) {
+              sx = e.touches[0].clientX;
+              sy = e.touches[0].clientY;
+              spx = panX;
+              spy = panY;
+            } else if (e.touches.length === 2) {
+              const dx = e.touches[0].clientX - e.touches[1].clientX,
+                dy = e.touches[0].clientY - e.touches[1].clientY;
+              touchDist = Math.sqrt(dx * dx + dy * dy);
+              const r = viewport.getBoundingClientRect();
+              touchCx =
+                (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+              touchCy =
+                (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+            }
+          },
+          { passive: true },
+        );
+        viewport.addEventListener(
+          "touchmove",
+          (e) => {
+            if (e.touches.length === 1 && canPan()) {
+              if (touchDist > 0) {
+                sx = e.touches[0].clientX;
+                sy = e.touches[0].clientY;
+                spx = panX;
+                spy = panY;
+                touchDist = 0;
+              }
+              e.preventDefault();
+              panX = spx + (e.touches[0].clientX - sx);
+              panY = spy + (e.touches[0].clientY - sy);
+              applyTransform();
+            } else if (e.touches.length === 2 && touchDist > 0) {
+              e.preventDefault();
+              const dx = e.touches[0].clientX - e.touches[1].clientX,
+                dy = e.touches[0].clientY - e.touches[1].clientY,
+                d = Math.sqrt(dx * dx + dy * dy);
+              zoomAround(d / touchDist, touchCx, touchCy);
+              touchDist = d;
+            }
+          },
+          { passive: false },
+        );
+        new ResizeObserver(() => {
+          if (svgW) {
+            setAdaptiveHeight();
+            fitDiagram();
+          }
+        }).observe(wrap);
+        render();
+      }
+      document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+    </script>
+
+    <script>
+      (function () {
+        const toc = document.getElementById("toc");
+        if (!toc) return;
+        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
+        const sections = [];
+        links.forEach((link) => {
+          const id = link.getAttribute("href").slice(1);
+          const el = document.getElementById(id);
+          if (el) sections.push({ id, el, link });
+        });
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                links.forEach((l) => l.classList.remove("active"));
+                const match = sections.find((s) => s.el === entry.target);
+                if (match) {
+                  match.link.classList.add("active");
+                  if (window.innerWidth <= 1000)
+                    match.link.scrollIntoView({
+                      behavior: "smooth",
+                      block: "nearest",
+                      inline: "center",
+                    });
+                }
+              }
+            });
+          },
+          { rootMargin: "-10% 0px -80% 0px" },
+        );
+        sections.forEach((s) => observer.observe(s.el));
+        links.forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const id = link.getAttribute("href").slice(1);
+            const el = document.getElementById(id);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "start" });
+              history.replaceState(null, "", "#" + id);
+            }
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

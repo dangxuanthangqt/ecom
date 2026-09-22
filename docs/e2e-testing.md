@@ -15,7 +15,7 @@ pnpm test:e2e
 ```
 
 `pnpm test:e2e` runs `pretest:e2e` first (aliased to `pnpm test:e2e:setup`), which resets and
-migrates `ecom_e2e`, seeds fixtures, syncs route permissions, and flushes the Redis DB used for
+migrates `ecom_e2e`, seeds fixtures, syncs the permission catalogue and system-role grants, and flushes the Redis DB used for
 tests — then runs the suite itself via `jest --config ./test/jest-e2e.json --runInBand`.
 
 To debug the setup step on its own, without running the suite:
@@ -40,7 +40,7 @@ the fix is procedural (never run it twice at once), not a code change.
 | Concern      | Choice                                                                                                                                                                                                                                                                 | Why                                                                                                                                                                                                                                                 |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Database     | A separate `ecom_e2e` database on the same Postgres instance `docker-compose.yml` already runs, rebuilt with `prisma migrate reset --force --skip-seed` before every run.                                                                                              | No testcontainers, no second compose service — reuses the existing `db` container. `scripts/prepare-e2e-database.sh` refuses to run unless `DATABASE_URL` contains `ecom_e2e`, so a stale or typo'd env can never point the reset at dev/prod data. |
-| Redis        | Logical DB 1 (`redis://localhost:6379/1`), `FLUSHDB` before every run.                                                                                                                                                                                                 | The `RolePermissionCacheService` caches role/permission lookups; a stale cache entry from a previous run or from local dev (DB 0) is a real cross-run 403 hazard, not a theoretical one.                                                            |
+| Redis        | Logical DB 1 (`redis://localhost:6379/1`), `FLUSHDB` before every run.                                                                                                                                                                                                 | The `RolePermissionCacheService` caches each role's permission-key set (`role-permission:{roleId}`); a stale cache entry from a previous run or from local dev (DB 0) is a real cross-run 403 hazard, not a theoretical one.                        |
 | Env layering | `.env.test` carries only the e2e overrides (`NODE_ENV`, `DATABASE_URL`, `REDIS_URL`, `RESEND_API_KEY`); everything else falls through from `.env` because `ConfigModule.forRoot` reads `.env.${NODE_ENV}` then `.env`, and dotenv never overwrites an already-set key. | Keeps the override file small and obviously e2e-specific instead of duplicating the whole `.env`.                                                                                                                                                   |
 
 ## The auth-via-real-login pattern
@@ -53,7 +53,7 @@ same two steps a real client would:
 2. Replay that `accessToken` as `Authorization: Bearer <token>` on the request under test.
 
 This means a passing spec is proof the full guard chain — header parsing, token verification,
-role/permission cache lookup (cache miss falling back to Postgres, then populating the cache) —
+permission resolution (`@RequirePermission` on the handler, the role's key set from Redis or Postgres, the `any`-implies-`own` rule) —
 works end to end, not just that a handler's business logic works in isolation.
 
 ## What is not covered, and why

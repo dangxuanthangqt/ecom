@@ -37,17 +37,19 @@ do when you add a new failure of your own.
 
 `ErrorDetailDto`:
 
-| Field     | Example                      | What it is                                                                     |
-| --------- | ---------------------------- | ------------------------------------------------------------------------------ |
-| `field`   | `"address.city"`             | Dotted path to the offending input. Nested DTOs flatten into this path.        |
-| `code`    | `"isNotEmpty"`               | The class-validator constraint name. Stable across message and locale changes. |
-| `message` | `"city should not be empty"` | Text for this one constraint.                                                  |
+| Field     | Example                      | What it is                                                                                                                                          |
+| --------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `field`   | `"address.city"`             | Dotted path to the offending input. Nested DTOs flatten into this path.                                                                             |
+| `code`    | `"isNotEmpty"`               | Either a registered `ErrorCode` (business failure) or a class-validator constraint name (DTO validation). Stable across message and locale changes. |
+| `message` | `"city should not be empty"` | Text for this one constraint.                                                                                                                       |
 
 ### Two rules for clients
 
-**Branch on `error` and `details[].code`, never on `message`.** Message text is
-human-facing copy; it will be reworded, and one day it will be localized. The codes are
-part of the contract and change only with a versioned API change.
+**Branch on `error` and `details[].code`, never on `message`.** `message` is English,
+meant for logs and developers — it is never copy to show a user, and it will be reworded
+without notice. Localization happens in the frontend, which translates `error` and
+`details[].code` into locale copy and falls back to `message` only when nothing else is
+available. The codes are part of the contract and change only with a versioned API change.
 
 **Treat `details` as a list, not a map.** A single field with two failed constraints
 produces two entries with the same `field`. Group client-side if your form needs one
@@ -162,18 +164,18 @@ pair.
 
 ## The pieces
 
-| File                                                                                                | Responsibility                                                            |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [`src/dtos/error-response.dto.ts`](../src/dtos/error-response.dto.ts)                               | The envelope. Fills `error` and `message` from the status when not given. |
-| [`src/dtos/error-detail.dto.ts`](../src/dtos/error-detail.dto.ts)                                   | One failed constraint on one field.                                       |
-| [`src/shared/filters/global-exception.filter.ts`](../src/shared/filters/global-exception.filter.ts) | The only writer of an error response. Dispatch, `requestId`, logging.     |
-| [`src/shared/filters/http-exception.mapper.ts`](../src/shared/filters/http-exception.mapper.ts)     | `HttpException` → envelope.                                               |
-| [`src/shared/filters/prisma-error.mapper.ts`](../src/shared/filters/prisma-error.mapper.ts)         | Prisma error code → status + public message.                              |
-| [`src/shared/exceptions/validate.exception.ts`](../src/shared/exceptions/validate.exception.ts)     | Raised by the validation pipe; carries the envelope as its payload.       |
-| [`src/shared/utils/app.util.ts`](../src/shared/utils/app.util.ts)                                   | Flattens class-validator's error tree into `ErrorDetailDto[]`.            |
-| [`src/shared/utils/validation-pipe.config.ts`](../src/shared/utils/validation-pipe.config.ts)       | The one pipe configuration.                                               |
-| [`src/constants/error-code.constant.ts`](../src/constants/error-code.constant.ts)                   | Deliberate codes + `errorCodeFromStatus`.                                 |
-| [`src/constants/error-message.constant.ts`](../src/constants/error-message.constant.ts)             | Fallback text per status.                                                 |
+| File                                                                                                | Responsibility                                                                                              |
+| --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| [`src/dtos/error-response.dto.ts`](../src/dtos/error-response.dto.ts)                               | The envelope. Fills `error` and `message` from the status when not given.                                   |
+| [`src/dtos/error-detail.dto.ts`](../src/dtos/error-detail.dto.ts)                                   | One failed constraint on one field.                                                                         |
+| [`src/shared/filters/global-exception.filter.ts`](../src/shared/filters/global-exception.filter.ts) | The only writer of an error response. Dispatch, `requestId`, logging.                                       |
+| [`src/shared/filters/http-exception.mapper.ts`](../src/shared/filters/http-exception.mapper.ts)     | `HttpException` → envelope.                                                                                 |
+| [`src/shared/filters/prisma-error.mapper.ts`](../src/shared/filters/prisma-error.mapper.ts)         | Prisma error code → status + public message.                                                                |
+| [`src/shared/exceptions/validate.exception.ts`](../src/shared/exceptions/validate.exception.ts)     | Raised by the validation pipe; carries the envelope as its payload.                                         |
+| [`src/shared/utils/app.util.ts`](../src/shared/utils/app.util.ts)                                   | Flattens class-validator's error tree into `ErrorDetailDto[]`.                                              |
+| [`src/shared/utils/validation-pipe.config.ts`](../src/shared/utils/validation-pipe.config.ts)       | The one pipe configuration.                                                                                 |
+| [`src/constants/error-codes/index.ts`](../src/constants/error-codes/index.ts)                       | Merges the 8 per-domain code files into `ErrorCode` (84 codes) + `errorCodeFromStatus` + `ALL_ERROR_CODES`. |
+| [`src/constants/error-message.constant.ts`](../src/constants/error-message.constant.ts)             | Fallback text per status.                                                                                   |
 
 Both the pipe and the filter are registered once, in
 [`src/shared/modules/base.module.ts`](../src/shared/modules/base.module.ts), as `APP_PIPE`
@@ -219,6 +221,21 @@ using `HttpStatus`'s own reverse mapping — 404 becomes `"NOT_FOUND"`, 422 beco
 `VALIDATION_FAILED` is the one code that is set explicitly, because "a DTO failed
 validation" is a distinct thing from "the request was bad" even though both are 400.
 
+`ErrorCode` itself is assembled in
+[`src/constants/error-codes/index.ts`](../src/constants/error-codes/index.ts) from one file
+per domain (`infra`, `auth`, `identity`, `catalog`, `cart`, `order`, `review`, `upload`) —
+84 codes total, kept under the project's per-file size limit. `index.ts` also exports a
+same-named `ErrorCode` type, the closed union of every value in the object;
+`throwHttpException`'s `code` parameter is typed to it, so a misspelled or unregistered code
+fails at compile time instead of reaching a client that cannot branch on it.
+
+`http-decorator.ts` registers every error response with `type: ErrorResponseDto`, not just
+`schema.example` — that's what puts `ErrorResponseDto` into `components/schemas`, which is
+what makes `error`'s `@ApiProperty({ enum: ALL_ERROR_CODES })` reach `swagger.yaml` as an
+enum instead of a bare `string`. `ALL_ERROR_CODES` (also from `error-codes/index.ts`) is the
+registry plus every status-derived name `HttpStatus` can produce, since both reach the wire.
+This is what lets a generated client type `error` as a union.
+
 ## Prisma
 
 Repository failures never reach the client verbatim — Prisma's message text names tables,
@@ -263,46 +280,62 @@ This is the convention across services and repositories, and the reason it exist
 that it produces the envelope for you:
 
 ```ts
+import { ErrorCode } from "@/constants/error-codes";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 throwHttpException({
   type: "unprocessable",
+  code: ErrorCode.VERIFICATION_CODE_INVALID,
   message: "Verification code is not valid.",
 });
-// -> { statusCode: 422, error: "UNPROCESSABLE_ENTITY",
+// -> { statusCode: 422, error: "VERIFICATION_CODE_INVALID",
 //      message: "Verification code is not valid.", details: [], requestId: "…" }
 ```
 
 `type` is one of `badRequest`, `notFound`, `unprocessable`, `unauthorized`, `forbidden`,
-`conflict`, `internal`, and decides the status.
+`conflict`, `tooManyRequests`, `internal`, and decides the status.
 
-Pass `field` when the failure is about a specific input. It becomes one `details` entry, so
-a form can highlight the right box:
+Pass `code` whenever a client must branch on the failure rather than merely display it —
+that is the whole point of the field. `code` is a registered `ErrorCode`, and it sets BOTH
+the envelope's top-level `error` and the `details[].code` for any field this throw names:
 
 ```ts
 throwHttpException({
   type: "conflict",
   message: "SKU is out of stock.",
   field: "items.0.skuId",
-  code: "outOfStock",
+  code: ErrorCode.SKU_INSUFFICIENT_STOCK,
 });
-// details: [{ field: "items.0.skuId", code: "outOfStock", message: "SKU is out of stock." }]
+// -> { error: "SKU_INSUFFICIENT_STOCK",
+//      details: [{ field: "items.0.skuId", code: "SKU_INSUFFICIENT_STOCK",
+//                   message: "SKU is out of stock." }] }
 ```
 
-`code` defaults to `"invalid"`. Pass a real one whenever the client must branch on the
-failure rather than merely display it — that is the whole point of the field. `error`
-overrides the top-level machine code the same way:
+Pass `detailCode` instead when the `details` entry must carry something other than `code` —
+the one real case is a class-validator constraint name:
 
 ```ts
 throwHttpException({
   type: "conflict",
   message: "Some items are no longer available.",
-  error: "CART_ITEMS_UNAVAILABLE",
+  field: "items.0.skuId",
+  code: ErrorCode.SKU_UNAVAILABLE,
+  detailCode: "isOptional",
 });
+// details[].code is "isOptional"; the envelope's error is still "SKU_UNAVAILABLE"
 ```
 
-If you introduce a top-level `error` value, add it to `ErrorCode` so it is discoverable, and
-tell the frontend — a new `error` value is an API change.
+`details[].code` falls back to the literal `"invalid"` only when neither `code` nor
+`detailCode` is given.
+
+Omit `code` only for `type: "internal"` — a client cannot act on an infrastructure failure,
+so `error` derives from the HTTP status instead, same as before. Every other business throw
+must carry a `code`:
+[`error-code-coverage.spec.ts`](../src/shared/utils/__tests__/error-code-coverage.spec.ts)
+scans every `throwHttpException` call and fails the build if a non-`internal` call has no
+`code: ErrorCode.…`. If you introduce a new `ErrorCode` value, add it to the matching domain
+file under `src/constants/error-codes/` and tell the frontend — a new `error` value is an
+API change.
 
 ### Throwing Nest exceptions directly
 

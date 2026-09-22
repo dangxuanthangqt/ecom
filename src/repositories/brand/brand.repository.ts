@@ -8,6 +8,7 @@ import {
 } from "@prisma/client";
 import { I18nService } from "nestjs-i18n";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { createBrandWithTranslationsSelect } from "@/selectors/brand.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -115,6 +116,7 @@ export class BrandRepository {
 
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.BRAND_NOT_FOUND,
           message,
         });
       }
@@ -162,6 +164,7 @@ export class BrandRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.BRAND_ALREADY_EXISTS,
           message: "Brand is already exists.",
           field: "brand.",
         });
@@ -170,6 +173,7 @@ export class BrandRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Failed to create brand.",
           field: "brand",
         });
@@ -203,6 +207,7 @@ export class BrandRepository {
     if (validBrandTranslations.length !== brandTranslationIds.length) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.TRANSLATION_REFERENCE_INVALID,
         message: "Some brand translations do not exist.",
       });
     }
@@ -250,6 +255,7 @@ export class BrandRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.BRAND_NOT_FOUND,
           message: "Brand not found.",
         });
       }
@@ -257,6 +263,7 @@ export class BrandRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.BRAND_ALREADY_EXISTS,
           message: "Brand is already exists.",
           field: "brand.",
         });
@@ -265,6 +272,7 @@ export class BrandRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Failed to update brand.",
           field: "brand",
         });
@@ -319,6 +327,7 @@ export class BrandRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.BRAND_NOT_FOUND,
           message: "Brand not found.",
         });
       }

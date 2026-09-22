@@ -1,13 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import {
   Language as LanguageSchema,
-  Role as RoleSchema,
   User as UserSchema,
   Product as ProductSchema,
 } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
-import { Role } from "@/constants/role.constant";
+import { Scope, ScopeType } from "@/constants/permission.constant";
 import {
   CreateProductRequestDto,
   ManageProductPaginationQueryDto,
@@ -23,24 +23,25 @@ export class ManageProductService {
   constructor(private readonly productRepository: ProductRepository) {}
 
   /**
-   * Validates if the user has permission to manage a product.
-   * @param userId - The ID of the user attempting to manage the product.
-   * @param roleName - The role of the user.
-   * @param createdById - The ID of the user who created the product.
-   * @throws {HttpException} If the user does not have permission.
+   * Ownership fence. `scope` comes from the caller's granted permissions (see
+   * `@PermissionScope`): `any` may touch every product, `own` only its own.
+   * The guard has already admitted the request, so this only narrows it.
+   *
+   * @throws {HttpException} If the caller's scope is `own` and the product is someone else's.
    */
-  private validateClientPermission({
+  private validateOwnership({
     userId: userIdRequest,
-    roleName: roleNameRequest,
+    scope,
     createdById,
   }: {
     userId: UserSchema["id"];
     createdById?: UserSchema["id"] | null;
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }) {
-    if (userIdRequest !== createdById && roleNameRequest !== Role.ADMIN) {
+    if (scope === Scope.OWN && userIdRequest !== createdById) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.PRODUCT_FORBIDDEN,
         message: "You do not have permission to interact with this product.",
       });
     }
@@ -51,7 +52,7 @@ export class ManageProductService {
   async getProducts({
     languageId,
     userId,
-    roleName,
+    scope,
     query: {
       pageIndex = 1,
       pageSize = 10,
@@ -69,12 +70,12 @@ export class ManageProductService {
     query: ManageProductPaginationQueryDto;
     languageId: LanguageSchema["id"];
     userId: UserSchema["id"];
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }) {
     // Validate user permissions
-    this.validateClientPermission({
+    this.validateOwnership({
       userId,
-      roleName,
+      scope,
       createdById,
     });
 
@@ -126,12 +127,12 @@ export class ManageProductService {
     productId,
     languageId,
     userId,
-    roleName,
+    scope,
   }: {
     productId: ProductSchema["id"];
     languageId: LanguageSchema["id"];
     userId: UserSchema["id"];
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }) {
     const product = await this.productRepository.findUniqueProduct({
       where: { id: productId, deletedAt: null },
@@ -147,13 +148,14 @@ export class ManageProductService {
     if (!product) {
       throwHttpException({
         type: "notFound",
+        code: ErrorCode.PRODUCT_NOT_FOUND,
         message: "Product not found.",
       });
     }
 
-    this.validateClientPermission({
+    this.validateOwnership({
       userId,
-      roleName,
+      scope,
       createdById: product.createdById,
     });
 
@@ -164,12 +166,12 @@ export class ManageProductService {
     productId,
     data,
     userId,
-    roleName,
+    scope,
   }: {
     productId: ProductSchema["id"];
     data: UpdateProductRequestDto;
     userId: UserSchema["id"];
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }) {
     const { createdById } = await this.productRepository.findUniqueProduct({
       where: { id: productId, deletedAt: null },
@@ -179,9 +181,9 @@ export class ManageProductService {
     });
 
     // Validate client permissions
-    this.validateClientPermission({
+    this.validateOwnership({
       userId,
-      roleName,
+      scope,
       createdById,
     });
 
@@ -251,11 +253,11 @@ export class ManageProductService {
   async deleteProduct({
     productId,
     userId,
-    roleName,
+    scope,
   }: {
     productId: ProductSchema["id"];
     userId: UserSchema["id"];
-    roleName: RoleSchema["name"];
+    scope: ScopeType;
   }) {
     const { createdById } = await this.productRepository.findUniqueProduct({
       where: { id: productId, deletedAt: null },
@@ -265,9 +267,9 @@ export class ManageProductService {
     });
 
     // Validate client permissions
-    this.validateClientPermission({
+    this.validateOwnership({
       userId,
-      roleName,
+      scope,
       createdById,
     });
 

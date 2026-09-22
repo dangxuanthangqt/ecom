@@ -1,6 +1,6 @@
 import { BadRequestException, HttpStatus } from "@nestjs/common";
 
-import { ErrorCode } from "@/constants/error-code.constant";
+import { ErrorCode } from "@/constants/error-codes";
 import { ErrorDetailDto } from "@/dtos/error-detail.dto";
 
 /**

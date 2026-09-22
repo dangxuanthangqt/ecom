@@ -7,6 +7,7 @@ import {
   Prisma,
 } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { createCategoryWithTranslationsSelect } from "@/selectors/category.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -85,6 +86,7 @@ export class CategoryRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CATEGORY_NOT_FOUND,
           message: "Category not found",
         });
       }
@@ -110,6 +112,7 @@ export class CategoryRepository {
     if (existingTranslations.length !== categoryTranslations.length) {
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.TRANSLATION_REFERENCE_INVALID,
         message: "Some category translations do not exist.",
       });
     }
@@ -152,6 +155,7 @@ export class CategoryRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.CATEGORY_ALREADY_EXISTS,
           message: "Category is already exists.",
         });
       }
@@ -159,6 +163,7 @@ export class CategoryRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Failed to create category due to foreign key constraint.",
         });
       }
@@ -196,6 +201,7 @@ export class CategoryRepository {
     if (id === data.parentCategoryId) {
       throwHttpException({
         type: "unprocessable",
+        code: ErrorCode.CATEGORY_PARENT_SELF_REFERENCE,
         message: "A category cannot be its own parent.",
       });
     }
@@ -219,6 +225,7 @@ export class CategoryRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CATEGORY_NOT_FOUND,
           message: "Category not found",
         });
       }
@@ -226,6 +233,7 @@ export class CategoryRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.CATEGORY_ALREADY_EXISTS,
           message: "Category with this name already exists.",
         });
       }
@@ -269,6 +277,7 @@ export class CategoryRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.CATEGORY_NOT_FOUND,
           message: "Category not found",
         });
       }

@@ -1,6 +1,6 @@
 import { HttpException } from "@nestjs/common";
 
-import { errorCodeFromStatus } from "@/constants/error-code.constant";
+import { errorCodeFromStatus } from "@/constants/error-codes";
 import { ErrorDetailDto } from "@/dtos/error-detail.dto";
 import { ErrorResponseDto } from "@/dtos/error-response.dto";
 

@@ -24,6 +24,7 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { OrderService } from "./order.service";
 
@@ -37,6 +38,7 @@ export class OrderController {
     description: "Retrieve the caller's own orders with pagination.",
     summary: "Get my orders",
   })
+  @RequirePermission("order:read:own")
   @Get()
   async getOrders(
     @Query() query: OrderPaginationQueryDto,
@@ -59,6 +61,7 @@ export class OrderController {
     description: "The unique identifier of the order.",
     format: "uuid",
   })
+  @RequirePermission("order:read:own")
   @Get(":orderId")
   async getOrderById(
     @Param("orderId", ParseUUIDPipe) orderId: OrderSchema["id"],
@@ -77,6 +80,7 @@ export class OrderController {
         "Creates one order per seller from the given cart lines, freezing product/SKU snapshots and decrementing stock in one transaction.",
     },
   })
+  @RequirePermission("order:create:own")
   @Post()
   async checkout(
     @Body() body: CreateOrderRequestDto,
@@ -103,6 +107,7 @@ export class OrderController {
     description: "The unique identifier of the order to cancel.",
     format: "uuid",
   })
+  @RequirePermission("order:cancel:own")
   @Put(":orderId/cancel")
   async cancelOrder(
     @Param("orderId", ParseUUIDPipe) orderId: OrderSchema["id"],

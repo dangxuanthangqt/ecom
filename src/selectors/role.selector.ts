@@ -11,6 +11,7 @@ export const roleWithPermissionsSelect = Prisma.validator<Prisma.RoleSelect>()({
   name: true,
   description: true,
   isActive: true,
+  isSystem: true,
   permissions: {
     where: NOT_DELETED,
     select: permissionSelect,
@@ -22,4 +23,5 @@ export const roleSelect = Prisma.validator<Prisma.RoleSelect>()({
   name: true,
   description: true,
   isActive: true,
+  isSystem: true,
 });

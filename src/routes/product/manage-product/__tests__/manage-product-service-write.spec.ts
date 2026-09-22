@@ -1,6 +1,6 @@
 import { NotFoundException } from "@nestjs/common";
 
-import { Role } from "@/constants/role.constant";
+import { Scope } from "@/constants/permission.constant";
 import {
   CreateProductRequestDto,
   UpdateProductRequestDto,
@@ -256,7 +256,7 @@ describe("ManageProductService - updateProduct", () => {
       productId: PRODUCT_ID,
       data: body,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -278,7 +278,7 @@ describe("ManageProductService - updateProduct", () => {
       productId: PRODUCT_ID,
       data: body,
       userId: ADMIN_USER_ID,
-      roleName: Role.ADMIN,
+      scope: Scope.ANY,
     });
 
     // Assert
@@ -296,7 +296,7 @@ describe("ManageProductService - updateProduct", () => {
       productId: PRODUCT_ID,
       data: makeUpdateBody(),
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -315,7 +315,7 @@ describe("ManageProductService - updateProduct", () => {
       productId: PRODUCT_ID,
       data: body,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -335,7 +335,7 @@ describe("ManageProductService - updateProduct", () => {
       productId: PRODUCT_ID,
       data: body,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -352,7 +352,7 @@ describe("ManageProductService - updateProduct", () => {
       productId: "non-existent",
       data: makeUpdateBody(),
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -370,7 +370,7 @@ describe("ManageProductService - updateProduct", () => {
       productId: PRODUCT_ID,
       data: makeUpdateBody(),
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -395,7 +395,7 @@ describe("ManageProductService - deleteProduct", () => {
     await service.deleteProduct({
       productId: PRODUCT_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -412,7 +412,7 @@ describe("ManageProductService - deleteProduct", () => {
     await service.deleteProduct({
       productId: PRODUCT_ID,
       userId: ADMIN_USER_ID,
-      roleName: Role.ADMIN,
+      scope: Scope.ANY,
     });
 
     // Assert
@@ -429,7 +429,7 @@ describe("ManageProductService - deleteProduct", () => {
     const promise = service.deleteProduct({
       productId: PRODUCT_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -446,7 +446,7 @@ describe("ManageProductService - deleteProduct", () => {
     const output = await service.deleteProduct({
       productId: PRODUCT_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -462,7 +462,7 @@ describe("ManageProductService - deleteProduct", () => {
     const promise = service.deleteProduct({
       productId: PRODUCT_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -479,7 +479,7 @@ describe("ManageProductService - deleteProduct", () => {
     const promise = service.deleteProduct({
       productId: PRODUCT_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert

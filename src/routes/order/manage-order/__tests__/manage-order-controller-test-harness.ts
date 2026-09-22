@@ -1,3 +1,5 @@
+import { ScopeType } from "@/constants/permission.constant";
+
 import type { ManageOrderService } from "../manage-order.service";
 
 /**
@@ -29,8 +31,8 @@ export const setupManageOrderController = async () => {
 
 export const ORDER_ID = "11111111-1111-4111-8111-111111111111";
 export const ACTIVE_USER_ID = "22222222-2222-4222-8222-222222222222";
-export const SELLER_ROLE_NAME = "seller";
-export const ADMIN_ROLE_NAME = "admin";
+export const SELLER_SCOPE: ScopeType = "own";
+export const ADMIN_SCOPE: ScopeType = "any";
 
 /** An order response as the service returns it. */
 export const makeOrderResponse = (overrides: Record<string, unknown> = {}) => ({

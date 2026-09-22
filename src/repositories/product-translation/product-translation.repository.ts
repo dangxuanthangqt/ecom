@@ -6,6 +6,7 @@ import {
   User as UserSchema,
 } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { productTranslationSelect } from "@/selectors/product-translation.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
@@ -82,11 +83,17 @@ export class ProductTranslationRepository {
    * @throws An error if the product translation is not found or if there is a database
    *         error while fetching it.
    */
-  async findProductTranslationById(id: ProductTranslationSchema["id"]) {
+  async findProductTranslationById(
+    id: ProductTranslationSchema["id"],
+    // Extra predicate, typically the caller's ownership fence. A row that exists
+    // but fails it is reported as not found, never as forbidden — a 403 would
+    // confirm the id to a caller who should not know it exists.
+    where: Prisma.ProductTranslationWhereInput = {},
+  ) {
     try {
       const productTranslation =
         await this.prismaService.productTranslation.findUniqueOrThrow({
-          where: { id, deletedAt: null },
+          where: { ...where, id, deletedAt: null },
           select: productTranslationSelect,
         });
 
@@ -97,6 +104,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_TRANSLATION_NOT_FOUND,
           message: "Product translation not found.",
         });
       }
@@ -115,10 +123,13 @@ export class ProductTranslationRepository {
    * @throws An error if the product is not found or if there is a database error
    *         while validating it.
    */
-  async validateProduct(id: ProductSchema["id"]) {
+  async validateProduct(
+    id: ProductSchema["id"],
+    where: Prisma.ProductWhereInput = {},
+  ) {
     try {
       const product = await this.prismaService.product.findUniqueOrThrow({
-        where: { id, deletedAt: null },
+        where: { ...where, id, deletedAt: null },
         select: { id: true },
       });
 
@@ -129,6 +140,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_NOT_FOUND,
           message: `Product with ID ${id} not found.`,
         });
       }
@@ -166,6 +178,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_TRANSLATION_NOT_FOUND,
           message: "Product translation not found.",
         });
       }
@@ -173,6 +186,7 @@ export class ProductTranslationRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key reference in product translation.",
         });
       }
@@ -214,6 +228,7 @@ export class ProductTranslationRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.PRODUCT_TRANSLATION_ALREADY_EXISTS,
           message:
             "Product translation with this product and language already exists.",
         });
@@ -222,6 +237,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_TRANSLATION_NOT_FOUND,
           message: `Product translation with ID ${id} not found.`,
         });
       }
@@ -229,6 +245,7 @@ export class ProductTranslationRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key reference in product translation.",
         });
       }
@@ -273,6 +290,7 @@ export class ProductTranslationRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.PRODUCT_TRANSLATION_NOT_FOUND,
           message: `Product translation with ID ${id} not found.`,
         });
       }

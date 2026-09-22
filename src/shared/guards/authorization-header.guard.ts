@@ -12,6 +12,7 @@ import {
   AuthorizationType,
   CombinedAuthorizationCondition,
 } from "@/constants/auth.constant";
+import { ErrorCode } from "@/constants/error-codes";
 
 import throwHttpException from "../utils/throw-http-exception.util";
 
@@ -63,6 +64,7 @@ export class AuthorizationHeaderGuard implements CanActivate {
       // If all guards failed, throw an exception
       throwHttpException({
         type: "unauthorized",
+        code: ErrorCode.AUTHORIZATION_FAILED,
         message: "Authorization failed for all conditions.",
       });
     }

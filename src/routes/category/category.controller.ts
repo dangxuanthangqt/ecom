@@ -26,6 +26,7 @@ import {
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
 import { ApiAuth } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { CategoryService } from "./category.service";
 
@@ -42,6 +43,7 @@ export class CategoryController {
         "Retrieve all categories with optional filtering by language and parent category.",
     },
   })
+  @RequirePermission("category:read:any")
   @Get()
   async getAllCategories(
     @CurrentLang() languageId: LanguageSchema["id"],
@@ -68,6 +70,7 @@ export class CategoryController {
         "Retrieve a single category by its ID, including its translations in the specified language.",
     },
   })
+  @RequirePermission("category:read:any")
   @Get(":id")
   @ApiParam({
     name: "id",
@@ -95,6 +98,7 @@ export class CategoryController {
       description: "Create a new category with translations and children.",
     },
   })
+  @RequirePermission("category:create:any")
   @Post()
   async createCategory(
     @Body() body: CreateCategoryRequestDto,
@@ -122,6 +126,7 @@ export class CategoryController {
     required: true,
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @RequirePermission("category:update:any")
   @Put(":id")
   async updateCategory(
     @Param("id", ParseUUIDPipe) id: CategorySchema["id"],
@@ -151,6 +156,7 @@ export class CategoryController {
     required: true,
     example: "123e4567-e89b-12d3-a456-426614174000",
   })
+  @RequirePermission("category:delete:any")
   @Delete(":id")
   async deleteCategory(
     @Param("id", ParseUUIDPipe) id: CategorySchema["id"],

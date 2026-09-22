@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "build:swagger": "pnpm run build && NODE_ENV=development node dist/generate-swagger.js",
+    "build:swagger": "pnpm run build && NODE_ENV=development node dist/src/generate-swagger.js && prettier --write swagger.yaml",
     "build:schema": "openapi-typescript swagger.yaml --export-type --output schema.ts && eslint --fix schema.ts && prettier --write schema.ts",
     "es-check": "eslint --max-warnings=0 .",
     "types-check": "tsc --noEmit",
@@ -62,6 +62,7 @@
     "@nestjs/jwt": "11.0.0",
     "@nestjs/platform-express": "11.0.1",
     "@nestjs/swagger": "11.1.1",
+    "@nestjs/throttler": "6.7.0",
     "@prisma/client": "6.4.1",
     "bcrypt": "5.1.1",
     "class-transformer": "0.5.1",

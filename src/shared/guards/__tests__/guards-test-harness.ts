@@ -3,9 +3,9 @@ import { Reflector } from "@nestjs/core";
 import { Test } from "@nestjs/testing";
 import { Request, Response } from "express";
 
+import { PermissionKey } from "@/constants/permission.constant";
 import { AppConfigService } from "@/shared/services/app-config.service";
-import { PrismaService } from "@/shared/services/prisma.service";
-import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
+import { PermissionResolverService } from "@/shared/services/permission-resolver.service";
 import { TokenService } from "@/shared/services/token.service";
 
 import { AccessTokenGuard } from "../access-token.guard";
@@ -16,22 +16,27 @@ export const createGuardMocks = () => ({
   tokenService: {
     verifyAccessToken: jest.fn(),
   },
-  prismaService: {
-    role: {
-      findUniqueOrThrow: jest.fn(),
-    },
-  },
-  // Defaults to a cache miss so existing DB-driven assertions keep working
-  // unless a test explicitly arranges a cache hit.
-  rolePermissionCacheService: {
-    get: jest.fn().mockResolvedValue(null),
-    set: jest.fn().mockResolvedValue(undefined),
+  // Resolves to an empty grant set unless a test arranges otherwise, so the
+  // default outcome for an authenticated caller is 403, not an accidental pass.
+  permissionResolverService: {
+    forRoles: jest.fn().mockResolvedValue(new Set<PermissionKey>()),
   },
   appConfigService: {
     get: jest.fn(),
   },
+  /** Read by `AuthorizationHeaderGuard` for the AUTHORIZATION_HEADER_KEY policy. */
   reflector: {
     getAllAndOverride: jest.fn(),
+  },
+  /**
+   * Read by `AccessTokenGuard` for the PERMISSION_KEY declaration. Kept apart
+   * from `reflector` because both guards call `getAllAndOverride` and a shared
+   * mock would hand the auth policy object to the permission check.
+   */
+  accessTokenReflector: {
+    getAllAndOverride: jest
+      .fn()
+      .mockReturnValue("product:read:own" satisfies PermissionKey),
   },
 });
 
@@ -44,11 +49,11 @@ export const buildAccessTokenGuard = async (
     providers: [
       AccessTokenGuard,
       { provide: TokenService, useValue: mocks.tokenService },
-      { provide: PrismaService, useValue: mocks.prismaService },
       {
-        provide: RolePermissionCacheService,
-        useValue: mocks.rolePermissionCacheService,
+        provide: PermissionResolverService,
+        useValue: mocks.permissionResolverService,
       },
+      { provide: Reflector, useValue: mocks.accessTokenReflector },
     ],
   }).compile();
 
@@ -111,8 +116,8 @@ export const makeExecutionContext = (
       getRequest: jest.fn(() => request),
       getResponse: jest.fn(() => ({}) as Response),
     })),
-    getHandler: jest.fn(),
-    getClass: jest.fn(),
+    getHandler: jest.fn(() => Object.assign(function handler() {}, {})),
+    getClass: jest.fn(() => class TestController {}),
   } as unknown as ExecutionContext;
 };
 
@@ -129,24 +134,6 @@ export const makeAccessTokenPayload = (
   roleName: "CLIENT",
   exp: Math.floor(Date.now() / 1000) + 3600,
   iat: Math.floor(Date.now() / 1000),
-  ...overrides,
-});
-
-export const makeRoleWithPermissions = (
-  overrides: Record<string, unknown> = {},
-) => ({
-  id: MOCK_ROLE_ID,
-  name: "CLIENT",
-  isActive: true,
-  deletedAt: null,
-  permissions: [
-    {
-      id: "perm-1",
-      path: "/api/users",
-      method: "GET",
-      deletedAt: null,
-    },
-  ],
   ...overrides,
 });
 

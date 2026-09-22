@@ -9,6 +9,8 @@ import {
   ConflictException,
 } from "@nestjs/common";
 
+import { ErrorCode } from "@/constants/error-codes";
+
 import throwHttpException from "../throw-http-exception.util";
 
 describe("throwHttpException", () => {
@@ -473,14 +475,14 @@ describe("throwHttpException", () => {
       }
     });
 
-    it("uses custom code when provided", () => {
+    it("uses custom detail code when provided", () => {
       // Arrange
       const action = () =>
         throwHttpException({
           type: "badRequest",
           message: "Email validation failed",
           field: "email",
-          code: "isEmail",
+          detailCode: "isEmail",
         });
 
       // Act & Assert
@@ -516,7 +518,7 @@ describe("throwHttpException", () => {
         throwHttpException({
           type: "badRequest",
           message: "Test",
-          error: "CUSTOM_ERROR",
+          code: ErrorCode.VALIDATION_FAILED,
         });
 
       // Act & Assert
@@ -525,7 +527,42 @@ describe("throwHttpException", () => {
       } catch (error) {
         const body = bodyOf(error);
         expect(body.statusCode).toBe(400);
-        expect(body.error).toBe("CUSTOM_ERROR");
+        expect(body.error).toBe(ErrorCode.VALIDATION_FAILED);
+      }
+    });
+
+    it("puts the rule code on both the envelope and the detail entry", () => {
+      // A client branches on `error`, a form marks the input from `details`, and
+      // both have to name the same rule or the two disagree on screen.
+      const action = () =>
+        throwHttpException({
+          type: "badRequest",
+          code: ErrorCode.EMAIL_NOT_FOUND,
+          message: "Email is not found.",
+          field: "email",
+        });
+
+      try {
+        action();
+      } catch (error) {
+        expect(bodyOf(error).error).toBe(ErrorCode.EMAIL_NOT_FOUND);
+        expect(detailAt(error, 0).code).toBe(ErrorCode.EMAIL_NOT_FOUND);
+      }
+    });
+
+    it("leaves the envelope code to the status when no rule code is given", () => {
+      // Infrastructure failures stay uncoded on purpose: a client cannot branch on
+      // them, and naming them would grow the registry without buying anything.
+      const action = () =>
+        throwHttpException({
+          type: "internal",
+          message: "Failed to reach S3.",
+        });
+
+      try {
+        action();
+      } catch (error) {
+        expect(bodyOf(error).error).toBeUndefined();
       }
     });
   });

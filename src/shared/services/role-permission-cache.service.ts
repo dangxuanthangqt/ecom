@@ -1,5 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 
+import { PermissionKey } from "@/constants/permission.constant";
+
 import { RedisService } from "./redis.service";
 
 const CACHE_PREFIX = "role-permission";
@@ -7,10 +9,12 @@ const CACHE_TTL_SECONDS = 300;
 const SCAN_COUNT = 100;
 
 /**
- * Caches the auth guard's per-route role/permission lookup in Redis so it
- * does not hit Postgres on every authenticated request. Every read/write is
- * wrapped to fail open (return null / no-op) on a Redis error, so a cache
- * outage degrades to "always hit the DB" rather than breaking auth.
+ * Caches one role's full permission-key list under a single Redis key, so the
+ * guard pays one GET per request and the cache holds as many keys as there are
+ * roles — not roles × routes, as the old per-route cache did.
+ *
+ * Every read/write fails open (null / no-op) on a Redis error: an outage
+ * degrades to "always hit Postgres", never to "nobody can log in".
  */
 @Injectable()
 export class RolePermissionCacheService {
@@ -18,21 +22,15 @@ export class RolePermissionCacheService {
 
   constructor(private readonly redisService: RedisService) {}
 
-  private buildKey(roleId: string, method: string, path: string): string {
-    return `${CACHE_PREFIX}:${roleId}:${method}:${path}`;
+  private buildKey(roleId: string): string {
+    return `${CACHE_PREFIX}:${roleId}`;
   }
 
-  async get<T>(
-    roleId: string,
-    method: string,
-    path: string,
-  ): Promise<T | null> {
+  async getRoleKeys(roleId: string): Promise<PermissionKey[] | null> {
     try {
-      const raw = await this.redisService.client.get(
-        this.buildKey(roleId, method, path),
-      );
+      const raw = await this.redisService.client.get(this.buildKey(roleId));
 
-      return raw ? (JSON.parse(raw) as T) : null;
+      return raw ? (JSON.parse(raw) as PermissionKey[]) : null;
     } catch (error) {
       this.logger.error(
         `Failed to read role-permission cache: ${(error as Error).message}`,
@@ -42,16 +40,11 @@ export class RolePermissionCacheService {
     }
   }
 
-  async set(
-    roleId: string,
-    method: string,
-    path: string,
-    value: unknown,
-  ): Promise<void> {
+  async setRoleKeys(roleId: string, keys: PermissionKey[]): Promise<void> {
     try {
       await this.redisService.client.set(
-        this.buildKey(roleId, method, path),
-        JSON.stringify(value),
+        this.buildKey(roleId),
+        JSON.stringify(keys),
         "EX",
         CACHE_TTL_SECONDS,
       );
@@ -62,20 +55,19 @@ export class RolePermissionCacheService {
     }
   }
 
-  /** Invalidates every cached permission check for one role. */
+  /** Drops one role's cached set. One key, so no scan is needed. */
   async invalidateRole(roleId: string): Promise<void> {
-    await this.deleteByPattern(`${CACHE_PREFIX}:${roleId}:*`);
+    try {
+      await this.redisService.client.del(this.buildKey(roleId));
+    } catch (error) {
+      this.logger.error(
+        `Failed to invalidate role-permission cache (${roleId}): ${(error as Error).message}`,
+      );
+    }
   }
 
-  /**
-   * Invalidates the entire role-permission cache. Used when a permission
-   * mutation may affect roles other than the one directly edited.
-   */
+  /** Drops every role's cached set — used when the permission catalogue itself changes. */
   async invalidateAll(): Promise<void> {
-    await this.deleteByPattern(`${CACHE_PREFIX}:*`);
-  }
-
-  private async deleteByPattern(pattern: string): Promise<void> {
     try {
       const keysToDelete: string[] = [];
       let cursor = "0";
@@ -84,7 +76,7 @@ export class RolePermissionCacheService {
         const [nextCursor, keys] = await this.redisService.client.scan(
           cursor,
           "MATCH",
-          pattern,
+          `${CACHE_PREFIX}:*`,
           "COUNT",
           SCAN_COUNT,
         );
@@ -98,7 +90,7 @@ export class RolePermissionCacheService {
       }
     } catch (error) {
       this.logger.error(
-        `Failed to invalidate role-permission cache (${pattern}): ${(error as Error).message}`,
+        `Failed to invalidate role-permission cache: ${(error as Error).message}`,
       );
     }
   }

@@ -63,6 +63,25 @@ describe("AppConfigService", () => {
       expect(service.appConfig.redisUrl).toBe("redis://localhost:6379");
     });
 
+    it("loads rate-limiting configuration", async () => {
+      // Arrange & Act
+      const { service } = await setupAppConfigService();
+
+      // Assert
+      expect(service.appConfig.throttleEnabled).toBe(true);
+      expect(service.appConfig.trustProxyHops).toBe(0);
+    });
+
+    it("reads THROTTLE_ENABLED=false as a real off switch", async () => {
+      // Arrange & Act
+      const { service } = await setupAppConfigService({
+        THROTTLE_ENABLED: "false",
+      });
+
+      // Assert
+      expect(service.appConfig.throttleEnabled).toBe(false);
+    });
+
     it("loads Google OAuth configuration", async () => {
       // Arrange & Act
       const { service } = await setupAppConfigService();

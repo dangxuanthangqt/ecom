@@ -26,6 +26,8 @@ describe("validateEnv", () => {
     S3_ACCESS_KEY: "access-key",
     S3_SECRET_KEY: "secret-key",
     S3_BUCKET_NAME: "bucket-name",
+    THROTTLE_ENABLED: "true",
+    TRUST_PROXY_HOPS: 0,
   });
 
   type ValidConfig = ReturnType<typeof createValidConfig>;
@@ -307,5 +309,60 @@ describe("validateEnv", () => {
     expect(result).toHaveProperty("S3_ACCESS_KEY");
     expect(result).toHaveProperty("S3_SECRET_KEY");
     expect(result).toHaveProperty("S3_BUCKET_NAME");
+    expect(result).toHaveProperty("THROTTLE_ENABLED");
+    expect(result).toHaveProperty("TRUST_PROXY_HOPS");
+  });
+
+  describe("rate-limiting keys", () => {
+    it("throws when THROTTLE_ENABLED is missing", () => {
+      // Arrange — an absent flag must not quietly mean "off"
+      const config = createValidConfig() as Partial<ValidConfig>;
+      delete config.THROTTLE_ENABLED;
+
+      // Act & Assert
+      expect(() => validateEnv(config)).toThrow();
+    });
+
+    it("throws when THROTTLE_ENABLED is neither true nor false", () => {
+      // Arrange — "0", "no" and "" would all read as false to a loose parser
+      const config = { ...createValidConfig(), THROTTLE_ENABLED: "0" };
+
+      // Act & Assert
+      expect(() => validateEnv(config)).toThrow();
+    });
+
+    it("accepts THROTTLE_ENABLED=false, which the e2e suite relies on", () => {
+      // Arrange
+      const config = { ...createValidConfig(), THROTTLE_ENABLED: "false" };
+
+      // Act & Assert
+      expect(validateEnv(config).THROTTLE_ENABLED).toBe("false");
+    });
+
+    it("throws when TRUST_PROXY_HOPS is missing", () => {
+      // Arrange
+      const config = createValidConfig() as Partial<ValidConfig>;
+      delete config.TRUST_PROXY_HOPS;
+
+      // Act & Assert
+      expect(() => validateEnv(config)).toThrow();
+    });
+
+    it("rejects a negative TRUST_PROXY_HOPS", () => {
+      // Arrange
+      const config = { ...createValidConfig(), TRUST_PROXY_HOPS: -1 };
+
+      // Act & Assert
+      expect(() => validateEnv(config)).toThrow();
+    });
+
+    it("rejects an implausibly large TRUST_PROXY_HOPS", () => {
+      // Arrange — trusting more hops than exist lets a caller forge its own
+      // address and walk past every per-address limit
+      const config = { ...createValidConfig(), TRUST_PROXY_HOPS: 99 };
+
+      // Act & Assert
+      expect(() => validateEnv(config)).toThrow();
+    });
   });
 });

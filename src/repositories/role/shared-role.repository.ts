@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Role as RoleType } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { Role } from "@/constants/role.constant";
 import { PrismaService } from "@/shared/services/prisma.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
@@ -41,6 +42,7 @@ export class SharedRoleRepository {
     } catch {
       throwHttpException({
         type: "notFound",
+        code: ErrorCode.ROLE_NOT_FOUND,
         message: `Role ${Role.CLIENT} not found.`,
       });
     }
@@ -73,6 +75,7 @@ export class SharedRoleRepository {
     } catch {
       throwHttpException({
         type: "notFound",
+        code: ErrorCode.ROLE_NOT_FOUND,
         message: `Role ${Role.ADMIN} not found.`,
       });
     }

@@ -1,6 +1,7 @@
 export const REQUEST_USER_KEY = "user";
 
-export const REQUEST_ROLE_PERMISSIONS_KEY = "role_permissions";
+/** The caller's resolved permission set, attached by `AccessTokenGuard`. */
+export const REQUEST_GRANTED_PERMISSIONS_KEY = "granted_permissions";
 
 export const SECRET_API_KEY = "x-api-key";
 

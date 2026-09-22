@@ -1,6 +1,7 @@
 import { HttpException, Injectable, Logger } from "@nestjs/common";
 import { OrderStatus } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { createOrderDetailSelect } from "@/selectors/order.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
@@ -44,12 +45,14 @@ export class OrderCancelRepository {
           if (!existing) {
             throwHttpException({
               type: "notFound",
+              code: ErrorCode.ORDER_NOT_FOUND,
               message: "Order not found.",
             });
           }
 
           throwHttpException({
             type: "badRequest",
+            code: ErrorCode.ORDER_NOT_CANCELLABLE,
             message: "Only orders pending confirmation can be cancelled.",
           });
         }

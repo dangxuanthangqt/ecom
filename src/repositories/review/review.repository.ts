@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { OrderStatus, Prisma } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { publishedProductWhere } from "@/constants/product-visibility.constant";
 import { createReviewSelect } from "@/selectors/review.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
@@ -120,6 +121,7 @@ export class ReviewRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "conflict",
+          code: ErrorCode.REVIEW_ALREADY_EXISTS,
           message: "You have already reviewed this product.",
         });
       }
@@ -155,6 +157,7 @@ export class ReviewRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.REVIEW_NOT_FOUND,
           message: "Review not found.",
         });
       }
@@ -186,6 +189,7 @@ export class ReviewRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.REVIEW_NOT_FOUND,
           message: "Review not found.",
         });
       }

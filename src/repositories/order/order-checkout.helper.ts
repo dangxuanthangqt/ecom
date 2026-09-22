@@ -1,3 +1,4 @@
+import { ErrorCode } from "@/constants/error-codes";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 
 /**
@@ -83,6 +84,7 @@ export function assertAllOwned({
   if (rows.length !== cartItemIds.length) {
     throwHttpException({
       type: "notFound",
+      code: ErrorCode.ORDER_CART_ITEM_NOT_FOUND,
       message: "One or more cart items were not found.",
     });
   }

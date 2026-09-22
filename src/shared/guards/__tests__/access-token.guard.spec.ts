@@ -1,397 +1,208 @@
 import { TokenExpiredError } from "@nestjs/jwt";
 
 import {
-  REQUEST_ROLE_PERMISSIONS_KEY,
+  REQUEST_GRANTED_PERMISSIONS_KEY,
   REQUEST_USER_KEY,
 } from "@/constants/auth.constant";
+import { PermissionKey } from "@/constants/permission.constant";
 
 import { AccessTokenGuard } from "../access-token.guard";
 
 import {
   GuardMocks,
+  MOCK_ROLE_ID,
   makeAccessTokenPayload,
   makeExecutionContext,
-  makeRoleWithPermissions,
-  MOCK_ROLE_ID,
   setupGuards,
-  containing,
 } from "./guards-test-harness";
+
+const rejectsWith = async (
+  promise: Promise<unknown>,
+  status: number,
+  message: string,
+) => expect(promise).rejects.toMatchObject({ status, response: { message } });
 
 describe("AccessTokenGuard - canActivate", () => {
   let guard: AccessTokenGuard;
   let mocks: GuardMocks;
 
+  const bearer = (token = "valid.jwt.token") => ({
+    headers: { authorization: `Bearer ${token}` },
+  });
+
+  const grant = (...keys: PermissionKey[]) =>
+    mocks.permissionResolverService.forRoles.mockResolvedValue(
+      new Set<PermissionKey>(keys),
+    );
+
+  const require = (key: PermissionKey | undefined) =>
+    mocks.accessTokenReflector.getAllAndOverride.mockReturnValue(key);
+
   beforeEach(async () => {
     const setup = await setupGuards();
     guard = setup.accessTokenGuard;
     mocks = setup.mocks;
+    mocks.tokenService.verifyAccessToken.mockResolvedValue(
+      makeAccessTokenPayload(),
+    );
+    require("product:read:own");
   });
 
-  it("throws unauthorized when authorization header is missing", async () => {
-    // Arrange
-    const context = makeExecutionContext({ headers: {} });
-
-    // Act & Assert
-    await expect(guard.canActivate(context)).rejects.toMatchObject({
-      status: 401,
-      response: { message: "Access token is required." },
-    });
-  });
-
-  it("throws unauthorized when authorization header is empty string", async () => {
-    // Arrange
-    const context = makeExecutionContext({ headers: { authorization: "" } });
-
-    // Act & Assert
-    await expect(guard.canActivate(context)).rejects.toMatchObject({
-      status: 401,
-      response: { message: "Access token is required." },
-    });
-  });
-
-  it("throws unauthorized when authorization header uses non-Bearer scheme", async () => {
-    // Arrange
-    const context = makeExecutionContext({
-      headers: { authorization: "Basic dXNlcjpwYXNz" },
+  describe("authentication", () => {
+    it("throws unauthorized when the authorization header is missing", async () => {
+      await rejectsWith(
+        guard.canActivate(makeExecutionContext({ headers: {} })),
+        401,
+        "Access token is required.",
+      );
     });
 
-    // Act & Assert
-    await expect(guard.canActivate(context)).rejects.toMatchObject({
-      status: 401,
-      response: { message: "Access token is required." },
+    it("throws unauthorized for a non-Bearer scheme", async () => {
+      await rejectsWith(
+        guard.canActivate(
+          makeExecutionContext({ headers: { authorization: "Basic abc" } }),
+        ),
+        401,
+        "Access token is required.",
+      );
     });
-  });
 
-  it("throws unauthorized when token is invalid", async () => {
-    // Arrange
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer invalid-token" },
+    it("throws unauthorized when the token is invalid", async () => {
+      mocks.tokenService.verifyAccessToken.mockRejectedValue(
+        new Error("invalid signature"),
+      );
+
+      await rejectsWith(
+        guard.canActivate(makeExecutionContext(bearer())),
+        401,
+        "Access token is invalid.",
+      );
     });
-    const error = new Error("Invalid token");
-    mocks.tokenService.verifyAccessToken.mockRejectedValue(error);
 
-    // Act & Assert
-    await expect(guard.canActivate(context)).rejects.toMatchObject({
-      status: 401,
-      response: { message: "Access token is invalid." },
+    it("throws unauthorized with a distinct message when the token is expired", async () => {
+      mocks.tokenService.verifyAccessToken.mockRejectedValue(
+        new TokenExpiredError("jwt expired", new Date()),
+      );
+
+      await rejectsWith(
+        guard.canActivate(makeExecutionContext(bearer())),
+        401,
+        "Access token is expired.",
+      );
     });
-  });
 
-  it("throws unauthorized when token is expired with TokenExpiredError", async () => {
-    // Arrange
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer expired-token" },
-    });
-    const error = new TokenExpiredError("jwt expired", new Date());
-    mocks.tokenService.verifyAccessToken.mockRejectedValue(error);
+    it("verifies exactly the token string after the Bearer prefix", async () => {
+      grant("product:read:own");
 
-    // Act & Assert
-    await expect(guard.canActivate(context)).rejects.toMatchObject({
-      status: 401,
-      response: { message: "Access token is expired." },
+      await guard.canActivate(makeExecutionContext(bearer("the.exact.token")));
+
+      expect(mocks.tokenService.verifyAccessToken).toHaveBeenCalledWith(
+        "the.exact.token",
+      );
     });
   });
 
-  it("throws forbidden when role is not found", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/users" },
-      method: "GET",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockRejectedValue(
-      new Error("Role not found"),
-    );
+  describe("authorization", () => {
+    it("resolves the grant set for the role carried in the token", async () => {
+      grant("product:read:own");
 
-    // Act & Assert
-    await expect(guard.canActivate(context)).rejects.toMatchObject({
-      status: 403,
-      response: {
-        message: "You do not have permission to access this resource.",
-      },
+      await guard.canActivate(makeExecutionContext(bearer()));
+
+      expect(mocks.permissionResolverService.forRoles).toHaveBeenCalledWith([
+        MOCK_ROLE_ID,
+      ]);
+    });
+
+    it("admits a caller holding exactly the required key", async () => {
+      grant("product:read:own");
+
+      await expect(
+        guard.canActivate(makeExecutionContext(bearer())),
+      ).resolves.toBe(true);
+    });
+
+    it("admits a caller holding the `any` form of an `own` requirement", async () => {
+      grant("product:read:any");
+
+      await expect(
+        guard.canActivate(makeExecutionContext(bearer())),
+      ).resolves.toBe(true);
+    });
+
+    it("rejects a caller holding only `own` when the route requires `any`", async () => {
+      require("product:read:any");
+      grant("product:read:own");
+
+      await rejectsWith(
+        guard.canActivate(makeExecutionContext(bearer())),
+        403,
+        "You do not have permission to access this resource.",
+      );
+    });
+
+    it("rejects a caller whose grant set is empty (unknown or inactive role)", async () => {
+      grant();
+
+      await rejectsWith(
+        guard.canActivate(makeExecutionContext(bearer())),
+        403,
+        "You do not have permission to access this resource.",
+      );
+    });
+
+    it("rejects a caller holding a different resource's key", async () => {
+      grant("brand:read:any", "cart:update:own");
+
+      await rejectsWith(
+        guard.canActivate(makeExecutionContext(bearer())),
+        403,
+        "You do not have permission to access this resource.",
+      );
+    });
+
+    it("answers 500, not 403, when the route carries no @RequirePermission", async () => {
+      // The boot check should make this unreachable; if it is reached, the
+      // wiring is broken and "forbidden" would misreport a defect as policy.
+      require(undefined);
+      grant("product:read:own");
+
+      await rejectsWith(
+        guard.canActivate(makeExecutionContext(bearer())),
+        500,
+        "Route has no permission declaration.",
+      );
+    });
+
+    it("lets an infrastructure failure propagate instead of mapping it to 403", async () => {
+      const outage = new Error("Connection terminated unexpectedly");
+      mocks.permissionResolverService.forRoles.mockRejectedValue(outage);
+
+      await expect(
+        guard.canActivate(makeExecutionContext(bearer())),
+      ).rejects.toBe(outage);
     });
   });
 
-  it("throws forbidden when role has no matching permission for the route", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const roleWithoutPermission = makeRoleWithPermissions({
-      permissions: [],
+  describe("request enrichment", () => {
+    it("attaches the decoded token under REQUEST_USER_KEY", async () => {
+      const payload = makeAccessTokenPayload();
+      mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
+      grant("product:read:own");
+      const request = bearer() as Record<string, unknown>;
+
+      await guard.canActivate(makeExecutionContext(request));
+
+      expect(request[REQUEST_USER_KEY]).toEqual(payload);
     });
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/products" },
-      method: "POST",
+
+    it("attaches the resolved grant set for the service layer to read scope from", async () => {
+      const granted = new Set<PermissionKey>(["product:read:any"]);
+      mocks.permissionResolverService.forRoles.mockResolvedValue(granted);
+      const request = bearer() as Record<string, unknown>;
+
+      await guard.canActivate(makeExecutionContext(request));
+
+      expect(request[REQUEST_GRANTED_PERMISSIONS_KEY]).toBe(granted);
     });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithoutPermission,
-    );
-
-    // Act & Assert
-    await expect(guard.canActivate(context)).rejects.toMatchObject({
-      status: 403,
-      response: {
-        message: "You do not have permission to access this resource.",
-      },
-    });
-  });
-
-  it("allows activation when token is valid and role has permission", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const roleWithPermission = makeRoleWithPermissions();
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/users" },
-      method: "GET",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithPermission,
-    );
-
-    // Act
-    const result = await guard.canActivate(context);
-
-    // Assert
-    expect(result).toBe(true);
-  });
-
-  it("attaches decoded token to request under REQUEST_USER_KEY", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const roleWithPermission = makeRoleWithPermissions();
-    const request = {
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/users" },
-      method: "GET",
-    };
-    const context = makeExecutionContext(request);
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithPermission,
-    );
-
-    // Act
-    await guard.canActivate(context);
-
-    // Assert
-    expect(request[REQUEST_USER_KEY]).toEqual(payload);
-  });
-
-  it("attaches role with permissions to request under REQUEST_ROLE_PERMISSIONS_KEY", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const roleWithPermission = makeRoleWithPermissions();
-    const request = {
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/users" },
-      method: "GET",
-    };
-    const context = makeExecutionContext(request);
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithPermission,
-    );
-
-    // Act
-    await guard.canActivate(context);
-
-    // Assert
-    expect(request[REQUEST_ROLE_PERMISSIONS_KEY]).toEqual(roleWithPermission);
-  });
-
-  it("verifies token with the exact token string from Bearer header", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const roleWithPermission = makeRoleWithPermissions();
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer my-exact-token-123" },
-      route: { path: "/api/users" },
-      method: "GET",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithPermission,
-    );
-
-    // Act
-    await guard.canActivate(context);
-
-    // Assert
-    expect(mocks.tokenService.verifyAccessToken).toHaveBeenCalledWith(
-      "my-exact-token-123",
-    );
-  });
-
-  it("queries role with correct roleId from decoded token", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload({ roleId: MOCK_ROLE_ID });
-    const roleWithPermission = makeRoleWithPermissions();
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/users" },
-      method: "GET",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithPermission,
-    );
-
-    // Act
-    await guard.canActivate(context);
-
-    // Assert
-    expect(mocks.prismaService.role.findUniqueOrThrow).toHaveBeenCalledWith(
-      containing({
-        where: containing({
-          id: MOCK_ROLE_ID,
-        }),
-      }),
-    );
-  });
-
-  it("queries role with correct route path and HTTP method", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const roleWithPermission = makeRoleWithPermissions();
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/products/:id" },
-      method: "DELETE",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithPermission,
-    );
-
-    // Act
-    await guard.canActivate(context);
-
-    // Assert
-    expect(mocks.prismaService.role.findUniqueOrThrow).toHaveBeenCalledWith(
-      containing({
-        select: containing({
-          permissions: containing({
-            where: containing({
-              path: "/api/products/:id",
-              method: "DELETE",
-            }),
-          }),
-        }),
-      }),
-    );
-  });
-
-  it("normalizes HTTP method to uppercase when querying permissions", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const roleWithPermission = makeRoleWithPermissions();
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/users" },
-      method: "post",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithPermission,
-    );
-
-    // Act
-    await guard.canActivate(context);
-
-    // Assert
-    expect(mocks.prismaService.role.findUniqueOrThrow).toHaveBeenCalledWith(
-      containing({
-        select: containing({
-          permissions: containing({
-            where: containing({
-              method: "POST",
-            }),
-          }),
-        }),
-      }),
-    );
-  });
-
-  it("skips the DB and reuses the cached role on a cache hit", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const cachedRole = makeRoleWithPermissions();
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/users" },
-      method: "GET",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.rolePermissionCacheService.get.mockResolvedValue(cachedRole);
-
-    // Act
-    const result = await guard.canActivate(context);
-
-    // Assert
-    expect(result).toBe(true);
-    expect(mocks.rolePermissionCacheService.get).toHaveBeenCalledWith(
-      MOCK_ROLE_ID,
-      "GET",
-      "/api/users",
-    );
-    expect(mocks.prismaService.role.findUniqueOrThrow).not.toHaveBeenCalled();
-  });
-
-  it("populates the cache with the DB result on a cache miss", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const roleWithPermission = makeRoleWithPermissions();
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/users" },
-      method: "GET",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.rolePermissionCacheService.get.mockResolvedValue(null);
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      roleWithPermission,
-    );
-
-    // Act
-    await guard.canActivate(context);
-
-    // Assert
-    expect(mocks.rolePermissionCacheService.set).toHaveBeenCalledWith(
-      MOCK_ROLE_ID,
-      "GET",
-      "/api/users",
-      roleWithPermission,
-    );
-  });
-
-  it("throws forbidden when the cached role has no matching permission", async () => {
-    // Arrange
-    const payload = makeAccessTokenPayload();
-    const cachedRoleWithoutPermission = makeRoleWithPermissions({
-      permissions: [],
-    });
-    const context = makeExecutionContext({
-      headers: { authorization: "Bearer valid-token" },
-      route: { path: "/api/products" },
-      method: "POST",
-    });
-    mocks.tokenService.verifyAccessToken.mockResolvedValue(payload);
-    mocks.rolePermissionCacheService.get.mockResolvedValue(
-      cachedRoleWithoutPermission,
-    );
-
-    // Act & Assert
-    await expect(guard.canActivate(context)).rejects.toMatchObject({
-      status: 403,
-      response: {
-        message: "You do not have permission to access this resource.",
-      },
-    });
-    expect(mocks.prismaService.role.findUniqueOrThrow).not.toHaveBeenCalled();
   });
 });

@@ -22,12 +22,12 @@ import {
   UserItemResponseDto,
   UserPaginationQueryDto,
 } from "@/dtos/user/user.dto";
-import ActiveUserRole from "@/shared/param-decorators/active-user-role.decorator";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { UserService } from "./user.service";
 
@@ -36,6 +36,7 @@ import { UserService } from "./user.service";
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @RequirePermission("user:read:any")
   @Get()
   @ApiPageOkResponse({
     summary: "Get a list of users",
@@ -51,6 +52,7 @@ export class UserController {
     return new PageDto<UserItemResponseDto>(result);
   }
 
+  @RequirePermission("user:read:any")
   @Get(":id")
   @ApiAuth({
     type: UserItemResponseDto,
@@ -72,6 +74,7 @@ export class UserController {
     return new UserItemResponseDto(result);
   }
 
+  @RequirePermission("user:create:any")
   @Post()
   @ApiAuth({
     type: CreateUserResponseDto,
@@ -82,7 +85,7 @@ export class UserController {
   })
   async createUser(
     @Body() body: CreateUserRequestDto,
-    @ActiveUserRole("id") activeRoleId: RoleSchema["id"],
+    @ActiveUser("roleId") activeRoleId: RoleSchema["id"],
     @ActiveUser("userId") activeUserId: UserSchema["id"],
   ): Promise<CreateUserResponseDto> {
     const result = await this.userService.createUser({
@@ -94,6 +97,7 @@ export class UserController {
     return new CreateUserResponseDto(result);
   }
 
+  @RequirePermission("user:update:any")
   @Put(":id")
   @ApiAuth({
     type: UpdateUserResponseDto,
@@ -111,7 +115,7 @@ export class UserController {
     @Body() body: UpdateUserRequestDto,
     @Param("id", ParseUUIDPipe) updatedUserId: UserSchema["id"],
     @ActiveUser("userId") activeUserId: UserSchema["id"],
-    @ActiveUserRole("id") activeRoleId: RoleSchema["id"],
+    @ActiveUser("roleId") activeRoleId: RoleSchema["id"],
   ): Promise<UpdateUserResponseDto> {
     const result = await this.userService.updateUser({
       body,
@@ -123,6 +127,7 @@ export class UserController {
     return result;
   }
 
+  @RequirePermission("user:delete:any")
   @Delete(":id")
   @ApiAuth({
     type: UserItemResponseDto,
@@ -139,7 +144,7 @@ export class UserController {
   async deleteUser(
     @Param("id", ParseUUIDPipe) deletedUserId: UserSchema["id"],
     @ActiveUser("userId") activeUserId: UserSchema["id"],
-    @ActiveUserRole("id") activeRoleId: RoleSchema["id"],
+    @ActiveUser("roleId") activeRoleId: RoleSchema["id"],
   ): Promise<BaseUserResponseDto> {
     const result = await this.userService.deleteUser({
       activeRoleId,

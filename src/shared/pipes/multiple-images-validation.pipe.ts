@@ -1,5 +1,7 @@
 import { Injectable, Logger, PipeTransform } from "@nestjs/common";
 
+import { ErrorCode } from "@/constants/error-codes";
+
 import throwHttpException from "../utils/throw-http-exception.util";
 
 interface FileFieldsConfig {
@@ -29,6 +31,7 @@ export class MultipleFilesValidationPipe implements PipeTransform {
 
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_REQUIRED,
           message: `Field '${fieldName}' is required`,
           field: fieldName,
         });
@@ -42,6 +45,7 @@ export class MultipleFilesValidationPipe implements PipeTransform {
 
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_COUNT_EXCEEDED,
           message: `Field '${fieldName}' exceeds maximum count of ${fieldConfig.maxCount}. Got ${fieldFiles.length} files.`,
           field: fieldName,
         });
@@ -58,6 +62,7 @@ export class MultipleFilesValidationPipe implements PipeTransform {
           );
           throwHttpException({
             type: "badRequest",
+            code: ErrorCode.FILE_TOO_LARGE,
             message: `${filePrefix}: File size ${file.size} exceeds maximum size of ${fieldConfig.maxSize} bytes.`,
             field: filePrefix,
           });
@@ -74,6 +79,7 @@ export class MultipleFilesValidationPipe implements PipeTransform {
 
           throwHttpException({
             type: "badRequest",
+            code: ErrorCode.FILE_TYPE_INVALID,
             message: `${filePrefix}: Invalid file type '${file.mimetype}'. Allowed: ${fieldConfig.allowedMimeTypes.join(", ")}`,
             field: filePrefix,
           });
@@ -95,6 +101,7 @@ export class MultipleFilesValidationPipe implements PipeTransform {
 
             throwHttpException({
               type: "badRequest",
+              code: ErrorCode.FILE_EXTENSION_INVALID,
               message: `${filePrefix}: Invalid file extension. Allowed: ${fieldConfig.allowedExtensions.join(", ")}`,
               field: filePrefix,
             });
@@ -107,6 +114,7 @@ export class MultipleFilesValidationPipe implements PipeTransform {
 
           throwHttpException({
             type: "badRequest",
+            code: ErrorCode.FILE_NAME_INVALID,
             message: `${filePrefix}: File must have a name`,
             field: filePrefix,
           });
@@ -123,6 +131,7 @@ export class MultipleFilesValidationPipe implements PipeTransform {
 
         throwHttpException({
           type: "badRequest",
+          code: ErrorCode.FILE_FIELD_UNEXPECTED,
           message: `Unexpected field: '${fieldName}'. Allowed fields: ${Object.keys(this.config).join(", ")}`,
           field: fieldName,
         });

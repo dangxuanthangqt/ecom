@@ -25,8 +25,9 @@ interface ErrorResponseBody {
 /**
  * The valuable assertion here is the negative one: every non-admin caller is
  * turned away by the real `AccessTokenGuard` permission check on every
- * `users` route (`USERS` is in neither `SellerModule` nor `ClientModule` in
- * `initial-scripts/sync-route-permissions.ts`, so only ADMIN carries it), plus
+ * `users` route (`RolePermissionMatrix` in
+ * `src/constants/role-permission-matrix.constant.ts` grants `user:*:any` to
+ * ADMIN alone), plus
  * the validation and self-delete-guard edge cases the service itself owns.
  *
  * A same-file admin positive control proves the 403s come from the guard,

@@ -1,6 +1,7 @@
 import { HttpException, Injectable, Logger } from "@nestjs/common";
 import { OrderStatus, Prisma } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { createOrderDetailSelect } from "@/selectors/order.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
@@ -81,6 +82,7 @@ export class OrderCheckoutRepository {
             if (!isRowPurchasable(row)) {
               throwHttpException({
                 type: "badRequest",
+                code: ErrorCode.SKU_UNAVAILABLE,
                 message: `SKU ${row.sku.id} is no longer available.`,
               });
             }
@@ -104,6 +106,7 @@ export class OrderCheckoutRepository {
 
               throwHttpException({
                 type: "badRequest",
+                code: ErrorCode.SKU_INSUFFICIENT_STOCK,
                 message: `SKU ${row.sku.id} only has ${current?.stock ?? 0} left in stock.`,
               });
             }

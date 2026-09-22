@@ -12,6 +12,7 @@ import {
 import { ApiParam, ApiTags } from "@nestjs/swagger";
 import { ProductTranslation, User } from "@prisma/client";
 
+import { ScopeType } from "@/constants/permission.constant";
 import {
   CreateProductTranslationRequestDto,
   ProductTranslationPaginationQueryDto,
@@ -24,6 +25,8 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { PermissionScope } from "@/shared/param-decorators/permission-scope.decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { ProductTranslationService } from "./product-translation.service";
 
@@ -39,12 +42,18 @@ export class ProductTranslationController {
     description: "Retrieve a list of product translations with pagination.",
     summary: "Get a list of product translations",
   })
+  @RequirePermission("product-translation:read:own")
   @Get()
   async getProductTranslations(
     @Query() query: ProductTranslationPaginationQueryDto,
+    @ActiveUser("userId") userId: User["id"],
+    @PermissionScope(["product-translation", "read"]) scope: ScopeType,
   ) {
-    const result =
-      await this.productTranslationService.getProductTranslations(query);
+    const result = await this.productTranslationService.getProductTranslations({
+      query,
+      userId,
+      scope,
+    });
 
     return new PageDto<ProductTranslationResponseDto>(result);
   }
@@ -63,12 +72,19 @@ export class ProductTranslationController {
     required: true,
     type: String,
   })
+  @RequirePermission("product-translation:read:own")
   @Get(":id")
   async getProductTranslationById(
     @Param("id", ParseUUIDPipe) id: ProductTranslation["id"],
+    @ActiveUser("userId") userId: User["id"],
+    @PermissionScope(["product-translation", "read"]) scope: ScopeType,
   ) {
     const result =
-      await this.productTranslationService.getProductTranslationById(id);
+      await this.productTranslationService.getProductTranslationById({
+        id,
+        userId,
+        scope,
+      });
 
     return new ProductTranslationResponseDto(result);
   }
@@ -80,15 +96,18 @@ export class ProductTranslationController {
       description: "Creates a new product translation.",
     },
   })
+  @RequirePermission("product-translation:create:own")
   @Post()
   async createProductTranslation(
     @ActiveUser("userId") userId: User["id"],
     @Body() body: CreateProductTranslationRequestDto,
+    @PermissionScope(["product-translation", "create"]) scope: ScopeType,
   ) {
     const result =
       await this.productTranslationService.createProductTranslation({
         data: body,
         userId,
+        scope,
       });
 
     return new ProductTranslationResponseDto(result);
@@ -108,17 +127,20 @@ export class ProductTranslationController {
     required: true,
     type: String,
   })
+  @RequirePermission("product-translation:update:own")
   @Put(":id")
   async updateProductTranslation(
     @Param("id", ParseUUIDPipe) id: ProductTranslation["id"],
     @ActiveUser("userId") userId: User["id"],
     @Body() body: UpdateProductTranslationRequestDto,
+    @PermissionScope(["product-translation", "update"]) scope: ScopeType,
   ) {
     const result =
       await this.productTranslationService.updateProductTranslation({
         id,
         data: body,
         userId,
+        scope,
       });
 
     return new ProductTranslationResponseDto(result);
@@ -138,15 +160,18 @@ export class ProductTranslationController {
     required: true,
     type: String,
   })
+  @RequirePermission("product-translation:delete:own")
   @Delete(":id")
   async deleteProductTranslation(
     @Param("id", ParseUUIDPipe) id: ProductTranslation["id"],
     @ActiveUser("userId") userId: User["id"],
+    @PermissionScope(["product-translation", "delete"]) scope: ScopeType,
   ) {
     const result =
       await this.productTranslationService.deleteProductTranslation({
         id,
         userId,
+        scope,
       });
 
     return new ProductTranslationResponseDto(result);

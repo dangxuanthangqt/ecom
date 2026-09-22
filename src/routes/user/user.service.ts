@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma, Role, User } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
 import {
@@ -119,6 +120,7 @@ export class UserService {
     if (activeRoleId !== adminRoleId && roleId === adminRoleId) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.USER_ADMIN_CREATE_FORBIDDEN,
         message: "You are not allowed to create an admin user.",
       });
     }
@@ -163,6 +165,7 @@ export class UserService {
     if (activeUserId === targetedUserId) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.USER_SELF_UPDATE_FORBIDDEN,
         message: "You cannot update your own user.",
       });
     }
@@ -212,6 +215,7 @@ export class UserService {
     if (activeRoleId !== adminRoleId && updatedUserRoleId === adminRoleId) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.USER_UPDATE_FORBIDDEN,
         message: "You are not allowed to update this user.",
       });
     }
@@ -220,6 +224,7 @@ export class UserService {
     if (activeRoleId !== adminRoleId && roleId === adminRoleId) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.USER_ADMIN_PROMOTE_FORBIDDEN,
         message: "You are not allowed to update the user to an admin.",
       });
     }
@@ -317,6 +322,7 @@ export class UserService {
     ) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.USER_ADMIN_DELETE_FORBIDDEN,
         message: "You are not allowed to delete admin user.",
       });
     }
@@ -324,6 +330,7 @@ export class UserService {
     if (activeRoleId === deletedUserRole.roleId) {
       throwHttpException({
         type: "forbidden",
+        code: ErrorCode.USER_SAME_ROLE_DELETE_FORBIDDEN,
         message: "You cannot delete the user with the same role as you.",
       });
     }

@@ -1,5 +1,5 @@
 import { ORDER, ORDER_BY } from "@/constants/order";
-import { Role } from "@/constants/role.constant";
+import { Scope } from "@/constants/permission.constant";
 import {
   ManageProductPaginationQueryDto,
   ProductResponseDto,
@@ -67,7 +67,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery(),
       languageId: LANGUAGE_ID,
       userId: ADMIN_USER_ID,
-      roleName: Role.ADMIN,
+      scope: Scope.ANY,
     });
 
     // Assert
@@ -95,7 +95,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery(),
       languageId: LANGUAGE_ID,
       userId: ADMIN_USER_ID,
-      roleName: Role.ADMIN,
+      scope: Scope.ANY,
     });
 
     // Assert
@@ -117,7 +117,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery(),
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -144,7 +144,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery({ createdById: SELLER_USER_ID }),
       languageId: LANGUAGE_ID,
       userId: ADMIN_USER_ID,
-      roleName: Role.ADMIN,
+      scope: Scope.ANY,
     });
 
     // Assert
@@ -164,7 +164,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery({ createdById: CREATOR_USER_ID }),
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -184,7 +184,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery({ order: ORDER.ASC }),
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -208,7 +208,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery({ name: "iPhone" }),
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -232,7 +232,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery({ isPublic: true }),
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -256,7 +256,7 @@ describe("ManageProductService - getProducts", () => {
       query: makeQuery({ pageIndex: 5, pageSize: 25 }),
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -289,7 +289,7 @@ describe("ManageProductService - getProductById", () => {
       productId: PRODUCT_ID,
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -314,7 +314,7 @@ describe("ManageProductService - getProductById", () => {
       productId: PRODUCT_ID,
       languageId: LANGUAGE_ID,
       userId: ADMIN_USER_ID,
-      roleName: Role.ADMIN,
+      scope: Scope.ANY,
     });
 
     // Assert
@@ -332,7 +332,7 @@ describe("ManageProductService - getProductById", () => {
       productId: PRODUCT_ID,
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -348,7 +348,7 @@ describe("ManageProductService - getProductById", () => {
       productId: "non-existent",
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert - a missing product is a 404, never a dereference of null
@@ -370,7 +370,7 @@ describe("ManageProductService - getProductById", () => {
       productId: PRODUCT_ID,
       languageId: customLanguageId,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert
@@ -396,7 +396,7 @@ describe("ManageProductService - getProductById", () => {
       productId: PRODUCT_ID,
       languageId: LANGUAGE_ID,
       userId: SELLER_USER_ID,
-      roleName: Role.SELLER,
+      scope: Scope.OWN,
     });
 
     // Assert

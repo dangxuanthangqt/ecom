@@ -6,6 +6,7 @@ import {
   CombinedAuthorizationCondition,
   SECRET_API_KEY,
 } from "@/constants/auth.constant";
+import { PermissionKey } from "@/constants/permission.constant";
 
 import { AuthorizationHeaderGuard } from "../authorization-header.guard";
 
@@ -13,7 +14,6 @@ import {
   GuardMocks,
   makeAccessTokenPayload,
   makeExecutionContext,
-  makeRoleWithPermissions,
   setupGuards,
 } from "./guards-test-harness";
 
@@ -30,8 +30,10 @@ describe("AuthorizationHeaderGuard - canActivate", () => {
     mocks.tokenService.verifyAccessToken.mockResolvedValue(
       makeAccessTokenPayload(),
     );
-    mocks.prismaService.role.findUniqueOrThrow.mockResolvedValue(
-      makeRoleWithPermissions(),
+    // The harness's AccessTokenGuard reflector declares `product:read:own`;
+    // grant it so a valid Bearer token passes the permission check by default.
+    mocks.permissionResolverService.forRoles.mockResolvedValue(
+      new Set<PermissionKey>(["product:read:own"]),
     );
   });
 

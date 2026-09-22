@@ -27,6 +27,7 @@ import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { CategoryTranslationService } from "./category-translation.service";
 
@@ -42,6 +43,7 @@ export class CategoryTranslationController {
     description: "Retrieve a list of category translations with pagination.",
     type: CategoryTranslationWithCategoryAndLanguageResponseDto,
   })
+  @RequirePermission("category-translation:read:any")
   @Get()
   async getCategoryTranslations(
     @Query() query: CategoryTranslationPaginationQueryDto,
@@ -61,6 +63,7 @@ export class CategoryTranslationController {
       description: "Retrieves a specific category translation by its ID.",
     },
   })
+  @RequirePermission("category-translation:read:any")
   @Get(":id")
   async getCategoryTranslationById(
     @Param("id", ParseUUIDPipe) id: CategoryTranslationSchema["id"],
@@ -78,6 +81,7 @@ export class CategoryTranslationController {
       description: "Creates a new category translation.",
     },
   })
+  @RequirePermission("category-translation:create:any")
   @Post()
   async createCategoryTranslation(
     @Body() data: CreateCategoryTranslationRequestDto,
@@ -106,6 +110,7 @@ export class CategoryTranslationController {
     required: true,
     type: String,
   })
+  @RequirePermission("category-translation:update:any")
   @Put(":id")
   async updateCategoryTranslation(
     @Param("id", ParseUUIDPipe) id: CategoryTranslationSchema["id"],
@@ -136,6 +141,7 @@ export class CategoryTranslationController {
     required: true,
     type: String,
   })
+  @RequirePermission("category-translation:delete:any")
   @Delete(":id")
   async deleteCategoryTranslation(
     @Param("id", ParseUUIDPipe) id: CategoryTranslationSchema["id"],

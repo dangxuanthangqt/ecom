@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Order as OrderSchema, User as UserSchema } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { OrderPaginationQueryDto } from "@/dtos/order/order.dto";
 import { OrderCancelRepository } from "@/repositories/order/order-cancel.repository";
@@ -61,7 +62,11 @@ export class OrderService {
     });
 
     if (!order) {
-      throwHttpException({ type: "notFound", message: "Order not found." });
+      throwHttpException({
+        type: "notFound",
+        code: ErrorCode.ORDER_NOT_FOUND,
+        message: "Order not found.",
+      });
     }
 
     return order;

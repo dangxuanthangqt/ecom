@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Permission, Prisma, Role, User } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -78,6 +79,7 @@ export class RoleRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.ROLE_NOT_FOUND,
           message: "Role not found.",
         });
       }
@@ -112,6 +114,7 @@ export class RoleRepository {
 
       throwHttpException({
         type: "badRequest",
+        code: ErrorCode.PERMISSIONS_INVALID,
         message: "Invalid permissions provided.",
         field: "permissions",
       });
@@ -156,6 +159,7 @@ export class RoleRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.ROLE_ALREADY_EXISTS,
           message: "Role already exists.",
           field: "role",
         });
@@ -164,6 +168,7 @@ export class RoleRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Foreign key constraint violation.",
           field: "role",
         });
@@ -218,6 +223,7 @@ export class RoleRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.ROLE_NOT_FOUND,
           message: "Role not found.",
         });
       }
@@ -225,6 +231,7 @@ export class RoleRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.ROLE_ALREADY_EXISTS,
           message: "Role already exists.",
           field: "role",
         });
@@ -233,6 +240,7 @@ export class RoleRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Foreign key constraint violation.",
           field: "role",
         });
@@ -288,6 +296,7 @@ export class RoleRepository {
       if (isRecordNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.ROLE_NOT_FOUND,
           message: "Role not found.",
         });
       }

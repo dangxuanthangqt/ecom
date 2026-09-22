@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Prisma, User } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isForeignKeyConstraintPrismaError,
@@ -44,6 +45,7 @@ export class UserRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.EMAIL_ALREADY_REGISTERED,
           message: "Email is already exist.",
         });
       }
@@ -51,6 +53,7 @@ export class UserRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key constraint.",
         });
       }
@@ -92,6 +95,7 @@ export class UserRepository {
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.USER_NOT_FOUND,
           message: "User not found.",
         });
       }
@@ -99,6 +103,7 @@ export class UserRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.EMAIL_ALREADY_REGISTERED,
           message: "Email is already in use.",
         });
       }
@@ -106,6 +111,7 @@ export class UserRepository {
       if (isForeignKeyConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.REFERENCE_INVALID,
           message: "Invalid foreign key constraint.",
         });
       }

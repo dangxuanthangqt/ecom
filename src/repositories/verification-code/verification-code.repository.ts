@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {
   isRecordToUpdateOrDeleteNotFoundPrismaError,
@@ -34,6 +35,7 @@ export class VerificationCodeRepository {
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.VERIFICATION_CODE_NOT_FOUND,
           message: "Verification code not found.",
         });
       }
@@ -93,6 +95,7 @@ export class VerificationCodeRepository {
       if (isUniqueConstraintPrismaError(error)) {
         throwHttpException({
           type: "unprocessable",
+          code: ErrorCode.VERIFICATION_CODE_ALREADY_EXISTS,
           message: "Verification code already exists.",
         });
       }
@@ -151,6 +154,7 @@ export class VerificationCodeRepository {
       if (isRecordToUpdateOrDeleteNotFoundPrismaError(error)) {
         throwHttpException({
           type: "notFound",
+          code: ErrorCode.VERIFICATION_CODE_NOT_FOUND,
           message: "Verification code not found.",
         });
       }

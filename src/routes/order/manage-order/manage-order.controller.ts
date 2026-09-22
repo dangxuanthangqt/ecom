@@ -8,12 +8,9 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import {
-  Order as OrderSchema,
-  Role as RoleSchema,
-  User as UserSchema,
-} from "@prisma/client";
+import { Order as OrderSchema, User as UserSchema } from "@prisma/client";
 
+import { ScopeType } from "@/constants/permission.constant";
 import {
   ManageOrderDetailResponseDto,
   ManageOrderPaginationQueryDto,
@@ -21,12 +18,13 @@ import {
 } from "@/dtos/order/manage-order.dto";
 import { BaseOrderResponseDto } from "@/dtos/order/order.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
-import ActiveUserRole from "@/shared/param-decorators/active-user-role.decorator";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,
   ApiPageOkResponse,
 } from "@/shared/param-decorators/http-decorator";
+import { PermissionScope } from "@/shared/param-decorators/permission-scope.decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 
 import { ManageOrderService } from "./manage-order.service";
 
@@ -41,16 +39,17 @@ export class ManageOrderController {
       "Retrieve orders visible to the caller (own products for a seller, all for an admin) with pagination.",
     summary: "Get a list of orders (seller/admin)",
   })
+  @RequirePermission("order-fulfilment:read:own")
   @Get()
   async getManageOrders(
     @Query() query: ManageOrderPaginationQueryDto,
     @ActiveUser("userId") userId: UserSchema["id"],
-    @ActiveUserRole("name") roleName: RoleSchema["name"],
+    @PermissionScope(["order-fulfilment", "read"]) scope: ScopeType,
   ): Promise<PageDto<BaseOrderResponseDto>> {
     const result = await this.manageOrderService.getOrders({
       query,
       userId,
-      roleName,
+      scope,
     });
 
     return new PageDto<BaseOrderResponseDto>(result);
@@ -68,16 +67,17 @@ export class ManageOrderController {
     description: "The unique identifier of the order to retrieve.",
     format: "uuid",
   })
+  @RequirePermission("order-fulfilment:read:own")
   @Get(":orderId")
   async getManageOrderById(
     @Param("orderId", ParseUUIDPipe) orderId: OrderSchema["id"],
     @ActiveUser("userId") userId: UserSchema["id"],
-    @ActiveUserRole("name") roleName: RoleSchema["name"],
+    @PermissionScope(["order-fulfilment", "read"]) scope: ScopeType,
   ): Promise<ManageOrderDetailResponseDto> {
     const result = await this.manageOrderService.getOrderById({
       orderId,
       userId,
-      roleName,
+      scope,
     });
 
     return new ManageOrderDetailResponseDto(result);
@@ -96,18 +96,19 @@ export class ManageOrderController {
     description: "The unique identifier of the order to update.",
     format: "uuid",
   })
+  @RequirePermission("order-fulfilment:update:own")
   @Put(":orderId/status")
   async updateOrderStatus(
     @Body() body: UpdateOrderStatusRequestDto,
     @Param("orderId", ParseUUIDPipe) orderId: OrderSchema["id"],
     @ActiveUser("userId") userId: UserSchema["id"],
-    @ActiveUserRole("name") roleName: RoleSchema["name"],
+    @PermissionScope(["order-fulfilment", "update"]) scope: ScopeType,
   ): Promise<ManageOrderDetailResponseDto> {
     const result = await this.manageOrderService.updateOrderStatus({
       orderId,
       status: body.status,
       userId,
-      roleName,
+      scope,
     });
 
     return new ManageOrderDetailResponseDto(result);

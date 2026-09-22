@@ -117,7 +117,7 @@ describe("RoleService - updateRole", () => {
   it("does not invalidate the cache when the update is refused", async () => {
     // Arrange
     mocks.roleRepository.findUniqueRole.mockResolvedValue(
-      makeRole({ name: "admin" }),
+      makeRole({ name: "admin", isSystem: true }),
     );
 
     // Act
@@ -132,41 +132,50 @@ describe("RoleService - updateRole", () => {
   it("refuses to update an admin role", async () => {
     // Arrange
     mocks.roleRepository.findUniqueRole.mockResolvedValue(
-      makeRole({ name: "admin" }),
+      makeRole({ name: "admin", isSystem: true }),
     );
 
     // Act
     const promise = updateAs();
 
     // Assert
-    await expectForbidden(promise, "You cannot modify this role.");
+    await expectForbidden(
+      promise,
+      "System roles cannot be modified through the API.",
+    );
     expect(mocks.roleRepository.updateRole).not.toHaveBeenCalled();
   });
 
   it("refuses to update a client role", async () => {
     // Arrange
     mocks.roleRepository.findUniqueRole.mockResolvedValue(
-      makeRole({ name: "client" }),
+      makeRole({ name: "client", isSystem: true }),
     );
 
     // Act
     const promise = updateAs();
 
     // Assert
-    await expectForbidden(promise, "You cannot modify this role.");
+    await expectForbidden(
+      promise,
+      "System roles cannot be modified through the API.",
+    );
   });
 
   it("refuses to update a seller role", async () => {
     // Arrange
     mocks.roleRepository.findUniqueRole.mockResolvedValue(
-      makeRole({ name: "seller" }),
+      makeRole({ name: "seller", isSystem: true }),
     );
 
     // Act
     const promise = updateAs();
 
     // Assert
-    await expectForbidden(promise, "You cannot modify this role.");
+    await expectForbidden(
+      promise,
+      "System roles cannot be modified through the API.",
+    );
   });
 
   it("throws not found when role does not exist", async () => {

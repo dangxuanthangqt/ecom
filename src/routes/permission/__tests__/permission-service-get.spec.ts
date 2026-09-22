@@ -19,8 +19,8 @@ describe("PermissionService - getPermissions", () => {
   it("returns paginated permissions with default pagination parameters", async () => {
     // Arrange
     const permissions = [
-      makePermission({ id: "perm-1", name: "Create User" }),
-      makePermission({ id: "perm-2", name: "Delete User" }),
+      makePermission({ id: "perm-1", key: "user:create:any" }),
+      makePermission({ id: "perm-2", key: "user:delete:any" }),
     ];
     mocks.permissionRepository.findManyPermissions.mockResolvedValue({
       permissions,

@@ -17,6 +17,21 @@ edge cases, and configuration for a BA/QA audience.
 in § 3 straight through; each block is one complete thread, top to bottom. § 4 is the shared
 appendix — jump in only when a § 3 block points you there.
 
+> **⚠️ Partially superseded on 2026-09-21 (RBAC refactor).** This spec was generated against the
+> route-based permission model. Since the refactor:
+>
+> - Permissions are semantic keys `resource:action:scope` declared on handlers with
+>   `@RequirePermission`; the `path`/`method`/`module`/`name` columns are gone.
+> - `POST/PUT/DELETE /permissions` (FR-203, FR-204, FR-205; actions A3–A5) **no longer exist**. The
+>   catalogue is code-owned and read-only over HTTP; grants change on the role side.
+> - Roles carry `isSystem`; the hardcoded `forbiddenRoles` array is gone. System roles' grants come
+>   from `RolePermissionMatrix` in code and are re-applied on every seed.
+> - The module-based allowlist (CAP-03, ALG-002) and its per-method over-grant (D001, RISK-01,
+>   RISK-02) are resolved: `client` no longer holds write access to brands/categories/translations.
+>
+> Current design: [../../authorization-guide.md](../../authorization-guide.md). Role administration
+> (CAP-02) is unchanged apart from the `isSystem` check. Re-run `rebuild-spec` to regenerate this file.
+
 ## 1. Technical Overview
 
 This feature is the RBAC administration surface itself: a `PermissionController`/`RoleController`

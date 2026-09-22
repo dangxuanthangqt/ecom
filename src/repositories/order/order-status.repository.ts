@@ -1,6 +1,7 @@
 import { HttpException, Injectable, Logger } from "@nestjs/common";
 import { OrderStatus } from "@prisma/client";
 
+import { ErrorCode } from "@/constants/error-codes";
 import { createOrderDetailSelect } from "@/selectors/order.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
@@ -41,6 +42,7 @@ export class OrderStatusRepository {
       if (count === 0) {
         throwHttpException({
           type: "conflict",
+          code: ErrorCode.ORDER_STATUS_CONFLICT,
           message:
             "Order status was changed by someone else in the meantime. Please retry.",
         });

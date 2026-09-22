@@ -7,7 +7,7 @@
 
 **Global prefix**: none. `src/main.ts` calls no `app.setGlobalPrefix()`. Swagger UI is mounted at `/api` only when `NODE_ENV=development` (`src/main.ts:54-60`) — not an API route, dev-only tooling.
 
-**Auth mechanism**: `AuthorizationHeaderGuard` is registered globally as `APP_GUARD` (`src/shared/modules/base.module.ts:39-42`). Default behavior (no decorator) = `Bearer` token required, verified + role-permission-checked by `AccessTokenGuard` (`src/shared/guards/access-token.guard.ts`) against the `role.permissions` table keyed on `(path, method)`. Handlers annotated `@IsPublicApi()` (= `@AuthApi([AuthorizationType.NONE])`, `src/shared/param-decorators/auth-api.decorator.ts:19`) skip this check entirely. `ApiAuth`/`ApiPublic`/`ApiPageOkResponse` (`src/shared/param-decorators/http-decorator.ts`) are Swagger-doc-only decorators — they do NOT enforce auth; only `@IsPublicApi()` presence/absence changes runtime auth. **Owner F### column**: backfilled after Wave 5 from `feature-list.md` § Feature Details (`Related APIs/Routes`). Every route is owned by exactly one feature F001–F010; the four cross-cutting background-logic items (BL006/007/008/013) apply to all routes and are deliberately excluded from the feature partition — see `feature-list.md` § Cross-Cutting Technical Concerns.
+**Auth mechanism**: `AuthorizationHeaderGuard` is registered globally as `APP_GUARD` (`src/shared/modules/base.module.ts:39-42`). Default behavior (no decorator) = `Bearer` token required, verified + permission-checked by `AccessTokenGuard` (`src/shared/guards/access-token.guard.ts`) against the permission key the handler declares with `@RequirePermission` (`resource:action:scope`, e.g. `product:update:own`) — **changed 2026-09-21**, the old `(path, method)` keying is gone; see `docs/authorization-guide.md`. A non-public route with no `@RequirePermission` fails the boot-time coverage check and the app refuses to start. Handlers annotated `@IsPublicApi()` (= `@AuthApi([AuthorizationType.NONE])`, `src/shared/param-decorators/auth-api.decorator.ts:19`) skip this check entirely. `ApiAuth`/`ApiPublic`/`ApiPageOkResponse` (`src/shared/param-decorators/http-decorator.ts`) are Swagger-doc-only decorators — they do NOT enforce auth; only `@IsPublicApi()` presence/absence changes runtime auth. **Owner F### column**: backfilled after Wave 5 from `feature-list.md` § Feature Details (`Related APIs/Routes`). Every route is owned by exactly one feature F001–F010; the four cross-cutting background-logic items (BL006/007/008/013) apply to all routes and are deliberately excluded from the feature partition — see `feature-list.md` § Cross-Cutting Technical Concerns.
 
 ## Backend Routes
 
@@ -94,9 +94,6 @@ Note: two handlers are commented out in source (`uploadImage` buffer variant `me
 |--------|------|------|------------|---------|------------|
 | GET | /permissions | ROUTE041 | F006 | PermissionController@getPermissions (permission.controller.ts:42) | Bearer (default) |
 | GET | /permissions/:id | ROUTE042 | F006 | PermissionController@getPermissionById (permission.controller.ts:66) | Bearer (default) |
-| POST | /permissions | ROUTE043 | F006 | PermissionController@createPermission (permission.controller.ts:82) | Bearer (default) |
-| PUT | /permissions/:id | ROUTE044 | F006 | PermissionController@updatePermission (permission.controller.ts:109) | Bearer (default) |
-| DELETE | /permissions/:id | ROUTE045 | F006 | PermissionController@deletePermission (permission.controller.ts:138) | Bearer (default) |
 
 ### File: src/routes/product-translation/product-translation.controller.ts (prefix: `product-translations`)
 
@@ -196,13 +193,16 @@ No data — headless backend API, no frontend routes.
 
 | Category | Count |
 |----------|-------|
-| Backend Routes | 85 |
+| Backend Routes | 82 |
 | Frontend Pages | 0 |
-| Total | 85 |
+| Total | 82 |
 
 ## Cross-check notes
 
 - `swagger.yaml` lists 50 distinct paths (39 original + 10 new cart/order/review/manage-order paths, several carrying 2 methods, covering all 15 new routes). Re-verified after `pnpm build:swagger` regenerated the file in the delivery pass — all 10 new paths and their HTTP-method sets match the static-parse rows below exactly. No discrepancy found.
 - Route `ROUTE012` (`GET /brands/:id`) is documented via `@ApiPublic` (swagger label) but carries **no** `@IsPublicApi()` decorator — the only decorator that changes runtime auth. Runtime behavior therefore requires a Bearer token despite the "Public" swagger doc name. Flagged `[UNVERIFIED]` pending confirmation this isn't a doc/behavior drift bug in the source itself (not a route-list extraction error).
 - `Owner F###` is `—` for the original 70 rows (unchanged from Wave 1: `feature-list.md`'s feature synthesis ran after this artifact and was never backfilled here beyond the initial pass). ROUTE071–ROUTE085 carry their owner F### directly since `feature-list.md` already defines F011–F013 as of this pass.
+- **2026-09-21 (RBAC refactor):** ROUTE043/044/045 (`POST`/`PUT`/`DELETE /permissions`) were removed — the permission
+  catalogue is code-owned and read-only over HTTP. Codes are not renumbered so existing ROUTE### references stay valid;
+  the three codes are retired. Route total 85 → 82.
 - ROUTE071–ROUTE085 (cart, orders, manage-order/orders, reviews) added 2026-09-12 for F011 Shopping Cart, F012 Order Placement & Fulfilment, F013 Product Reviews. Source: `src/routes/{cart,order,review}/*.controller.ts`. `GET /reviews` is the only public route among the 15 (`@IsPublicApi()`, `review.controller.ts:38`).

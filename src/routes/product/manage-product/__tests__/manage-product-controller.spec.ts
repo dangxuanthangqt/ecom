@@ -2,10 +2,10 @@ import { ManageProductController } from "../manage-product.controller";
 
 import {
   ACTIVE_USER_ID,
-  ADMIN_ROLE_NAME,
+  ADMIN_SCOPE,
   LANGUAGE_ID,
   PRODUCT_ID,
-  SELLER_ROLE_NAME,
+  SELLER_SCOPE,
   containing,
   makeProductResponse,
   setupManageProductController,
@@ -20,7 +20,7 @@ describe("ManageProductController - getManageProducts", () => {
     ({ controller, mocks } = await setupManageProductController());
   });
 
-  it("calls the service with query, languageId, userId, and roleName and returns wrapped result", async () => {
+  it("calls the service with query, languageId, userId, and scope and returns wrapped result", async () => {
     // Arrange
     const product = makeProductResponse();
     const response = {
@@ -41,7 +41,7 @@ describe("ManageProductController - getManageProducts", () => {
       query,
       LANGUAGE_ID,
       ACTIVE_USER_ID,
-      SELLER_ROLE_NAME,
+      SELLER_SCOPE,
     );
 
     // Assert
@@ -50,7 +50,7 @@ describe("ManageProductController - getManageProducts", () => {
         query,
         languageId: LANGUAGE_ID,
         userId: ACTIVE_USER_ID,
-        roleName: SELLER_ROLE_NAME,
+        scope: SELLER_SCOPE,
       }),
     );
     expect(result.data).toEqual([product]);
@@ -76,13 +76,13 @@ describe("ManageProductController - getManageProducts", () => {
       query,
       LANGUAGE_ID,
       ACTIVE_USER_ID,
-      ADMIN_ROLE_NAME,
+      ADMIN_SCOPE,
     );
 
     // Assert
     expect(mocks.manageProductService.getProducts).toHaveBeenCalledWith(
       containing({
-        roleName: ADMIN_ROLE_NAME,
+        scope: ADMIN_SCOPE,
       }),
     );
   });
@@ -98,7 +98,7 @@ describe("ManageProductController - getManageProducts", () => {
         { pageIndex: 1, pageSize: 10 },
         LANGUAGE_ID,
         ACTIVE_USER_ID,
-        SELLER_ROLE_NAME,
+        SELLER_SCOPE,
       ),
     ).rejects.toBe(error);
   });
@@ -112,7 +112,7 @@ describe("ManageProductController - getManageProductById", () => {
     ({ controller, mocks } = await setupManageProductController());
   });
 
-  it("calls the service with productId, languageId, userId, and roleName and returns wrapped result", async () => {
+  it("calls the service with productId, languageId, userId, and scope and returns wrapped result", async () => {
     // Arrange
     const product = makeProductResponse();
     mocks.manageProductService.getProductById.mockResolvedValue(product);
@@ -122,7 +122,7 @@ describe("ManageProductController - getManageProductById", () => {
       PRODUCT_ID,
       LANGUAGE_ID,
       ACTIVE_USER_ID,
-      SELLER_ROLE_NAME,
+      SELLER_SCOPE,
     );
 
     // Assert
@@ -131,7 +131,7 @@ describe("ManageProductController - getManageProductById", () => {
         productId: PRODUCT_ID,
         languageId: LANGUAGE_ID,
         userId: ACTIVE_USER_ID,
-        roleName: SELLER_ROLE_NAME,
+        scope: SELLER_SCOPE,
       }),
     );
     expect(result).toEqual(product);
@@ -148,7 +148,7 @@ describe("ManageProductController - getManageProductById", () => {
         PRODUCT_ID,
         LANGUAGE_ID,
         ACTIVE_USER_ID,
-        SELLER_ROLE_NAME,
+        SELLER_SCOPE,
       ),
     ).rejects.toBe(error);
   });
@@ -236,7 +236,7 @@ describe("ManageProductController - updateProduct", () => {
     ({ controller, mocks } = await setupManageProductController());
   });
 
-  it("calls the service with productId, data, userId, and roleName and returns wrapped result", async () => {
+  it("calls the service with productId, data, userId, and scope and returns wrapped result", async () => {
     // Arrange
     const product = makeProductResponse();
     mocks.manageProductService.updateProduct.mockResolvedValue(product);
@@ -259,7 +259,7 @@ describe("ManageProductController - updateProduct", () => {
       data,
       PRODUCT_ID,
       ACTIVE_USER_ID,
-      SELLER_ROLE_NAME,
+      SELLER_SCOPE,
     );
 
     // Assert
@@ -268,7 +268,7 @@ describe("ManageProductController - updateProduct", () => {
         productId: PRODUCT_ID,
         data,
         userId: ACTIVE_USER_ID,
-        roleName: SELLER_ROLE_NAME,
+        scope: SELLER_SCOPE,
       }),
     );
     expect(result).toEqual(product);
@@ -297,13 +297,13 @@ describe("ManageProductController - updateProduct", () => {
       data,
       PRODUCT_ID,
       ACTIVE_USER_ID,
-      ADMIN_ROLE_NAME,
+      ADMIN_SCOPE,
     );
 
     // Assert
     expect(mocks.manageProductService.updateProduct).toHaveBeenCalledWith(
       containing({
-        roleName: ADMIN_ROLE_NAME,
+        scope: ADMIN_SCOPE,
       }),
     );
   });
@@ -327,12 +327,7 @@ describe("ManageProductController - updateProduct", () => {
 
     // Act & Assert
     await expect(
-      controller.updateProduct(
-        data,
-        PRODUCT_ID,
-        ACTIVE_USER_ID,
-        SELLER_ROLE_NAME,
-      ),
+      controller.updateProduct(data, PRODUCT_ID, ACTIVE_USER_ID, SELLER_SCOPE),
     ).rejects.toBe(error);
   });
 });
@@ -345,7 +340,7 @@ describe("ManageProductController - deleteProduct", () => {
     ({ controller, mocks } = await setupManageProductController());
   });
 
-  it("calls the service with productId, userId, and roleName and returns wrapped result", async () => {
+  it("calls the service with productId, userId, and scope and returns wrapped result", async () => {
     // Arrange
     const product = makeProductResponse({ deletedAt: new Date() });
     mocks.manageProductService.deleteProduct.mockResolvedValue(product);
@@ -354,7 +349,7 @@ describe("ManageProductController - deleteProduct", () => {
     const result = await controller.deleteProduct(
       PRODUCT_ID,
       ACTIVE_USER_ID,
-      SELLER_ROLE_NAME,
+      SELLER_SCOPE,
     );
 
     // Assert
@@ -362,7 +357,7 @@ describe("ManageProductController - deleteProduct", () => {
       containing({
         productId: PRODUCT_ID,
         userId: ACTIVE_USER_ID,
-        roleName: SELLER_ROLE_NAME,
+        scope: SELLER_SCOPE,
       }),
     );
     expect(result).toEqual(product);
@@ -375,7 +370,7 @@ describe("ManageProductController - deleteProduct", () => {
 
     // Act & Assert
     await expect(
-      controller.deleteProduct(PRODUCT_ID, ACTIVE_USER_ID, SELLER_ROLE_NAME),
+      controller.deleteProduct(PRODUCT_ID, ACTIVE_USER_ID, SELLER_SCOPE),
     ).rejects.toBe(error);
   });
 });

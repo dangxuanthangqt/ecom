@@ -9,9 +9,11 @@ import {
   Res,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { Device, User } from "@prisma/client";
 import { Response } from "express";
 
+import { AuthThrottle } from "@/constants/throttle.constant";
 import {
   Disable2faRequestDto,
   Disable2faResponseDto,
@@ -33,6 +35,7 @@ import {
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
 import { ApiAuth, ApiPublic } from "@/shared/param-decorators/http-decorator";
+import { RequirePermission } from "@/shared/param-decorators/require-permission.decorator";
 import { UserAgent } from "@/shared/param-decorators/user-agent.decorator";
 import { AppConfigService } from "@/shared/services/app-config.service";
 import {
@@ -65,6 +68,7 @@ export class AuthController {
       description: "Register",
     },
   })
+  @Throttle(AuthThrottle.GUESS_CODE)
   @Post("register")
   @IsPublicApi()
   async register(
@@ -82,6 +86,7 @@ export class AuthController {
       description: "Login",
     },
   })
+  @Throttle(AuthThrottle.LOGIN)
   @Post("login")
   @IsPublicApi()
   // @ZodSerializerDto(LoginResponseZodDto) // /** It's run after global TransformInterceptor*/
@@ -106,6 +111,7 @@ export class AuthController {
       description: "Refresh token",
     },
   })
+  @Throttle(AuthThrottle.SESSION)
   @Post("refresh-token")
   @IsPublicApi()
   async refreshToken(
@@ -129,6 +135,8 @@ export class AuthController {
       description: "Logout",
     },
   })
+  @Throttle(AuthThrottle.SESSION)
+  @RequirePermission("session:revoke:own")
   @Post("logout")
   async logout(@Body() data: LogoutRequestDto): Promise<LogoutResponseDto> {
     const response = await this.authService.logout({
@@ -145,6 +153,7 @@ export class AuthController {
       description: "Send OTP",
     },
   })
+  @Throttle(AuthThrottle.REQUEST_CODE)
   @Post("otp")
   @IsPublicApi()
   async sendOTP(@Body() data: SendOTPRequestDto): Promise<SendOTPResponseDto> {
@@ -153,6 +162,7 @@ export class AuthController {
     return new SendOTPResponseDto(response);
   }
 
+  @Throttle(AuthThrottle.SESSION)
   @Get("google/authorization-url")
   @IsPublicApi()
   @ApiResponse({
@@ -177,6 +187,7 @@ export class AuthController {
     return { url };
   }
 
+  @Throttle(AuthThrottle.SESSION)
   @Get("google/callback")
   @ApiOperation({ summary: "Google callback" })
   @IsPublicApi()
@@ -217,6 +228,7 @@ export class AuthController {
       description: "Forgot password",
     },
   })
+  @Throttle(AuthThrottle.GUESS_CODE)
   @Post("forgot-password")
   @IsPublicApi()
   async forgotPassword(@Body() data: ForgotPasswordRequestDto) {
@@ -232,6 +244,8 @@ export class AuthController {
       description: "Enable 2FA",
     },
   })
+  @Throttle(AuthThrottle.TWO_FACTOR)
+  @RequirePermission("profile:update:own")
   @Post("2fa/enable")
   async enable2fa(@ActiveUser("userId") userId: User["id"]) {
     const response =
@@ -247,6 +261,8 @@ export class AuthController {
       description: "Disable 2FA",
     },
   })
+  @Throttle(AuthThrottle.TWO_FACTOR)
+  @RequirePermission("profile:update:own")
   @Post("2fa/disable")
   async disable2fa(
     @Body() body: Disable2faRequestDto,
