@@ -1,5 +1,3 @@
-import { Prisma } from "@prisma/client";
-
 import { PRODUCTS } from "../data/products.data";
 import { defineSeeder } from "../seed-context";
 import { translationId, UserId } from "../seed-ids";
@@ -24,7 +22,7 @@ export default defineSeeder({
         where: { id: product.id },
         create: {
           ...productData,
-          variants: variants as unknown as Prisma.InputJsonValue,
+          variants,
           categories: { connect: categoryIds.map((id) => ({ id })) },
           createdById: ownerId,
         },
@@ -35,7 +33,7 @@ export default defineSeeder({
           brandId: product.brandId,
           images: product.images,
           publishedAt: product.publishedAt,
-          variants: variants as unknown as Prisma.InputJsonValue,
+          variants,
           categories,
           deletedAt: null,
           updatedById: actorId,

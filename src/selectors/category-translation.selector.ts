@@ -1,11 +1,11 @@
-import { Prisma } from "@prisma/client";
-
 import { NOT_DELETED } from "@/constants/soft-delete.constant";
+import { Prisma } from "@/generated/prisma/client";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
 import { languageSelect } from "./language.selector";
 
 export const categoryTranslationSelect =
-  Prisma.validator<Prisma.CategoryTranslationSelect>()({
+  defineSelect<Prisma.CategoryTranslationSelect>()({
     id: true,
     name: true,
     description: true,

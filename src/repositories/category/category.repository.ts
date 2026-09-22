@@ -1,13 +1,13 @@
 import { Injectable, Logger } from "@nestjs/common";
+
+import { ErrorCode } from "@/constants/error-codes";
 import {
   Category as CategorySchema,
   CategoryTranslation as CategoryTranslationSchema,
   Language as LanguageSchema,
   User as UserSchema,
   Prisma,
-} from "@prisma/client";
-
-import { ErrorCode } from "@/constants/error-codes";
+} from "@/generated/prisma/client";
 import { createCategoryWithTranslationsSelect } from "@/selectors/category.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {

@@ -1,8 +1,9 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
 import { roleSelect, roleWithPermissionsSelect } from "./role.selector";
 
-export const userSelect = Prisma.validator<Prisma.UserSelect>()({
+export const userSelect = defineSelect<Prisma.UserSelect>()({
   id: true,
   name: true,
   email: true,
@@ -11,7 +12,7 @@ export const userSelect = Prisma.validator<Prisma.UserSelect>()({
   status: true,
 });
 
-export const userWithRoleSelect = Prisma.validator<Prisma.UserSelect>()({
+export const userWithRoleSelect = defineSelect<Prisma.UserSelect>()({
   ...userSelect,
   role: {
     select: roleSelect,
@@ -19,7 +20,7 @@ export const userWithRoleSelect = Prisma.validator<Prisma.UserSelect>()({
 });
 
 export const userWithRoleAndPermissionsSelect =
-  Prisma.validator<Prisma.UserSelect>()({
+  defineSelect<Prisma.UserSelect>()({
     ...userSelect,
     role: {
       select: roleWithPermissionsSelect,

@@ -3,7 +3,6 @@ import {
   ApiPropertyOptional,
   IntersectionType,
 } from "@nestjs/swagger";
-import { OrderStatus } from "@prisma/client";
 import { Expose, Type } from "class-transformer";
 import {
   ArrayMaxSize,
@@ -16,6 +15,7 @@ import {
 } from "class-validator";
 
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
+import { OrderStatus } from "@/generated/prisma/client";
 
 import { OrderOrderByFields, OrderOrderByFieldsType } from "./constant";
 

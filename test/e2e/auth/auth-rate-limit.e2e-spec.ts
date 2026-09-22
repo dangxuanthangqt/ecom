@@ -1,9 +1,9 @@
 import { getOptionsToken } from "@nestjs/throttler";
-import { VerificationCodeType } from "@prisma/client";
 import request from "supertest";
 import { v4 as uuidv4 } from "uuid";
 
 import { ErrorCode } from "@/constants/error-codes";
+import { VerificationCodeType } from "@/generated/prisma/client";
 import { RedisService } from "@/shared/services/redis.service";
 import { ThrottlerRedisStorage } from "@/shared/services/throttler-redis-storage.service";
 import { createThrottlerOptions } from "@/shared/utils/throttler-options.factory";

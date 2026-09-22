@@ -1,4 +1,4 @@
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma/client";
 
 import { productById } from "../data/products.data";
 import { defineSeeder } from "../seed-context";

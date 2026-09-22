@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { ProductTranslationRepository } from "@/repositories/product-translation/product-translation.repository";
 
 import {
@@ -147,7 +146,7 @@ describe("ProductTranslationRepository - findProductTranslationById", () => {
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -208,7 +207,7 @@ describe("ProductTranslationRepository - validateProduct", () => {
 
   it("throws notFound error when product does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -258,10 +257,13 @@ describe("ProductTranslationRepository - createProductTranslation", () => {
 
   it("throws unprocessable error on foreign key constraint", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Foreign key constraint", {
-      code: "P2003",
-      clientVersion: "6.0.0",
-    });
+    const error = new Prisma.PrismaClientKnownRequestError(
+      "Foreign key constraint",
+      {
+        code: "P2003",
+        clientVersion: "6.0.0",
+      },
+    );
     mocks.prismaService.productTranslation.create.mockRejectedValue(error);
 
     // Act
@@ -341,10 +343,13 @@ describe("ProductTranslationRepository - updateProductTranslation", () => {
 
   it("throws unprocessable error on unique constraint", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Unique constraint", {
-      code: "P2002",
-      clientVersion: "6.0.0",
-    });
+    const error = new Prisma.PrismaClientKnownRequestError(
+      "Unique constraint",
+      {
+        code: "P2002",
+        clientVersion: "6.0.0",
+      },
+    );
     mocks.prismaService.productTranslation.update.mockRejectedValue(error);
 
     // Act
@@ -364,7 +369,7 @@ describe("ProductTranslationRepository - updateProductTranslation", () => {
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -385,10 +390,13 @@ describe("ProductTranslationRepository - updateProductTranslation", () => {
 
   it("throws unprocessable error on foreign key constraint", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Foreign key constraint", {
-      code: "P2003",
-      clientVersion: "6.0.0",
-    });
+    const error = new Prisma.PrismaClientKnownRequestError(
+      "Foreign key constraint",
+      {
+        code: "P2003",
+        clientVersion: "6.0.0",
+      },
+    );
     mocks.prismaService.productTranslation.update.mockRejectedValue(error);
 
     // Act
@@ -444,7 +452,7 @@ describe("ProductTranslationRepository - deleteProductTranslation", () => {
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });

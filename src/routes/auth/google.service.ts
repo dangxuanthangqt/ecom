@@ -1,9 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Device } from "@prisma/client";
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { z } from "zod";
 
+import { Device } from "@/generated/prisma/client";
 import { DeviceRepository } from "@/repositories/device/device.repository";
 import { SharedRoleRepository } from "@/repositories/role/shared-role.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";

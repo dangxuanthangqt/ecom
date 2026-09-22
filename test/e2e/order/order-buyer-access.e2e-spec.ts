@@ -1,6 +1,7 @@
-import { OrderStatus } from "@prisma/client";
 import request from "supertest";
 import { v4 as uuidv4 } from "uuid";
+
+import { OrderStatus } from "@/generated/prisma/client";
 
 import { authed, createTestUser, loginAs } from "../support/auth.helper";
 import {

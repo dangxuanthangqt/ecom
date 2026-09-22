@@ -1,8 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import {
-  CategoryTranslation as CategoryTranslationSchema,
-  User as UserSchema,
-} from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import {
@@ -10,6 +6,10 @@ import {
   UpdateCategoryTranslationRequestDto,
 } from "@/dtos/category-translation/category-translation.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
+import {
+  CategoryTranslation as CategoryTranslationSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { CategoryTranslationRepository } from "@/repositories/category-translation/category-translation.repository";
 
 @Injectable()

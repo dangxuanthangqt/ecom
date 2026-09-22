@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { User as UserSchema } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import {
@@ -8,6 +7,7 @@ import {
   UpdateProfileRequestDto,
   UpdateProfileResponseDto,
 } from "@/dtos/profile/profile.dto";
+import { User as UserSchema } from "@/generated/prisma/client";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import { userWithRoleAndPermissionsSelect } from "@/selectors/user.selector";
 import { HashingService } from "@/shared/services/hashing.service";

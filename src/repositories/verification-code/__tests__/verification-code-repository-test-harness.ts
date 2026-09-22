@@ -1,6 +1,6 @@
 import { Test } from "@nestjs/testing";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
+import { Prisma } from "@/generated/prisma/client";
 import { PrismaService } from "@/shared/services/prisma.service";
 
 import { VerificationCodeRepository } from "../verification-code.repository";
@@ -67,19 +67,19 @@ export const anyObject = (): Record<string, unknown> =>
   expect.any(Object) as unknown as Record<string, unknown>;
 
 export const createPrismaUniqueError = () =>
-  new PrismaClientKnownRequestError("Unique constraint failed", {
+  new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
     code: "P2002",
     clientVersion: "5.0.0",
   });
 
 export const createPrismaNotFoundError = () =>
-  new PrismaClientKnownRequestError("Record not found", {
+  new Prisma.PrismaClientKnownRequestError("Record not found", {
     code: "P2025",
     clientVersion: "5.0.0",
   });
 
 export const createPrismaForeignKeyError = () =>
-  new PrismaClientKnownRequestError("Foreign key constraint failed", {
+  new Prisma.PrismaClientKnownRequestError("Foreign key constraint failed", {
     code: "P2003",
     clientVersion: "5.0.0",
   });

@@ -1,8 +1,8 @@
-import { Prisma } from "@prisma/client";
-
 import { NOT_DELETED } from "@/constants/soft-delete.constant";
+import { Prisma } from "@/generated/prisma/client";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
-export const permissionSelect = Prisma.validator<Prisma.PermissionSelect>()({
+export const permissionSelect = defineSelect<Prisma.PermissionSelect>()({
   id: true,
   key: true,
   resource: true,
@@ -12,7 +12,7 @@ export const permissionSelect = Prisma.validator<Prisma.PermissionSelect>()({
 });
 
 export const permissionWithRolesSelect =
-  Prisma.validator<Prisma.PermissionSelect>()({
+  defineSelect<Prisma.PermissionSelect>()({
     ...permissionSelect,
     roles: {
       where: NOT_DELETED,

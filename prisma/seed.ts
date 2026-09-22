@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
-import { PrismaClient } from "@prisma/client";
 import { config } from "dotenv";
+
+import { resolveEnvFilePath } from "@/constants/env-file.constant";
+import { createStandalonePrismaClient } from "@/shared/utils/prisma-client.util";
 
 import { resetDatabase } from "./seed/reset";
 import {
@@ -9,8 +11,10 @@ import {
 } from "./seed/seed-environment";
 import { runSeeders } from "./seed/seed-runner";
 
-config({ path: `.env.${process.env.NODE_ENV || "development"}` });
-config(); // fall back to plain .env
+// Prisma 7 loads no env file by itself, so this is the only place DATABASE_URL
+// can come from (besides a real process variable) — and it runs before the
+// client below is built, which is what makes the NODE_ENV-selected file win.
+config({ path: resolveEnvFilePath() });
 
 const args = new Set(process.argv.slice(2));
 
@@ -22,7 +26,7 @@ const args = new Set(process.argv.slice(2));
 const coreOnly = args.has("--core-only") || !isSeedableEnvironment();
 
 async function main() {
-  const prisma = new PrismaClient();
+  const prisma = createStandalonePrismaClient();
 
   try {
     if (args.has("--reset")) {

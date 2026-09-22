@@ -1,7 +1,7 @@
 import { VariantRequestDto } from "@/dtos/product/product.dto";
 
 declare global {
-  namespace PrismaJon {
+  namespace PrismaJson {
     type Variants = VariantRequestDto[];
   }
 }

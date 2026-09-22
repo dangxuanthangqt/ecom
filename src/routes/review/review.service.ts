@@ -1,8 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { Review as ReviewSchema, User as UserSchema } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { ReviewPaginationQueryDto } from "@/dtos/review/review.dto";
+import {
+  Review as ReviewSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { ReviewRepository } from "@/repositories/review/review.repository";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 

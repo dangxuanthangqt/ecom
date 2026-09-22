@@ -26,6 +26,9 @@ export class AppConfigService {
       resendApiKey: this.getString("RESEND_API_KEY"),
       sandboxEmail: this.getString("SANDBOX_EMAIL"),
 
+      // Database
+      databaseUrl: this.getString("DATABASE_URL"),
+
       // Redis
       redisUrl: this.getString("REDIS_URL"),
 

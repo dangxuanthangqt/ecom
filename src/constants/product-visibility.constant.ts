@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 
 /**
  * The publish predicate a customer-facing (public) product listing must

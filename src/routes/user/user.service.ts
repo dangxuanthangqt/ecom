@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma, Role, User } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
@@ -8,6 +7,7 @@ import {
   CreateUserRequestDto,
   UpdateUserRequestDto,
 } from "@/dtos/user/user.dto";
+import { Prisma, Role, User } from "@/generated/prisma/client";
 import { SharedRoleRepository } from "@/repositories/role/shared-role.repository";
 import { SharedUserRepository } from "@/repositories/user/shared-user.repository";
 import {

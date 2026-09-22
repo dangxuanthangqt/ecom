@@ -10,7 +10,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam } from "@nestjs/swagger";
-import { User } from "@prisma/client";
 
 import { BrandPaginationQueryDto } from "@/dtos/brand/brand.dto";
 import {
@@ -19,6 +18,7 @@ import {
   UpdateBrandTranslationRequestDto,
 } from "@/dtos/brand-translation/brand-translation.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import { User } from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,

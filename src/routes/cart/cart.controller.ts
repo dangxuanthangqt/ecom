@@ -10,7 +10,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import { CartItem as CartItemSchema, User as UserSchema } from "@prisma/client";
 
 import {
   AddCartItemRequestDto,
@@ -20,6 +19,10 @@ import {
   UpdateCartItemRequestDto,
 } from "@/dtos/cart/cart.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import {
+  CartItem as CartItemSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,

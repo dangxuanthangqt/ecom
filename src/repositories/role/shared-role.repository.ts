@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { Role as RoleType } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { Role } from "@/constants/role.constant";
+import { Role as RoleType } from "@/generated/prisma/client";
 import { PrismaService } from "@/shared/services/prisma.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 

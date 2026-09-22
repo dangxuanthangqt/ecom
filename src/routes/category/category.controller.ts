@@ -10,11 +10,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import {
-  Category as CategorySchema,
-  Language as LanguageSchema,
-  User as UserSchema,
-} from "@prisma/client";
 
 import {
   CategoryWithChildrenCategoriesResponseDto,
@@ -23,6 +18,11 @@ import {
   GetAllCategoriesResponseDto,
   UpdateCategoryRequestDto,
 } from "@/dtos/category/category.dto";
+import {
+  Category as CategorySchema,
+  Language as LanguageSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { CurrentLang } from "@/shared/param-decorators/current-lang.decorator";
 import { ApiAuth } from "@/shared/param-decorators/http-decorator";

@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
-
+import { Prisma } from "@/generated/prisma/client";
 import { skuSelect } from "@/selectors/sku.selector";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
 /**
  * Parent-product fields nested under a cart line's SKU. `publishedAt`,
@@ -8,7 +8,7 @@ import { skuSelect } from "@/selectors/sku.selector";
  * DTO, but are selected here so phase 03 (checkout groups cart items by
  * `product.createdById`) can reuse this selector without an extra query.
  */
-const cartItemProductSummarySelect = Prisma.validator<Prisma.ProductSelect>()({
+const cartItemProductSummarySelect = defineSelect<Prisma.ProductSelect>()({
   id: true,
   name: true,
   publishedAt: true,
@@ -17,7 +17,7 @@ const cartItemProductSummarySelect = Prisma.validator<Prisma.ProductSelect>()({
 });
 
 export const createCartItemSelect = () =>
-  Prisma.validator<Prisma.CartItemSelect>()({
+  defineSelect<Prisma.CartItemSelect>()({
     id: true,
     quantity: true,
     createdAt: true,

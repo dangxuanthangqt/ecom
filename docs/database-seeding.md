@@ -21,12 +21,13 @@ deterministic it would not resemble real data distribution.
 
 ### Commands
 
-| Command                     | What it does                                                                                |
-| --------------------------- | ------------------------------------------------------------------------------------------- |
-| `pnpm db:seed`              | Core + demo data. Safe to run repeatedly.                                                   |
-| `pnpm db:seed:reset`        | Truncates every seeded table first, then seeds.                                             |
-| `pnpm db:seed:core`         | Core data only (languages, roles, admin user).                                              |
-| `pnpm prisma migrate reset` | Rebuilds the schema and runs `prisma/seed.ts` via the `prisma.seed` hook in `package.json`. |
+| Command                     | What it does                                                                                                |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `pnpm db:seed`              | Core + demo data. Safe to run repeatedly.                                                                   |
+| `pnpm db:seed:reset`        | Truncates every seeded table first, then seeds.                                                             |
+| `pnpm db:seed:core`         | Core data only (languages, roles, admin user).                                                              |
+| `pnpm exec prisma db seed`  | Runs `prisma/seed.ts` via `migrations.seed` in `prisma.config.ts`. Same as `pnpm db:seed` under `NODE_ENV`. |
+| `pnpm prisma migrate reset` | Rebuilds the schema only. **Prisma 7 never seeds on reset** — run `pnpm db:seed` afterwards.                |
 
 Permissions are **not** seeded here — they are derived from the live route table:
 

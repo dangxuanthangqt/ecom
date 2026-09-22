@@ -137,22 +137,19 @@ jobs:
         shell: bash
         run: docker compose up -d --wait db redis
 
-      # `validateEnv` requires every key below to be present. `.env.test` only
-      # carries e2e overrides (NODE_ENV, DATABASE_URL, REDIS_URL,
-      # RESEND_API_KEY) and `ConfigModule` falls back to `.env` for the rest —
-      # which does not exist in a fresh CI checkout, so both files are
-      # synthesised from their committed `.example` counterparts. `.env.local`
-      # is also required: docker-compose.yml declares it as `env_file` on the
-      # `migrate`/`app` services, and `docker compose ps` parses that
+      # Each NODE_ENV maps to exactly one env file with no fallback between
+      # them (src/constants/env-file.constant.ts), so `.env.test` must carry
+      # the full key set `validateEnv` requires — `.env.test.example` does.
+      # `.env` is needed too: docker-compose.yml declares it as `env_file` on
+      # the `migrate`/`app` services, and `docker compose ps` parses that
       # declaration for every service (even ones this job never starts), so a
       # missing file breaks `docker compose ps -q redis` in
       # prepare-e2e-database.sh.
-      - name: Write .env, .env.test and .env.local from the committed examples
+      - name: Write .env and .env.test from the committed examples
         shell: bash
         run: |
           cp .env.example .env
           cp .env.test.example .env.test
-          cp .env.example .env.local
 
       # `pretest:e2e` (via `test:e2e:setup`) resets ecom_e2e, seeds fixtures,
       # syncs route permissions and flushes redis DB 1 before the suite runs.

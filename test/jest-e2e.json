@@ -5,7 +5,10 @@
   "testRegex": "\\.e2e-spec\\.ts$",
   "testTimeout": 30000,
   "setupFiles": ["<rootDir>/test/e2e/support/load-test-env.ts"],
-  "setupFilesAfterEnv": ["<rootDir>/test/jest-setup-silence-nest-logger.ts"],
+  "setupFilesAfterEnv": [
+    "<rootDir>/test/jest-setup-silence-nest-logger.ts",
+    "<rootDir>/test/e2e/support/disconnect-prisma-test-client.ts"
+  ],
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },

@@ -1,9 +1,12 @@
 import { Injectable } from "@nestjs/common";
-import { CartItem as CartItemSchema, User as UserSchema } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { CartPaginationQueryDto } from "@/dtos/cart/cart.dto";
+import {
+  CartItem as CartItemSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { CartRepository } from "@/repositories/cart/cart.repository";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";
 

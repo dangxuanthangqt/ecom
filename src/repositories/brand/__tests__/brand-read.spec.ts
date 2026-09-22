@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { BrandRepository } from "@/repositories/brand/brand.repository";
 
 import {
@@ -174,7 +173,7 @@ describe("BrandRepository - findUniqueBrand", () => {
   describe("error handling - record not found", () => {
     it("throws notFound error and translates message when brand does not exist", async () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "An operation failed because it depends on one or more records that were required but not found.",
         {
           code: "P2025",

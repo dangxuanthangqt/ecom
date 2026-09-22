@@ -1,9 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import {
-  Prisma,
-  ProductTranslation as ProductTranslationSchema,
-  User as UserSchema,
-} from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { Scope, ScopeType } from "@/constants/permission.constant";
@@ -12,6 +7,11 @@ import {
   UpdateProductTranslationRequestDto,
 } from "@/dtos/product-translation/product-translation.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
+import {
+  Prisma,
+  ProductTranslation as ProductTranslationSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { ProductTranslationRepository } from "@/repositories/product-translation/product-translation.repository";
 
 type Actor = {

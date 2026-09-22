@@ -2,7 +2,8 @@
 
 How schema changes reach each environment in this repository.
 
-**Stack:** NestJS 11 · Prisma 6.4.1 · PostgreSQL 15 · pnpm 10.6.5
+**Stack:** NestJS 11 · Prisma 7.10.0 · PostgreSQL 15 · pnpm 12.4.1
+**Config:** [`prisma.config.ts`](../prisma.config.ts) — datasource URL, shadow URL, migrations path and seed command (see [prisma-7-migration.md](prisma-7-migration.md))
 **Schema:** [`prisma/schema.prisma`](../prisma/schema.prisma) (single schema file)
 **History:** [`prisma/migrations/`](../prisma/migrations/) — 27 migrations, provider locked to `postgresql` in `migration_lock.toml`
 
@@ -25,7 +26,7 @@ How schema changes reach each environment in this repository.
 
 ## 2. Environment matrix
 
-`NODE_ENV` is validated by [`src/validations/env.validation.ts`](../src/validations/env.validation.ts) and accepts **only `development` or `production`**. Environments are therefore separated by `DATABASE_URL` and by deployment target — _not_ by `NODE_ENV`.
+`NODE_ENV` is validated by [`src/validations/env.validation.ts`](../src/validations/env.validation.ts) and accepts **only `development`, `test` or `production`**. Staging and production therefore both run as `production` and are separated by `DATABASE_URL` and by deployment target — _not_ by `NODE_ENV`.
 
 | Environment | `NODE_ENV`    | Migration command                                                | Who runs it                                                            |
 | ----------- | ------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------- |
@@ -34,7 +35,28 @@ How schema changes reach each environment in this repository.
 | Staging     | `production`  | `pnpm db:migrate`                                                | `Database Migrate` workflow, environment `staging`                     |
 | Production  | `production`  | `pnpm db:migrate`                                                | `Database Migrate` workflow, environment `production` (approval-gated) |
 
-`ConfigModule` loads `.env.${NODE_ENV}` then `.env` ([`src/shared/modules/base.module.ts`](../src/shared/modules/base.module.ts)). Deployed environments inject variables directly rather than shipping a file — `.dockerignore` blocks every `.env*` from the image.
+### Which env file a command reads
+
+`ConfigModule` loads exactly one env file, chosen by `NODE_ENV` ([`src/constants/env-file.constant.ts`](../src/constants/env-file.constant.ts), wired in [`src/shared/modules/base.module.ts`](../src/shared/modules/base.module.ts)). There is no fallback between them, so each file must be complete:
+
+| `NODE_ENV`    | Env file           |
+| ------------- | ------------------ |
+| `development` | `.env.development` |
+| `test`        | `.env.test`        |
+| `production`  | `.env`             |
+
+Deployed environments inject variables directly rather than shipping a file — `.dockerignore` blocks every `.env*` from the image.
+
+> **The Prisma CLI follows the same rule.** [`prisma.config.ts`](../prisma.config.ts) loads exactly the file `NODE_ENV` selects (development when unset) through the same resolver, and Prisma 7 loads nothing else — neither the CLI nor the generated client reads `.env` on its own any more. A bare `prisma migrate dev` on a developer machine therefore runs against `.env.development`, never against production. Precedence, highest first:
+>
+> 1. variables already in the environment (CI secrets, `DATABASE_URL=... pnpm ...`)
+> 2. the env file for `NODE_ENV`
+>
+> A missing file is not an error: CI checkouts and Docker images have no `.env.development` and inject every variable directly. When `DATABASE_URL` is still unset after that, the config omits the datasource, so `prisma generate` / `validate` / `format` keep working and every database command fails with "datasource.url is required".
+>
+> `NODE_ENV=test` adds one more guard: the config refuses any `DATABASE_URL` that does not name `ecom_e2e`, so `db:test:reset` and the e2e setup cannot be aimed at another database by a stale `.env.test` or an exported production URL.
+>
+> Deploy-facing scripts (`db:migrate`, `prisma:migrate:deploy`, `prisma:migrate:resolve:*`, `db:backup`, `db:restore`) expect `DATABASE_URL` to be injected by the platform or CI. `scripts/run-database-migrations.sh` and the backup/restore scripts check the shell variable and fail closed without it; on a developer machine a bare `pnpm prisma:migrate:deploy` falls back to `.env.development` like every other command.
 
 ---
 
@@ -81,7 +103,7 @@ pnpm prisma:migrate:status  # local DB has no pending/failed migration
 pnpm prisma:migrate:drift   # migration history reproduces schema.prisma exactly
 ```
 
-`prisma:migrate:drift` needs `SHADOW_DATABASE_URL` pointing at a **separate throwaway database** — Prisma resets it. It exits `2` when `schema.prisma` and the migration history disagree, which is the classic "edited the schema, forgot the migration" mistake.
+All three run against `.env.development` (chosen by `prisma.config.ts`), so they never touch the database `.env` names. `prisma:migrate:drift` needs `SHADOW_DATABASE_URL` pointing at a **separate throwaway database** — Prisma resets it. It exits `2` when `schema.prisma` and the migration history disagree, which is the classic "edited the schema, forgot the migration" mistake.
 
 ### Seeding
 
@@ -98,14 +120,21 @@ pnpm seed:initial-scripts:create-permission  # permission rows from routes
 
 Unit tests (`pnpm test`, 114 suites) mock Prisma entirely and need no database.
 
-For anything that touches a real database, point `DATABASE_URL` at a **dedicated test database** and reset it:
+For anything that touches a real database, `db:test:reset` runs with `NODE_ENV=test`, so it takes `DATABASE_URL` from `.env.test` (copy it from `.env.test.example`, which points at `ecom_e2e`):
+
+```bash
+cp .env.test.example .env.test   # once per checkout
+pnpm db:test:reset
+```
+
+An explicitly exported variable still outranks the file, which is how CI aims it at its own service container:
 
 ```bash
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/ecom_test?schema=public" \
   pnpm db:test:reset
 ```
 
-`db:test:reset` runs `prisma migrate reset --force --skip-seed` — it **drops and recreates the database**. Never point it at a database you care about.
+`db:test:reset` runs `prisma migrate reset --force` under `NODE_ENV=test` — it **drops and recreates the database**. Never point it at a database you care about. `prisma.config.ts` loads exactly the env file `NODE_ENV` selects (`.env.test` here) and nothing else; Prisma 7 no longer reads `.env` on its own, so the reset cannot inherit the production URL. (`--skip-seed` is gone in Prisma 7 because `migrate reset` no longer seeds at all — see [database-seeding.md](database-seeding.md).)
 
 CI does the same thing the hard way: it applies the whole history to an empty Postgres 15 service container, which is what proves the history is replayable from zero.
 
@@ -537,19 +566,20 @@ The only automated writer to a deployed database.
 
 ## 13. Command reference
 
-| Command                                          | Purpose                                                                     |
-| ------------------------------------------------ | --------------------------------------------------------------------------- |
-| `pnpm prisma:migrate:dev`                        | Create + apply a migration (**development only**)                           |
-| `pnpm prisma:migrate:dev:create-only`            | Generate SQL without applying — for review and hand-editing                 |
-| `pnpm prisma:migrate:deploy`                     | Apply committed migrations (non-development)                                |
-| `pnpm prisma:migrate:status`                     | Show applied / pending / failed migrations                                  |
-| `pnpm prisma:migrate:resolve:applied <name>`     | Mark a failed migration as applied                                          |
-| `pnpm prisma:migrate:resolve:rolled-back <name>` | Mark a failed migration as rolled back                                      |
-| `pnpm prisma:migrate:drift`                      | Verify the history reproduces `schema.prisma` (needs `SHADOW_DATABASE_URL`) |
-| `pnpm prisma:validate`                           | Validate `schema.prisma`                                                    |
-| `pnpm prisma:generate`                           | Regenerate the Prisma client                                                |
-| `pnpm prisma:studio`                             | Open Prisma Studio                                                          |
-| `pnpm db:migrate`                                | Guarded deploy: wait for DB → status → deploy → verify                      |
-| `pnpm db:migrate:dry-run`                        | Report pending migrations, apply nothing                                    |
-| `pnpm db:test:reset`                             | **Drop and recreate** the test database, then apply all migrations          |
-| `pnpm seed:initial-scripts`                      | Seed the admin user (never automatic)                                       |
+| Command                                          | Purpose                                                                                                                        |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm prisma:migrate:dev`                        | Create + apply a migration, then regenerate the client (**development only**, reads `.env.development` via `prisma.config.ts`) |
+| `pnpm prisma:migrate:dev:create-only`            | Generate SQL without applying — for review and hand-editing                                                                    |
+| `pnpm prisma:migrate:deploy`                     | Apply committed migrations (non-development)                                                                                   |
+| `pnpm prisma:migrate:status`                     | Show applied / pending / failed migrations                                                                                     |
+| `pnpm prisma:migrate:resolve:applied <name>`     | Mark a failed migration as applied                                                                                             |
+| `pnpm prisma:migrate:resolve:rolled-back <name>` | Mark a failed migration as rolled back                                                                                         |
+| `pnpm prisma:migrate:drift`                      | Verify the history reproduces `schema.prisma` (`SHADOW_DATABASE_URL` from the env file / process env, via `prisma.config.ts`)  |
+| `pnpm prisma:validate`                           | Validate `schema.prisma`                                                                                                       |
+| `pnpm prisma:generate`                           | Regenerate the Prisma client into `src/generated/prisma` (needs no database)                                                   |
+| `pnpm prisma:studio`                             | Open Prisma Studio                                                                                                             |
+| `pnpm db:migrate`                                | Guarded deploy: wait for DB → status → deploy → verify                                                                         |
+| `pnpm db:migrate:dry-run`                        | Report pending migrations, apply nothing                                                                                       |
+| `pnpm db:test:reset`                             | **Drop and recreate** the test database (`.env.test`), then apply all migrations                                               |
+| `NODE_ENV=<development\|test\|production> <cmd>` | Pick which env file `prisma.config.ts` loads for any Prisma command (default: development)                                     |
+| `pnpm seed:initial-scripts`                      | Seed the admin user (never automatic)                                                                                          |

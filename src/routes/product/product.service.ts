@@ -1,9 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import {
-  Language as LanguageSchema,
-  Prisma,
-  Product as ProductSchema,
-} from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import { ProductOrderByFields } from "@/dtos/product/constant";
@@ -11,6 +6,11 @@ import {
   ProductPaginationQueryDto,
   ProductResponseDto,
 } from "@/dtos/product/product.dto";
+import {
+  Language as LanguageSchema,
+  Prisma,
+  Product as ProductSchema,
+} from "@/generated/prisma/client";
 import { ProductRepository } from "@/repositories/product/product.repository";
 import { createProductDetailSelect } from "@/selectors/product.selector";
 

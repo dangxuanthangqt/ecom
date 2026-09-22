@@ -21,12 +21,13 @@ thì nó sẽ không còn giống phân bố dữ liệu thật nữa.
 
 ### Commands
 
-| Command                     | Làm gì                                                                               |
-| --------------------------- | ------------------------------------------------------------------------------------ |
-| `pnpm db:seed`              | Core + demo data. Chạy lại nhiều lần vẫn an toàn.                                    |
-| `pnpm db:seed:reset`        | Truncate mọi bảng đã seed trước, rồi seed lại.                                       |
-| `pnpm db:seed:core`         | Chỉ seed core data (languages, roles, admin user).                                   |
-| `pnpm prisma migrate reset` | Rebuild schema và chạy `prisma/seed.ts` qua hook `prisma.seed` trong `package.json`. |
+| Command                     | Làm gì                                                                                                            |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `pnpm db:seed`              | Core + demo data. Chạy lại nhiều lần vẫn an toàn.                                                                 |
+| `pnpm db:seed:reset`        | Truncate mọi bảng đã seed trước, rồi seed lại.                                                                    |
+| `pnpm db:seed:core`         | Chỉ seed core data (languages, roles, admin user).                                                                |
+| `pnpm exec prisma db seed`  | Chạy `prisma/seed.ts` qua `migrations.seed` trong `prisma.config.ts`. Tương đương `pnpm db:seed` theo `NODE_ENV`. |
+| `pnpm prisma migrate reset` | Chỉ rebuild schema. **Prisma 7 không bao giờ seed khi reset** — chạy `pnpm db:seed` sau đó.                       |
 
 Permissions **không** được seed ở đây — chúng được suy ra từ route table đang chạy thực tế:
 

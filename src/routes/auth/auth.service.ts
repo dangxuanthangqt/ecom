@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { Device, User } from "@prisma/client";
 import { addMilliseconds } from "date-fns";
 import ms from "ms";
 
@@ -19,6 +18,7 @@ import {
   RefreshTokenResponseDto,
 } from "@/dtos/auth/refresh-token.dto";
 import { SendOTPRequestDto } from "@/dtos/auth/send-otp.dto";
+import { Device, User } from "@/generated/prisma/client";
 import { DeviceRepository } from "@/repositories/device/device.repository";
 import { RefreshTokenRepository } from "@/repositories/refresh-token/refresh-token.repository";
 import { SharedRoleRepository } from "@/repositories/role/shared-role.repository";

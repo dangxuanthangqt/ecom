@@ -1,9 +1,10 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
+import { defineSelect } from "@/shared/utils/prisma-select.util";
 
 import { productSkuSnapshotSelect } from "./product-sku-snapshot.selector";
 
 /** Base shape for list reads — no snapshot items (BR-O08: `deletedAt` filtered by the caller). */
-export const orderSelect = Prisma.validator<Prisma.OrderSelect>()({
+export const orderSelect = defineSelect<Prisma.OrderSelect>()({
   id: true,
   userId: true,
   status: true,
@@ -13,7 +14,7 @@ export const orderSelect = Prisma.validator<Prisma.OrderSelect>()({
 
 /** Detail shape — adds the frozen snapshot lines (BR-O03). */
 export const createOrderDetailSelect = () =>
-  Prisma.validator<Prisma.OrderSelect>()({
+  defineSelect<Prisma.OrderSelect>()({
     ...orderSelect,
     items: {
       select: productSkuSnapshotSelect,

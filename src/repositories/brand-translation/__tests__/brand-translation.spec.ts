@@ -1,5 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-
+import { Prisma } from "@/generated/prisma/client";
 import { BrandTranslationRepository } from "@/repositories/brand-translation/brand-translation.repository";
 
 import {
@@ -115,7 +114,7 @@ describe("BrandTranslationRepository - findUniqueBrandTranslation", () => {
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -158,7 +157,7 @@ describe("BrandTranslationRepository - validateBrand", () => {
 
   it("throws notFound error when brand does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -206,7 +205,7 @@ describe("BrandTranslationRepository - createBrandTranslation", () => {
 
   it("throws unprocessable error on unique constraint violation", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError(
+    const error = new Prisma.PrismaClientKnownRequestError(
       "Unique constraint failed",
       { code: "P2002", clientVersion: "6.0.0" },
     );
@@ -231,10 +230,13 @@ describe("BrandTranslationRepository - createBrandTranslation", () => {
 
   it("throws unprocessable error on foreign key constraint", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Foreign key constraint", {
-      code: "P2003",
-      clientVersion: "6.0.0",
-    });
+    const error = new Prisma.PrismaClientKnownRequestError(
+      "Foreign key constraint",
+      {
+        code: "P2003",
+        clientVersion: "6.0.0",
+      },
+    );
     mocks.prismaService.brandTranslation.create.mockRejectedValue(error);
 
     // Act
@@ -287,7 +289,7 @@ describe("BrandTranslationRepository - updateBrandTranslation", () => {
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });
@@ -342,7 +344,7 @@ describe("BrandTranslationRepository - deleteBrandTranslation", () => {
 
   it("throws notFound error when translation does not exist", async () => {
     // Arrange
-    const error = new PrismaClientKnownRequestError("Not found", {
+    const error = new Prisma.PrismaClientKnownRequestError("Not found", {
       code: "P2025",
       clientVersion: "6.0.0",
     });

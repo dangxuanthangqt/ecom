@@ -1,5 +1,4 @@
-import { Prisma } from "@prisma/client";
-
+import { Prisma } from "@/generated/prisma/client";
 import { OrderByTypeToOrderByFieldType } from "@/types/utility-types";
 
 export type CartItemOrderByFieldsType = keyof Pick<

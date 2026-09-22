@@ -1,4 +1,4 @@
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus } from "@/generated/prisma/client";
 
 import { OrderCancelRepository } from "../order-cancel.repository";
 import { OrderCheckoutRepository } from "../order-checkout.repository";

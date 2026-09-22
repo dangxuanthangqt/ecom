@@ -148,6 +148,7 @@ has a markdown version (full detail, line links) and an HTML version (visual, zo
 | [database-migration.md](database-migration.md) | Migration workflow and the immutability rules |
 | [database-rollback-recovery.md](database-rollback-recovery.md) | Rolling a migration back, and recovering from a bad one |
 | [database-seeding.md](database-seeding.md) | Fixture and volume seed systems |
+| [prisma-7-migration.md](prisma-7-migration.md) | Prisma 6 → 7 upgrade: env loading, driver adapter, generated client, CLI changes |
 | [redis-caching-guide.md](redis-caching-guide.md) | Redis from fundamentals through this project's cache usage |
 | [race-conditions-analysis.md](race-conditions-analysis.md) | Concurrency hazards found across the codebase |
 

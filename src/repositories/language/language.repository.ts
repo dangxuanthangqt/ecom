@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Language, Prisma, User } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
+import { Language, Prisma, User } from "@/generated/prisma/client";
 import { languageSelect } from "@/selectors/language.selector";
 import { PrismaService } from "@/shared/services/prisma.service";
 import {

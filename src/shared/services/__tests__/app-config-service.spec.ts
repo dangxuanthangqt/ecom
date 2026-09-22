@@ -63,6 +63,16 @@ describe("AppConfigService", () => {
       expect(service.appConfig.redisUrl).toBe("redis://localhost:6379");
     });
 
+    it("loads the database URL handed to the Prisma driver adapter", async () => {
+      // Arrange & Act
+      const { service } = await setupAppConfigService();
+
+      // Assert
+      expect(service.appConfig.databaseUrl).toBe(
+        "postgresql://postgres:postgres@localhost:5432/ecom_test?schema=public",
+      );
+    });
+
     it("loads rate-limiting configuration", async () => {
       // Arrange & Act
       const { service } = await setupAppConfigService();

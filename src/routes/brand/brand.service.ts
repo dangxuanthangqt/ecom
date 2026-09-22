@@ -1,9 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import {
-  Brand as BrandSchema,
-  Language as LanguageSchema,
-  User as UserSchema,
-} from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import {
@@ -11,6 +6,11 @@ import {
   UpdateBrandRequestDto,
 } from "@/dtos/brand/brand.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
+import {
+  Brand as BrandSchema,
+  Language as LanguageSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { BrandRepository } from "@/repositories/brand/brand.repository";
 
 @Injectable()

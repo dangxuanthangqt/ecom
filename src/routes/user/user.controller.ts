@@ -10,7 +10,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
 import { PageDto } from "@/dtos/shared/page.dto";
 import {
@@ -22,6 +21,10 @@ import {
   UserItemResponseDto,
   UserPaginationQueryDto,
 } from "@/dtos/user/user.dto";
+import {
+  Role as RoleSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,

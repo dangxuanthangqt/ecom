@@ -10,7 +10,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import { ProductTranslation, User } from "@prisma/client";
 
 import { ScopeType } from "@/constants/permission.constant";
 import {
@@ -20,6 +19,7 @@ import {
   UpdateProductTranslationRequestDto,
 } from "@/dtos/product-translation/product-translation.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import { ProductTranslation, User } from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import {
   ApiAuth,

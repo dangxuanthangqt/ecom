@@ -1,4 +1,4 @@
-import { Role, User, Device } from "@prisma/client";
+import { Role, User, Device } from "@/generated/prisma/client";
 
 type BaseTokenPayload = {
   exp: number;

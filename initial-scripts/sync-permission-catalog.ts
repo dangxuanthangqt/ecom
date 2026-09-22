@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import { INestApplication } from "@nestjs/common";
 import { DiscoveryService, MetadataScanner, Reflector } from "@nestjs/core";
-import { PrismaClient } from "@prisma/client";
 
 import {
   parsePermissionKey,
@@ -9,6 +8,7 @@ import {
 } from "@/constants/permission.constant";
 import { RolePermissionMatrix } from "@/constants/role-permission-matrix.constant";
 import { Role, RoleType } from "@/constants/role.constant";
+import { PrismaClient } from "@/generated/prisma/client";
 import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
 import { collectRoutePermissions } from "@/shared/utils/collect-route-permissions.util";
 import { withAnyCounterparts } from "@/shared/utils/permission.util";

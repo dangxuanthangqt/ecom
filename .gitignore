@@ -41,6 +41,10 @@ lerna-debug.log*
 !.env.test.example
 
 
+# Prisma 7 client — plain TypeScript emitted by `pnpm prisma:generate`.
+# Regenerated on every install/CI run; never hand-edited, never committed.
+/src/generated/
+
 # temp directory
 .temp
 .tmp

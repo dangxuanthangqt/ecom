@@ -27,7 +27,7 @@ graph TB
         SELECTOR["Selectors - Prisma select-shape builders"]
     end
     subgraph "Data Layer"
-        PRISMA["PrismaService extends PrismaClient - OnModuleInit"]
+        PRISMA["PrismaService extends PrismaClient (pg driver adapter) - OnModuleInit"]
         PG[("PostgreSQL")]
     end
     subgraph "External Integrations"
@@ -58,7 +58,7 @@ All 13 feature modules are wired in `route.module.ts:18-32` (`AuthModule, Langua
 | Runtime | Node.js | 24.14.1 (pinned in `.nvmrc`; production image `node:24.14.1-alpine`) | `Dockerfile:81` |
 | Framework | NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`) | 11.0.1 | `package.json:41,43,45` |
 | Language | TypeScript | 5.7.3 | `package.json:111` |
-| ORM | Prisma (`@prisma/client`, `prisma`) | 6.4.1 | `package.json:47,103` |
+| ORM | Prisma (`@prisma/client`, `prisma`, `@prisma/adapter-pg` driver adapter; client generated into `src/generated/prisma`) | 7.10.0 | `package.json`; `prisma.config.ts` |
 | Database | PostgreSQL | 15 (docker-compose `postgres:15-alpine`); driver via `datasource db { provider = "postgresql" }` | `docker-compose.yml:6`; `prisma/schema.prisma:9-11` |
 | Auth | `@nestjs/jwt` (JWT access/refresh) + Google OAuth2 (`google-auth-library` 9.15.1, `googleapis` 146.0.0) | 11.0.0 / 9.15.1 / 146.0.0 | `package.json:44,52,53` |
 | Validation | `class-validator` 0.14.1 (sole HTTP validation system; `nestjs-zod` was removed from the pipeline and from `package.json` — see Notes) | 0.14.1 | `package.json:50`; `src/shared/modules/base.module.ts:52-55`; `src/shared/utils/validation-pipe.config.ts` |
@@ -135,7 +135,7 @@ sequenceDiagram
 | Response serialization | `ClassSerializerInterceptor` (excludeExtraneousValues) as `APP_INTERCEPTOR` | `src/shared/modules/base.module.ts:42-50` |
 | CORS | Hardcoded single origin `http://localhost:3000`, methods `GET,HEAD,PUT,PATCH,POST,DELETE` | `src/main.ts:20-25` — **[UNVERIFIED]** whether this is intentionally non-configurable or a dev-only leftover; no env var drives it |
 | i18n | `nestjs-i18n`, resolvers: `AcceptLanguageResolver` + custom `x-lang` header, message files in `src/i18n/{en,vn}/message.json` | `src/shared/modules/i18n.module.ts:14-33` |
-| Env validation | `ConfigModule.forRoot({ validate: validateEnv, envFilePath: [".env.${NODE_ENV}", ".env"] })`, global | `src/shared/modules/base.module.ts:65-69`; `src/validations/env.validation.ts` |
+| Env validation | `ConfigModule.forRoot({ validate: validateEnv, envFilePath: resolveEnvFilePath() })`, global — one file per environment, no fallback | `src/shared/modules/base.module.ts:65-69`; `src/validations/env.validation.ts` |
 | Structured logging | `nestjs-pino`, factory-configured via `AppConfigService` (`LOG_LEVEL`, `LOG_PRETTY`) | `src/shared/modules/base.module.ts:70-73`; `src/main.ts:15` |
 | Swagger docs | Mounted at `/api` only when `configService.isDevelopment` | `src/main.ts:53-60` |
 
@@ -156,7 +156,7 @@ flowchart TB
 |-------------|--------------|--------|
 | APPC | Application container, 5-stage Dockerfile build (`base` → `builder` → `migrator` / `pruner` → `production`); entrypoint validates `DATABASE_URL` then execs `node dist/main.js` — it does **not** migrate, migrations run from the separate `migrator` stage | `Dockerfile:5,48,74`; `docker-entrypoint.sh` |
 | DBC | PostgreSQL 15 container, persisted via named volume `postgres_data` | `docker-compose.yml:5-17` |
-| APPC → DBC | Compose network `ecom-network` (bridge driver); app connects via `DATABASE_URL` env (from `.env.local`, not committed) | `docker-compose.yml:16-17,25-26,37-38` |
+| APPC → DBC | Compose network `ecom-network` (bridge driver); app connects via `DATABASE_URL` env (compose `env_file: .env`, not committed) | `docker-compose.yml:16-17,25-26,37-38` |
 
 **Degradation — CI/CD:** `.github/workflows/ci.yml` runs only `lint` and `build` jobs on push/PR to `develop`/`master` (`.github/workflows/ci.yml:22-56`); there is **no deploy/CD job, no Kubernetes manifest, no Terraform, no PaaS config file** anywhere in the tree (confirmed: only `ci.yml` under `.github/workflows/`, no other `*.yml`/`*.yaml` besides `docker-compose.yml` and the generated `swagger.yaml`). Production hosting topology beyond the single docker-compose file is **N/A — no infrastructure-as-code found in repository** for it; do not infer a hosting provider, orchestrator, or reverse proxy. **WARN:** this compose file (`POSTGRES_PASSWORD: postgres` hardcoded, ports directly published) reads as a local/dev convenience file, not a production manifest — treat any production deployment claim beyond it as unverified.
 

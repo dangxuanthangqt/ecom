@@ -27,7 +27,7 @@ graph TB
         SELECTOR["Selectors - Prisma select-shape builders"]
     end
     subgraph "Data Layer"
-        PRISMA["PrismaService extends PrismaClient - OnModuleInit"]
+        PRISMA["PrismaService extends PrismaClient (pg driver adapter) - OnModuleInit"]
         PG[("PostgreSQL")]
     end
     subgraph "External Integrations"
@@ -58,7 +58,7 @@ Cả 13 module tính năng được nối vào `route.module.ts:18-32` (`AuthMod
 | Runtime | Node.js | 24.14.1 (ghim trong `.nvmrc`; image production `node:24.14.1-alpine`) | `Dockerfile:81` |
 | Framework | NestJS (`@nestjs/common`, `@nestjs/core`, `@nestjs/platform-express`) | 11.0.1 | `package.json:41,43,45` |
 | Ngôn ngữ | TypeScript | 5.7.3 | `package.json:111` |
-| ORM | Prisma (`@prisma/client`, `prisma`) | 6.4.1 | `package.json:47,103` |
+| ORM | Prisma (`@prisma/client`, `prisma`, driver adapter `@prisma/adapter-pg`; client sinh vào `src/generated/prisma`) | 7.10.0 | `package.json`; `prisma.config.ts` |
 | Database | PostgreSQL | 15 (docker-compose `postgres:15-alpine`); driver qua `datasource db { provider = "postgresql" }` | `docker-compose.yml:6`; `prisma/schema.prisma:9-11` |
 | Auth | `@nestjs/jwt` (JWT access/refresh) + Google OAuth2 (`google-auth-library` 9.15.1, `googleapis` 146.0.0) | 11.0.0 / 9.15.1 / 146.0.0 | `package.json:44,52,53` |
 | Validation | `class-validator` 0.14.1 (hệ thống validation HTTP duy nhất; `nestjs-zod` đã bị gỡ khỏi pipeline và khỏi `package.json` — xem Ghi chú) | 0.14.1 | `package.json:50`; `src/shared/modules/base.module.ts:52-55`; `src/shared/utils/validation-pipe.config.ts` |
@@ -135,7 +135,7 @@ sequenceDiagram
 | Serialize response | `ClassSerializerInterceptor` (excludeExtraneousValues) làm `APP_INTERCEPTOR` | `src/shared/modules/base.module.ts:42-50` |
 | CORS | Hardcode một origin duy nhất `http://localhost:3000`, method `GET,HEAD,PUT,PATCH,POST,DELETE` | `src/main.ts:20-25` — **[UNVERIFIED]** không rõ đây là chủ ý cố định không cho cấu hình hay chỉ là leftover từ giai đoạn dev; không có env var nào điều khiển nó |
 | i18n | `nestjs-i18n`, resolver: `AcceptLanguageResolver` + header `x-lang` tùy chỉnh, file message tại `src/i18n/{en,vn}/message.json` | `src/shared/modules/i18n.module.ts:14-33` |
-| Validation env | `ConfigModule.forRoot({ validate: validateEnv, envFilePath: [".env.${NODE_ENV}", ".env"] })`, toàn cục | `src/shared/modules/base.module.ts:65-69`; `src/validations/env.validation.ts` |
+| Validation env | `ConfigModule.forRoot({ validate: validateEnv, envFilePath: resolveEnvFilePath() })`, toàn cục — mỗi môi trường một file, không fallback | `src/shared/modules/base.module.ts:65-69`; `src/validations/env.validation.ts` |
 | Logging có cấu trúc | `nestjs-pino`, cấu hình qua factory dùng `AppConfigService` (`LOG_LEVEL`, `LOG_PRETTY`) | `src/shared/modules/base.module.ts:70-73`; `src/main.ts:15` |
 | Swagger docs | Chỉ mount tại `/api` khi `configService.isDevelopment` | `src/main.ts:53-60` |
 
@@ -156,7 +156,7 @@ flowchart TB
 |-------------|--------------|--------|
 | APPC | Container ứng dụng, Dockerfile build 5 stage (`base` → `builder` → `migrator` / `pruner` → `production`); entrypoint validate `DATABASE_URL` rồi exec `node dist/main.js` — nó **không** chạy migration, migration chạy từ stage `migrator` riêng | `Dockerfile:5,48,74`; `docker-entrypoint.sh` |
 | DBC | Container PostgreSQL 15, lưu trữ qua named volume `postgres_data` | `docker-compose.yml:5-17` |
-| APPC → DBC | Compose network `ecom-network` (bridge driver); app kết nối qua env `DATABASE_URL` (lấy từ `.env.local`, không commit) | `docker-compose.yml:16-17,25-26,37-38` |
+| APPC → DBC | Compose network `ecom-network` (bridge driver); app kết nối qua env `DATABASE_URL` (compose `env_file: .env`, không commit) | `docker-compose.yml:16-17,25-26,37-38` |
 
 **Điểm còn thiếu — CI/CD:** `.github/workflows/ci.yml` chỉ chạy job `lint` và `build` khi push/PR vào `develop`/`master` (`.github/workflows/ci.yml:22-56`); **không có job deploy/CD, không có manifest Kubernetes, không có Terraform, không có file config PaaS nào** trong toàn bộ repo (đã xác nhận: chỉ có `ci.yml` dưới `.github/workflows/`, không còn file `*.yml`/`*.yaml` nào khác ngoài `docker-compose.yml` và `swagger.yaml` được sinh ra). Topology hosting production ngoài file docker-compose đơn lẻ này là **N/A — không tìm thấy infrastructure-as-code nào trong repo** cho phần đó; đừng suy đoán nhà cung cấp hosting, orchestrator hay reverse proxy nào. **WARN:** file compose này (`POSTGRES_PASSWORD: postgres` hardcode, port publish trực tiếp) đọc giống một file tiện lợi cho local/dev, không phải manifest production — coi mọi khẳng định về triển khai production vượt ngoài file này là chưa được xác minh.
 

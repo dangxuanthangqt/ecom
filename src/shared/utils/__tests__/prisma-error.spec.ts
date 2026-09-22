@@ -1,4 +1,4 @@
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { Prisma } from "@/generated/prisma/client";
 
 import {
   isPrismaClientKnownRequestError,
@@ -10,9 +10,9 @@ import {
 
 describe("Prisma Error Type Guards", () => {
   describe("isPrismaClientKnownRequestError", () => {
-    it("returns true for a PrismaClientKnownRequestError instance", () => {
+    it("returns true for a Prisma.PrismaClientKnownRequestError instance", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError("Test error", {
+      const error = new Prisma.PrismaClientKnownRequestError("Test error", {
         code: "P2002",
         clientVersion: "0.0.0",
       });
@@ -83,7 +83,7 @@ describe("Prisma Error Type Guards", () => {
   describe("isUniqueConstraintPrismaError", () => {
     it("returns true for a P2002 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Unique constraint failed",
         {
           code: "P2002",
@@ -100,10 +100,13 @@ describe("Prisma Error Type Guards", () => {
 
     it("returns false for a P2025 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError("Record not found", {
-        code: "P2025",
-        clientVersion: "0.0.0",
-      });
+      const error = new Prisma.PrismaClientKnownRequestError(
+        "Record not found",
+        {
+          code: "P2025",
+          clientVersion: "0.0.0",
+        },
+      );
 
       // Act
       const result = isUniqueConstraintPrismaError(error);
@@ -114,7 +117,7 @@ describe("Prisma Error Type Guards", () => {
 
     it("returns false for a P2003 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Foreign key constraint",
         {
           code: "P2003",
@@ -155,10 +158,13 @@ describe("Prisma Error Type Guards", () => {
   describe("isRecordToUpdateOrDeleteNotFoundPrismaError", () => {
     it("returns true for a P2025 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError("Record not found", {
-        code: "P2025",
-        clientVersion: "0.0.0",
-      });
+      const error = new Prisma.PrismaClientKnownRequestError(
+        "Record not found",
+        {
+          code: "P2025",
+          clientVersion: "0.0.0",
+        },
+      );
 
       // Act
       const result = isRecordToUpdateOrDeleteNotFoundPrismaError(error);
@@ -169,7 +175,7 @@ describe("Prisma Error Type Guards", () => {
 
     it("returns false for a P2002 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Unique constraint failed",
         {
           code: "P2002",
@@ -186,7 +192,7 @@ describe("Prisma Error Type Guards", () => {
 
     it("returns false for a P2003 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Foreign key constraint",
         {
           code: "P2003",
@@ -227,7 +233,7 @@ describe("Prisma Error Type Guards", () => {
   describe("isForeignKeyConstraintPrismaError", () => {
     it("returns true for a P2003 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Foreign key constraint",
         {
           code: "P2003",
@@ -244,7 +250,7 @@ describe("Prisma Error Type Guards", () => {
 
     it("returns false for a P2002 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Unique constraint failed",
         {
           code: "P2002",
@@ -261,10 +267,13 @@ describe("Prisma Error Type Guards", () => {
 
     it("returns false for a P2025 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError("Record not found", {
-        code: "P2025",
-        clientVersion: "0.0.0",
-      });
+      const error = new Prisma.PrismaClientKnownRequestError(
+        "Record not found",
+        {
+          code: "P2025",
+          clientVersion: "0.0.0",
+        },
+      );
 
       // Act
       const result = isForeignKeyConstraintPrismaError(error);
@@ -299,10 +308,13 @@ describe("Prisma Error Type Guards", () => {
   describe("isRecordNotFoundPrismaError", () => {
     it("returns true for a P2025 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError("Record not found", {
-        code: "P2025",
-        clientVersion: "0.0.0",
-      });
+      const error = new Prisma.PrismaClientKnownRequestError(
+        "Record not found",
+        {
+          code: "P2025",
+          clientVersion: "0.0.0",
+        },
+      );
 
       // Act
       const result = isRecordNotFoundPrismaError(error);
@@ -313,7 +325,7 @@ describe("Prisma Error Type Guards", () => {
 
     it("returns false for a P2002 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Unique constraint failed",
         {
           code: "P2002",
@@ -330,7 +342,7 @@ describe("Prisma Error Type Guards", () => {
 
     it("returns false for a P2003 error", () => {
       // Arrange
-      const error = new PrismaClientKnownRequestError(
+      const error = new Prisma.PrismaClientKnownRequestError(
         "Foreign key constraint",
         {
           code: "P2003",

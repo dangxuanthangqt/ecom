@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { Role as RoleSchema, User as UserSchema } from "@prisma/client";
 
 import { ErrorCode } from "@/constants/error-codes";
 import { ORDER, ORDER_BY } from "@/constants/order";
@@ -9,6 +8,10 @@ import {
   UpdateRoleRequestDto,
 } from "@/dtos/role/role.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
+import {
+  Role as RoleSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import { RoleRepository } from "@/repositories/role/role.repository";
 import { RolePermissionCacheService } from "@/shared/services/role-permission-cache.service";
 import throwHttpException from "@/shared/utils/throw-http-exception.util";

@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { Language, User } from "@prisma/client";
 
 import { ORDER, ORDER_BY } from "@/constants/order";
 import {
@@ -10,6 +9,7 @@ import {
   LanguageUpdateResponseDto,
 } from "@/dtos/language/language.dto";
 import { PaginationQueryDto } from "@/dtos/shared/pagination.dto";
+import { Language, User } from "@/generated/prisma/client";
 import { LanguageRepository } from "@/repositories/language/language.repository";
 
 @Injectable()

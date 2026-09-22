@@ -1,5 +1,6 @@
 import { HttpStatus } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+
+import { Prisma } from "@/generated/prisma/client";
 
 import { mapPrismaError, HTTP_CODE_FROM_PRISMA } from "../prisma-error.mapper";
 

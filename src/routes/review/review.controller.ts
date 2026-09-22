@@ -10,7 +10,6 @@ import {
   Query,
 } from "@nestjs/common";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
-import { Review as ReviewSchema, User as UserSchema } from "@prisma/client";
 
 import {
   CreateReviewRequestDto,
@@ -20,6 +19,10 @@ import {
   UpdateReviewRequestDto,
 } from "@/dtos/review/review.dto";
 import { PageDto } from "@/dtos/shared/page.dto";
+import {
+  Review as ReviewSchema,
+  User as UserSchema,
+} from "@/generated/prisma/client";
 import ActiveUser from "@/shared/param-decorators/active-user.decorator";
 import { IsPublicApi } from "@/shared/param-decorators/auth-api.decorator";
 import {
