@@ -1,0 +1,37 @@
+# Môi trường thực hành cho giáo trình SQL Mastery.
+# Chạy trong thư mục này:  docker compose up -d
+# Postgres lắng nghe ở cổng 5433 (không phải 5432) để không đụng DB của dự án khác trên máy.
+# Thư mục ./init được Postgres tự chạy MỘT LẦN khi volume còn trống: nó nạp schema.sql + seed.
+# Muốn làm lại từ đầu:  docker compose down -v && docker compose up -d
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sql-mastery-db
+    environment:
+      POSTGRES_DB: sql_mastery
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - sql_mastery_data:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
+    command:
+      # Bật sẵn extension thống kê query để học phần 7.5 (pg_stat_statements)
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_stat_statements"
+      - "-c"
+      - "pg_stat_statements.track=all"
+      # Log mọi query chạy quá 200 ms, xem bằng: docker compose logs -f db
+      - "-c"
+      - "log_min_duration_statement=200"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d sql_mastery"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  sql_mastery_data:
