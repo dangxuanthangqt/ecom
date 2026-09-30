@@ -160,7 +160,13 @@ has a markdown version (full detail, line links) and an HTML version (visual, zo
 | [rate-limiting-guide.md](rate-limiting-guide.md) | Throttling, including the authentication endpoints |
 | [google-oauth-login-flow.md](google-oauth-login-flow.md) | The Google sign-in flow end to end |
 | [totp-two-factor-authentication.md](totp-two-factor-authentication.md) | How TOTP two-factor authentication works, end to end (Vietnamese) |
+| [gcp-worker-guide-for-beginners.md](gcp-worker-guide-for-beginners.md) | General, repo-independent guide to background workers on GCP: pull vs push, which service for which job (Scheduler, Tasks, Pub/Sub, Cloud Run jobs, Workflows), IAM/OIDC setup, five step-by-step flows with gcloud commands and code, idempotency, security, observability, cost, go-live checklist (Vietnamese) |
+| [worker-for-beginners.md](worker-for-beginners.md) | Start here if you have never run a background job: the queue/worker model by analogy, the three code pieces, and a 30-minute hands-on in this repo (Vietnamese) |
 | [queue-job-worker-scheduler-guide.md](queue-job-worker-scheduler-guide.md) | Background jobs, workers and scheduling |
+| [worker-catalog-and-implementation.md](worker-catalog-and-implementation.md) | Which workers a real project runs, how to build them here, and how they run on Cloud Run — pull (BullMQ) vs push (Cloud Tasks, as the aimo-parking repos do) (Vietnamese) |
+| [aimo-message-queue-flow.md](aimo-message-queue-flow.md) | How the aimo-parking repos run background work on Cloud Tasks, Cloud Scheduler and Workflows — every flow step by step, for newcomers (Vietnamese) |
+| [aimo-gcp-services.md](aimo-gcp-services.md) | Every GCP service the aimo-parking repos stand on — Cloud Run, IAM/OIDC, Tasks, Scheduler, Workflows, GCS, SQL, Logging, VM, Redis — what each does, where the code calls it, what to ask on week one (Vietnamese) |
+| [aimo-worker-server-internals.md](aimo-worker-server-internals.md) | Inside the aimo-parking worker process: boot sequence, the layer-by-layer life of one Cloud Tasks request through the `@anchan828` library, every processor's flow with failure matrices and idempotency, the `/csv` Workflows path, config/deploy, weaknesses found (Vietnamese) |
 | [e2e-testing.md](e2e-testing.md) | The e2e harness and how to run it |
 
 > Most of these have a `.vi.md` Vietnamese mirror alongside them. `authorization-guide.md`,

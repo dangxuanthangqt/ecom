@@ -2,7 +2,177 @@
 
 Tài liệu giải thích trọn bộ khái niệm xử lý nền (background processing), viết bám vào stack thật của dự án này: **NestJS 11 + Prisma + PostgreSQL + Redis (ioredis) + Resend + S3**.
 
-Đọc theo thứ tự. Phần 1–5 là nền tảng, phần 6–11 là thực hành, phần 12–17 là nâng cao.
+Đọc theo thứ tự. **Phần 0 dành cho người chưa từng làm xử lý nền** — giải thích job, cron, worker từ con số không. Phần 1–5 là nền tảng, phần 6–11 là thực hành, phần 12–17 là nâng cao.
+
+---
+
+## 0. Nền tảng: job, cron, worker thực ra là cái gì
+
+Phần này viết cho người chưa từng làm xử lý nền. Nếu đã quen, nhảy xuống mục 1.
+
+### 0.1 Server bình thường chạy thế nào
+
+Một API server chỉ làm đúng một vòng lặp: **nhận request → chạy code → trả response**. Code chạy trong vòng lặp đó gọi là code **đồng bộ với request** — user còn đang giữ kết nối và ngồi chờ. Chờ càng lâu, request càng dễ timeout, server càng ít chỗ trống cho người khác.
+
+Xử lý nền (background processing) là mọi cách để nói: _việc này không cần làm ngay bây giờ, và không cần user chờ_. Toàn bộ tài liệu này chỉ xoay quanh câu đó.
+
+### 0.2 Job — hiểu đúng ngay từ đầu
+
+Trực giác sai hay gặp: "job là một hàm chạy ngầm". Không phải.
+
+**Job là một mẩu dữ liệu mô tả việc cần làm** — đúng nghĩa đen là một object JSON được ghi xuống đâu đó (Redis, database, file). Nó không chứa code, không chứa biến, không chứa kết nối.
+
+```jsonc
+// đây là một job. Chỉ có vậy.
+{
+  "name": "send-verify-email", // tên việc → quyết định hàm nào sẽ xử lý
+  "data": { "userId": 42 }, // tham số, phải serialize được thành JSON
+  "attemptsMade": 0, // đã thử chạy mấy lần
+  "timestamp": 1758585600000, // tạo lúc nào
+}
+```
+
+So sánh trực tiếp:
+
+```ts
+// (A) gọi hàm bình thường: chạy NGAY, trong tiến trình NÀY, user đang chờ
+await this.emailService.sendVerifyEmail(42);
+
+// (B) tạo job: chỉ ghi một dòng JSON vào Redis rồi trả về ngay (~2ms)
+await this.emailQueue.add("send-verify-email", { userId: 42 });
+// việc thật sẽ do một tiến trình khác làm, có thể 1 giây sau, có thể 5 phút sau
+```
+
+Vì job chỉ là JSON nên có hai hệ quả phải nhớ ngay:
+
+- **Không nhét được object sống vào `data`** — không Prisma client, không instance class, không function, không `Date` phức tạp. Chỉ truyền ID, worker tự query lại dữ liệu mới nhất.
+- **Job sống lâu hơn tiến trình tạo ra nó.** App restart, deploy, sập — job vẫn nằm trong Redis chờ được nhặt. Đây chính là lý do người ta chịu khó dùng queue thay vì `setTimeout`.
+
+### 0.3 Việc được sinh ra từ đâu — hai nguồn duy nhất
+
+| Nguồn         | Kích hoạt bởi                 | Tên gọi                      | Ví dụ trong dự án                       |
+| ------------- | ----------------------------- | ---------------------------- | --------------------------------------- |
+| **Sự kiện**   | Hành động của user / hệ thống | event-driven job             | User đăng ký → gửi email xác thực       |
+| **Thời gian** | Đồng hồ điểm giờ              | **scheduled job / cron job** | 2h sáng mỗi ngày → dọn giỏ hàng bỏ quên |
+
+Chỉ có hai nguồn đó. Cron nằm ở dòng thứ hai — nó là **cái đồng hồ báo thức**, không phải cái máy làm việc.
+
+### 0.4 Cron là gì
+
+"Cron" là tên một chương trình chạy nền trên Unix từ những năm 1970, nhiệm vụ duy nhất là: xem đồng hồ, tới giờ đã hẹn thì chạy một lệnh. Cái tên sống đến hôm nay và trở thành danh từ chung:
+
+- **cron** = cơ chế chạy việc theo lịch
+- **cron expression** (hay cron pattern) = chuỗi 5 ô mô tả lịch, ví dụ `0 2 * * *`
+- **cron job** = một cặp (lịch + việc), ví dụ "`0 2 * * *` → dọn giỏ hàng"
+
+Đọc cron expression — 5 ô, cách nhau bằng dấu cách, thứ tự **phút → giờ → ngày → tháng → thứ**:
+
+```
+ ┌───────────── phút            (0-59)
+ │ ┌─────────── giờ             (0-23, giờ 24h, không có AM/PM)
+ │ │ ┌───────── ngày trong tháng (1-31)
+ │ │ │ ┌─────── tháng           (1-12)
+ │ │ │ │ ┌───── thứ trong tuần  (0-7, 0 và 7 đều là Chủ nhật, 1 = thứ Hai)
+ │ │ │ │ │
+ 0 2 * * *
+```
+
+Ý nghĩa các ký hiệu trong một ô:
+
+| Ký hiệu | Đọc là           | Ví dụ                              |
+| ------- | ---------------- | ---------------------------------- |
+| `*`     | "mọi giá trị"    | ô giờ là `*` → giờ nào cũng khớp   |
+| `5`     | đúng giá trị đó  | ô giờ là `5` → chỉ 5h              |
+| `*/15`  | cứ mỗi 15 đơn vị | ô phút `*/15` → phút 0, 15, 30, 45 |
+| `1,15`  | liệt kê          | ô ngày `1,15` → ngày 1 và ngày 15  |
+| `9-17`  | khoảng           | ô giờ `9-17` → từ 9h đến 17h       |
+
+Đọc thử vài mẫu hay dùng:
+
+| Expression    | Nghĩa                              |
+| ------------- | ---------------------------------- |
+| `* * * * *`   | mỗi phút                           |
+| `*/5 * * * *` | mỗi 5 phút                         |
+| `0 * * * *`   | đầu mỗi giờ (phút 0)               |
+| `0 2 * * *`   | 2h00 sáng mỗi ngày                 |
+| `30 3 * * 0`  | 3h30 sáng Chủ nhật hàng tuần       |
+| `0 9 * * 1-5` | 9h sáng các ngày thứ Hai → thứ Sáu |
+| `0 0 1 * *`   | 0h ngày mùng 1 hàng tháng          |
+
+Ba lưu ý dễ sai:
+
+1. **Không có ô giây.** Cron chuẩn nhỏ nhất là phút. Riêng `@nestjs/schedule` và BullMQ dùng thư viện hỗ trợ **6 ô**, ô đầu là giây: `*/10 * * * * *` = mỗi 10 giây. Đếm số ô trước khi đọc.
+2. **Luôn nói rõ timezone.** Server production gần như chắc chắn chạy UTC. `0 2 * * *` không kèm `timeZone: "Asia/Ho_Chi_Minh"` sẽ nổ lúc 9h sáng giờ Việt Nam.
+3. **Không chắc thì đừng đoán** — dán expression vào [crontab.guru](https://crontab.guru) để nó dịch ra tiếng Anh cho.
+
+Và điều quan trọng nhất về cron: **nó chỉ bấm chuông, không làm việc**. Đến giờ, cron gọi một hàm (hoặc đẩy một job vào queue). Làm gì sau đó là chuyện của code bạn viết.
+
+### 0.5 Worker — kẻ thật sự làm việc
+
+Worker là một tiến trình chạy mãi, bên trong đúng một vòng lặp:
+
+```ts
+// mô tả bản chất, không phải code thật — BullMQ làm hộ bạn phần này
+while (true) {
+  const job = await queue.takeNext(); // chờ tới khi có job (không đốt CPU)
+  try {
+    await handlers[job.name](job.data); // chạy hàm tương ứng với tên job
+    await job.markCompleted();
+  } catch (err) {
+    await job.markFailedAndMaybeRetry(err);
+  }
+}
+```
+
+Hệ quả đầu tiên, cũng là lỗi số 1 của người mới: **không có worker chạy thì job nằm trong queue mãi mãi**. Queue không tự thực thi gì cả — nó chỉ là cái danh sách.
+
+### 0.6 Ráp lại thành một dòng thời gian
+
+Hai kịch bản, cùng một bộ khái niệm:
+
+```
+Kịch bản A — do sự kiện (user đăng ký)
+
+10:00:00.000  API   nhận POST /auth/register
+10:00:00.105  API   ghi user vào DB, đẩy job vào queue   ← producer
+10:00:00.107  API   trả 201, user đi tiếp                 ← user hết chờ ở đây
+10:00:00.140  WORK  nhặt job ra khỏi queue                ← worker
+10:00:00.950  WORK  Resend trả 200, đánh dấu completed
+
+Kịch bản B — do thời gian (dọn giỏ hàng)
+
+02:00:00      CRON  đồng hồ điểm giờ theo "0 2 * * *"     ← scheduler
+02:00:00      CRON  quét DB, đẩy 5.000 job "cleanup-cart" ← cron làm producer
+02:00:01+     WORK  worker nhặt từng job, chạy song song 5 cái một
+              WORK  job nào lỗi thì tự retry, không ảnh hưởng 4.999 job kia
+```
+
+Nhìn kịch bản B kỹ một chút: cron **không tự dọn 5.000 giỏ hàng**. Nó chỉ sinh job. Đây là nguyên tắc thiết kế quan trọng nhất của cron, mục 12.4 sẽ nói lại.
+
+### 0.7 Những câu hỏi hay gặp nhất
+
+**Job lưu ở đâu?** Trong dự án này là Redis. Redis giữ job qua restart của app; mất Redis mới mất job (mục 16 nói cách chống).
+
+**Cron có cần queue không?** Không bắt buộc. `@Cron()` của NestJS chỉ là một `setTimeout` thông minh chạy trong chính app, không cần Redis. Nhưng nó không có retry, không có lịch sử, và chạy 3 pod thì nổ 3 lần — mục 12 so sánh đầy đủ.
+
+**Khác gì `setTimeout` / `setInterval`?** Khác ở chỗ sống sót. `setTimeout` nằm trong RAM của một tiến trình: app restart là mất trắng, app chạy 3 bản là nổ 3 lần, lỗi thì không ai retry. Queue lưu xuống Redis nên không dính cả ba vấn đề đó.
+
+**App tắt lúc job đang chạy dở thì sao?** Job kẹt ở trạng thái ACTIVE. Lock của nó hết hạn, và ở lần quét định kỳ kế tiếp **một worker khác** phát hiện job không còn ai giữ, đánh dấu "stalled" rồi đưa về lại hàng đợi — nghĩa là **job có thể chạy hai lần**. Đây là lý do mục 11 (idempotency) tồn tại và là mục quan trọng nhất tài liệu.
+
+**Worker chạy ở đâu?** Có thể chung tiến trình với API (đơn giản, hợp lúc mới bắt đầu), có thể tách riêng (an toàn hơn, scale độc lập). Mục 7 so sánh.
+
+### 0.8 Từ vựng tiếng Anh sẽ gặp lại
+
+| Từ                      | Nghĩa trong ngữ cảnh này                                   |
+| ----------------------- | ---------------------------------------------------------- |
+| enqueue / dispatch      | đẩy job vào queue                                          |
+| consume / process       | worker lấy job ra chạy                                     |
+| payload                 | phần `data` của job                                        |
+| handler / processor     | hàm xử lý một loại job                                     |
+| retry / backoff         | chạy lại khi lỗi / thời gian chờ giữa các lần chạy lại     |
+| DLQ (dead letter queue) | nơi chứa job đã thất bại hết số lần cho phép               |
+| idempotent              | chạy nhiều lần cho cùng một kết quả, không gây hại         |
+| at-least-once           | đảm bảo chạy ít nhất một lần — nghĩa là có thể hơn một lần |
 
 ---
 
@@ -65,6 +235,28 @@ Nắm 7 từ này là nắm 80% vấn đề.
 
 **Scheduler ≠ Queue.** Scheduler chỉ trả lời câu "khi nào tạo job", queue trả lời câu "job xếp ở đâu chờ chạy". Hai thứ độc lập, thường dùng chung.
 
+### 2.1 Broker chủ động và broker thụ động
+
+Dòng "Broker" trong bảng trên đúng nhưng che mất một khác biệt lớn. Hai hệ thống cùng được gọi là "broker" có thể hoạt động ngược nhau, và chính khác biệt đó quyết định bạn có phải nuôi một tiến trình chạy 24/7 hay không.
+
+**Broker chủ động** — RabbitMQ, Kafka. Là một **tiến trình riêng, có logic riêng**. Nó tự định tuyến message theo exchange/topic, tự biết consumer nào đang sống, tự quản consumer group và offset, tự phát hiện consumer chết. Bạn cài nó, chạy nó, cấu hình nó như một server độc lập. Thư viện phía ứng dụng chỉ là client mỏng nói chuyện qua giao thức của nó.
+
+**Broker thụ động** — Redis dưới BullMQ. Redis **không biết BullMQ tồn tại**. Nó chỉ thấy các key, các list, các sorted set và các script Lua được gửi tới. Toàn bộ logic queue — thứ tự, retry, backoff, lock, phát hiện stalled, lịch repeatable — nằm trong **thư viện chạy ở phía ứng dụng của bạn**, không nằm trong Redis.
+
+|                              | Broker chủ động (RabbitMQ/Kafka)         | Broker thụ động (Redis + BullMQ)                          |
+| ---------------------------- | ---------------------------------------- | --------------------------------------------------------- |
+| Logic queue nằm ở            | Trong broker                             | Trong thư viện phía client                                |
+| Biết consumer nào còn sống   | Có                                       | Không — chỉ có lock hết hạn                               |
+| Ai phát hiện consumer chết   | Broker                                   | **Các worker khác**, qua vòng quét định kỳ                |
+| Không có worker nào sống thì | Broker vẫn nhận, vẫn giữ, vẫn định tuyến | Redis vẫn giữ job, nhưng **không ai promote job delayed** |
+| Vận hành                     | Thêm một server phải trông               | Chỉ là Redis, đã có sẵn cho cache                         |
+
+Ba hệ quả thực tế, và cả ba đều quay lại ở các mục sau:
+
+1. **Câu "broker phát hiện job stalled" là sai với BullMQ.** Redis không phát hiện gì cả. Mỗi worker chạy một timer riêng, quét danh sách ACTIVE tìm job mất lock. Không còn worker nào sống thì không ai phát hiện, và job nằm kẹt ở ACTIVE vô thời hạn.
+2. **Job delayed cũng cần worker sống mới nổ.** Nó nằm trong một sorted set theo mốc thời gian, nhưng phải có worker đọc set đó rồi chuyển sang hàng chờ. Đây là lý do BullMQ không dùng được trên nền tảng scale-to-zero — xem [queue-scheduler-gcp-vs-bullmq.md](queue-scheduler-gcp-vs-bullmq.md) §2.
+3. **Dịch vụ managed của GCP không nằm trong mô hình broker.** Cloud Tasks và Cloud Scheduler không giữ hàng đợi cho bạn tới lấy — chúng **gửi một HTTP request vào API của bạn** khi tới giờ. Không có consumer, không có kết nối chờ, nên cũng không có gì để gọi là broker. Đó là lý do chúng không cần tiến trình nào luôn sống.
+
 ### Ví dụ đời thường
 
 Quán phở:
@@ -111,7 +303,7 @@ Quán phở:
 
 Vài trạng thái nữa hay gặp:
 
-- **STALLED** — worker nhặt job rồi chết (OOM, deploy, mất mạng). Job kẹt ở ACTIVE. Broker phát hiện sau một khoảng timeout và đẩy ngược về WAITING để worker khác nhặt. **Đây chính là lý do job có thể chạy 2 lần** — nhớ kỹ, mục 11 sẽ nói.
+- **STALLED** — worker nhặt job rồi chết (OOM, deploy, mất mạng). Job kẹt ở ACTIVE và lock của nó hết hạn. Việc phát hiện do **chính các worker còn sống** làm, không phải Redis: mỗi worker chạy một vòng quét định kỳ, thấy job trong ACTIVE mà không còn lock thì đẩy ngược về WAITING (mục 2.1 giải thích vì sao Redis không tự làm được). **Đây chính là lý do job có thể chạy 2 lần** — nhớ kỹ, mục 11 sẽ nói.
 - **PAUSED** — queue bị tạm dừng, job vẫn vào được nhưng worker không nhặt. Hữu ích khi deploy hoặc khi bên thứ ba đang sự cố.
 
 ---
@@ -157,7 +349,9 @@ Ba tiến trình, chung một Redis, chung một Postgres. Scale độc lập: A
 | **Kafka**    | Kafka      | Event streaming, nhiều consumer group đọc cùng một luồng, cần replay  | Chỉ cần "chạy việc nền" — quá nặng, sai công cụ        |
 | **RabbitMQ** | RabbitMQ   | Routing phức tạp (topic, fanout), đa ngôn ngữ                         | Team nhỏ, chỉ cần job queue đơn giản                   |
 
-**Với dự án này: BullMQ.** Lý do rất thực tế — Redis đã chạy sẵn (`src/shared/services/redis.service.ts` đang dùng cho role-permission cache), team đã quen NestJS, và `@nestjs/bullmq` tích hợp DI sẵn. Không có lý do kéo thêm Kafka vào.
+**Với dự án này, nếu deploy bằng container tự quản (VM, K8s, docker-compose): BullMQ.** Lý do rất thực tế — Redis đã chạy sẵn (`src/shared/services/redis.service.ts` đang dùng cho role-permission cache), team đã quen NestJS, và `@nestjs/bullmq` tích hợp DI sẵn. Không có lý do kéo thêm Kafka vào.
+
+> **Nhưng kết luận này đổi nếu deploy lên nền tảng scale-to-zero như Cloud Run.** BullMQ là broker thụ động (mục 2.1): không có worker sống thì không ai nhặt job, không ai promote job delayed, không ai phát hiện stalled — nên phải nuôi một tiến trình chạy 24/7. Lúc đó dịch vụ managed dạng push thường hợp hơn. [queue-scheduler-gcp-vs-bullmq.md](queue-scheduler-gcp-vs-bullmq.md) so sánh đầy đủ và chốt lại theo từng nơi deploy.
 
 Cảnh báo về BullMQ trên Redis: **job nằm trong Redis, Redis là in-memory**. Redis mất dữ liệu (không bật AOF, hoặc failover) là mất job. Với email verify thì chấp nhận được. Với "trừ tiền ví" thì không — xem mục 16 (Outbox pattern).
 
@@ -515,7 +709,7 @@ export class CartCleanupService {
 }
 ```
 
-Đọc cú pháp cron:
+Đọc cú pháp cron (giải thích đầy đủ ký hiệu ở mục 0.4):
 
 ```
  ┌───── phút (0-59)
@@ -797,4 +991,17 @@ Lộ trình gợi ý:
 - [@nestjs/bullmq](https://docs.nestjs.com/techniques/queues)
 - [@nestjs/schedule](https://docs.nestjs.com/techniques/task-scheduling)
 - [Transactional Outbox — microservices.io](https://microservices.io/patterns/data/transactional-outbox.html)
-- Tài liệu liên quan trong repo: [redis-caching-guide.md](redis-caching-guide.md), [race-conditions-analysis.md](race-conditions-analysis.md), [error-handling.md](error-handling.md)
+
+### Đi tiếp trong bộ tài liệu này
+
+Tài liệu bạn đang đọc là lớp _khái niệm_. Ba tài liệu sau đi sâu hơn, đọc khi cần:
+
+| Tài liệu                                                                   | Trả lời câu hỏi                                                                                                                        |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| [queue-scheduler-gcp-vs-bullmq.md](queue-scheduler-gcp-vs-bullmq.md)       | **Chọn hạ tầng nào** — BullMQ tự quản, dịch vụ managed của GCP, hay thư viện có sẵn của NestJS. Quyết định theo nơi deploy.            |
+| [bullmq-nestjs-schedule-deep-dive.md](bullmq-nestjs-schedule-deep-dive.md) | **BullMQ và `@nestjs/schedule` chạy ra sao bên trong** — key Redis, lock, stalled, vòng đời timer, và cách chạy BullMQ trên Cloud Run. |
+| [gcp-queue-scheduler-deep-dive.md](gcp-queue-scheduler-deep-dive.md)       | **Phía GCP chạy ra sao** — Cloud Scheduler, Cloud Tasks, Pub/Sub, Cloud Run Jobs: hạn mức, công thức retry, dead-letter, OIDC.         |
+
+### Tài liệu khác trong repo
+
+- [redis-caching-guide.md](redis-caching-guide.md) · [race-conditions-analysis.md](race-conditions-analysis.md) · [error-handling.md](error-handling.md)

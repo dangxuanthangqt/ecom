@@ -1,0 +1,2687 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Message queue ở aimo-parking — flow chi tiết từ cơ bản đến nâng cao</title>
+    <meta name="description" content="Viết cho người mới vào dự án aimo-parking, hoặc người ở ecom muốn học một hệ thống queue đang chạy thật trên Cloud Run. Không cần biết trước Cloud Tasks hay BullMQ." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+/* ══════════════════════════════════════════════════════════════════
+   Swiss Documentation preset · light default
+
+   Generated with the ui-ux-pro-max skill:
+     style      Minimalism & Swiss Style  (clean, grid-based, high contrast)
+     palette    Knowledge Base/Documentation — "neutral grey + link blue"
+     dark       Developer Tool / IDE surfaces, accent harmonised to the same
+                blue hue rather than the dataset's green, so light and dark
+                stay one brand (skill rule: dark-mode-pairing)
+     type       "Developer Mono" — JetBrains Mono + IBM Plex Sans
+
+   Every foreground/background pair below was measured: all text clears
+   WCAG AA 4.5:1 in BOTH themes. Re-measure before changing any value.
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-display: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface2: #eaeff3;
+  --surface-elevated: #ffffff;
+  --border: #e2e8f0;
+  --border-bright: #94a3b8;
+  --text: #1e293b;
+  --text-dim: #475569;
+  --text-bright: #0f172a;
+  --accent: #2563eb;
+  --accent-dim: rgba(37, 99, 235, 0.08);
+
+  --node-a: #2563eb;
+  --node-a-dim: rgba(37, 99, 235, 0.08);
+  --node-b: #0e7490;
+  --node-b-dim: rgba(14, 116, 144, 0.08);
+  --node-c: #15803d;
+  --node-c-dim: rgba(21, 128, 61, 0.08);
+
+  --green: #15803d;
+  --green-dim: rgba(21, 128, 61, 0.09);
+  --red: #dc2626;
+  --red-dim: rgba(220, 38, 38, 0.09);
+  --amber: #b45309;
+  --amber-dim: rgba(180, 83, 9, 0.1);
+  --sage: #4d7c0f;
+  --sage-dim: rgba(77, 124, 15, 0.09);
+  --teal: #0e7490;
+  --teal-dim: rgba(14, 116, 144, 0.09);
+  --plum: #9f1239;
+  --plum-dim: rgba(159, 18, 57, 0.09);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a;
+    --surface: #1b2336;
+    --surface2: #272f42;
+    --surface-elevated: #1e2739;
+    --border: #334155;
+    --border-bright: #64748b;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-bright: #f8fafc;
+    --accent: #60a5fa;
+    --accent-dim: rgba(96, 165, 250, 0.14);
+
+    --node-a: #60a5fa;
+    --node-a-dim: rgba(96, 165, 250, 0.14);
+    --node-b: #5eead4;
+    --node-b-dim: rgba(94, 234, 212, 0.12);
+    --node-c: #4ade80;
+    --node-c-dim: rgba(74, 222, 128, 0.12);
+
+    --green: #4ade80;
+    --green-dim: rgba(74, 222, 128, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.13);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.12);
+    --sage: #a3e635;
+    --sage-dim: rgba(163, 230, 53, 0.12);
+    --teal: #5eead4;
+    --teal-dim: rgba(94, 234, 212, 0.12);
+    --plum: #fda4af;
+    --plum-dim: rgba(253, 164, 175, 0.13);
+  }
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1b2336;
+  --surface2: #272f42;
+  --surface-elevated: #1e2739;
+  --border: #334155;
+  --border-bright: #64748b;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-bright: #f8fafc;
+  --accent: #60a5fa;
+  --accent-dim: rgba(96, 165, 250, 0.14);
+
+  --node-a: #60a5fa;
+  --node-a-dim: rgba(96, 165, 250, 0.14);
+  --node-b: #5eead4;
+  --node-b-dim: rgba(94, 234, 212, 0.12);
+  --node-c: #4ade80;
+  --node-c-dim: rgba(74, 222, 128, 0.12);
+
+  --green: #4ade80;
+  --green-dim: rgba(74, 222, 128, 0.12);
+  --red: #f87171;
+  --red-dim: rgba(248, 113, 113, 0.13);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251, 191, 36, 0.12);
+  --sage: #a3e635;
+  --sage-dim: rgba(163, 230, 53, 0.12);
+  --teal: #5eead4;
+  --teal-dim: rgba(94, 234, 212, 0.12);
+  --plum: #fda4af;
+  --plum-dim: rgba(253, 164, 175, 0.13);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 28px 40px 80px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background-color: var(--bg);
+  background-image: radial-gradient(
+    circle,
+    var(--border) 1px,
+    transparent 1px
+  );
+  background-size: 26px 26px;
+  overflow-wrap: break-word;
+  line-height: 1.6;
+}
+
+/* ── Theme toggle ── */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 300;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.theme-toggle:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* ── Layout ── */
+.wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 0 40px;
+}
+.main {
+  min-width: 0;
+}
+
+.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  padding: 14px 0;
+  grid-row: 1 / -1;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+}
+.toc::-webkit-scrollbar {
+  width: 3px;
+}
+.toc::-webkit-scrollbar-thumb {
+  background: var(--surface-elevated);
+  border-radius: 2px;
+}
+.toc-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  padding: 0 0 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.toc a {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.4;
+  margin-bottom: 1px;
+}
+.toc a:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+.toc a.active {
+  color: var(--text);
+  border-left-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* ── Masthead ── */
+.masthead {
+  border-bottom: 2px solid var(--border-bright);
+  padding-bottom: 22px;
+  margin-bottom: 34px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2.4px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.4vw, 42px);
+  line-height: 1.12;
+  margin: 0 0 12px;
+  letter-spacing: -0.8px;
+  color: var(--text-bright);
+}
+.subtitle {
+  font-size: 17px;
+  color: var(--text-dim);
+  margin: 0;
+  max-width: 68ch;
+}
+.masthead-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* ── Tags & status ── */
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--node-a-dim);
+  color: var(--node-a);
+  display: inline-block;
+}
+.tag--b {
+  background: var(--node-b-dim);
+  color: var(--node-b);
+}
+.tag--c {
+  background: var(--node-c-dim);
+  color: var(--node-c);
+}
+.tag--amber {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+.tag--red {
+  background: var(--red-dim);
+  color: var(--red);
+}
+.tag--green {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+/* ── Code ── */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.code-file {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.code-file__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 15px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.code-file__header span:first-child {
+  color: var(--text);
+}
+.code-file__body {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 15px;
+  margin: 0;
+  background: var(--surface);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 460px;
+  overflow: auto;
+  color: var(--text);
+}
+.cm {
+  color: var(--text-dim);
+  font-style: italic;
+}
+.kw {
+  color: var(--plum);
+}
+.st {
+  color: var(--node-c);
+}
+
+/* ── Tables ── */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.data-table th {
+  background: var(--surface2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 11px 15px;
+  border-bottom: 2px solid var(--border-bright);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 11px 15px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--text);
+}
+.data-table tbody tr:nth-child(even) {
+  background: var(--accent-dim);
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.data-table code {
+  font-size: 12px;
+}
+.data-table small {
+  display: block;
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* ── Callout ── */
+.callout {
+  padding: 16px 20px;
+  border-radius: 8px;
+  border-left: 4px solid var(--callout-border);
+  background: var(--callout-bg);
+  margin: 20px 0;
+  font-size: 15px;
+}
+.callout--info {
+  --callout-border: var(--accent);
+  --callout-bg: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.callout--warning {
+  --callout-border: var(--amber);
+  --callout-bg: color-mix(in srgb, var(--amber) 10%, transparent);
+}
+.callout--success {
+  --callout-border: var(--green);
+  --callout-bg: color-mix(in srgb, var(--green) 9%, transparent);
+}
+.callout__title {
+  font-weight: 600;
+  margin-bottom: 7px;
+  color: var(--callout-border);
+}
+.callout p:last-child {
+  margin-bottom: 0;
+}
+.callout ul {
+  padding-left: 1.5em;
+  margin: 8px 0 0;
+}
+
+/* ── Mermaid ── */
+.diagram-shell {
+  position: relative;
+  margin: 8px 0 4px;
+}
+.diagram-shell__hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 0 0 8px;
+  opacity: 0.75;
+}
+.mermaid-wrap {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 22px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  cursor: grab;
+}
+.mermaid-wrap.is-panning {
+  cursor: grabbing;
+  user-select: none;
+}
+.zoom-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+  z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  align-items: center;
+}
+.zoom-controls button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.zoom-controls button:hover {
+  background: var(--border);
+  color: var(--text);
+}
+.zoom-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  padding: 0 6px;
+  white-space: nowrap;
+}
+.mermaid-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+}
+.mermaid-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.mermaid .nodeLabel {
+  color: var(--text) !important;
+  font-family: var(--font-body) !important;
+  font-size: 16px !important;
+}
+.mermaid .edgeLabel {
+  color: var(--text-dim) !important;
+  background-color: var(--bg) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+}
+.mermaid .edgeLabel rect {
+  fill: var(--bg) !important;
+}
+.mermaid .messageText {
+  font-family: var(--font-mono) !important;
+  font-size: 12px !important;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+*::before,
+*::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1000px) {
+  body {
+    padding: 0 20px 60px;
+  }
+  .wrap {
+    grid-template-columns: 1fr;
+  }
+  .toc {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    max-height: none;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    overflow-x: auto;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    margin: 0 -20px;
+    grid-row: auto;
+  }
+  .toc::-webkit-scrollbar {
+    display: none;
+  }
+  .toc-title {
+    display: none;
+  }
+  .toc a {
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 4px 4px 0 0;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .toc a.active {
+    border-left: none;
+    border-bottom-color: var(--accent);
+    background: var(--surface);
+  }
+  .main {
+    padding-top: 22px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Generated long-form content — styles for pages produced by
+   scripts/build-docs-html.mjs. The block above is the hand-built
+   Blueprint preset; everything here is the prose layer on top of it.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Vertical rhythm: one rule instead of a margin on every element,
+so a new
+   block type never lands flush against its neighbour. */
+.main > * + * {
+  margin-top: 18px;
+}
+
+/* Mid-document "PHẦN x" banners. The masthead h1 keeps the big display size;
+   these need to read as dividers,
+not as a second title. */
+.main > h1 {
+  font-family: var(--font-display);
+  font-size: clamp(21px, 2.1vw, 27px);
+  letter-spacing: -0.3px;
+  margin: 56px 0 4px;
+  padding-top: 26px;
+  border-top: 2px solid var(--border-bright);
+  color: var(--accent);
+}
+.main > h1:first-of-type {
+  margin-top: 40px;
+}
+
+.main h2 {
+  font-family: var(--font-display);
+  font-size: clamp(19px, 1.7vw, 23px);
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+  margin: 38px 0 2px;
+  color: var(--text-bright);
+}
+.main h3 {
+  font-size: 17px;
+  line-height: 1.3;
+  margin: 26px 0 2px;
+  color: var(--text-bright);
+}
+.main h4 {
+  font-size: 15px;
+  margin: 20px 0 2px;
+  color: var(--text);
+}
+
+/* Anchor jumps land a little below the viewport edge rather than flush. */
+.main :is(h1,
+h2,
+h3,
+h4) {
+  scroll-margin-top: 20px;
+}
+
+.main p,
+.main li {
+  font-size: 15.5px;
+  line-height: 1.72;
+  color: var(--text);
+}
+.main p {
+  margin: 0;
+  max-width: 76ch;
+}
+
+.main ul,
+.main ol {
+  margin: 0;
+  padding-left: 22px;
+  max-width: 76ch;
+}
+.main li + li {
+  margin-top: 7px;
+}
+.main li > ul,
+.main li > ol {
+  margin-top: 7px;
+}
+.main li::marker {
+  color: var(--text-dim);
+}
+
+/* Checklists (`- [ ]` in Markdown) lose their bullet so the box is the marker. */
+.main li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -20px;
+}
+.main input[type="checkbox"] {
+  accent-color: var(--accent);
+  margin-right: 8px;
+  transform: translateY(1px);
+}
+
+.main strong {
+  color: var(--text-bright);
+  font-weight: 600;
+}
+.main a {
+  color: var(--accent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  text-underline-offset: 2px;
+}
+.main a:hover {
+  text-decoration-color: var(--accent);
+}
+.main a:focus-visible,
+.toc a:focus-visible,
+.theme-toggle:focus-visible,
+.zoom-controls button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.main hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 34px 0;
+}
+
+/* Number literals — the hand-built page had no numeric highlighting. */
+.nu {
+  color: var(--node-b);
+}
+
+/* Table cells wrap by default here: these documents have prose-heavy tables
+   that would otherwise force horizontal scrolling on every row. */
+.main .data-table td {
+  padding: 11px 15px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.main .data-table tr:last-child td {
+  border-bottom: 0;
+}
+.main .data-table th {
+  white-space: normal;
+}
+
+/* TOC: h1 entries act as group headers above their h2 children. */
+.toc a.toc-group {
+  margin-top: 14px;
+  font-weight: 600;
+  color: var(--text-bright);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.toc a.toc-group:first-of-type {
+  margin-top: 4px;
+  border-top: 0;
+}
+
+.main .callout > *:first-child {
+  margin-top: 0;
+}
+.main .callout > * + * {
+  margin-top: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* The TOC collapses to a horizontal strip at 1000px; below 560px the prose
+   itself needs to give up gutter and type size. Verified at 375px. */
+@media (max-width: 560px) {
+  body {
+    padding: 0 16px 48px;
+  }
+  .toc {
+    padding: 8px 16px;
+    margin: 0 -16px;
+  }
+  .main > h1 {
+    margin-top: 40px;
+    padding-top: 20px;
+  }
+  .main h2 {
+    margin-top: 30px;
+  }
+  .main p,
+.main li {
+    font-size: 15px;
+  }
+  .code-file__body {
+    font-size: 12.5px;
+    padding: 12px;
+  }
+  .main .data-table th,
+.main .data-table td {
+    padding: 9px 11px;
+  }
+  .diagram-shell__hint {
+    font-size: 11px;
+  }
+}
+
+/* URLs and long identifiers in the reference lists must reflow rather than
+   push the page sideways. Applied to prose only — code keeps its own wrapping. */
+.main p,
+.main li,
+.main td,
+.main th {
+  overflow-wrap: anywhere;
+}
+
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}
+
+
+.toc a.toc-sub { padding-left: 1.6rem; font-size: .92em; opacity: .9; }
+.main > h1 { margin-top: 3.2rem; }
+
+    </style>
+  </head>
+  <body>
+    <button class="theme-toggle" id="themeToggle" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng tối"></button>
+
+    <div class="wrap">
+      <nav class="toc" id="toc">
+        <div class="toc-title">Nội dung</div>
+        <a href="#ban-do-tai-lieu" class="toc-sub">Bản đồ tài liệu</a>
+        <a href="#phan-a-co-ban">PHẦN A — Cơ bản</a>
+        <a href="#a1-van-de-ma-queue-giai-quyet-ke-bang-chuyen-cua-aimo" class="toc-sub">A1. Vấn đề mà queue giải quyết, kể bằng chuyện của aimo</a>
+        <a href="#a2-tu-vung-ten-chung-va-ten-trong-aimo" class="toc-sub">A2. Từ vựng — tên chung và tên trong aimo</a>
+        <a href="#a3-push-va-pull-hinh-dung-bang-mot-quan-an" class="toc-sub">A3. Push và pull — hình dung bằng một quán ăn</a>
+        <a href="#phan-b-buc-tranh-toan-he-thong">PHẦN B — Bức tranh toàn hệ thống</a>
+        <a href="#b1-cac-manh-va-ai-noi-voi-ai" class="toc-sub">B1. Các mảnh và ai nói với ai</a>
+        <a href="#b2-ai-publish-task-nao" class="toc-sub">B2. Ai publish task nào</a>
+        <a href="#phan-c-flow-1-tai-video-qua-khu-tung-buoc">PHẦN C — Flow #1: tải video quá khứ, từng bước</a>
+        <a href="#c1-buoc-0-nguoi-dung-bam-nut" class="toc-sub">C1. Bước 0 — người dùng bấm nút</a>
+        <a href="#c2-buoc-1-service-goi-publisher-khong-cho" class="toc-sub">C2. Bước 1 — service gọi publisher, không chờ</a>
+        <a href="#c3-buoc-2-workerservice-xin-token-roi-publish" class="toc-sub">C3. Bước 2 — WorkerService xin token rồi publish</a>
+        <a href="#c4-buoc-3-publisher-bien-name-data-thanh-mot-cloud-task" class="toc-sub">C4. Bước 3 — publisher biến {name, data} thành một Cloud Task</a>
+        <a href="#c5-buoc-4-cloud-tasks-gui-task-sang-worker" class="toc-sub">C5. Bước 4 — Cloud Tasks gửi task sang worker</a>
+        <a href="#c6-buoc-5-thu-vien-worker-dinh-tuyen-theo-name" class="toc-sub">C6. Bước 5 — thư viện worker định tuyến theo name</a>
+        <a href="#c7-buoc-6-processor-lam-viec-that" class="toc-sub">C7. Bước 6 — processor làm việc thật</a>
+        <a href="#c8-buoc-7-ack-va-ket-thuc" class="toc-sub">C8. Bước 7 — ack và kết thúc</a>
+        <a href="#c9-cung-flow-ve-theo-thoi-gian" class="toc-sub">C9. Cùng flow, vẽ theo thời gian</a>
+        <a href="#phan-d-ben-trong-cloud-tasks-va-thu-vien">PHẦN D — Bên trong Cloud Tasks và thư viện</a>
+        <a href="#d1-vong-doi-mot-task" class="toc-sub">D1. Vòng đời một task</a>
+        <a href="#d2-dispatchdeadline-va-request-timeout" class="toc-sub">D2. dispatchDeadline và request timeout</a>
+        <a href="#d3-khu-trung-theo-ten-task" class="toc-sub">D3. Khử trùng theo tên task</a>
+        <a href="#d4-thu-vien-anchan828-nest-cloud-run-queue-lam-gi-khong-lam-gi" class="toc-sub">D4. Thư viện @anchan828/nest-cloud-run-queue-* làm gì, không làm gì</a>
+        <a href="#phan-e-flow-2-thu-tien-tu-dong-khi-task-co-tien">PHẦN E — Flow #2: thu tiền tự động — khi task có tiền</a>
+        <a href="#e1-payload" class="toc-sub">E1. Payload</a>
+        <a href="#e2-cac-buoc" class="toc-sub">E2. Các bước</a>
+        <a href="#e3-vi-sao-buoc-3-la-chot" class="toc-sub">E3. Vì sao bước 3 là chốt</a>
+        <a href="#phan-f-flow-3-viec-theo-lich-cloud-scheduler-va-bang-task-schedule">PHẦN F — Flow #3: việc theo lịch — Cloud Scheduler và bảng task_schedule</a>
+        <a href="#f1-khong-co-cron-trong-code" class="toc-sub">F1. Không có cron trong code</a>
+        <a href="#f2-bang-task-schedule-lich-hen-la-du-lieu" class="toc-sub">F2. Bảng task_schedule — &quot;lịch hẹn là dữ liệu&quot;</a>
+        <a href="#f3-mot-lan-scheduler-goi-post-task-schedule-rental-cost" class="toc-sub">F3. Một lần Scheduler gọi POST /task-schedule/rental-cost</a>
+        <a href="#f4-state-machine-va-cho-ho" class="toc-sub">F4. State machine và chỗ hở</a>
+        <a href="#f5-external-property-sync-scheduler-cau-noi-sang-cloud-tasks" class="toc-sub">F5. external-property-sync — Scheduler cầu nối sang Cloud Tasks</a>
+        <a href="#phan-g-flow-4-export-csv-lon-google-cloud-workflows">PHẦN G — Flow #4: export CSV lớn — Google Cloud Workflows</a>
+        <a href="#g1-vi-sao-khong-dung-cloud-tasks" class="toc-sub">G1. Vì sao không dùng Cloud Tasks</a>
+        <a href="#g2-ba-manh" class="toc-sub">G2. Ba mảnh</a>
+        <a href="#g3-vi-sao-mau-nay-hay" class="toc-sub">G3. Vì sao mẫu này hay</a>
+        <a href="#phan-h-van-hanh">PHẦN H — Vận hành</a>
+        <a href="#h1-bien-moi-truong-lien-quan" class="toc-sub">H1. Biến môi trường liên quan</a>
+        <a href="#h2-chay-local" class="toc-sub">H2. Chạy local</a>
+        <a href="#h3-deploy" class="toc-sub">H3. Deploy</a>
+        <a href="#h4-health" class="toc-sub">H4. Health</a>
+        <a href="#h5-log-va-truy-vet-mot-task" class="toc-sub">H5. Log và truy vết một task</a>
+        <a href="#phan-i-nang-cao">PHẦN I — Nâng cao</a>
+        <a href="#i1-at-least-once-nhin-lai-tung-flow" class="toc-sub">I1. At-least-once — nhìn lại từng flow</a>
+        <a href="#i2-publish-ban-roi-quen-cai-gia-cua-200-nhanh" class="toc-sub">I2. Publish &quot;bắn rồi quên&quot; — cái giá của 200 nhanh</a>
+        <a href="#i3-lech-hop-dong-giua-hai-repo" class="toc-sub">I3. Lệch hợp đồng giữa hai repo</a>
+        <a href="#i4-so-voi-bullmq-cung-bai-toan-hai-loi-giai" class="toc-sub">I4. So với BullMQ — cùng bài toán, hai lời giải</a>
+        <a href="#i5-checklist-them-mot-task-moi-vao-aimo" class="toc-sub">I5. Checklist thêm một task mới vào aimo</a>
+        <a href="#tom-tat-mot-man-hinh" class="toc-sub">Tóm tắt một màn hình</a>
+      </nav>
+
+      <div class="main">
+        <header class="masthead">
+          <div class="eyebrow">aimo-parking · Cloud Tasks · Scheduler · Workflows</div>
+          <h1>Message queue ở aimo-parking — flow chi tiết từ cơ bản đến nâng cao</h1>
+          <p class="subtitle">Viết cho người <strong>mới vào dự án aimo-parking</strong>, hoặc người ở ecom muốn học một hệ thống queue đang chạy thật trên Cloud Run. Không cần biết trước Cloud Tasks hay BullMQ.</p>
+          <div class="masthead-meta">
+            <span class="tag">Message queue</span>
+            <span class="tag tag--b">Cloud Tasks</span>
+            <span class="tag tag--c">Push model</span>
+            <span class="tag tag--amber">Idempotency</span>
+          </div>
+        </header>
+
+<div class="callout callout--info">
+<p>Viết cho người <strong>mới vào dự án aimo-parking</strong>, hoặc người ở ecom muốn học một hệ thống
+queue đang chạy thật trên Cloud Run. Không cần biết trước Cloud Tasks hay BullMQ.</p>
+<p>Đọc từ hai repo trong workspace, bản trên máy tháng 9/2026:
+<code>aimo-parking-lessor-server</code> (API cho chủ bãi, gọi tắt <strong>lessor</strong>) và
+<code>aimo-parking-worker-server</code> (xử lý nền, gọi tắt <strong>worker</strong>). Mọi đường dẫn code là
+tương đối trong hai repo đó. Chỗ nào tôi <em>suy ra</em> thay vì <em>đọc được</em> sẽ ghi rõ.</p>
+<p>Tài liệu anh em ở ecom: <a href="worker-catalog-and-implementation.html">worker-catalog-and-implementation.md §8</a>
+so sánh cách aimo làm với BullMQ; <a href="queue-job-worker-scheduler-guide.html">queue-job-worker-scheduler-guide.md</a>
+cho lý thuyết queue nói chung.</p>
+</div>
+<hr />
+<h2 id="ban-do-tai-lieu">Bản đồ tài liệu</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table">
+<thead>
+<tr>
+<th>Phần</th>
+<th>Dành cho</th>
+<th>Trả lời</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>mới hoàn toàn</td>
+<td>Queue là gì, vì sao aimo cần, từ vựng</td>
+</tr>
+<tr>
+<td>B</td>
+<td>mới vào dự án</td>
+<td>Toàn hệ thống có những mảnh gì, mảnh nào nói với mảnh nào</td>
+</tr>
+<tr>
+<td>C</td>
+<td>mọi người</td>
+<td><strong>Flow #1 — tải video quá khứ</strong>, từng bước, từng dòng code, từng HTTP request</td>
+</tr>
+<tr>
+<td>D</td>
+<td>muốn hiểu sâu</td>
+<td>Bên trong Cloud Tasks và thư viện <code>@anchan828/*</code></td>
+</tr>
+<tr>
+<td>E</td>
+<td>mọi người</td>
+<td><strong>Flow #2 — thu tiền tự động</strong>: task có tiền, phải chống chạy đôi</td>
+</tr>
+<tr>
+<td>F</td>
+<td>mọi người</td>
+<td><strong>Flow #3 — việc theo lịch</strong>: Cloud Scheduler và bảng <code>task_schedule</code></td>
+</tr>
+<tr>
+<td>G</td>
+<td>mọi người</td>
+<td><strong>Flow #4 — export CSV lớn</strong>: Google Cloud Workflows</td>
+</tr>
+<tr>
+<td>H</td>
+<td>người vận hành</td>
+<td>Env, chạy local với emulator, deploy, IAM, log, giám sát</td>
+</tr>
+<tr>
+<td>I</td>
+<td>nâng cao</td>
+<td>At-least-once, idempotency từng flow, điểm yếu đã tìm thấy, checklist thêm task mới</td>
+</tr>
+</tbody>
+</table></div></div>
+<hr />
+<h1 id="phan-a-co-ban">PHẦN A — Cơ bản</h1>
+<h2 id="a1-van-de-ma-queue-giai-quyet-ke-bang-chuyen-cua-aimo">A1. Vấn đề mà queue giải quyết, kể bằng chuyện của aimo</h2>
+<p><strong>Chuyện 1 — tải video quá khứ.</strong> Nhân viên chủ bãi bấm "tải video 30 giây lúc 15:00 hôm
+qua của camera số 3". Để có file đó, hệ thống phải: tìm thiết bị edge quản lý camera, hỏi
+NVR lấy địa chỉ RTSP, gọi một dịch vụ khác cắt RTSP thành MP4 rồi đẩy lên Cloud Storage, ký
+URL tải, gửi mail. Mất <strong>vài chục giây tới vài phút</strong>. Nếu làm hết trong request HTTP thì
+trình duyệt treo, load balancer cắt kết nối ở 60 giây, và nếu NVR lỗi giữa chừng thì
+người dùng chỉ thấy một lỗi 500 vô nghĩa.</p>
+<p><strong>Chuyện 2 — thu tiền tự động.</strong> Xe rời bãi, hệ thống camera ghi nhận giờ ra, và phải trừ
+tiền thẻ tín dụng đã đăng ký. Gọi cổng thanh toán SB Payment là hai bước <code>execute</code> rồi
+<code>confirm</code>, mỗi bước có thể chậm hoặc lỗi mạng. Không thể để việc thu tiền phụ thuộc vào
+một request web sống hay chết — và <strong>tuyệt đối không được trừ hai lần</strong>.</p>
+<p><strong>Chuyện 3 — export CSV.</strong> Báo cáo sử dụng của một công ty có thể vài trăm nghìn dòng.
+Không request nào chứa nổi; phải chia trang, ghi từng trang ra file, nén, gửi link.</p>
+<p>Điểm chung: <strong>việc cần làm ≠ việc cần trả lời ngay</strong>. Queue là chỗ để API ghi lại "có việc
+này cần làm", trả lời người dùng ngay, và để một tiến trình khác làm việc đó sau — có
+retry khi lỗi.</p>
+<h2 id="a2-tu-vung-ten-chung-va-ten-trong-aimo">A2. Từ vựng — tên chung và tên trong aimo</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table">
+<thead>
+<tr>
+<th>Tên chung</th>
+<th>Nghĩa</th>
+<th>Trong aimo nó là</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Producer</strong></td>
+<td>bên tạo ra việc</td>
+<td><code>lessor</code> (và các server khác của hệ)</td>
+</tr>
+<tr>
+<td><strong>Broker / queue</strong></td>
+<td>chỗ giữ việc chờ</td>
+<td><strong>Cloud Tasks</strong> queue <code>projects/aimo-api-worker/locations/asia-northeast1/queues/tasks</code></td>
+</tr>
+<tr>
+<td><strong>Consumer / worker</strong></td>
+<td>bên làm việc</td>
+<td><code>worker</code> — một Cloud Run service</td>
+</tr>
+<tr>
+<td><strong>Task / job / message</strong></td>
+<td>một việc</td>
+<td>một HTTP POST mà Cloud Tasks sẽ gửi tới worker, body <code>{ name, data }</code></td>
+</tr>
+<tr>
+<td><strong>Task name / job name</strong></td>
+<td>loại việc</td>
+<td><code>'download-past-video'</code>, <code>'auto-send-mail'</code>, <code>'space-rental-auto-payment'</code>…</td>
+</tr>
+<tr>
+<td><strong>Payload / data</strong></td>
+<td>dữ liệu đi kèm</td>
+<td>object JSON (<code>{ cameraId, timestampStart, interval, propertyId, userId }</code>)</td>
+</tr>
+<tr>
+<td><strong>Push</strong> vs <strong>Pull</strong></td>
+<td>broker gọi worker, hay worker hỏi broker</td>
+<td>aimo là <strong>push</strong>: Cloud Tasks gọi HTTP vào worker</td>
+</tr>
+<tr>
+<td><strong>Ack</strong></td>
+<td>worker báo "xong"</td>
+<td>trả HTTP <strong>2xx</strong></td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>làm lại khi lỗi</td>
+<td>worker trả <strong>non-2xx</strong> (hoặc timeout) → Cloud Tasks gửi lại theo <code>retryConfig</code> của queue</td>
+</tr>
+<tr>
+<td><strong>Backoff</strong></td>
+<td>khoảng chờ giữa hai lần retry, tăng dần</td>
+<td>cấu hình trong queue trên GCP, <strong>không nằm trong code</strong></td>
+</tr>
+<tr>
+<td><strong>At-least-once</strong></td>
+<td>một việc có thể được làm ≥ 1 lần</td>
+<td>đúng với Cloud Tasks; nên worker phải <strong>idempotent</strong></td>
+</tr>
+<tr>
+<td><strong>Idempotent</strong></td>
+<td>làm hai lần cho cùng kết quả như một lần</td>
+<td>ví dụ: auto-payment kiểm <code>endTime</code> trước khi trừ tiền (Phần E)</td>
+</tr>
+<tr>
+<td><strong>Scheduler / cron</strong></td>
+<td>kích hoạt theo giờ</td>
+<td><strong>Cloud Scheduler</strong> gọi HTTP vào lessor (Phần F)</td>
+</tr>
+<tr>
+<td><strong>Dead letter</strong></td>
+<td>việc hỏng hẳn, hết retry</td>
+<td>Cloud Tasks <strong>không có DLQ</strong> — task hết <code>maxAttempts</code> thì bị xoá, chỉ còn log</td>
+</tr>
+</tbody>
+</table></div></div>
+<h2 id="a3-push-va-pull-hinh-dung-bang-mot-quan-an">A3. Push và pull — hình dung bằng một quán ăn</h2>
+<ul>
+<li><strong>Pull (BullMQ, RabbitMQ consumer…)</strong>: đầu bếp đứng cạnh bảng order, <strong>tự</strong> rút phiếu ra
+  làm. Bếp phải luôn có người đứng đó, dù không có khách.</li>
+<li><strong>Push (Cloud Tasks, Pub/Sub push…)</strong>: có người chạy bàn <strong>mang phiếu vào bếp</strong> và chờ
+  bếp nói "xong". Không có khách thì bếp về nhà — không tốn lương.</li>
+</ul>
+<p>Aimo chọn push. Hệ quả dễ thấy nhất: worker của aimo <strong>chỉ là một HTTP server bình thường</strong>,
+scale theo số request, rỗng thì về 0 instance. Không có vòng lặp nào "ngồi chờ Redis".</p>
+<hr />
+<h1 id="phan-b-buc-tranh-toan-he-thong">PHẦN B — Bức tranh toàn hệ thống</h1>
+<h2 id="b1-cac-manh-va-ai-noi-voi-ai">B1. Các mảnh và ai nói với ai</h2>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code> ┌─────────────────────────────── GCP project ────────────────────────────────────┐
+ │                                                                                │
+ │   Cloud Scheduler ──(cron, header api-key)──┐                                  │
+ │                                             ▼                                  │
+ │   ┌───────────────────────────────────────────────────┐                        │
+ │   │ Cloud Run: lessor-server                          │                        │
+ │   │  • API cho chủ bãi (JWT)                          │                        │
+ │   │  • POST /task-schedule/*  (StaticAuthGuard)       │                        │
+ │   │  • WorkerService.publish()  ──┐                   │                        │
+ │   │  • GoogleCloudWorkflowService ─┼────────────┐     │                        │
+ │   └────────────────────────────────┼────────────┼─────┘                        │
+ │                                    │ createTask │ createExecution              │
+ │                                    ▼            ▼                              │
+ │   ┌────────────────────────┐  ┌──────────────────────┐                         │
+ │   │ Cloud Tasks queue      │  │ Cloud Workflows      │                         │
+ │   │ …/queues/tasks         │  │ download-csv         │                         │
+ │   │ retryConfig, rateLimits│  │ (vòng lặp cursor)    │                         │
+ │   └───────────┬────────────┘  └──────────┬───────────┘                         │
+ │               │ HTTP POST /  + OIDC      │ HTTP GET /csv/export, POST /csv/execute
+ │               ▼                          ▼                                     │
+ │   ┌───────────────────────────────────────────────────┐                        │
+ │   │ Cloud Run: worker-server  (--no-allow-unauthenticated)                     │
+ │   │  • QueueWorkerModule  → POST /                    │                        │
+ │   │      @QueueWorker('download-past-video')          │──► NVR API (OIDC) ──► GCS
+ │   │      @QueueWorker('auto-send-mail')               │──► SendGrid            │
+ │   │      @QueueWorker('space-rental-auto-payment')    │──► SB Payment          │
+ │   │      @QueueWorker('property-rental-auto-payment') │                        │
+ │   │      @QueueWorker('health')                       │                        │
+ │   │  • CsvController  GET /csv/export, POST /csv/execute ─► GCS, SendGrid      │
+ │   │  • HealthController GET /health (terminus → DB)   │                        │
+ │   └───────────────────────┬───────────────────────────┘                        │
+ │                           ▼                                                    │
+ │                    Cloud SQL (Postgres) — DÙNG CHUNG với lessor                 │
+ └────────────────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<p>Cùng bức tranh, vẽ theo hướng đi của dữ liệu:</p>
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-0"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+flowchart LR
+    SCH[Cloud Scheduler<br/>cron, ngoài repo] -- "POST /task-schedule/*<br/>header api-key" --> L
+    B([Trình duyệt chủ bãi]) -- "JWT" --> L[Cloud Run · lessor-server<br/>PRODUCER]
+    L -- "createTask + OIDC" --> CT[Cloud Tasks<br/>queue tasks<br/>retryConfig · rateLimits]
+    L -- "createExecution" --> WF[Cloud Workflows<br/>vòng lặp cursor]
+    L -- "quét Pending" --> DB[(Postgres dùng chung<br/>task_schedule · printer_job<br/>+ mọi entity)]
+    CT -- "POST / {name,data}<br/>+ OIDC" --> W[Cloud Run · worker-server<br/>CONSUMER · scale 0..N]
+    WF -- "GET /csv/export<br/>POST /csv/execute" --> W
+    W -- "đọc/ghi" --> DB
+    W --> NVR[NVR API] & SG[SendGrid] & SB[SB Payment] & GCS[(GCS)]
+    PR([Máy in Star]) -. "poll 15s qua lessor" .-> DB
+    classDef gcp fill:#e2f1f0,stroke:#0f6e73,color:#0f4b4e
+    class SCH,CT,WF gcp
+  </script>
+</div>
+<p>Ba điều cần nhớ ngay:</p>
+<ol>
+<li><strong>Lessor và worker dùng chung một database.</strong> Worker có bản sao đầy đủ các entity TypeORM
+   (<code>worker/src/database/entities/*</code>) và đọc/ghi thẳng Postgres. Vì thế payload task chỉ cần
+   mang id, worker tự tra phần còn lại.</li>
+<li><strong>Cloud Tasks là thứ duy nhất đứng giữa lessor và worker</strong> cho việc lẻ. Không có Redis
+   trong đường này (Redis trong docker-compose của lessor phục vụ việc khác).</li>
+<li><strong>Không có <code>@Cron</code> ở đâu cả.</strong> Lịch nằm ở Cloud Scheduler, ngoài repo.</li>
+</ol>
+<h2 id="b2-ai-publish-task-nao">B2. Ai publish task nào</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table">
+<thead>
+<tr>
+<th>Task name</th>
+<th>Ai publish</th>
+<th>Processor ở worker</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>download-past-video</code></td>
+<td>lessor <code>WorkerService.downloadPastVideo()</code></td>
+<td><code>DownloadPastVideoProcessor</code></td>
+</tr>
+<tr>
+<td><code>external-property-sync</code></td>
+<td>lessor <code>WorkerService.enqueueExternalPropertySync()</code></td>
+<td>⚠ <strong>không có</strong> trong bản worker trên máy — xem I3</td>
+</tr>
+<tr>
+<td><code>auto-send-mail</code></td>
+<td><strong>không thấy trong lessor</strong> → suy ra: server khác của hệ (lessee / image-server)</td>
+<td><code>SendMailProcessor</code></td>
+</tr>
+<tr>
+<td><code>space-rental-auto-payment</code></td>
+<td>như trên (doc của lessor nhắc <code>aimo-parking-image-server</code> có <code>auto-payment-trigger</code>)</td>
+<td><code>SpaceRentalAutoPaymentProcessor</code></td>
+</tr>
+<tr>
+<td><code>property-rental-auto-payment</code></td>
+<td>như trên</td>
+<td><code>PropertyRentalAutoPaymentProcessor</code></td>
+</tr>
+<tr>
+<td><code>health</code></td>
+<td>tay / smoke test</td>
+<td><code>HealthProcessor</code> — chỉ log</td>
+</tr>
+</tbody>
+</table></div></div>
+<p>Một queue, nhiều loại task, phân loại bằng field <code>name</code> trong body. Đây là quyết định thiết
+kế quan trọng: <strong>queue là đường ống, <code>name</code> là địa chỉ</strong>.</p>
+<hr />
+<h1 id="phan-c-flow-1-tai-video-qua-khu-tung-buoc">PHẦN C — Flow #1: tải video quá khứ, từng bước</h1>
+<p>Đây là flow nên đọc kỹ nhất vì nó đi qua <strong>mọi</strong> lớp: controller → service → publisher →
+Cloud Tasks → worker → dịch vụ ngoài → mail.</p>
+<h2 id="c1-buoc-0-nguoi-dung-bam-nut">C1. Bước 0 — người dùng bấm nút</h2>
+<p>Frontend gọi:</p>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>GET /property/{propertyId}/camera/live/past-video
+    ?cameraId=0001&amp;timestampStart=2024-06-14T15:00:00.000Z&amp;interval=30
+Authorization: Bearer &lt;JWT của nhân viên&gt;
+</code></pre></div>
+<p><code>lessor/src/api/camera/camera.controller.ts</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>@Get('live/past-video')
+@Roles(PERMISSION.ADMIN_PAGE_ACCESS_ROLES)          // chỉ vai trò vào được trang quản trị
+async downloadPastVideo(
+  @CurrentUser() currentUser: AuthDto,
+  @Param('propertyId') propertyId: string,
+  @Query() query: DownloadPastVideoRequestDto,     // cameraId, timestampStart (Date), interval 10..60
+): Promise&lt;void&gt; {
+  return await this.cameraService.downloadPastVideo(currentUser, propertyId, query);
+}
+</code></pre></div>
+<p>Validation nằm ở DTO: <code>interval</code> bị kẹp <code>@Min(10) @Max(60)</code> giây, <code>timestampStart</code> ép kiểu
+<code>Date</code>. <strong>Đây là chốt chặn đầu tiên</strong> — payload xấu bị chặn trước khi vào queue, worker
+không phải retry một việc vô nghĩa.</p>
+<h2 id="c2-buoc-1-service-goi-publisher-khong-cho">C2. Bước 1 — service gọi publisher, không chờ</h2>
+<p><code>lessor/src/api/camera/camera.service.ts</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>async downloadPastVideo({ userId }: AuthDto, propertyId: string, dto: DownloadPastVideoRequestDto): Promise&lt;void&gt; {
+  this.workerService.downloadPastVideo({ ...dto, propertyId, userId });   // ← KHÔNG await
+}
+</code></pre></div>
+<p>Hai chi tiết đáng chú ý:</p>
+<ul>
+<li><strong>Không <code>await</code></strong>. Request trả <code>200</code> gần như ngay lập tức, kể cả khi publish chưa xong.
+  Nhanh — nhưng nếu publish lỗi, người dùng không bao giờ biết (xem I2).</li>
+<li>Payload gồm <code>userId</code> để worker biết gửi mail cho ai, <code>propertyId</code> để kiểm camera đúng
+  bãi. Không có gì nhạy cảm — đúng, vì payload sẽ nằm trong Cloud Tasks và hiện trong Console.</li>
+</ul>
+<h2 id="c3-buoc-2-workerservice-xin-token-roi-publish">C3. Bước 2 — <code>WorkerService</code> xin token rồi publish</h2>
+<p><code>lessor/src/shared/worker/worker.service.ts</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>async downloadPastVideo(data: any) {
+  try {
+    return await this.tasksPublisherService.publish(
+      { data, name: TASK_NAME.DOWNLOAD_PAST_VIDEO },   // 'download-past-video'
+      await this.getOptions(),
+    );
+  } catch (error) {
+    this.logger.error(error);                           // nuốt lỗi — xem I2
+  }
+}
+
+private async getOptions(executeTime?: Date): Promise&lt;PublishOptions&gt; {
+  const token = await this.googleCloudAuthService.getTokenWorkerServer();
+  return {
+    httpRequest: { headers: { Authorization: `Bearer ${token}` } },
+    scheduleTime: executeTime ? { seconds: executeTime.getTime() / 1000 } : null,
+  };
+}
+</code></pre></div>
+<h3 id="token-do-la-gi">Token đó là gì?</h3>
+<p><code>lessor/src/api/google-cloud-platform/google-cloud-auth/google-cloud-auth.service.ts</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>createGCPIdToken = async (targetAudience: string): Promise&lt;string&gt; =&gt; {
+  const auth = new GoogleAuth({ credentials: JSON.parse(this.configService.appConfig.gcp.creds) });
+  const client = await auth.getIdTokenClient(targetAudience);
+  return await client.idTokenProvider.fetchIdToken(targetAudience);
+};
+
+async getTokenWorkerServer() {
+  return this.createGCPIdToken(this.configService.appConfig.workerApiUrl);  // audience = URL worker
+}
+</code></pre></div>
+<p>Đây là <strong>OIDC ID token</strong> do Google ký, cho service account (đọc từ env <code>CREDS</code>), với
+<code>audience</code> = URL của worker. Khi Cloud Tasks POST sang worker mang header này, <strong>Cloud Run
+IAM của worker</strong> kiểm: token hợp lệ? audience đúng? service account có quyền
+<code>roles/run.invoker</code>? Sai một trong ba → Cloud Run trả <code>401/403</code> <strong>trước khi</strong> request tới
+code NestJS. Đó là lý do <code>main.ts</code> của worker comment dòng <code>useGlobalGuards(StaticAuthGuard)</code>
+— code không cần tự kiểm nữa.</p>
+<div class="callout callout--info">
+<p>Lưu ý cho người mới: mô hình này chỉ an toàn khi worker deploy với
+<code>--no-allow-unauthenticated</code>. Chạy local hoặc lỡ tay đổi cờ là endpoint <code>POST /</code> mở toang.</p>
+</div>
+<h3 id="scheduletime-hen-gio-ngay-trong-lenh-publish"><code>scheduleTime</code> — hẹn giờ ngay trong lệnh publish</h3>
+<p><code>downloadPastVideo</code> truyền <code>undefined</code> nên task chạy ngay. Nhưng API có sẵn: truyền <code>Date</code>
+là Cloud Tasks <strong>giữ task tới đúng giờ đó</strong> rồi mới POST. Không cần worker sống để "promote"
+như delayed job của BullMQ.</p>
+<h2 id="c4-buoc-3-publisher-bien-name-data-thanh-mot-cloud-task">C4. Bước 3 — publisher biến <code>{name, data}</code> thành một Cloud Task</h2>
+<p>Thư viện <code>@anchan828/nest-cloud-run-queue-tasks-publisher</code> được đăng ký ở
+<code>lessor/src/utilities/modules-set.util.ts</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>TasksPublisherModule.registerAsync({
+  imports: [SharedModule],
+  inject: [AppConfigService],
+  useFactory: (config: AppConfigService) =&gt; config.taskPublisherConfig,
+});
+</code></pre></div>
+<p>với cấu hình từ <code>app-config.service.ts</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>get taskPublisherConfig(): TasksPublisherModuleOptions {
+  const config = {
+    publishConfig: { httpRequest: { url: this.getString('WORKER_API_URL') } },  // đích POST
+    queue: this.getString('WORKER_QUEUE'),   // projects/…/locations/asia-northeast1/queues/tasks
+  };
+  if (this.getBoolean('USE_GCLOUD_TASKS_EMULATOR')) {
+    config.clientConfig = { apiEndpoint: 'localhost', port: 8123, sslCreds: credentials.createInsecure() };
+  }
+  return config;
+}
+</code></pre></div>
+<p>Bên trong, <code>publish()</code> gọi <code>CloudTasksClient.createTask()</code> với một task có hình dạng
+(theo tài liệu thư viện — không đọc được source vì <code>node_modules</code> chưa cài trên máy):</p>
+<div class="code-file"><div class="code-file__header"><span>JSONC</span></div><pre class="code-file__body"><code>{
+  &quot;parent&quot;: &quot;projects/aimo-api-worker/locations/asia-northeast1/queues/tasks&quot;,
+  &quot;task&quot;: {
+    &quot;httpRequest&quot;: {
+      &quot;httpMethod&quot;: &quot;POST&quot;,
+      &quot;url&quot;: &quot;https://worker-xxxx.a.run.app&quot;, // WORKER_API_URL, đường dẫn mặc định &quot;/&quot;
+      &quot;headers&quot;: {
+        &quot;Authorization&quot;: &quot;Bearer eyJ…&quot;,
+        &quot;Content-Type&quot;: &quot;application/json&quot;,
+      },
+      &quot;body&quot;: &quot;&lt;base64 của JSON.stringify({ name: 'download-past-video', data: {…} })&gt;&quot;,
+    },
+    &quot;scheduleTime&quot;: null,
+  },
+}
+</code></pre></div>
+<p>Cloud Tasks trả về ngay một <code>task.name</code> dạng
+<code>projects/…/queues/tasks/tasks/1234567890</code>. <strong>Từ giây này việc đã "được ghi"</strong>: lessor có
+thể chết, restart, deploy — task vẫn nằm trong Cloud Tasks.</p>
+<h2 id="c5-buoc-4-cloud-tasks-gui-task-sang-worker">C5. Bước 4 — Cloud Tasks gửi task sang worker</h2>
+<p>Cloud Tasks nhìn <code>rateLimits</code> của queue (<code>maxDispatchesPerSecond</code>,
+<code>maxConcurrentDispatches</code>) rồi POST:</p>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>POST / HTTP/1.1
+Host: worker-xxxx.a.run.app
+Authorization: Bearer eyJ…                      ← OIDC từ bước 2
+Content-Type: application/json
+X-CloudTasks-QueueName: tasks
+X-CloudTasks-TaskName: 1234567890
+X-CloudTasks-TaskRetryCount: 0                  ← lần thử thứ mấy
+X-CloudTasks-TaskExecutionCount: 0
+X-CloudTasks-TaskETA: 1718377200.123
+
+{&quot;name&quot;:&quot;download-past-video&quot;,&quot;data&quot;:{&quot;cameraId&quot;:&quot;0001&quot;,&quot;timestampStart&quot;:&quot;2024-06-14T15:00:00.000Z&quot;,&quot;interval&quot;:30,&quot;propertyId&quot;:&quot;…&quot;,&quot;userId&quot;:&quot;…&quot;}}
+</code></pre></div>
+<p>Cloud Run của worker: kiểm IAM → nếu instance = 0 thì <strong>khởi động một instance</strong> (cold
+start vài giây) → chuyển request vào container.</p>
+<h2 id="c6-buoc-5-thu-vien-worker-dinh-tuyen-theo-name">C6. Bước 5 — thư viện worker định tuyến theo <code>name</code></h2>
+<p><code>worker/src/api/worker/worker.module.ts</code> import <code>QueueWorkerModule.register()</code>. Module này
+gắn một controller nhận <code>POST /</code>, giải mã body, tìm class có <code>@QueueWorker({ name })</code>
+khớp, gọi method có <code>@QueueWorkerProcess()</code>.</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>@QueueWorker({ name: 'download-past-video' })
+export class DownloadPastVideoProcessor {
+  @QueueWorkerProcess()
+  public async process(dto: DownloadPastVideoRequestDto, _raw: QueueWorkerRawMessage): Promise&lt;void&gt; { … }
+}
+</code></pre></div>
+<p>Tham số thứ hai <code>_raw</code> là message gốc (headers, body thô) — dùng khi cần
+<code>X-CloudTasks-TaskRetryCount</code> để hành xử khác ở lần retry. Aimo hiện không dùng.</p>
+<h2 id="c7-buoc-6-processor-lam-viec-that">C7. Bước 6 — processor làm việc thật</h2>
+<p><code>worker/src/api/worker/processor/download-past-camera/download-past-video.processor.ts</code>,
+tóm theo thứ tự:</p>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>1. Promise.all([camera = Camera.findOne({id: cameraId, property: {id: propertyId}}),
+                user   = User.findOne({id: userId}, relations: companyOfficer)])
+2. parseAiCameraId(camera.aiCameraId)  → { serialNumber, cameraId }   // &quot;SN123_CH01&quot;
+3. edgeDevice = EdgeDevice.findOneBy({ serialNumber })
+     • không có → throw NotFoundException('[E0005] Device … not found')
+     • không có edgeDevice.nvr → throw NotFoundException
+4. nvrChannel = 'CH01' → '1'
+5. rtspAddress = nvrCameraService.getRtspUrl(nvr, user, pass, channel, timestampStart, interval)
+6. storagePath = rtspAddress ? nvrCameraService.createMp4(rtspAddress, interval) : null
+     • createMp4 gọi GET {NVR_CAMERA_API_URL}/create-mp4 kèm OIDC token (audience = NVR API URL)
+     • lỗi → log và return null  (KHÔNG throw)
+7. emailTemplate = storagePath ? downloadPastVideoSuccess : downloadPastVideoFailure
+   emailData     = storagePath ? { urlPastVideoDownload: signedUrl(GCS key) }
+                               : { urlDomainPastVideo: `${lessorAppUrl}/property/${propertyId}/live-video/past` }
+8. mailerService.sendMail(user.email, template, data, fromLessor)      // SendGrid
+</code></pre></div>
+<p>Để ý <strong>hai kiểu lỗi được xử lý khác nhau</strong>, và đó là cố ý:</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table">
+<thead>
+<tr>
+<th>Lỗi</th>
+<th>Xử lý</th>
+<th>Hệ quả với Cloud Tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thiết bị / NVR không tồn tại (bước 3)</td>
+<td><code>throw NotFoundException</code> → HTTP 404</td>
+<td>non-2xx → <strong>retry</strong> theo queue — dù retry cũng vô ích vì dữ liệu không tự mọc ra. Hết <code>maxAttempts</code> thì task bị xoá, <strong>không mail nào được gửi</strong></td>
+</tr>
+<tr>
+<td>Cắt MP4 lỗi (bước 6)</td>
+<td><code>return null</code>, đi tiếp</td>
+<td>worker gửi <strong>mail báo thất bại</strong>, trả 200 → task xong, không retry</td>
+</tr>
+<tr>
+<td>SendGrid lỗi (bước 8)</td>
+<td>throw</td>
+<td>retry — lần sau chạy lại <strong>cả</strong> bước 5–6, cắt lại video (at-least-once)</td>
+</tr>
+</tbody>
+</table></div></div>
+<p>Doc nội bộ của lessor (<code>docs/api/camera.md</code>) cũng ghi: <em>"một phần lỗi (thiết bị hay NVR
+không tìm thấy) thậm chí không có mail"</em>. Đọc Phần I để biết nên sửa thế nào.</p>
+<h2 id="c8-buoc-7-ack-va-ket-thuc">C8. Bước 7 — ack và kết thúc</h2>
+<p><code>process()</code> return → thư viện trả <code>HTTP 200</code> (hoặc 204) → Cloud Tasks đánh dấu task hoàn
+thành và <strong>xoá</strong> nó. Người dùng nhận mail có link tải (URL ký, có hạn).</p>
+<p>Tổng thời gian từ bấm nút tới mail: cold start (0–5s) + tra DB (ms) + NVR + cắt video
+(vài chục giây) + SendGrid (1–2s). Người dùng chỉ chờ <strong>bước 0–2</strong>: vài chục mili-giây.</p>
+<h2 id="c9-cung-flow-ve-theo-thoi-gian">C9. Cùng flow, vẽ theo thời gian</h2>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>Người dùng   lessor              Cloud Tasks            worker               NVR API   SendGrid
+   │ GET past-video │                 │                    │                    │          │
+   │───────────────►│ validate DTO    │                    │                    │          │
+   │                │ fetch OIDC      │                    │                    │          │
+   │                │ createTask ────►│ lưu task           │                    │          │
+   │◄── 200 ────────│ (không await)   │                    │                    │          │
+   │                │                 │ POST / +OIDC ─────►│ IAM ok, cold start │          │
+   │                │                 │                    │ tra camera,user,edge          │
+   │                │                 │                    │ getRtspUrl ───────►│          │
+   │                │                 │                    │ createMp4 ────────►│ → GCS    │
+   │                │                 │                    │◄── storage_path ───│          │
+   │                │                 │                    │ sendMail ─────────────────────►│
+   │                │                 │◄── 200 ────────────│                    │          │
+   │                │                 │ xoá task           │                    │          │
+   │◄═══════════════════ mail có link tải ═══════════════════════════════════════════════│
+</code></pre></div>
+<p>Bản sequence đầy đủ, kèm hai nhánh lỗi:</p>
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-1"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+sequenceDiagram
+    autonumber
+    actor U as Nhân viên chủ bãi
+    participant L as lessor-server
+    participant G as Google IAM
+    participant T as Cloud Tasks
+    participant W as worker-server
+    participant N as NVR API
+    participant S as GCS
+    participant M as SendGrid
+
+    U->>L: GET …/camera/live/past-video<br/>?cameraId&timestampStart&interval
+    Note over L: validate DTO (interval 10..60)<br/>Roles: ADMIN_PAGE_ACCESS
+    L-->>U: 200 — trả ngay, KHÔNG chờ publish
+    L->>G: fetchIdToken(audience = WORKER_API_URL)
+    G-->>L: OIDC id-token
+    L->>T: createTask<br/>POST WORKER_API_URL · Bearer token<br/>body {name:'download-past-video',<br/>data:{cameraId, timestampStart, interval, propertyId, userId}}
+    T-->>L: task.name
+    Note over T: chờ suất theo rateLimits
+    T->>W: POST / + OIDC<br/>X-CloudTasks-TaskRetryCount
+    Note over W: Cloud Run IAM kiểm token<br/>cold start nếu 0 instance
+    W->>W: tra Camera, User, EdgeDevice (Postgres chung)
+    alt thiết bị / NVR không tồn tại
+        W-->>T: 404 NotFoundException
+        T->>W: retry theo retryConfig… tới hết maxAttempts
+        Note over T,W: không mail nào được gửi
+    else tìm thấy
+        W->>N: GET /generate/rtsp<br/>+ OIDC (audience = NVR API)
+        N-->>W: rtsp://…
+        W->>N: GET /create-mp4?rtsp_url&duration
+        N->>S: upload mp4
+        N-->>W: storage_path<br/>(lỗi → null, không throw)
+        W->>M: sendMail(success | failure template)
+        M-->>W: 202
+        W-->>T: 200
+        T->>T: xoá task
+        M-->>U: mail có link tải (HMAC, 7 ngày)
+    end
+  </script>
+</div>
+<hr />
+<h1 id="phan-d-ben-trong-cloud-tasks-va-thu-vien">PHẦN D — Bên trong Cloud Tasks và thư viện</h1>
+<h2 id="d1-vong-doi-mot-task">D1. Vòng đời một task</h2>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>createTask ──► SCHEDULED (chờ tới scheduleTime, mặc định = ngay)
+                  │
+                  ▼  queue còn &quot;suất&quot; theo rateLimits
+              DISPATCHED ──► worker trả 2xx ──► DELETED (xong)
+                  │
+                  └─► worker trả non-2xx / timeout / không kết nối được
+                        │
+                        ▼  attempt &lt; maxAttempts ?
+                     chờ backoff (minBackoff → ×2 → … ≤ maxBackoff)
+                        │
+                        └─► DISPATCHED lại (X-CloudTasks-TaskRetryCount += 1)
+                              … hết maxAttempts hoặc quá maxRetryDuration ──► DELETED (mất)
+</code></pre></div>
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-2"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+stateDiagram-v2
+    [*] --> SCHEDULED: createTask (scheduleTime mặc định = ngay)
+    SCHEDULED --> DISPATCHED: tới giờ và còn suất<br/>(maxDispatchesPerSecond, maxConcurrentDispatches)
+    DISPATCHED --> DONE: worker trả 2xx
+    DISPATCHED --> BACKOFF: non-2xx / timeout (dispatchDeadline)<br/>/ không kết nối được
+    BACKOFF --> DISPATCHED: chờ minBackoff × 2^n ≤ maxBackoff<br/>attempts < maxAttempts
+    BACKOFF --> LOST: hết maxAttempts hoặc quá maxRetryDuration
+    DONE --> [*]: task bị xoá
+    LOST --> [*]: task bị xoá — chỉ còn log
+    note right of DISPATCHED
+      Mỗi lần: X-CloudTasks-TaskRetryCount += 1
+      Worker của aimo chưa log header này
+    end note
+  </script>
+</div>
+<p>Những con số này <strong>sống trong cấu hình queue trên GCP</strong>, không trong repo:</p>
+<div class="code-file"><div class="code-file__header"><span>BASH</span></div><pre class="code-file__body"><code>gcloud tasks queues describe tasks --location=asia-northeast1
+# rateLimits:  maxDispatchesPerSecond, maxConcurrentDispatches, maxBurstSize
+# retryConfig: maxAttempts, maxRetryDuration, minBackoff, maxBackoff, maxDoublings
+</code></pre></div>
+<p>Hệ quả cho người viết code: <strong>muốn "retry 5 lần, backoff 10s" thì không sửa code — sửa
+queue</strong>. Và ngược lại: đọc code không thể biết task sẽ retry bao nhiêu lần. Khi vào dự án,
+việc đầu tiên nên làm là <code>describe</code> queue và ghi lại số liệu đó vào doc.</p>
+<h2 id="d2-dispatchdeadline-va-request-timeout">D2. <code>dispatchDeadline</code> và request timeout</h2>
+<p>Cloud Tasks chờ worker trả lời tối đa <code>dispatchDeadline</code> (mặc định <strong>10 phút</strong>, tối đa 30).
+Cloud Run cũng có request timeout riêng (mặc định <strong>5 phút</strong>, tối đa 60). Task chạy quá
+<strong>cái nhỏ hơn</strong> trong hai số đó bị coi là fail → retry, dù worker vẫn đang chạy nốt phía
+sau. Với <code>download-past-video</code>, cắt video 60 giây cộng NVR chậm vẫn xa hai mốc này; với
+export CSV thì không — đó là lý do có Workflows (Phần G).</p>
+<h2 id="d3-khu-trung-theo-ten-task">D3. Khử trùng theo tên task</h2>
+<p>Khi <code>createTask</code> truyền <code>task.name</code> tường minh, Cloud Tasks <strong>từ chối tên trùng</strong> trong
+khoảng ~1 giờ sau khi task đó bị xoá (tăng tới 9 ngày với task đã chạy). Đây là cách "chống
+double-submit" tương đương <code>jobId</code> của BullMQ. Aimo <strong>không</strong> đặt tên task, nên bấm nút hai
+lần là hai video, hai mail — đúng như <code>docs/api/camera.md</code> của họ ghi <em>"押した回数だけ… メールが届く"</em>.</p>
+<h2 id="d4-thu-vien-anchan828-nest-cloud-run-queue-lam-gi-khong-lam-gi">D4. Thư viện <code>@anchan828/nest-cloud-run-queue-*</code> làm gì, không làm gì</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table">
+<thead>
+<tr>
+<th>Việc</th>
+<th>Publisher</th>
+<th>Worker</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mã hoá <code>{name, data}</code> → base64 body</td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td>Gọi <code>CloudTasksClient.createTask</code></td>
+<td>✅</td>
+<td></td>
+</tr>
+<tr>
+<td>Nhận <code>POST /</code>, giải mã body (hỗ trợ cả định dạng Pub/Sub push)</td>
+<td></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Tìm <code>@QueueWorker({name})</code> khớp, gọi <code>@QueueWorkerProcess()</code></td>
+<td></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Ném lỗi → trả 5xx để Cloud Tasks retry</td>
+<td></td>
+<td>✅ (mặc định)</td>
+</tr>
+<tr>
+<td>Retry / backoff / rate limit</td>
+<td>❌ (queue)</td>
+<td>❌ (queue)</td>
+</tr>
+<tr>
+<td>Xác thực caller</td>
+<td>❌ (IAM)</td>
+<td>❌ (IAM)</td>
+</tr>
+<tr>
+<td>Idempotency</td>
+<td>❌</td>
+<td>❌ — <strong>việc của processor</strong></td>
+</tr>
+</tbody>
+</table></div></div>
+<p>Điểm cần xác nhận với phiên bản đang lock (<code>3.4.1</code> publisher, <code>^3.2.4</code> worker): hành vi khi
+<code>name</code> không có processor nào khớp — thư viện log cảnh báo và trả 2xx hay ném lỗi? Nếu ném →
+task <code>external-property-sync</code> (I3) sẽ retry tới hết <code>maxAttempts</code>; nếu trả 2xx → mất im.
+Cả hai đều tệ, chỉ khác cách tệ.</p>
+<hr />
+<h1 id="phan-e-flow-2-thu-tien-tu-dong-khi-task-co-tien">PHẦN E — Flow #2: thu tiền tự động — khi task có tiền</h1>
+<p><code>SpaceRentalAutoPaymentProcessor</code> (<code>worker/src/api/worker/processor/space-rental-auto-payment.processor.ts</code>)
+là ví dụ <strong>task có hậu quả tài chính</strong>, nên đáng học cách nó phòng thủ.</p>
+<h2 id="e1-payload">E1. Payload</h2>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>export class AutoPaymentRequestDto {
+  userId!: string;
+  spaceRentalHistoryId!: string;
+  rentalBill!: number; // số tiền — tính SẴN bởi producer
+  endTime!: string; // giờ xe ra — dùng làm &quot;dấu vân tay&quot; của lần thuê
+}
+</code></pre></div>
+<p>Producer không nằm trong lessor (B2). Điều quan trọng là payload mang <strong><code>endTime</code></strong> — không
+phải để hiển thị, mà để chống chạy đôi.</p>
+<h2 id="e2-cac-buoc">E2. Các bước</h2>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>1. user = User.findOne({id}, relations: paymentInfos, customer)
+     • !user || !paymentInfos[0].autoPayment → throw ValidateException   (→ retry, vô ích)
+2. rental = SpaceRentalHistory.findOne({ id, status: Unpaid, priceType: CoinParking,
+                                         isUserPayment: true, property.isPaymentMachineOnly: false })
+3. ★ if (!isEqual(rental.endTime, new Date(endTime))) { log; return; }   // ← chốt idempotency
+4. spacePaymentHistoryId = uuid()                                          // orderId gửi cổng thanh toán
+5. execute  = sbPayment.autoPaymentExecute(merchant…, spacePaymentHistoryId, rentalCode, bill)
+6. if execute.res_result === OK:
+       confirm = sbPayment.autoPaymentConfirm(…, execute.res_sps_transaction_id, execute.res_tracking_id)
+       success = confirm.res_result === OK
+7. transaction:
+       save SpacePaymentHistory { id: spacePaymentHistoryId, status: success ? Succeeded : Failed, paymentResult }
+       if success: update SpaceRentalHistory { status: PaymentLaterCompleted, paymentTime, paymentBy }
+8. sendMail(success ? paymentSuccess : paymentFailure)
+</code></pre></div>
+<p>Vẽ ra, với khe hở tô màu:</p>
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-3"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+sequenceDiagram
+    autonumber
+    participant T as Cloud Tasks
+    participant W as SpaceRentalAutoPaymentProcessor
+    participant DB as Postgres
+    participant P as SB Payment
+    participant M as SendGrid
+
+    T->>W: POST / {name:'space-rental-auto-payment',<br/>data:{userId, spaceRentalHistoryId, rentalBill, endTime}}
+    W->>DB: User + paymentInfos (autoPayment?)
+    W->>DB: SpaceRentalHistory<br/>WHERE id AND status = Unpaid AND …
+    Note over W,DB: LỚP 1 — đã trả rồi thì không tìm thấy → không trừ lần hai
+    alt rental.endTime ≠ payload.endTime
+        Note over W: LỚP 2 — lần thuê đã đổi (xe ra lại, trả ở máy)
+        W-->>T: 200 (return sạch, không retry)
+    else khớp
+        W->>W: spacePaymentHistoryId = uuid() ← mới MỖI lần chạy
+        W->>P: autoPaymentExecute(orderId = spacePaymentHistoryId, amount)
+        P-->>W: res_result, res_sps_transaction_id, res_tracking_id
+        opt execute OK
+            W->>P: autoPaymentConfirm(transaction_id, tracking_id)
+            P-->>W: OK → tiền đã trừ
+        end
+        rect rgba(180,83,42,0.15)
+            Note over W,DB: KHE HỞ — process chết ở đây: tiền đã trừ, DB chưa biết
+        end
+        W->>DB: BEGIN
+        W->>DB: INSERT SpacePaymentHistory<br/>{id, status: Succeeded|Failed, paymentResult}
+        W->>DB: UPDATE SpaceRentalHistory<br/>SET status = PaymentLaterCompleted (nếu OK)
+        W->>DB: COMMIT
+        W->>M: sendMail(paymentSuccess | paymentFailure)
+        W-->>T: 200
+    end
+  </script>
+</div>
+<h2 id="e3-vi-sao-buoc-3-la-chot">E3. Vì sao bước 3 là chốt</h2>
+<p>Giả sử task chạy lần 1: trừ tiền xong (bước 5–6), ghi DB xong (bước 7), nhưng SendGrid
+timeout ở bước 8 → throw → <strong>Cloud Tasks retry</strong>. Lần 2:</p>
+<ul>
+<li>bước 2: <code>status: Unpaid</code> <strong>không còn khớp</strong> (đã thành <code>PaymentLaterCompleted</code>) → <code>findOne</code>
+  trả <code>null</code> → code phía sau ném lỗi khi truy cập <code>rental.endTime</code>… thực ra ném
+  <code>TypeError</code>, cũng là non-2xx → retry tiếp tới hết <code>maxAttempts</code>. Tiền <strong>không</strong> bị trừ
+  lần hai — nhờ điều kiện <code>status: Unpaid</code> trong truy vấn.</li>
+<li>Trường hợp khác: người dùng tự trả tiền ở máy trong lúc task chờ, hoặc xe ra lần nữa và
+  <code>endTime</code> đổi → bước 3 bắt được, <code>return</code> sạch → 200 → task xong.</li>
+</ul>
+<p>Hai lớp: <strong>điều kiện trạng thái trong truy vấn</strong> (không trừ hai lần) và <strong>so <code>endTime</code></strong>
+(không trừ cho một lần thuê đã bị thay đổi). Đây chính là "idempotency lớp 2" trong
+<a href="worker-catalog-and-implementation.html">worker-catalog-and-implementation.md §9</a>.</p>
+<p>Chỗ còn hở: nếu chết <strong>giữa bước 6 và 7</strong> — cổng thanh toán đã confirm nhưng DB chưa ghi —
+retry sẽ thấy <code>Unpaid</code>, <code>endTime</code> khớp, và <strong>execute lần hai</strong>. <code>spacePaymentHistoryId</code> là
+uuid mới mỗi lần nên cổng thanh toán không nhận ra đó là trùng. Cách vá chuẩn: sinh
+<code>spacePaymentHistoryId</code> <strong>xác định</strong> từ <code>spaceRentalHistoryId + endTime</code> (hoặc ghi một hàng
+<code>PaymentIntent</code> trước khi gọi cổng) để cổng thanh toán tự khử trùng theo <code>orderId</code>.</p>
+<hr />
+<h1 id="phan-f-flow-3-viec-theo-lich-cloud-scheduler-va-bang-task-schedule">PHẦN F — Flow #3: việc theo lịch — Cloud Scheduler và bảng <code>task_schedule</code></h1>
+<h2 id="f1-khong-co-cron-trong-code">F1. Không có cron trong code</h2>
+<p>Lessor không dùng <code>@nestjs/schedule</code>. Thay vào đó có 4 endpoint "chỉ để máy gọi":</p>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>POST /task-schedule/rental-cost                  áp giá đã hẹn
+POST /task-schedule/public-property              công khai bãi đã hẹn
+POST /task-schedule/external-property-sync       đẩy 1 task sang worker (đồng bộ PIT PORT)
+POST /task-schedule/payment-barcode-hard-delete  xoá barcode &gt; 1 năm, theo lô
+</code></pre></div>
+<p>Tất cả đứng sau <code>StaticAuthGuard</code>: header <code>api-key</code> phải bằng <code>STATIC_API_KEY</code>. <strong>Ai gọi,
+bao lâu một lần — không có trong repo</strong>; nó là cấu hình Cloud Scheduler trên GCP. Doc nội bộ
+của lessor cũng để một <code>TODO(team)</code> đúng chỗ này.</p>
+<h2 id="f2-bang-task-schedule-lich-hen-la-du-lieu">F2. Bảng <code>task_schedule</code> — "lịch hẹn là dữ liệu"</h2>
+<p>Thay vì mỗi tính năng có cột <code>applyAt</code> riêng và một cron riêng quét nó, aimo gom mọi lời
+hẹn vào một bảng:</p>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>task_schedule
+  id                uuid
+  type              enum  RentalCost | PublicProperty
+  start_time        ts    hiệu lực từ
+  end_time          ts?   hết hạn hẹn (null = không)
+  status            enum  Pending → Running → Completed | Fail
+  enabled           bool
+  data              jsonb { propertyId, spaceRentalCostId? | propertyRentalCostId? }
+  last_triggered_at ts?
+  deleted_at        ts?   (soft delete = huỷ hẹn)
+</code></pre></div>
+<p>Khi chủ bãi đặt "giá mới từ 1/10", API ghi một hàng <code>RentalCost</code> với <code>start_time = 1/10</code>.
+Người dùng thấy, sửa, huỷ (soft delete) được lời hẹn của mình vì nó là một bản ghi có id.</p>
+<h2 id="f3-mot-lan-scheduler-goi-post-task-schedule-rental-cost">F3. Một lần Scheduler gọi <code>POST /task-schedule/rental-cost</code></h2>
+<p><code>lessor/src/api/task-schedule/task-schedule.service.ts#scheduleRentalCost</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>1. rows = SELECT * FROM task_schedule
+          WHERE type='RentalCost' AND enabled AND status='Pending'
+            AND start_time &lt;= now() AND (end_time IS NULL OR end_time &gt;= now())
+2. rows rỗng → log debug, return                       (đa số lần gọi kết thúc ở đây)
+3. tách: data hợp lệ → xử lý ; data null → Fail + soft delete
+4. UPDATE tất cả → Running, last_triggered_at = now()  (một câu, cả lô)
+5. nạp trước giá đang áp dụng của mọi property liên quan (2 truy vấn, gom vào Map)
+6. với TỪNG hàng, một transaction:
+       UPDATE giá cũ   SET end_time=now, is_apply=false
+       UPDATE giá mới  SET start_time=now, is_apply=true
+       UPDATE lịch     SET status='Completed'
+   lỗi → catch → UPDATE lịch SET status='Fail'   (NGOÀI transaction, để ghi được kể cả khi rollback)
+7. Promise.allSettled(tất cả)  → một hàng hỏng không chặn hàng khác
+8. return → HTTP 200 (kể cả khi có hàng Fail)
+</code></pre></div>
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-4"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+sequenceDiagram
+    autonumber
+    participant C as Cloud Scheduler
+    participant L as lessor /task-schedule/rental-cost
+    participant DB as Postgres
+
+    C->>L: POST + header api-key
+    Note over L: StaticAuthGuard: key !== STATIC_API_KEY → 401
+    L->>DB: SELECT … WHERE type='RentalCost' AND enabled<br/>AND status='Pending' AND start_time ≤ now()
+    alt không có hàng
+        L-->>C: 200 (log debug)
+    else có N hàng
+        L->>DB: UPDATE N hàng SET status='Running'
+        Note over L,DB: giữa SELECT và UPDATE không có lock
+        L->>DB: nạp giá đang áp dụng<br/>của các property (2 truy vấn, gom Map)
+        loop từng hàng — Promise.allSettled
+            L->>DB: BEGIN
+            L->>DB: UPDATE giá cũ SET end_time=now, is_apply=false
+            L->>DB: UPDATE giá mới SET start_time=now, is_apply=true
+            L->>DB: UPDATE lịch SET status='Completed'
+            L->>DB: COMMIT
+            Note over L,DB: lỗi → catch → UPDATE lịch SET status='Fail' (ngoài tx)
+        end
+        L-->>C: 200 (kể cả khi có hàng Fail)
+    end
+  </script>
+</div>
+<h2 id="f4-state-machine-va-cho-ho">F4. State machine và chỗ hở</h2>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>                 Scheduler tick
+ Pending ───────────────────────► Running ──── tx ok ───► Completed
+   ▲                                │
+   │ (không có đường quay lại)      └──── tx lỗi ───────► Fail
+   │                                │
+   │                                └──── process chết ──► Running MÃI MÃI
+</code></pre></div>
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-5"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+stateDiagram-v2
+    [*] --> Pending: chủ bãi đặt lịch hẹn
+    Pending --> Running: tick quét thấy start_time ≤ now
+    Running --> Completed: transaction OK
+    Running --> Fail: transaction lỗi
+    Pending --> [*]: huỷ hẹn (soft delete)
+    Fail --> Fail: KHÔNG được nhặt lại
+    Running --> Running: process chết → treo mãi
+    note right of Fail
+      Truy vấn chỉ lấy Pending.
+      Fail và Running mồ côi không có đường về.
+    end note
+  </script>
+</div>
+<p>Hai điểm yếu, chính doc của aimo cũng nêu:</p>
+<ol>
+<li><strong>Không lock giữa bước 1 và 4.</strong> Nếu Scheduler bắn hai lần chồng nhau (retry của
+   Scheduler, hoặc hai job cấu hình trùng), cả hai đọc cùng hàng <code>Pending</code> rồi cùng chạy bước
+   6 → giá cũ bị đóng hai lần, giá mới mở hai lần. Vá: đổi bước 1+4 thành <strong>một câu</strong>
+   <code>UPDATE … SET status='Running' WHERE … AND status='Pending' RETURNING *</code> — hàng nào đã
+   bị tick khác lấy sẽ không trả về.</li>
+<li><strong><code>Fail</code> và <code>Running</code> không bao giờ được nhặt lại.</strong> Truy vấn chỉ lấy <code>Pending</code>. Process
+   chết giữa bước 6 → hàng treo <code>Running</code> vĩnh viễn, giá <strong>không đổi</strong>, và không alert nào
+   nói cho ai. Vá: cột <code>attempts</code>, và một nhánh trong cùng cron "hàng <code>Running</code> quá 15 phút
+   → về <code>Pending</code>, <code>attempts+1</code>; quá 3 lần → <code>Fail</code> + alert".</li>
+</ol>
+<h2 id="f5-external-property-sync-scheduler-cau-noi-sang-cloud-tasks">F5. <code>external-property-sync</code> — Scheduler cầu nối sang Cloud Tasks</h2>
+<p>Endpoint này không xử lý gì, chỉ gọi <code>WorkerService.enqueueExternalPropertySync()</code> → publish
+task. Đây là mẫu <strong>scheduler → producer</strong>: cron chỉ <em>tạo việc</em>, worker <em>làm việc</em>, đúng như
+<a href="worker-catalog-and-implementation.html">worker-catalog-and-implementation.md §2.4</a> khuyên. Không
+idempotent theo thiết kế: gọi hai lần là hai task (doc lessor đánh ×).</p>
+<hr />
+<h1 id="phan-g-flow-4-export-csv-lon-google-cloud-workflows">PHẦN G — Flow #4: export CSV lớn — Google Cloud Workflows</h1>
+<h2 id="g1-vi-sao-khong-dung-cloud-tasks">G1. Vì sao không dùng Cloud Tasks</h2>
+<p>Một task = một request ≤ 10 phút (D2). Report vài trăm nghìn dòng, mỗi trang phải query +
+ghi file, không chắc gói vừa. Và Cloud Tasks không có "trạng thái vòng lặp": nó không biết
+"đã tới cursor nào".</p>
+<h2 id="g2-ba-manh">G2. Ba mảnh</h2>
+<p><strong>Lessor khởi động</strong> — <code>google-cloud-workflow.service.ts</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>triggerWorkflowDownloadCsv({ csvType, sendMailParam, searchParam }) {
+  const jobParam = { jobId: v4(), csvType };
+  const argument = {
+    jobParam: JSON.stringify(jobParam),
+    searchParam: JSON.stringify({ ...searchParam, timestamp: new Date() }),
+    sendMailParam: JSON.stringify(sendMailParam),
+    afterCursor: '',
+    limit: MAX_CSV_RECORDS,
+  };
+  this.client.createExecution({                       // ExecutionsClient của @google-cloud/workflows
+    parent: this.configService.appConfig.workerFlowConfig.path.downloadCsv,  // projects/…/workflows/…
+    execution: { argument: JSON.stringify(argument), name: jobParam.jobId },
+  }).then(log).catch(log);                            // không await, không throw
+}
+</code></pre></div>
+<p><strong>Workflow</strong> (định nghĩa YAML nằm trên GCP, không trong repo) — suy từ hợp đồng API của worker:</p>
+<div class="code-file"><div class="code-file__header"><span>TEXT</span></div><pre class="code-file__body"><code>loop:
+  GET  {worker}/csv/export?jobParam=…&amp;searchParam=…&amp;afterCursor={cursor}&amp;limit={limit}
+       → worker query 1 trang (cursor pagination), ghi CSV trang đó lên GCS folder job/{jobId}/
+       → trả { cursor, hasMore }
+  if hasMore: cursor = res.cursor; continue
+POST {worker}/csv/execute?jobParam=…&amp;sendMailParam=…
+       → worker gom các file trong folder → zip (nếu nhiều) → xoá file lẻ → ký URL → gửi mail
+</code></pre></div>
+<p><strong>Worker phục vụ hai endpoint</strong> — <code>worker/src/api/csv/csv.controller.ts</code>:</p>
+<div class="code-file"><div class="code-file__header"><span>TS</span></div><pre class="code-file__body"><code>@Get('export')   async export(@Query() job: JobRequestDto)         { return this.csvService.exportCsv(job); }
+@Post('execute') async execute(@Query() dto: ExecuteRequestDto)    { return this.csvService.compressAndSendMail(…); }
+</code></pre></div>
+<p><code>exportCsv</code> dùng <code>Paginator</code> với <code>afterCursor</code> — <strong>cursor, không offset</strong>, nên trang thứ
+1.000 nhanh như trang đầu.</p>
+<p>Toàn bộ đường đi, tới tận lúc người dùng tải file:</p>
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-6"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+sequenceDiagram
+    autonumber
+    actor U as Người dùng
+    participant L as lessor-server
+    participant WF as Cloud Workflows
+    participant W as worker-server
+    participant S as GCS
+    participant M as SendGrid
+
+    U->>L: GET /csv/property-usage-status?…
+    L-->>U: 200 (không await)
+    L->>WF: createExecution(name = jobId,<br/>argument = {jobParam, searchParam,<br/>sendMailParam, afterCursor:'', limit})
+    loop hasMore
+        WF->>W: GET /csv/export<br/>?jobParam&searchParam&afterCursor&limit
+        W->>W: query 1 trang bằng cursor (không OFFSET)
+        W->>S: upload job/{jobId}/{file}_{n}.csv (gzip)
+        W-->>WF: { cursor, hasMore }
+    end
+    WF->>W: POST /csv/execute?jobParam&sendMailParam
+    W->>S: đọc csv trong job/{jobId}/<br/>→ zip nếu > 1 → xoá csv lẻ
+    W->>W: url = HMAC-signed<br/>{LESSOR_API_URL}/common/download<br/>?filePath&expireTime&signature
+    W->>M: sendMail(downloadCsv, {URL})
+    W-->>WF: { url }
+    M-->>U: mail có link (7 ngày)
+    U->>L: GET /common/download?…
+    L->>L: verifySignedUrl (HMAC, hết hạn?)
+    L->>S: createReadStream(filePath)
+    L-->>U: stream file
+  </script>
+</div>
+<h2 id="g3-vi-sao-mau-nay-hay">G3. Vì sao mẫu này hay</h2>
+<ul>
+<li>Trạng thái vòng lặp (cursor hiện tại) nằm <strong>trong Workflows</strong>, không trong RAM worker → worker
+  chết giữa chừng, Workflows retry đúng bước đó.</li>
+<li>Mỗi bước là một request ngắn → vừa khít hợp đồng Cloud Run, autoscale bình thường.</li>
+<li><code>jobId</code> làm tên folder GCS → chạy lại một trang chỉ ghi đè file cùng tên, không nhân đôi.</li>
+</ul>
+<p>Hạn chế: định nghĩa Workflow không nằm trong repo, nên <strong>đọc code không thấy toàn bộ flow</strong>
+— giống Scheduler ở Phần F. Và <code>createExecution</code> không <code>await</code>, người dùng nhận 200 dù
+execution có thể không được tạo.</p>
+<hr />
+<h1 id="phan-h-van-hanh">PHẦN H — Vận hành</h1>
+<h2 id="h1-bien-moi-truong-lien-quan">H1. Biến môi trường liên quan</h2>
+<p><strong>Lessor</strong> (<code>.env.example</code>):</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table">
+<thead>
+<tr>
+<th>Biến</th>
+<th>Nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WORKER_QUEUE</code></td>
+<td><code>projects/aimo-api-worker/locations/asia-northeast1/queues/tasks</code> — queue đích</td>
+</tr>
+<tr>
+<td><code>WORKER_API_URL</code></td>
+<td>URL worker; vừa là đích POST của Cloud Tasks, vừa là <strong>audience</strong> của OIDC</td>
+</tr>
+<tr>
+<td><code>USE_GCLOUD_TASKS_EMULATOR</code></td>
+<td><code>true</code> ở local → client trỏ <code>localhost:8123</code>, không TLS</td>
+</tr>
+<tr>
+<td><code>CREDS</code></td>
+<td>JSON service account để ký OIDC (đọc thẳng <code>process.env.CREDS</code>)</td>
+</tr>
+<tr>
+<td><code>STATIC_API_KEY</code></td>
+<td>key cho <code>/task-schedule/*</code></td>
+</tr>
+<tr>
+<td><code>WORKER_FLOW_DOWNLOAD_CSV_PATH</code></td>
+<td><code>projects/…/locations/…/workflows/…</code></td>
+</tr>
+</tbody>
+</table></div></div>
+<p><strong>Worker</strong>: không có biến nào về queue — nó chỉ là HTTP server. Cần <code>DB_*</code> (chung DB),
+<code>SEND_GRID_API_KEY</code>, <code>NVR_CAMERA_API_URL</code>, <code>STORAGE_BUCKET_NAME</code>, <code>LESSOR_APP_URL</code> (để ghép link
+trong mail), <code>APP_PORT</code>.</p>
+<h2 id="h2-chay-local">H2. Chạy local</h2>
+<p><code>lessor/docker-compose.yml</code> có sẵn:</p>
+<div class="code-file"><div class="code-file__header"><span>YAML</span></div><pre class="code-file__body"><code>gcloud-tasks-emulator:
+  image: ghcr.io/aertje/cloud-tasks-emulator:latest
+  ports: [&quot;8123:8123&quot;]
+  command: -host 0.0.0.0 -port 8123 -queue &quot;projects/aimo-api-worker/locations/asia-northeast1/queues/tasks&quot;
+</code></pre></div>
+<p>Quy trình:</p>
+<ol>
+<li><code>docker compose up db gcloud-tasks-emulator</code></li>
+<li>Chạy <strong>worker</strong> ở cổng 4005 (<code>APP_PORT=4005</code>), cùng <code>DB_*</code> với lessor.</li>
+<li>Lessor: <code>USE_GCLOUD_TASKS_EMULATOR=true</code>, <code>WORKER_API_URL=http://&lt;ip-máy&gt;:4005</code>
+   (không dùng <code>localhost</code> nếu emulator chạy trong Docker — nó phải gọi <em>ra</em> máy host).</li>
+<li>Gọi API lessor → xem log emulator ghi nhận task → xem log worker nhận <code>POST /</code>.</li>
+<li>Smoke test nhanh: publish task <code>name: 'health'</code> — <code>HealthProcessor</code> chỉ log body.</li>
+</ol>
+<p>Emulator <strong>không</strong> kiểm OIDC và <strong>không</strong> áp <code>retryConfig</code> giống production. Local xanh
+không có nghĩa retry/backoff đúng.</p>
+<h2 id="h3-deploy">H3. Deploy</h2>
+<p>Hai repo, hai image, hai Cloud Run service. Cả hai Dockerfile kết thúc <code>CMD ["node", "dist/main.js"]</code>,
+đều là HTTP server nên <strong>không có vấn đề bind <code>$PORT</code></strong> như worker BullMQ.</p>
+<p>Cấu hình tối thiểu cho worker (suy từ cách code hoạt động — cờ thật nằm ở pipeline deploy,
+không trong repo):</p>
+<div class="code-file"><div class="code-file__header"><span>BASH</span></div><pre class="code-file__body"><code>gcloud run deploy aimo-worker \
+  --image=… \
+  --no-allow-unauthenticated \          # BẮT BUỘC: IAM là lớp xác thực duy nhất
+  --min-instances=0 \                   # push model: rỗng thì về 0
+  --timeout=600 \                       # ≥ thời gian task dài nhất, ≤ dispatchDeadline
+  --concurrency=10                      # bao nhiêu task một instance chịu cùng lúc
+
+# cho phép service account của lessor gọi worker
+gcloud run services add-iam-policy-binding aimo-worker \
+  --member=&quot;serviceAccount:&lt;SA của lessor&gt;&quot; --role=&quot;roles/run.invoker&quot;
+
+# queue
+gcloud tasks queues update tasks --location=asia-northeast1 \
+  --max-attempts=5 --min-backoff=10s --max-backoff=300s --max-concurrent-dispatches=20
+</code></pre></div>
+<p>Thứ tự khi thêm task mới: <strong>deploy worker trước, lessor sau</strong> — nếu ngược lại, lessor publish
+tên mà worker chưa biết (đúng tình huống I3).</p>
+<h2 id="h4-health">H4. Health</h2>
+<p>Worker: <code>GET /health</code> bằng <code>@nestjs/terminus</code>, ping DB (<code>TypeOrmHealthIndicator</code>). Không có
+Redis để ping, và Cloud Tasks không cần health của worker — nó chỉ cần POST được. Health ở
+đây phục vụ liveness probe của Cloud Run và người vận hành.</p>
+<h2 id="h5-log-va-truy-vet-mot-task">H5. Log và truy vết một task</h2>
+<p>Mỗi request từ Cloud Tasks mang <code>X-CloudTasks-TaskName</code> và <code>X-CloudTasks-TaskRetryCount</code>.
+Aimo hiện <strong>không log hai header này</strong>, nên khi một task retry 5 lần, log worker là 5 dòng
+"Starting process…" giống nhau, không nối được với nhau. Sửa nhỏ, lợi lớn: log
+<code>raw.headers['x-cloudtasks-taskname']</code> + retry count ở đầu mỗi <code>process()</code>.</p>
+<p>Chỉ số nên xem ở Cloud Monitoring cho queue: <code>depth</code> (task đang chờ),
+<code>attempt_count</code> theo <code>response_code</code> (bao nhiêu 5xx), <code>task_attempt_delays</code> (chờ bao lâu
+mới được dispatch). Cảnh báo khi 5xx tăng và khi depth tăng liên tục.</p>
+<hr />
+<h1 id="phan-i-nang-cao">PHẦN I — Nâng cao</h1>
+<h2 id="i1-at-least-once-nhin-lai-tung-flow">I1. At-least-once — nhìn lại từng flow</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table">
+<thead>
+<tr>
+<th>Flow</th>
+<th>Có thể chạy hai lần khi</th>
+<th>Lớp bảo vệ hiện có</th>
+<th>Đủ chưa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>download-past-video</td>
+<td>SendGrid lỗi sau khi đã cắt video</td>
+<td>không</td>
+<td>tạm chấp nhận — hậu quả là cắt lại video, tốn tài nguyên, không sai dữ liệu</td>
+</tr>
+<tr>
+<td>auto-payment</td>
+<td>chết giữa confirm và ghi DB</td>
+<td><code>status: Unpaid</code> + so <code>endTime</code></td>
+<td><strong>chưa</strong> — cần <code>orderId</code> xác định (E3)</td>
+</tr>
+<tr>
+<td>task-schedule</td>
+<td>Scheduler bắn chồng</td>
+<td>không</td>
+<td><strong>chưa</strong> — cần <code>UPDATE … WHERE status='Pending' RETURNING</code> (F4)</td>
+</tr>
+<tr>
+<td>CSV Workflows</td>
+<td>Workflows retry một bước</td>
+<td>ghi đè file cùng tên theo <code>jobId</code></td>
+<td>đủ</td>
+</tr>
+<tr>
+<td>external-property-sync</td>
+<td>Scheduler bắn chồng</td>
+<td>không</td>
+<td>tuỳ processor phía worker (không có trên máy để xem)</td>
+</tr>
+</tbody>
+</table></div></div>
+<h2 id="i2-publish-ban-roi-quen-cai-gia-cua-200-nhanh">I2. Publish "bắn rồi quên" — cái giá của <code>200</code> nhanh</h2>
+<p>Cả <code>WorkerService.downloadPastVideo</code> (try/catch chỉ log) và
+<code>triggerWorkflowDownloadCsv</code> (<code>.catch</code> chỉ log) đều <strong>không cho request biết publish có thành
+công không</strong>. Người dùng luôn nhận 200. Khi Cloud Tasks API lỗi (hết quota, IAM sai sau một
+lần đổi service account, <code>WORKER_QUEUE</code> gõ sai), triệu chứng duy nhất là "không có mail" —
+và không ai biết phải nhìn log nào.</p>
+<p>Lựa chọn tốt hơn, theo mức độ: (a) <code>await</code> và để lỗi ném ra thành 5xx — người dùng bấm lại;
+(b) ghi một hàng <code>OutboxEvent</code> trong cùng transaction với nghiệp vụ rồi để một cron publish —
+không bao giờ mất; (c) tối thiểu: log ở mức <code>error</code> <strong>kèm payload</strong> và alert trên chuỗi log đó.</p>
+<h2 id="i3-lech-hop-dong-giua-hai-repo">I3. Lệch hợp đồng giữa hai repo</h2>
+<p>Lessor <code>TASK_NAME.EXTERNAL_PROPERTY_SYNC = 'external-property-sync'</code>; bản worker trên máy
+không có <code>@QueueWorker({ name: 'external-property-sync' })</code>. Hai khả năng: bản trên máy lệch
+commit, hoặc đây là bug thật đang chạy. Dù là gì, gốc rễ là <strong>tên task được khai báo hai nơi
+bằng chuỗi rời</strong>. Cách chữa bền:</p>
+<ul>
+<li>một package nội bộ (<code>@aimo/task-contracts</code>) export <code>TASK_NAME</code> và các DTO payload, cả hai
+  repo import;</li>
+<li>hoặc tối thiểu một <strong>contract test</strong> trong worker: đọc danh sách tên từ lessor (file JSON
+  commit chung) và assert mỗi tên có processor.</li>
+</ul>
+<h2 id="i4-so-voi-bullmq-cung-bai-toan-hai-loi-giai">I4. So với BullMQ — cùng bài toán, hai lời giải</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table">
+<thead>
+<tr>
+<th></th>
+<th>aimo (Cloud Tasks)</th>
+<th>BullMQ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Worker rỗng</td>
+<td>0 instance, 0 đồng</td>
+<td>≥1 instance 24/7 + Redis</td>
+</tr>
+<tr>
+<td>Retry/backoff</td>
+<td>cấu hình queue, không đọc được từ code</td>
+<td>trong code, đọc được, test được</td>
+</tr>
+<tr>
+<td>Delay</td>
+<td><code>scheduleTime</code></td>
+<td><code>delay</code>, cần worker sống</td>
+</tr>
+<tr>
+<td>Khử trùng</td>
+<td><code>task.name</code> (aimo chưa dùng)</td>
+<td><code>jobId</code></td>
+</tr>
+<tr>
+<td>Xem/replay job hỏng</td>
+<td>Console, hạn chế; hết retry là mất</td>
+<td>Bull Board, giữ <code>failed</code> bao lâu tuỳ ý</td>
+</tr>
+<tr>
+<td>Ràng buộc thời gian</td>
+<td>request timeout + dispatchDeadline</td>
+<td><code>lockDuration</code>, ~10s shutdown trên Cloud Run</td>
+</tr>
+<tr>
+<td>Khoá nhà cung cấp</td>
+<td>GCP</td>
+<td>không</td>
+</tr>
+<tr>
+<td>Local</td>
+<td>emulator, không mô phỏng retry/IAM</td>
+<td>Redis thật, hành vi giống production</td>
+</tr>
+</tbody>
+</table></div></div>
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-7"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+flowchart LR
+    subgraph PULL["PULL · BullMQ"]
+        direction LR
+        A1[API] -- "add()" --> R[(Redis<br/>Memorystore 24/7)]
+        WK1[worker<br/>min-instances=1<br/>CPU always-on] -- "BRPOPLPUSH chặn, liên tục" --> R
+    end
+    subgraph PUSH["PUSH · Cloud Tasks (aimo)"]
+        direction LR
+        A2[lessor] -- "createTask" --> CT[Cloud Tasks<br/>retry · backoff · rate]
+        CT -- "POST / khi có việc" --> WK2[worker<br/>HTTP server · scale 0..N]
+    end
+    classDef warn fill:#fbe9e1,stroke:#b4532a,color:#7a2e12
+    classDef gcp fill:#e2f1f0,stroke:#0f6e73,color:#0f4b4e
+    class WK1 warn
+    class CT gcp
+  </script>
+</div>
+<p>Hướng mũi tên giữa broker và worker là toàn bộ sự khác biệt: bên trái worker chủ động nên
+phải luôn sống; bên phải broker chủ động nên worker chỉ cần trả lời.</p>
+<p>Không có bên nào "đúng". Aimo chọn đúng cho Cloud Run và cho khối lượng việc thưa. Ecom
+đang cân nhắc cùng lựa chọn ở <a href="worker-catalog-and-implementation.html">worker-catalog-and-implementation.md §8.7</a>.</p>
+<h2 id="i5-checklist-them-mot-task-moi-vao-aimo">I5. Checklist thêm một task mới vào aimo</h2>
+<ol>
+<li><strong>Đặt tên</strong> vào <code>TASK_NAME</code> (lessor) <strong>và</strong> <code>@QueueWorker({ name })</code> (worker) — cùng một
+   chuỗi, copy-paste, đừng gõ tay.</li>
+<li><strong>DTO payload</strong> ở worker, chỉ id + những gì worker không tự tra được. Không nhét entity.</li>
+<li><strong>Processor</strong>: tách lỗi <em>vĩnh viễn</em> (return sạch hoặc gửi mail thất bại, trả 2xx) và lỗi
+   <em>tạm</em> (throw → retry). Hỏi: "task này chạy hai lần thì sao?" — trả lời bằng code.</li>
+<li><strong>Log</strong> <code>x-cloudtasks-taskname</code> + retry count ở đầu <code>process()</code>.</li>
+<li><strong>Publisher method</strong> trong <code>WorkerService</code>; quyết định <code>await</code> hay không (I2).</li>
+<li>Cần hẹn giờ? dùng <code>scheduleTime</code>. Cần chống double-submit? đặt <code>task.name</code> xác định.</li>
+<li>Ước lượng thời gian chạy; nếu có thể &gt; vài phút → Workflows hoặc chia nhỏ.</li>
+<li>Test local qua emulator với task <code>health</code> trước, rồi task thật.</li>
+<li><strong>Deploy worker trước, lessor sau.</strong></li>
+<li>Ghi vào <code>docs/jobs/&lt;task&gt;.md</code> của worker: trigger, payload, idempotency, failure modes —
+    theo đúng khung <code>docs/jobs/task-schedule.md</code> đang có.</li>
+</ol>
+<hr />
+<h2 id="tom-tat-mot-man-hinh">Tóm tắt một màn hình</h2>
+<ul>
+<li>Aimo dùng <strong>Cloud Tasks (push)</strong>: lessor <code>createTask</code> → Cloud Tasks POST <code>{name, data}</code> +
+  OIDC vào worker → <code>@QueueWorker(name)</code> xử lý → 2xx là xong, non-2xx là retry theo <strong>cấu hình
+  queue trên GCP</strong>.</li>
+<li><strong>Một queue, nhiều task</strong>, phân loại bằng <code>name</code>. Lessor và worker <strong>dùng chung DB</strong>, payload
+  chỉ cần id.</li>
+<li><strong>Xác thực bằng IAM</strong> (<code>--no-allow-unauthenticated</code> + OIDC audience = URL worker), code worker
+  không tự kiểm.</li>
+<li><strong>Không có <code>@Cron</code></strong>: Cloud Scheduler gọi <code>/task-schedule/*</code> (api-key) quét bảng
+  <code>task_schedule</code> — "lịch hẹn là dữ liệu".</li>
+<li><strong>Việc lớn</strong> đi Google Cloud Workflows theo cursor, mỗi bước một request ngắn.</li>
+<li>Ba chỗ nên sửa trước: publish nuốt lỗi (I2), <code>task_schedule</code> không lock và không thu hồi
+  <code>Running</code> (F4), <code>orderId</code> thanh toán không xác định (E3). Và kiểm tra tên
+  <code>external-property-sync</code> (I3).</li>
+</ul>
+
+      </div>
+    </div>
+
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+const config = {
+  fitPadding: 28,
+  minHeight: 340,
+  maxHeightPx: 1100,
+  maxHeightVh: 0.9,
+  maxInitialZoom: 1.6,
+  minInitialZoom: 0.9,
+  minZoom: 0.08,
+  maxZoom: 6.5,
+  zoomStep: 0.14,
+  readabilityFloor: 0.58,
+};
+const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+let activeDrag = null;
+addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+addEventListener("mouseup", () => {
+  activeDrag?.onEnd();
+  activeDrag = null;
+});
+
+const isDark =
+  document.documentElement.getAttribute("data-theme") === "dark" ||
+  (!document.documentElement.getAttribute("data-theme") &&
+    matchMedia("(prefers-color-scheme: dark)").matches);
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: "base",
+  look: "classic",
+  sequence: {
+    wrap: true,
+    useMaxWidth: false,
+    actorMargin: 32,
+    messageMargin: 34,
+    boxMargin: 10,
+    noteMargin: 10,
+    messageFontSize: 15,
+    noteFontSize: 14,
+    actorFontSize: 15,
+  },
+  flowchart: { useMaxWidth: false, nodeSpacing: 36, rankSpacing: 48 },
+  state: { useMaxWidth: false },
+  themeVariables: {
+    fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+    fontSize: "17px",
+    primaryColor: isDark ? "#1b2336" : "#e6eefb",
+    primaryBorderColor: isDark ? "#60a5fa" : "#2563eb",
+    primaryTextColor: isDark ? "#e2e8f0" : "#1e293b",
+    secondaryColor: isDark ? "#123b3f" : "#d8eff1",
+    secondaryBorderColor: isDark ? "#5eead4" : "#0e7490",
+    secondaryTextColor: isDark ? "#e2e8f0" : "#1e293b",
+    tertiaryColor: isDark ? "#2f2a15" : "#f6efd9",
+    tertiaryBorderColor: isDark ? "#fbbf24" : "#b45309",
+    tertiaryTextColor: isDark ? "#e2e8f0" : "#1e293b",
+    lineColor: isDark ? "#94a3b8" : "#475569",
+    noteBkgColor: isDark ? "#1b2336" : "#ffffff",
+    noteTextColor: isDark ? "#e2e8f0" : "#1e293b",
+    noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+  },
+});
+
+function initDiagram(shell) {
+  const wrap = shell.querySelector(".mermaid-wrap");
+  const viewport = shell.querySelector(".mermaid-viewport");
+  const canvas = shell.querySelector(".mermaid-canvas");
+  const source = shell.querySelector(".diagram-source");
+  const label = shell.querySelector(".zoom-label");
+  if (!wrap || !viewport || !canvas || !source || !label) return;
+
+  let zoom = 1,
+    fitMode = "contain",
+    panX = 0,
+    panY = 0,
+    svgW = 0,
+    svgH = 0;
+  let sx = 0,
+    sy = 0,
+    spx = 0,
+    spy = 0,
+    touchDist = 0,
+    touchCx = 0,
+    touchCy = 0;
+
+  function constrainPan() {
+    const vpW = viewport.clientWidth,
+      vpH = viewport.clientHeight;
+    const rW = svgW * zoom,
+      rH = svgH * zoom,
+      pad = config.fitPadding;
+    panX =
+      rW + pad * 2 <= vpW
+        ? (vpW - rW) / 2
+        : clamp(panX, vpW - rW - pad, pad);
+    panY =
+      rH + pad * 2 <= vpH
+        ? (vpH - rH) / 2
+        : clamp(panY, vpH - rH - pad, pad);
+  }
+  function applyTransform() {
+    const svg = canvas.querySelector("svg");
+    if (!svg || !svgW) return;
+    constrainPan();
+    svg.style.width = svgW * zoom + "px";
+    svg.style.height = svgH * zoom + "px";
+    canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+    label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+  }
+  function canPan() {
+    return (
+      svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+      svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+    );
+  }
+  function computeSmartFit() {
+    const vpW = viewport.clientWidth,
+      vpH = viewport.clientHeight;
+    const aW = Math.max(80, vpW - config.fitPadding * 2);
+    const aH = Math.max(80, vpH - config.fitPadding * 2);
+    const contain = Math.min(aW / svgW, aH / svgH);
+    let z = contain,
+      mode = "contain";
+    if (contain < config.minInitialZoom) {
+      // Shrinking further makes the labels unreadable; keep the text legible
+      // and let the diagram overflow — it can be dragged.
+      z = config.minInitialZoom;
+      mode = "readable";
+    }
+    return {
+      zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+      mode,
+    };
+  }
+  function fitDiagram() {
+    if (!svgW) return;
+    const fit = computeSmartFit();
+    zoom = fit.zoom;
+    fitMode = fit.mode;
+    const w = svgW * zoom,
+      h = svgH * zoom;
+    panX =
+      w + config.fitPadding * 2 > viewport.clientWidth
+        ? config.fitPadding
+        : (viewport.clientWidth - w) / 2;
+    panY =
+      h + config.fitPadding * 2 > viewport.clientHeight
+        ? config.fitPadding
+        : (viewport.clientHeight - h) / 2;
+    applyTransform();
+  }
+  function setOneToOne() {
+    zoom = clamp(1, config.minZoom, config.maxZoom);
+    fitMode = "1:1";
+    panX = (viewport.clientWidth - svgW * zoom) / 2;
+    panY = (viewport.clientHeight - svgH * zoom) / 2;
+    applyTransform();
+  }
+  function zoomAround(factor, cx, cy) {
+    const next = clamp(zoom * factor, config.minZoom, config.maxZoom);
+    const ratio = next / zoom;
+    panX = cx - ratio * (cx - panX);
+    panY = cy - ratio * (cy - panY);
+    zoom = next;
+    fitMode = "custom";
+    applyTransform();
+  }
+  function readSvgNaturalSize(svg) {
+    let w = 0,
+      h = 0;
+    if (svg.viewBox?.baseVal?.width > 0) {
+      w = svg.viewBox.baseVal.width;
+      h = svg.viewBox.baseVal.height;
+    }
+    if (!w) {
+      w = parseFloat(svg.getAttribute("width")) || 0;
+      h = parseFloat(svg.getAttribute("height")) || 0;
+    }
+    if (!w) {
+      const b = svg.getBBox();
+      w = b.width;
+      h = b.height;
+    }
+    if (!w) {
+      const r = svg.getBoundingClientRect();
+      w = r.width || 1000;
+      h = r.height || 700;
+    }
+    if (!svg.getAttribute("viewBox"))
+      svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    return { w, h };
+  }
+  function setAdaptiveHeight() {
+    if (!svgW) return;
+    const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2);
+    const widthFit = (usableW - config.fitPadding * 2) / svgW;
+    const openZoom = clamp(
+      Math.max(widthFit, config.minInitialZoom),
+      config.minZoom,
+      config.maxInitialZoom,
+    );
+    const idealH = svgH * openZoom + config.fitPadding * 2;
+    const maxVp = Math.floor(innerHeight * config.maxHeightVh);
+    const hardMax = Math.min(
+      config.maxHeightPx,
+      Math.max(config.minHeight + 40, maxVp),
+    );
+    wrap.style.height =
+      Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+  }
+  function openInNewTab() {
+    const svg = canvas.querySelector("svg");
+    if (!svg) return;
+    const clone = svg.cloneNode(true);
+    clone.style.width = "";
+    clone.style.height = "";
+    const bg = isDark ? "#0f172a" : "#f8fafc";
+    const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}
+svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+    open(
+      URL.createObjectURL(new Blob([html], { type: "text/html" })),
+      "_blank",
+    );
+  }
+  async function render() {
+    try {
+      const code = source.textContent.trim();
+      if (!code) {
+        label.textContent = "Lỗi: nguồn rỗng";
+        return;
+      }
+      const id =
+        "diagram-" +
+        Date.now() +
+        "-" +
+        Math.random().toString(36).slice(2, 8);
+      const { svg } = await mermaid.render(id, code);
+      canvas.innerHTML = svg;
+      const svgNode = canvas.querySelector("svg");
+      if (!svgNode) {
+        label.textContent = "Lỗi: không có SVG";
+        return;
+      }
+      const size = readSvgNaturalSize(svgNode);
+      svgW = size.w;
+      svgH = size.h;
+      svgNode.removeAttribute("width");
+      svgNode.removeAttribute("height");
+      svgNode.style.maxWidth = "none";
+      svgNode.style.display = "block";
+      setAdaptiveHeight();
+      fitDiagram();
+    } catch (err) {
+      console.error("Mermaid render failed:", err);
+      label.textContent = "Lỗi: " + (err.message || "render thất bại");
+    }
+  }
+
+  const actions = {
+    "zoom-in": () =>
+      zoomAround(
+        1 + config.zoomStep,
+        viewport.clientWidth / 2,
+        viewport.clientHeight / 2,
+      ),
+    "zoom-out": () =>
+      zoomAround(
+        1 / (1 + config.zoomStep),
+        viewport.clientWidth / 2,
+        viewport.clientHeight / 2,
+      ),
+    "zoom-fit": fitDiagram,
+    "zoom-one": setOneToOne,
+    "zoom-expand": openInNewTab,
+  };
+  Object.entries(actions).forEach(([action, handler]) => {
+    wrap
+      .querySelector(`[data-action="${action}"]`)
+      ?.addEventListener("click", handler);
+  });
+
+  viewport.addEventListener("dblclick", fitDiagram);
+  viewport.addEventListener(
+    "wheel",
+    (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const rect = viewport.getBoundingClientRect();
+        const factor =
+          e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep);
+        zoomAround(factor, e.clientX - rect.left, e.clientY - rect.top);
+        return;
+      }
+      if (canPan()) {
+        e.preventDefault();
+        panX -= e.deltaX;
+        panY -= e.deltaY;
+        applyTransform();
+      }
+    },
+    { passive: false },
+  );
+
+  viewport.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".zoom-controls") || !canPan()) return;
+    wrap.classList.add("is-panning");
+    sx = e.clientX;
+    sy = e.clientY;
+    spx = panX;
+    spy = panY;
+    e.preventDefault();
+    activeDrag = {
+      onMove: (ev) => {
+        panX = spx + (ev.clientX - sx);
+        panY = spy + (ev.clientY - sy);
+        applyTransform();
+      },
+      onEnd: () => wrap.classList.remove("is-panning"),
+    };
+  });
+
+  viewport.addEventListener(
+    "touchstart",
+    (e) => {
+      if (e.touches.length === 1) {
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        spx = panX;
+        spy = panY;
+      } else if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        touchDist = Math.sqrt(dx * dx + dy * dy);
+        const r = viewport.getBoundingClientRect();
+        touchCx =
+          (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+        touchCy =
+          (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+      }
+    },
+    { passive: true },
+  );
+
+  viewport.addEventListener(
+    "touchmove",
+    (e) => {
+      if (e.touches.length === 1 && canPan()) {
+        if (touchDist > 0) {
+          sx = e.touches[0].clientX;
+          sy = e.touches[0].clientY;
+          spx = panX;
+          spy = panY;
+          touchDist = 0;
+        }
+        e.preventDefault();
+        panX = spx + (e.touches[0].clientX - sx);
+        panY = spy + (e.touches[0].clientY - sy);
+        applyTransform();
+      } else if (e.touches.length === 2 && touchDist > 0) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        zoomAround(d / touchDist, touchCx, touchCy);
+        touchDist = d;
+      }
+    },
+    { passive: false },
+  );
+
+  new ResizeObserver(() => {
+    if (svgW) {
+      setAdaptiveHeight();
+      fitDiagram();
+    }
+  }).observe(wrap);
+  render();
+}
+
+document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+
+    </script>
+
+    <script>
+(function () {
+  var toggle = document.getElementById("themeToggle");
+  var saved = localStorage.getItem("theme");
+  var initial =
+    saved ||
+    (matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
+  if (saved) document.documentElement.setAttribute("data-theme", initial);
+  toggle.textContent = initial === "dark" ? "☀" : "☾";
+  toggle.addEventListener("click", function () {
+    var current =
+      document.documentElement.getAttribute("data-theme") ||
+      (matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
+    var next = current === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+    toggle.textContent = next === "dark" ? "☀" : "☾";
+  });
+})();
+
+(function () {
+  const toc = document.getElementById("toc");
+  const links = toc.querySelectorAll("a");
+  const sections = [];
+  links.forEach((link) => {
+    const id = link.getAttribute("href").slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          links.forEach((l) => l.classList.remove("active"));
+          const match = sections.find((s) => s.el === entry.target);
+          if (match) {
+            match.link.classList.add("active");
+            if (window.innerWidth <= 1000) {
+              match.link.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center",
+              });
+            }
+          }
+        }
+      });
+    },
+    { rootMargin: "-10% 0px -80% 0px" },
+  );
+  sections.forEach((s) => observer.observe(s.el));
+  links.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const id = link.getAttribute("href").slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      }
+    });
+  });
+})();
+
+    </script>
+
+  </body>
+</html>
