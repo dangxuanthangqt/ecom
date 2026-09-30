@@ -38,7 +38,7 @@ flowchart LR
 
     subgraph Invalidation path
         L[RoleService.updateRole / deleteRole] --> M[invalidateRole roleId]
-        N[seedSystemRoleGrants / syncPermissionCatalog] --> O[cache tự hết hạn 300s<br/>hoặc flush tay]
+        N[seedSystemRoleGrants] --> O[invalidateAll<br/>SCAN + DEL mọi key]
     end
 
     M -.DEL một key.-> Redis[(Redis)]
@@ -135,16 +135,18 @@ Không còn `SCAN`: một role một key, `DEL` thẳng.
 
 ### Seed / sync danh mục
 
-`pnpm seed:initial-scripts:create-permission` ghi lại grant cho ba role hệ thống bằng `set`. Script này
-**không** đụng Redis; cache của ba role đó hết hạn theo TTL 300 giây. Sau deploy có đổi matrix, nếu cần
-hiệu lực ngay:
+`pnpm seed:initial-scripts:create-permission` ghi lại grant cho ba role hệ thống bằng `set`, rồi gọi
+`invalidateAll()` (SCAN `role-permission:*` + DEL) ngay sau đó — `initial-scripts/create-permission.ts`
+truyền `app.get(RolePermissionCacheService)` vào `seedSystemRoleGrants`. Grant mới có hiệu lực ở request
+kế tiếp, không phải chờ hết TTL 300 giây.
+
+Đây là đường gọi duy nhất của `invalidateAll()`; request path chỉ dùng `invalidateRole`. Nếu chạy
+`seedSystemRoleGrants` từ một script Prisma trần (không truyền `cache`), cache **không** được xoá — khi đó
+flush tay:
 
 ```bash
 redis-cli --scan --pattern 'role-permission:*' | xargs -r redis-cli DEL
 ```
-
-`invalidateAll()` vẫn tồn tại trong service cho trường hợp này và cho tương lai, nhưng hiện không có
-đường code nào gọi nó trong request path.
 
 **Không invalidate khi thao tác thất bại**: `invalidateRole` chỉ chạy **sau** khi
 `roleRepository.updateRole(...)` resolve. Test `does not invalidate the cache when the update is

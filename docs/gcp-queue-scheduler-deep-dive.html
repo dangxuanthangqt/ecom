@@ -1,0 +1,1826 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dịch vụ queue &amp; scheduler của GCP — cơ chế chi tiết</title>
+    <meta name="description" content="Tài liệu mổ xẻ &lt;strong&gt;bên trong&lt;/strong&gt; các dịch vụ xử lý nền của Google Cloud: chúng giữ gì, giao hàng ra sao, retry theo công thức nào, và hỏng kiểu gì." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+/* ══════════════════════════════════════════════════════════════════
+   Swiss Documentation preset · light default
+
+   Generated with the ui-ux-pro-max skill:
+     style      Minimalism & Swiss Style  (clean, grid-based, high contrast)
+     palette    Knowledge Base/Documentation — "neutral grey + link blue"
+     dark       Developer Tool / IDE surfaces, accent harmonised to the same
+                blue hue rather than the dataset's green, so light and dark
+                stay one brand (skill rule: dark-mode-pairing)
+     type       "Developer Mono" — JetBrains Mono + IBM Plex Sans
+
+   Every foreground/background pair below was measured: all text clears
+   WCAG AA 4.5:1 in BOTH themes. Re-measure before changing any value.
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-display: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface2: #eaeff3;
+  --surface-elevated: #ffffff;
+  --border: #e2e8f0;
+  --border-bright: #94a3b8;
+  --text: #1e293b;
+  --text-dim: #475569;
+  --text-bright: #0f172a;
+  --accent: #2563eb;
+  --accent-dim: rgba(37, 99, 235, 0.08);
+
+  --node-a: #2563eb;
+  --node-a-dim: rgba(37, 99, 235, 0.08);
+  --node-b: #0e7490;
+  --node-b-dim: rgba(14, 116, 144, 0.08);
+  --node-c: #15803d;
+  --node-c-dim: rgba(21, 128, 61, 0.08);
+
+  --green: #15803d;
+  --green-dim: rgba(21, 128, 61, 0.09);
+  --red: #dc2626;
+  --red-dim: rgba(220, 38, 38, 0.09);
+  --amber: #b45309;
+  --amber-dim: rgba(180, 83, 9, 0.1);
+  --sage: #4d7c0f;
+  --sage-dim: rgba(77, 124, 15, 0.09);
+  --teal: #0e7490;
+  --teal-dim: rgba(14, 116, 144, 0.09);
+  --plum: #9f1239;
+  --plum-dim: rgba(159, 18, 57, 0.09);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a;
+    --surface: #1b2336;
+    --surface2: #272f42;
+    --surface-elevated: #1e2739;
+    --border: #334155;
+    --border-bright: #64748b;
+    --text: #e2e8f0;
+    --text-dim: #94a3b8;
+    --text-bright: #f8fafc;
+    --accent: #60a5fa;
+    --accent-dim: rgba(96, 165, 250, 0.14);
+
+    --node-a: #60a5fa;
+    --node-a-dim: rgba(96, 165, 250, 0.14);
+    --node-b: #5eead4;
+    --node-b-dim: rgba(94, 234, 212, 0.12);
+    --node-c: #4ade80;
+    --node-c-dim: rgba(74, 222, 128, 0.12);
+
+    --green: #4ade80;
+    --green-dim: rgba(74, 222, 128, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.13);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.12);
+    --sage: #a3e635;
+    --sage-dim: rgba(163, 230, 53, 0.12);
+    --teal: #5eead4;
+    --teal-dim: rgba(94, 234, 212, 0.12);
+    --plum: #fda4af;
+    --plum-dim: rgba(253, 164, 175, 0.13);
+  }
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --surface: #1b2336;
+  --surface2: #272f42;
+  --surface-elevated: #1e2739;
+  --border: #334155;
+  --border-bright: #64748b;
+  --text: #e2e8f0;
+  --text-dim: #94a3b8;
+  --text-bright: #f8fafc;
+  --accent: #60a5fa;
+  --accent-dim: rgba(96, 165, 250, 0.14);
+
+  --node-a: #60a5fa;
+  --node-a-dim: rgba(96, 165, 250, 0.14);
+  --node-b: #5eead4;
+  --node-b-dim: rgba(94, 234, 212, 0.12);
+  --node-c: #4ade80;
+  --node-c-dim: rgba(74, 222, 128, 0.12);
+
+  --green: #4ade80;
+  --green-dim: rgba(74, 222, 128, 0.12);
+  --red: #f87171;
+  --red-dim: rgba(248, 113, 113, 0.13);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251, 191, 36, 0.12);
+  --sage: #a3e635;
+  --sage-dim: rgba(163, 230, 53, 0.12);
+  --teal: #5eead4;
+  --teal-dim: rgba(94, 234, 212, 0.12);
+  --plum: #fda4af;
+  --plum-dim: rgba(253, 164, 175, 0.13);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 28px 40px 80px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background-color: var(--bg);
+  background-image: radial-gradient(
+    circle,
+    var(--border) 1px,
+    transparent 1px
+  );
+  background-size: 26px 26px;
+  overflow-wrap: break-word;
+  line-height: 1.6;
+}
+
+/* ── Theme toggle ── */
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 300;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+.theme-toggle:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+/* ── Layout ── */
+.wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 0 40px;
+}
+.main {
+  min-width: 0;
+}
+
+.toc {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  padding: 14px 0;
+  grid-row: 1 / -1;
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+}
+.toc::-webkit-scrollbar {
+  width: 3px;
+}
+.toc::-webkit-scrollbar-thumb {
+  background: var(--surface-elevated);
+  border-radius: 2px;
+}
+.toc-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  padding: 0 0 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.toc a {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-decoration: none;
+  padding: 5px 8px;
+  border-radius: 5px;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  line-height: 1.4;
+  margin-bottom: 1px;
+}
+.toc a:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+.toc a.active {
+  color: var(--text);
+  border-left-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+/* ── Masthead ── */
+.masthead {
+  border-bottom: 2px solid var(--border-bright);
+  padding-bottom: 22px;
+  margin-bottom: 34px;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2.4px;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.4vw, 42px);
+  line-height: 1.12;
+  margin: 0 0 12px;
+  letter-spacing: -0.8px;
+  color: var(--text-bright);
+}
+.subtitle {
+  font-size: 17px;
+  color: var(--text-dim);
+  margin: 0;
+  max-width: 68ch;
+}
+.masthead-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* ── Tags & status ── */
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--node-a-dim);
+  color: var(--node-a);
+  display: inline-block;
+}
+.tag--b {
+  background: var(--node-b-dim);
+  color: var(--node-b);
+}
+.tag--c {
+  background: var(--node-c-dim);
+  color: var(--node-c);
+}
+.tag--amber {
+  background: var(--amber-dim);
+  color: var(--amber);
+}
+.tag--red {
+  background: var(--red-dim);
+  color: var(--red);
+}
+.tag--green {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+/* ── Code ── */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--accent-dim);
+  color: var(--accent);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.code-file {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.code-file__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 15px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.code-file__header span:first-child {
+  color: var(--text);
+}
+.code-file__body {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 15px;
+  margin: 0;
+  background: var(--surface);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 460px;
+  overflow: auto;
+  color: var(--text);
+}
+.cm {
+  color: var(--text-dim);
+  font-style: italic;
+}
+.kw {
+  color: var(--plum);
+}
+.st {
+  color: var(--node-c);
+}
+
+/* ── Tables ── */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.data-table th {
+  background: var(--surface2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 11px 15px;
+  border-bottom: 2px solid var(--border-bright);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 11px 15px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  color: var(--text);
+}
+.data-table tbody tr:nth-child(even) {
+  background: var(--accent-dim);
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.data-table code {
+  font-size: 12px;
+}
+.data-table small {
+  display: block;
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* ── Callout ── */
+.callout {
+  padding: 16px 20px;
+  border-radius: 8px;
+  border-left: 4px solid var(--callout-border);
+  background: var(--callout-bg);
+  margin: 20px 0;
+  font-size: 15px;
+}
+.callout--info {
+  --callout-border: var(--accent);
+  --callout-bg: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.callout--warning {
+  --callout-border: var(--amber);
+  --callout-bg: color-mix(in srgb, var(--amber) 10%, transparent);
+}
+.callout--success {
+  --callout-border: var(--green);
+  --callout-bg: color-mix(in srgb, var(--green) 9%, transparent);
+}
+.callout__title {
+  font-weight: 600;
+  margin-bottom: 7px;
+  color: var(--callout-border);
+}
+.callout p:last-child {
+  margin-bottom: 0;
+}
+.callout ul {
+  padding-left: 1.5em;
+  margin: 8px 0 0;
+}
+
+/* ── Mermaid ── */
+.diagram-shell {
+  position: relative;
+  margin: 8px 0 4px;
+}
+.diagram-shell__hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 0 0 8px;
+  opacity: 0.75;
+}
+.mermaid-wrap {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 22px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  cursor: grab;
+}
+.mermaid-wrap.is-panning {
+  cursor: grabbing;
+  user-select: none;
+}
+.zoom-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  gap: 2px;
+  z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  align-items: center;
+}
+.zoom-controls button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.zoom-controls button:hover {
+  background: var(--border);
+  color: var(--text);
+}
+.zoom-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  padding: 0 6px;
+  white-space: nowrap;
+}
+.mermaid-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+}
+.mermaid-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.mermaid .nodeLabel {
+  color: var(--text) !important;
+  font-family: var(--font-body) !important;
+  font-size: 16px !important;
+}
+.mermaid .edgeLabel {
+  color: var(--text-dim) !important;
+  background-color: var(--bg) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+}
+.mermaid .edgeLabel rect {
+  fill: var(--bg) !important;
+}
+.mermaid .messageText {
+  font-family: var(--font-mono) !important;
+  font-size: 12px !important;
+}
+
+a {
+  color: var(--accent);
+}
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+*::before,
+*::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1000px) {
+  body {
+    padding: 0 20px 60px;
+  }
+  .wrap {
+    grid-template-columns: 1fr;
+  }
+  .toc {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    max-height: none;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    overflow-x: auto;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    margin: 0 -20px;
+    grid-row: auto;
+  }
+  .toc::-webkit-scrollbar {
+    display: none;
+  }
+  .toc-title {
+    display: none;
+  }
+  .toc a {
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 4px 4px 0 0;
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .toc a.active {
+    border-left: none;
+    border-bottom-color: var(--accent);
+    background: var(--surface);
+  }
+  .main {
+    padding-top: 22px;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Generated long-form content — styles for pages produced by
+   scripts/build-docs-html.mjs. The block above is the hand-built
+   Blueprint preset; everything here is the prose layer on top of it.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Vertical rhythm: one rule instead of a margin on every element,
+so a new
+   block type never lands flush against its neighbour. */
+.main > * + * {
+  margin-top: 18px;
+}
+
+/* Mid-document "PHẦN x" banners. The masthead h1 keeps the big display size;
+   these need to read as dividers,
+not as a second title. */
+.main > h1 {
+  font-family: var(--font-display);
+  font-size: clamp(21px, 2.1vw, 27px);
+  letter-spacing: -0.3px;
+  margin: 56px 0 4px;
+  padding-top: 26px;
+  border-top: 2px solid var(--border-bright);
+  color: var(--accent);
+}
+.main > h1:first-of-type {
+  margin-top: 40px;
+}
+
+.main h2 {
+  font-family: var(--font-display);
+  font-size: clamp(19px, 1.7vw, 23px);
+  line-height: 1.25;
+  letter-spacing: -0.2px;
+  margin: 38px 0 2px;
+  color: var(--text-bright);
+}
+.main h3 {
+  font-size: 17px;
+  line-height: 1.3;
+  margin: 26px 0 2px;
+  color: var(--text-bright);
+}
+.main h4 {
+  font-size: 15px;
+  margin: 20px 0 2px;
+  color: var(--text);
+}
+
+/* Anchor jumps land a little below the viewport edge rather than flush. */
+.main :is(h1,
+h2,
+h3,
+h4) {
+  scroll-margin-top: 20px;
+}
+
+.main p,
+.main li {
+  font-size: 15.5px;
+  line-height: 1.72;
+  color: var(--text);
+}
+.main p {
+  margin: 0;
+  max-width: 76ch;
+}
+
+.main ul,
+.main ol {
+  margin: 0;
+  padding-left: 22px;
+  max-width: 76ch;
+}
+.main li + li {
+  margin-top: 7px;
+}
+.main li > ul,
+.main li > ol {
+  margin-top: 7px;
+}
+.main li::marker {
+  color: var(--text-dim);
+}
+
+/* Checklists (`- [ ]` in Markdown) lose their bullet so the box is the marker. */
+.main li:has(> input[type="checkbox"]) {
+  list-style: none;
+  margin-left: -20px;
+}
+.main input[type="checkbox"] {
+  accent-color: var(--accent);
+  margin-right: 8px;
+  transform: translateY(1px);
+}
+
+.main strong {
+  color: var(--text-bright);
+  font-weight: 600;
+}
+.main a {
+  color: var(--accent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  text-underline-offset: 2px;
+}
+.main a:hover {
+  text-decoration-color: var(--accent);
+}
+.main a:focus-visible,
+.toc a:focus-visible,
+.theme-toggle:focus-visible,
+.zoom-controls button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.main hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 34px 0;
+}
+
+/* Number literals — the hand-built page had no numeric highlighting. */
+.nu {
+  color: var(--node-b);
+}
+
+/* Table cells wrap by default here: these documents have prose-heavy tables
+   that would otherwise force horizontal scrolling on every row. */
+.main .data-table td {
+  padding: 11px 15px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.main .data-table tr:last-child td {
+  border-bottom: 0;
+}
+.main .data-table th {
+  white-space: normal;
+}
+
+/* TOC: h1 entries act as group headers above their h2 children. */
+.toc a.toc-group {
+  margin-top: 14px;
+  font-weight: 600;
+  color: var(--text-bright);
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.toc a.toc-group:first-of-type {
+  margin-top: 4px;
+  border-top: 0;
+}
+
+.main .callout > *:first-child {
+  margin-top: 0;
+}
+.main .callout > * + * {
+  margin-top: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* The TOC collapses to a horizontal strip at 1000px; below 560px the prose
+   itself needs to give up gutter and type size. Verified at 375px. */
+@media (max-width: 560px) {
+  body {
+    padding: 0 16px 48px;
+  }
+  .toc {
+    padding: 8px 16px;
+    margin: 0 -16px;
+  }
+  .main > h1 {
+    margin-top: 40px;
+    padding-top: 20px;
+  }
+  .main h2 {
+    margin-top: 30px;
+  }
+  .main p,
+.main li {
+    font-size: 15px;
+  }
+  .code-file__body {
+    font-size: 12.5px;
+    padding: 12px;
+  }
+  .main .data-table th,
+.main .data-table td {
+    padding: 9px 11px;
+  }
+  .diagram-shell__hint {
+    font-size: 11px;
+  }
+}
+
+/* URLs and long identifiers in the reference lists must reflow rather than
+   push the page sideways. Applied to prose only — code keeps its own wrapping. */
+.main p,
+.main li,
+.main td,
+.main th {
+  overflow-wrap: anywhere;
+}
+
+    </style>
+  </head>
+  <body>
+    <button class="theme-toggle" id="themeToggle" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng tối"></button>
+
+    <div class="wrap">
+      <nav class="toc" id="toc">
+        <div class="toc-title">Nội dung</div>
+        <a href="#phan-a-nen-tang-chung" class="toc-group">PHẦN A — Nền tảng chung</a>
+        <a href="#a1-moi-thu-o-day-deu-la-push">A1. Mọi thứ ở đây đều là push</a>
+        <a href="#a2-oidc-ai-ky-ky-cai-gi-verify-ra-sao">A2. OIDC — ai ký, ký cái gì, verify ra sao</a>
+        <a href="#a3-at-least-once-o-khap-noi">A3. At-least-once ở khắp nơi</a>
+        <a href="#phan-b-cloud-scheduler" class="toc-group">PHẦN B — Cloud Scheduler</a>
+        <a href="#b1-mot-job-gom-nhung-gi">B1. Một job gồm những gì</a>
+        <a href="#b2-flow-mot-lan-no">B2. Flow một lần nổ</a>
+        <a href="#b3-attemptdeadline-cai-bay-chay-chong">B3. attemptDeadline — cái bẫy chạy chồng</a>
+        <a href="#b4-timezone-va-dst">B4. Timezone và DST</a>
+        <a href="#b5-ba-loai-target">B5. Ba loại target</a>
+        <a href="#b6-tom-tat-che-do-hong">B6. Tóm tắt chế độ hỏng</a>
+        <a href="#phan-c-cloud-tasks" class="toc-group">PHẦN C — Cloud Tasks</a>
+        <a href="#c1-queue-va-task">C1. Queue và task</a>
+        <a href="#c2-vong-doi-mot-task">C2. Vòng đời một task</a>
+        <a href="#c3-rate-limiting-mo-hinh-token-bucket">C3. Rate limiting — mô hình token bucket</a>
+        <a href="#c4-retry-va-backoff-cong-thuc-that">C4. Retry và backoff — công thức thật</a>
+        <a href="#c5-khu-trung-lap-bang-ten-task">C5. Khử trùng lặp bằng tên task</a>
+        <a href="#c6-khong-co-dead-letter-queue-va-cach-bu">C6. Không có dead-letter queue — và cách bù</a>
+        <a href="#c7-han-muc-can-nho">C7. Hạn mức cần nhớ</a>
+        <a href="#phan-d-pub-sub" class="toc-group">PHẦN D — Pub/Sub</a>
+        <a href="#d1-topic-va-subscription">D1. Topic và subscription</a>
+        <a href="#d2-push-flow-chi-tiet-giao-thuc">D2. Push flow — chi tiết giao thức</a>
+        <a href="#d3-pull-va-streamingpull">D3. Pull và StreamingPull</a>
+        <a href="#d4-ack-deadline-va-lease">D4. Ack deadline và lease</a>
+        <a href="#d5-exactly-once-doc-ky-dieu-kien-truoc-khi-mung">D5. Exactly-once — đọc kỹ điều kiện trước khi mừng</a>
+        <a href="#d6-ordering-key-va-cai-gia-cua-no">D6. Ordering key — và cái giá của nó</a>
+        <a href="#d7-dead-letter-topic-va-cai-bay-iam">D7. Dead-letter topic — và cái bẫy IAM</a>
+        <a href="#d8-han-muc-can-nho">D8. Hạn mức cần nhớ</a>
+        <a href="#phan-e-cloud-run-jobs" class="toc-group">PHẦN E — Cloud Run Jobs</a>
+        <a href="#phan-f-workflows-va-eventarc" class="toc-group">PHẦN F — Workflows và Eventarc</a>
+        <a href="#phan-g-chon-cai-nao" class="toc-group">PHẦN G — Chọn cái nào</a>
+        <a href="#phan-h-ap-vao-repo" class="toc-group">PHẦN H — Áp vào repo</a>
+        <a href="#tom-tat-mot-man-hinh">Tóm tắt một màn hình</a>
+        <a href="#nguon-tham-khao">Nguồn tham khảo</a>
+      </nav>
+
+      <div class="main">
+        <header class="masthead">
+          <div class="eyebrow">Ecom · Xử lý nền</div>
+          <h1>Dịch vụ queue &amp; scheduler của GCP — cơ chế chi tiết</h1>
+          <p class="subtitle">Tài liệu mổ xẻ <strong>bên trong</strong> các dịch vụ xử lý nền của Google Cloud: chúng giữ gì, giao hàng ra sao, retry theo công thức nào, và hỏng kiểu gì.</p>
+          <div class="masthead-meta">
+            <span class="tag">Cơ chế</span>
+            <span class="tag tag--b">Cloud Tasks</span>
+            <span class="tag tag--c">Pub/Sub</span>
+            <span class="tag tag--amber">Scheduler</span>
+          </div>
+        </header>
+
+<div class="callout callout--info"><p><strong>Quan hệ với tài liệu khác.</strong></p>
+<ul>
+<li><a href="queue-job-worker-scheduler-guide.html">queue-job-worker-scheduler-guide.md</a> — <em>khái niệm</em>: job, worker, retry, idempotency, outbox. <strong>Đọc trước.</strong></li>
+<li><a href="queue-scheduler-gcp-vs-bullmq.html">queue-scheduler-gcp-vs-bullmq.md</a> — <em>chọn cái nào</em>: GCP vs BullMQ vs thư viện NestJS.</li>
+<li><a href="bullmq-nestjs-schedule-deep-dive.html">bullmq-nestjs-schedule-deep-dive.md</a> — <em>cơ chế</em> của BullMQ và <code>@nestjs/schedule</code>.</li>
+<li><strong>Tài liệu này</strong> — <em>cơ chế</em> của phía GCP. Là bản đối xứng của tài liệu trên, cho nửa còn lại của lựa chọn.</li>
+</ul>
+</div>
+<div class="callout callout--warning"><p><strong>Về số liệu.</strong> Mọi con số dưới đây đã được đối chiếu với tài liệu chính thức tại thời điểm viết, và mỗi mục đều dẫn link tới trang gốc ở §Nguồn tham khảo. Hạn mức GCP đổi theo thời gian — số ở đây để bạn <strong>thiết kế đúng bậc độ lớn</strong>, còn trước khi chốt cấu hình production thì mở lại trang gốc.</p>
+<p>Lưu ý: tài liệu Google Cloud đã chuyển sang tên miền <code>docs.cloud.google.com</code>; link <code>cloud.google.com</code> cũ vẫn chuyển hướng về đó.</p>
+</div>
+<hr>
+<h1 id="phan-a-nen-tang-chung">PHẦN A — Nền tảng chung</h1>
+<h2 id="a1-moi-thu-o-day-deu-la-push">A1. Mọi thứ ở đây đều là push</h2>
+<p>Cloud Scheduler, Cloud Tasks và Pub/Sub (push subscription) đều hoạt động theo một mô hình duy nhất: <strong>hạ tầng GCP gửi một HTTP request vào service của bạn</strong>. Không có worker, không có vòng lặp, không có kết nối thường trực.</p>
+<div class="code-file"><div class="code-file__header"><span>Văn bản</span></div><pre class="code-file__body"><code>        ┌──────────────┐   HTTPS POST + OIDC   ┌────────────────────┐
+        │  Dịch vụ GCP │ ────────────────────► │  Service của bạn   │
+        │  giữ &quot;việc&quot;  │                       │  (controller thường)│
+        └──────────────┘ ◄──────────────────── └────────────────────┘
+                          mã HTTP = kết quả</code></pre></div>
+<p>Ba hệ quả xuyên suốt tài liệu này:</p>
+<ol>
+<li><strong>Mã HTTP <em>là</em> giao thức.</strong> Không có <code>ack()</code>, không có <code>job.moveToCompleted()</code>. <code>2xx</code> nghĩa là xong, còn lại nghĩa là thất bại và sẽ được giao lại. Toàn bộ trạng thái nằm ở phía GCP.</li>
+<li><strong>Handler của bạn là một endpoint công khai trên Internet.</strong> Đây là bề mặt tấn công mới, và §A2 là phần bắt buộc chứ không phải tuỳ chọn.</li>
+<li><strong>Không cần process nào luôn sống.</strong> Đây là lý do duy nhất khiến nhóm dịch vụ này thắng BullMQ trên Cloud Run — xem <a href="queue-scheduler-gcp-vs-bullmq.html">queue-scheduler-gcp-vs-bullmq.md §2</a>.</li>
+</ol>
+<h2 id="a2-oidc-ai-ky-ky-cai-gi-verify-ra-sao">A2. OIDC — ai ký, ký cái gì, verify ra sao</h2>
+<p>Cả ba dịch vụ đều dùng chung một cơ chế xác thực. Hiểu một lần, dùng cho tất cả.</p>
+
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-0"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+sequenceDiagram
+    participant G as Dịch vụ GCP<br/>(Scheduler / Tasks / Pub-Sub)
+    participant IAM as Google IAM
+    participant A as Service của bạn
+
+    Note over G: bạn cấu hình sẵn:<br/>serviceAccountEmail + audience
+    G->>IAM: xin ID token cho service account đó
+    Note over IAM: SA phải có quyền<br/>iam.serviceAccounts.actAs
+    IAM-->>G: JWT ký bởi Google<br/>iss=accounts.google.com<br/>aud=<audience><br/>email=<SA>
+
+    G->>A: POST /internal/jobs/…<br/>Authorization: Bearer <JWT>
+
+    A->>A: 1. verify chữ ký bằng khoá công khai của Google
+    A->>A: 2. kiểm tra aud khớp URL/audience của mình
+    A->>A: 3. kiểm tra email ĐÚNG service account mình cho phép
+    A-->>G: 2xx / 4xx / 5xx
+  </script>
+</div><p><strong>Bước 3 là bước người ta hay bỏ.</strong> Chữ ký hợp lệ chỉ chứng minh &quot;Google đã ký token này&quot; — mà <strong>bất kỳ ai có tài khoản Google cũng lấy được một token hợp lệ</strong>. Thiếu kiểm tra <code>email</code> (hoặc ít nhất là <code>aud</code> gắn chặt với URL riêng của bạn) thì endpoint nội bộ mở toang cho cả Internet.</p>
+<p>Trong repo này, <code>google-auth-library</code> đã có sẵn (đang dùng cho Google OAuth login ở <a href="../src/routes/auth/google.service.ts">google.service.ts</a>), nên guard chỉ là:</p>
+<div class="code-file"><div class="code-file__header"><span>TypeScript</span></div><pre class="code-file__body"><code><span class="kw">const</span> ticket = <span class="kw">await</span> <span class="kw">this</span>.client.verifyIdToken({
+  idToken: token,
+  audience: <span class="kw">this</span>.config.appConfig.cloudRunAudience, <span class="cm">// bước 2</span>
+});
+
+<span class="cm">// bước 3 — KHÔNG được bỏ</span>
+<span class="kw">return</span> ticket.getPayload()?.email === <span class="kw">this</span>.config.appConfig.jobInvokerSa;</code></pre></div>
+<p><code>verifyIdToken</code> tự lo bước 1 (tải khoá công khai, kiểm tra chữ ký, hạn, issuer). Đừng tự <code>jwt.decode</code> rồi đọc field — decode không kiểm tra gì cả.</p>
+<h2 id="a3-at-least-once-o-khap-noi">A3. At-least-once ở khắp nơi</h2>
+<p>Không dịch vụ nào trong tài liệu này cho bạn exactly-once cho handler HTTP. Pub/Sub có chế độ exactly-once nhưng <strong>chỉ cho pull subscription</strong>, và kèm điều kiện — §D5.</p>
+<p>Lý do gốc giống hệt phần BullMQ (xem <a href="bullmq-nestjs-schedule-deep-dive.html">bullmq-nestjs-schedule-deep-dive.md §B5</a>): khi request timeout, bên gửi <strong>không thể phân biệt</strong> &quot;handler chưa chạy&quot; với &quot;handler chạy xong rồi nhưng response mất trên đường về&quot;. Chọn không retry thì mất việc; chọn retry thì có lúc chạy hai lần. GCP chọn retry.</p>
+<p><strong>Nên: idempotency là bắt buộc, không phải tối ưu.</strong></p>
+<hr>
+<h1 id="phan-b-cloud-scheduler">PHẦN B — Cloud Scheduler</h1>
+<h2 id="b1-mot-job-gom-nhung-gi">B1. Một job gồm những gì</h2>
+<p>Cloud Scheduler <strong>không chạy code của bạn</strong> và <strong>không lưu dữ liệu công việc</strong>. Một job chỉ là bản ghi cấu hình:</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Trường</th><th>Nghĩa</th></tr></thead><tbody><tr><td><code>schedule</code></td><td>Chuỗi unix-cron 5 trường</td></tr>
+<tr><td><code>timeZone</code></td><td>Tên vùng theo tz database; mặc định <strong>UTC</strong></td></tr>
+<tr><td><code>target</code></td><td>HTTP, Pub/Sub, hoặc App Engine HTTP</td></tr>
+<tr><td><code>attemptDeadline</code></td><td>Chờ response bao lâu trước khi coi là thất bại</td></tr>
+<tr><td><code>retryConfig</code></td><td>Số lần thử lại và backoff</td></tr></tbody></table></div></div>
+<p>Không có chỗ nào chứa &quot;dữ liệu của lần chạy này&quot;. Muốn mỗi lần chạy mang dữ liệu riêng thì đó là việc của Cloud Tasks (§C).</p>
+<h2 id="b2-flow-mot-lan-no">B2. Flow một lần nổ</h2>
+
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-1"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+sequenceDiagram
+    participant CS as Cloud Scheduler
+    participant IAM as Google IAM
+    participant CR as Cloud Run (API)
+    participant PG as Postgres
+
+    Note over CS: tới mốc theo schedule + timeZone
+    CS->>IAM: xin OIDC token
+    IAM-->>CS: JWT
+    CS->>CR: POST /internal/jobs/purge-expired
+
+    Note over CS,CR: đồng hồ attemptDeadline bắt đầu chạy<br/>mặc định 3 phút, tối đa 30 phút
+
+    alt Trả 2xx trong deadline
+        CR->>PG: DELETE … WHERE expiresAt < now()
+        CR-->>CS: 200
+        Note over CS: thành công, chờ mốc kế tiếp
+    else Trả 5xx
+        CR-->>CS: 500
+        CS->>CS: retry theo retryConfig (backoff tăng dần)
+    else Không trả lời kịp deadline
+        Note over CS: huỷ request, đánh dấu DEADLINE_EXCEEDED
+        Note over CR: ⚠ HANDLER VẪN ĐANG CHẠY —<br/>Cloud Run không biết gì về deadline này
+        CS->>CR: retry → LẦN CHẠY THỨ HAI CHỒNG LÊN LẦN ĐẦU
+    end
+  </script>
+</div><h2 id="b3-attemptdeadline-cai-bay-chay-chong">B3. <code>attemptDeadline</code> — cái bẫy chạy chồng</h2>
+<p>Đây là chế độ hỏng đặc trưng của Cloud Scheduler, và nó âm thầm.</p>
+<p><code>attemptDeadline</code> mặc định <strong>3 phút</strong> cho HTTP target, đặt được trong khoảng <strong>[15 giây, 30 phút]</strong>. Hết deadline, Scheduler <strong>huỷ request phía nó</strong> và tính là <code>DEADLINE_EXCEEDED</code>.</p>
+<p>Nhưng <strong>huỷ request không giết được handler</strong>. Cloud Run vẫn đang chạy hàm dọn dẹp của bạn. Rồi Scheduler retry, và bạn có hai lần chạy song song trên cùng dữ liệu.</p>
+<p>Ba cách xử lý, nên làm cả ba:</p>
+<ol>
+<li><strong>Cron chỉ phát job, không làm job.</strong> Handler trả <code>2xx</code> trong vài trăm ms sau khi đẩy việc thật sang Cloud Tasks. Đây là nguyên tắc ở guide cũ §12.4, và trên Cloud Scheduler nó gần như bắt buộc vì trần 30 phút.</li>
+<li><strong>Tự khoá.</strong> Handler lấy một lock Redis <code>SET NX EX</code> trước khi làm; lần chạy chồng thấy lock thì trả <code>200</code> và thoát. Repo đã có <code>RedisService</code> cho việc này.</li>
+<li><strong>Nâng <code>attemptDeadline</code></strong> cho đúng công việc — nhưng đây là băng dán, không phải lời giải, vì trần vẫn là 30 phút.</li>
+</ol>
+<p>Việc nào không gói nổi trong 30 phút thì không thuộc về Cloud Scheduler → dùng Cloud Run Jobs (§E).</p>
+<h2 id="b4-timezone-va-dst">B4. Timezone và DST</h2>
+<p>Mặc định là <strong>UTC</strong>. Và tài liệu Google khuyến nghị <strong>cứ để UTC</strong>:</p>
+<div class="callout callout--info"><p><em>&quot;For some time zones, daylight saving time can cause jobs to run or not run unexpectedly… UTC is recommended for Cloud Scheduler to avoid the problem completely.&quot;</em></p>
+</div>
+<p>Lý do: ở vùng có DST, mốc 2h sáng có thể <strong>không tồn tại</strong> (đêm nhảy giờ) hoặc <strong>tồn tại hai lần</strong> (đêm lùi giờ) — job bị bỏ hoặc chạy đúp.</p>
+<p>Việt Nam không dùng DST nên <code>Asia/Ho_Chi_Minh</code> an toàn. Nhưng nếu job liên quan tới người dùng ở vùng có DST, hãy để lịch chạy UTC rồi xử lý múi giờ trong code.</p>
+<h2 id="b5-ba-loai-target">B5. Ba loại target</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Target</th><th>Khi nào dùng</th></tr></thead><tbody><tr><td><strong>HTTP</strong></td><td>Mặc định. Gọi thẳng endpoint của bạn.</td></tr>
+<tr><td><strong>Pub/Sub</strong></td><td>Khi cần fan-out nhiều consumer theo lịch, hoặc muốn tách phát/xử lý</td></tr>
+<tr><td><strong>App Engine HTTP</strong></td><td>Chỉ khi đang chạy App Engine</td></tr></tbody></table></div></div>
+<p>Một mẹo đáng dùng: <code>Cloud Scheduler → Pub/Sub topic</code> cho bạn một lớp đệm. Handler chậm hay đang down cũng không làm Scheduler tính là thất bại, vì việc đã nằm an toàn trong topic. Đổi lại là thêm một mắt xích.</p>
+<h2 id="b6-tom-tat-che-do-hong">B6. Tóm tắt chế độ hỏng</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Sự cố</th><th>Cloud Scheduler làm gì</th><th>Bạn phải làm gì</th></tr></thead><tbody><tr><td>Handler trả 5xx</td><td>Retry theo <code>retryConfig</code></td><td>Bảo đảm idempotent</td></tr>
+<tr><td>Handler chạy quá deadline</td><td>Huỷ + retry, <strong>handler cũ vẫn chạy</strong></td><td>Lock, hoặc rút ngắn handler</td></tr>
+<tr><td>App đang down</td><td>Retry theo cấu hình rồi bỏ cuộc</td><td>Alert; tự chạy bù nếu cần</td></tr>
+<tr><td>Job chạy quá 30 phút</td><td>Không thể</td><td>Chuyển sang Cloud Run Jobs</td></tr>
+<tr><td>Cần dữ liệu riêng mỗi lần</td><td>Không hỗ trợ</td><td>Dùng Cloud Tasks</td></tr></tbody></table></div></div>
+<hr>
+<h1 id="phan-c-cloud-tasks">PHẦN C — Cloud Tasks</h1>
+<h2 id="c1-queue-va-task">C1. Queue và task</h2>
+<p>Cloud Tasks là thứ gần BullMQ nhất trong GCP — nhưng <strong>đảo chiều</strong>: bạn không viết worker, bạn đưa cho nó một URL.</p>
+<ul>
+<li><strong>Queue</strong> giữ cấu hình chung: rate limit, retry, routing. Tương đương <code>defaultJobOptions</code> + <code>limiter</code> của BullMQ.</li>
+<li><strong>Task</strong> là một đơn vị việc: URL, method, headers, body, <code>scheduleTime</code>, thông tin OIDC. Tương đương một <code>job</code>.</li>
+</ul>
+<p>Khác biệt cốt lõi so với Cloud Scheduler: <strong>task mang dữ liệu riêng và có giờ hẹn riêng</strong>. &quot;Hủy đơn <code>abc</code> sau 15 phút&quot; chỉ diễn đạt được bằng Cloud Tasks.</p>
+<h2 id="c2-vong-doi-mot-task">C2. Vòng đời một task</h2>
+
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-2"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+stateDiagram-v2
+    [*] --> SCHEDULED: createTask()
+    SCHEDULED --> SCHEDULED: chờ tới scheduleTime<br/>(tối đa 30 ngày)
+    SCHEDULED --> DISPATCHING: tới giờ VÀ rate limit cho phép
+    DISPATCHING --> RUNNING: POST tới URL + OIDC
+
+    RUNNING --> [*]: 2xx → task bị XOÁ khỏi queue
+    RUNNING --> RETRY: non-2xx hoặc quá timeout handler
+    RETRY --> SCHEDULED: hẹn lại theo backoff
+    RETRY --> [*]: hết maxAttempts / maxRetryDuration<br/>⚠ TASK BIẾN MẤT, KHÔNG CÓ DLQ
+  </script>
+</div><p>Lưu ý ô cuối: <strong>thành công và thất bại vĩnh viễn dẫn tới cùng một kết cục — task biến mất.</strong> §C6 nói cách bù.</p>
+<h2 id="c3-rate-limiting-mo-hinh-token-bucket">C3. Rate limiting — mô hình token bucket</h2>
+<p>Hai tham số, và chúng kiểm soát hai thứ khác nhau:</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Tham số</th><th>Kiểm soát</th><th>Tương đương BullMQ</th></tr></thead><tbody><tr><td><code>max-dispatches-per-second</code></td><td><strong>Tốc độ</strong> nạp token → tốc độ phát</td><td><code>limiter: { max, duration }</code></td></tr>
+<tr><td><code>max-concurrent-dispatches</code></td><td><strong>Số task chạy song song</strong></td><td><code>concurrency</code></td></tr></tbody></table></div></div>
+<p>Tài liệu mô tả tham số đầu là &quot;token refresh rate&quot;: <em>&quot;In conditions where there is a relatively steady flow of tasks, this is the equivalent of the rate at which tasks are dispatched.&quot;</em> Vì là bucket nên sau một khoảng rảnh, token tích lại và có thể phát dồn một cụm — đừng thiết kế dựa vào giả định &quot;không bao giờ quá N/s trong mọi cửa sổ 1 giây&quot;.</p>
+<p><strong>Đây là tính năng đắt giá nhất của Cloud Tasks.</strong> Resend giới hạn N email/giây? Đặt <code>max-dispatches-per-second = N</code>. Không cần viết limiter, không cần Redis đếm. Còn <code>max-concurrent-dispatches</code> phải đặt <strong>không vượt quá Prisma connection pool</strong>, đúng như nguyên tắc concurrency ở guide cũ §8.</p>
+<p>Trần cứng: <strong>500 task/giây mỗi queue</strong>.</p>
+<h2 id="c4-retry-va-backoff-cong-thuc-that">C4. Retry và backoff — công thức thật</h2>
+<p>Năm tham số:</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Tham số</th><th>Mặc định (ví dụ trong docs)</th><th>Ý nghĩa</th></tr></thead><tbody><tr><td><code>max-attempts</code></td><td><code>100</code></td><td>Tính <strong>cả lần đầu</strong>; <code>-1</code> = vô hạn</td></tr>
+<tr><td><code>min-backoff</code></td><td><code>0.100s</code></td><td>Khoảng chờ đầu tiên</td></tr>
+<tr><td><code>max-backoff</code></td><td><code>3600s</code></td><td>Trần khoảng chờ</td></tr>
+<tr><td><code>max-doublings</code></td><td><code>16</code></td><td>Số lần nhân đôi trước khi chuyển tuyến tính</td></tr>
+<tr><td><code>max-retry-duration</code></td><td>—</td><td>Tổng thời gian cho mọi lần thử; <code>0s</code> = vô hạn</td></tr></tbody></table></div></div>
+<p>Công thức, theo đúng mô tả của tài liệu — <em>&quot;A task&#39;s retry interval starts at MIN_INTERVAL, then doubles MAX_DOUBLINGS times, then increases linearly&quot;</em>:</p>
+<div class="code-file"><div class="code-file__header"><span>Văn bản</span></div><pre class="code-file__body"><code>min-backoff = 10s, max-doublings = 3, max-backoff = 300s
+
+lần 1 → chờ  10s   ┐
+lần 2 → chờ  20s   │ giai đoạn nhân đôi (3 lần)
+lần 3 → chờ  40s   │
+lần 4 → chờ  80s   ┘
+lần 5 → chờ 160s   ┐ giai đoạn tuyến tính: cộng thêm 80s
+lần 6 → chờ 240s   │ (bằng khoảng chờ cuối của giai đoạn trên)
+lần 7 → chờ 300s   ┘ chạm trần max-backoff</code></pre></div>
+<p><strong>Mặc định <code>max-attempts = 100</code> rất cao.</strong> Với lỗi nghiệp vụ vĩnh viễn (email sai định dạng), nó nghĩa là 100 lần gọi vô ích. Cloud Tasks <strong>không có <code>UnrecoverableError</code></strong> như BullMQ, nên cách duy nhất để dừng sớm là <strong>handler tự trả <code>2xx</code></strong> cho lỗi không đáng retry, rồi tự ghi lại thất bại đó:</p>
+<div class="code-file"><div class="code-file__header"><span>TypeScript</span></div><pre class="code-file__body"><code><span class="kw">try</span> {
+  <span class="kw">await</span> <span class="kw">this</span>.emailService.send(...);
+} <span class="kw">catch</span> (error) {
+  <span class="kw">if</span> (isPermanentError(error)) {
+    <span class="cm">// Trả 200 CÓ CHỦ ĐÍCH: retry 99 lần nữa cũng hỏng.</span>
+    <span class="cm">// Nhưng phải ghi lại, nếu không thất bại này biến mất không dấu vết.</span>
+    <span class="kw">await</span> <span class="kw">this</span>.failedJobRepository.record({ task: <span class="st">&quot;send-otp&quot;</span>, error });
+    <span class="kw">return</span> { status: <span class="st">&quot;dropped&quot;</span> };
+  }
+  <span class="kw">throw</span> error; <span class="cm">// lỗi tạm thời → để Cloud Tasks retry</span>
+}</code></pre></div>
+<p>Trả <code>2xx</code> cho một việc thất bại nghe phản trực giác, nhưng trong giao thức của Cloud Tasks, <code>2xx</code> nghĩa là <strong>&quot;đừng gọi lại nữa&quot;</strong>, không phải &quot;mọi thứ đều tốt&quot;.</p>
+<h2 id="c5-khu-trung-lap-bang-ten-task">C5. Khử trùng lặp bằng tên task</h2>
+<p>Đặt tên task tường minh thì trong một khoảng thời gian sau khi task hoàn tất, task trùng tên bị từ chối. Nghe giống <code>jobId</code> của BullMQ, nhưng <strong>đắt hơn nhiều</strong>: Google cảnh báo cơ chế này làm giảm throughput đáng kể, vì nó buộc phải tra cứu trên toàn queue.</p>
+<p><strong>Khuyến nghị: đừng dùng.</strong> Làm handler idempotent thì rẻ hơn và đúng hơn — nó xử lý được cả những trùng lặp mà tên task không chặn nổi (retry sau khi đã thành công một phần).</p>
+<h2 id="c6-khong-co-dead-letter-queue-va-cach-bu">C6. Không có dead-letter queue — và cách bù</h2>
+<p>Đây là khác biệt vận hành <strong>lớn nhất</strong> so với BullMQ, và là thứ dễ bị bỏ qua khi thiết kế.</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th></th><th>BullMQ</th><th>Cloud Tasks</th></tr></thead><tbody><tr><td>Job hết retry</td><td>Vào set <code>failed</code>, <strong>giữ nguyên payload + stack trace</strong></td><td><strong>Bị xoá, không còn gì</strong></td></tr>
+<tr><td>Xem lại</td><td>Bull Board</td><td>Chỉ còn log Cloud Logging (nếu bạn có ghi)</td></tr>
+<tr><td>Chạy lại</td><td><code>job.retry()</code> một nút bấm</td><td>Phải tự tạo lại task từ đầu</td></tr></tbody></table></div></div>
+<p>Không bù thì job hỏng <strong>biến mất im lặng</strong> — mà như guide cũ §10 đã nói, job hỏng âm thầm còn tệ hơn lỗi 500.</p>
+<p>Cách bù tối thiểu: một bảng <code>FailedJob</code> trong chính Postgres của bạn, ghi ở lần thử cuối. Cloud Tasks gửi kèm header cho biết đây là lần thử thứ mấy:</p>
+<div class="code-file"><div class="code-file__header"><span>TypeScript</span></div><pre class="code-file__body"><code>@Post(<span class="st">&quot;send-otp&quot;</span>)
+<span class="kw">async</span> handle(@Body() dto: SendOtpTaskDto, @Headers() headers: Record&lt;string, string&gt;) {
+  <span class="cm">// Cloud Tasks đánh số lần thử trong header X-CloudTasks-TaskRetryCount.</span>
+  <span class="kw">const</span> retryCount = Number(headers[<span class="st">&quot;x-cloudtasks-taskretrycount&quot;</span>] ?? <span class="nu">0</span>);
+
+  <span class="kw">try</span> {
+    <span class="kw">await</span> <span class="kw">this</span>.emailService.sendOtp(dto);
+  } <span class="kw">catch</span> (error) {
+    <span class="cm">// Lần thử cuối: ghi lại TRƯỚC khi task biến mất vĩnh viễn.</span>
+    <span class="kw">if</span> (retryCount &gt;= MAX_ATTEMPTS - <span class="nu">1</span>) {
+      <span class="kw">await</span> <span class="kw">this</span>.failedJobRepository.record({ task: <span class="st">&quot;send-otp&quot;</span>, payload: dto, error });
+    }
+    <span class="kw">throw</span> error;
+  }
+}</code></pre></div>
+<p>Có bảng đó rồi thì alert và chạy lại mới làm được — tức là bạn đang tự dựng lại phần mà BullMQ cho sẵn.</p>
+<h2 id="c7-han-muc-can-nho">C7. Hạn mức cần nhớ</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Hạn mức</th><th>Giá trị</th><th>Hệ quả thiết kế</th></tr></thead><tbody><tr><td>Kích thước task</td><td><strong>1 MiB</strong></td><td>Truyền ID, không truyền object — như mọi queue khác</td></tr>
+<tr><td>Hẹn giờ xa nhất</td><td><strong>30 ngày</strong></td><td>Nghiệp vụ dài hơn cần task nối task, hoặc Workflows</td></tr>
+<tr><td>Tốc độ phát mỗi queue</td><td><strong>500/giây</strong></td><td>Vượt thì phải tách nhiều queue</td></tr>
+<tr><td>Thời gian lưu task</td><td><strong>31 ngày</strong></td><td>Task chưa chạy xong trong 31 ngày sẽ bị xoá</td></tr>
+<tr><td>Timeout handler (HTTP target)</td><td>mặc định <strong>10 phút</strong>, tối đa <strong>30 phút</strong></td><td>Việc dài hơn → Cloud Run Jobs</td></tr></tbody></table></div></div>
+<hr>
+<h1 id="phan-d-pub-sub">PHẦN D — Pub/Sub</h1>
+<h2 id="d1-topic-va-subscription">D1. Topic và subscription</h2>
+<p>Đây là dịch vụ hay bị dùng sai nhất, vì nó <em>trông</em> giống queue nhưng giải bài toán khác.</p>
+<div class="code-file"><div class="code-file__header"><span>Văn bản</span></div><pre class="code-file__body"><code>                      ┌──────────────────────┐
+  publish ──────────► │  Topic: order-events │
+                      └──────────┬───────────┘
+                                 │ mỗi subscription nhận MỘT BẢN SAO đầy đủ
+             ┌───────────────────┼───────────────────┐
+             ▼                   ▼                   ▼
+      ┌────────────┐      ┌────────────┐      ┌────────────┐
+      │ sub: email │      │ sub: stats │      │ sub: seller│
+      └─────┬──────┘      └─────┬──────┘      └─────┬──────┘
+         push│                pull│                push│
+            ▼                    ▼                    ▼
+      /events/email        worker riêng         /events/seller</code></pre></div>
+<p>Điểm phân biệt duy nhất cần nhớ:</p>
+<ul>
+<li><strong>Cloud Tasks: một task → một endpoint.</strong> Producer biết chính xác việc gì sẽ chạy.</li>
+<li><strong>Pub/Sub: một event → N subscription.</strong> Producer không biết ai đang nghe, và thêm người nghe không cần sửa producer.</li>
+</ul>
+<p>Chọn Pub/Sub cho bài toán một-tới-một là tự chuốc thêm một mắt xích, thêm một chỗ hỏng, mà không được gì.</p>
+<h2 id="d2-push-flow-chi-tiet-giao-thuc">D2. Push flow — chi tiết giao thức</h2>
+
+<div class="diagram-shell">
+  <p class="diagram-shell__hint">Ctrl/Cmd + lăn chuột để phóng to · kéo để di chuyển · double-click để vừa khung · nút ⛶ mở tab mới</p>
+  <div class="mermaid-wrap">
+    <div class="zoom-controls">
+      <button type="button" data-action="zoom-in" title="Phóng to">+</button>
+      <button type="button" data-action="zoom-out" title="Thu nhỏ">&minus;</button>
+      <button type="button" data-action="zoom-fit" title="Vừa khung">&#8634;</button>
+      <button type="button" data-action="zoom-one" title="Tỉ lệ 1:1">1:1</button>
+      <button type="button" data-action="zoom-expand" title="Mở toàn màn hình">&#x26F6;</button>
+      <span class="zoom-label">Đang tải...</span>
+    </div>
+    <div class="mermaid-viewport"><div class="mermaid mermaid-canvas" id="diagram-3"></div></div>
+  </div>
+  <script type="text/plain" class="diagram-source">
+sequenceDiagram
+    participant P as Publisher
+    participant T as Topic
+    participant S as Push subscription
+    participant A as Service của bạn
+    participant D as Dead-letter topic
+
+    P->>T: publish({data, attributes, orderingKey?})
+    T->>S: nhân bản cho từng subscription
+    S->>A: POST endpoint<br/>Bearer OIDC<br/>body = envelope JSON
+
+    Note over A: envelope:<br/>{ message: { data: "<base64>",<br/>  messageId, publishTime, attributes },<br/>  subscription }
+
+    alt Trả 102/200/201/202/204
+        A-->>S: 2xx → ACK, message coi như xong
+    else Mã khác
+        A-->>S: NACK
+        S->>S: push backoff: 100ms → … → 60s
+        S->>A: gửi lại
+        Note over S: đủ maxDeliveryAttempts (5…100)
+        S->>D: chuyển vào dead-letter topic
+    end
+  </script>
+</div><p>Ba chi tiết giao thức hay bị hiểu sai:</p>
+<ol>
+<li><strong>Danh sách mã ACK là cố định: <code>102</code>, <code>200</code>, <code>201</code>, <code>202</code>, <code>204</code>.</strong> Mọi mã khác — kể cả <code>301</code> hay <code>404</code> — đều là NACK và gây gửi lại. Endpoint trả <code>404</code> vì sai route sẽ khiến Pub/Sub retry mãi cho tới khi chạm dead-letter.</li>
+<li><strong><code>data</code> là base64</strong>, phải tự giải mã. Đây là khác biệt trực tiếp so với Cloud Tasks, nơi body là thứ bạn gửi đi nguyên vẹn.</li>
+<li><strong>Không sửa được ack deadline cho từng message trong push.</strong> Deadline chính là thời gian trả lời HTTP. Muốn kiểm soát nhịp thì phải dùng pull.</li>
+</ol>
+<p>Có một cơ chế thứ hai dễ nhầm: <strong>push backoff</strong> (100ms → 60s) là thứ Pub/Sub tự áp cho toàn subscription khi bị NACK liên tục, <strong>độc lập</strong> với retry policy bạn cấu hình.</p>
+<h2 id="d3-pull-va-streamingpull">D3. Pull và StreamingPull</h2>
+<p>Consumer chủ động mở kết nối và kéo message về. Cần một process luôn sống — tức là quay về đúng mô hình pull của BullMQ, và <strong>mất hết lợi thế scale-to-zero trên Cloud Run</strong>.</p>
+<p>Chỉ chọn pull khi cần một trong hai thứ mà push không có: <strong>exactly-once</strong> (§D5), hoặc <strong>kiểm soát nhịp tiêu thụ</strong> (flow control) để không bị dồn dập.</p>
+<h2 id="d4-ack-deadline-va-lease">D4. Ack deadline và lease</h2>
+<p>Message được giao là được &quot;cho mượn&quot; trong <code>ackDeadline</code>. Không ack kịp thì Pub/Sub coi như subscriber chết và <strong>giao lại cho người khác</strong>.</p>
+<p>Cơ chế này giống hệt <code>lockDuration</code> của BullMQ (<a href="bullmq-nestjs-schedule-deep-dive.html">bullmq-nestjs-schedule-deep-dive.md §B5</a>), kể cả ở hệ quả: xử lý lâu hơn deadline → message chạy hai lần <strong>trong khi lần đầu vẫn đang chạy</strong>. Với pull, client library thường tự gia hạn lease; với push thì không có gì để gia hạn, deadline là thời gian trả lời HTTP.</p>
+<h2 id="d5-exactly-once-doc-ky-dieu-kien-truoc-khi-mung">D5. Exactly-once — đọc kỹ điều kiện trước khi mừng</h2>
+<p>Pub/Sub có exactly-once, nhưng ba ràng buộc làm nó hẹp hơn nhiều so với tên gọi:</p>
+<ol>
+<li><strong>Chỉ pull subscription.</strong> Tài liệu nói thẳng: <em>&quot;Only the pull subscription type supports exactly-once delivery… Push and export subscriptions don&#39;t support exactly-once delivery.&quot;</em> Dùng push là không có.</li>
+<li><strong>Chỉ trong cùng một region.</strong> <em>&quot;the exactly-once delivery guarantee only applies when subscribers connect to the service in the same region.&quot;</em></li>
+<li><strong>Không chặn được trùng lặp từ phía publish.</strong> <em>&quot;A subscription might receive multiple copies of the same message due to publish side duplicates, even with exactly-once delivery enabled.&quot;</em> Publisher retry vì timeout mạng sẽ tạo message mới với ID khác — Pub/Sub không có cách nào biết chúng là một.</li>
+</ol>
+<p>Điều nó thật sự bảo đảm là <strong>phía giao hàng</strong>: sau khi ack thành công thì không giao lại, và không giao lại khi message còn đang outstanding.</p>
+<p><strong>Kết luận thực dụng: vẫn phải idempotent.</strong> Exactly-once của Pub/Sub thu hẹp cửa sổ trùng lặp chứ không đóng nó, và điểm 3 nằm ngoài tầm với của mọi cấu hình.</p>
+<h2 id="d6-ordering-key-va-cai-gia-cua-no">D6. Ordering key — và cái giá của nó</h2>
+<p>Message cùng <code>orderingKey</code> được giao theo thứ tự, với điều kiện publish <strong>cùng một region</strong>. Message khác key thì không có bảo đảm gì.</p>
+<p>Bốn cái giá, cái cuối là nặng nhất:</p>
+<ul>
+<li>Publish <strong>giảm khả dụng</strong> và <strong>tăng độ trễ</strong> so với không thứ tự.</li>
+<li>Throughput <strong>1 MBps cho mỗi ordering key</strong> — key nóng là nút cổ chai.</li>
+<li>Một key chậm không bị Pub/Sub giới hạn mà bị chính tốc độ xử lý của subscriber giới hạn → dễ dồn ứ cục bộ.</li>
+<li><strong>Giao lại một message kéo theo giao lại mọi message sau nó của cùng key — kể cả những cái đã ack.</strong> Một message hỏng ở giữa làm cả đuôi chạy lại.</li>
+</ul>
+<p>Vì điểm cuối, lời khuyên ở guide cũ §16 vẫn đúng và nên thử trước: <strong>thiết kế thao tác giao hoán</strong> (<code>stock = stock - 1</code> thay vì <code>stock = 9</code>) rồi bỏ hẳn nhu cầu thứ tự, thay vì mua ordering key.</p>
+<h2 id="d7-dead-letter-topic-va-cai-bay-iam">D7. Dead-letter topic — và cái bẫy IAM</h2>
+<p>Khác Cloud Tasks, Pub/Sub <strong>có</strong> dead-letter thật:</p>
+<ul>
+<li><code>maxDeliveryAttempts</code>: mặc định <strong>5</strong>, nhỏ nhất <strong>5</strong>, lớn nhất <strong>100</strong>.</li>
+<li>Là con số <strong>gần đúng</strong>: <em>&quot;The maximum number of delivery attempts is approximate because Pub/Sub forwards undeliverable messages on a best-effort basis.&quot;</em> Có thể bị giao nhiều lần hơn cấu hình, nhất là với subscription pull không hoạt động.</li>
+</ul>
+<p><strong>Bẫy:</strong> dead-letter <strong>im lặng không hoạt động</strong> nếu thiếu IAM. Service account của Pub/Sub — <code>service-&lt;project-number&gt;@gcp-sa-pubsub.iam.gserviceaccount.com</code> — cần <strong>hai</strong> quyền:</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Quyền</th><th>Cấp trên</th><th>Để làm gì</th></tr></thead><tbody><tr><td><code>roles/pubsub.publisher</code></td><td>dead-letter topic</td><td>Đẩy message hỏng vào</td></tr>
+<tr><td><code>roles/pubsub.subscriber</code></td><td>subscription nguồn</td><td>Ack message sau khi chuyển đi</td></tr></tbody></table></div></div>
+<p>Thiếu một trong hai thì message cứ retry mãi mà không bao giờ tới dead-letter — và bạn chỉ phát hiện khi backlog phình lên.</p>
+<h2 id="d8-han-muc-can-nho">D8. Hạn mức cần nhớ</h2>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Hạn mức</th><th>Giá trị</th></tr></thead><tbody><tr><td>Kích thước message (<code>data</code>)</td><td><strong>10 MB</strong></td></tr>
+<tr><td>Publish request</td><td>10 MB tổng, tối đa 1.000 message</td></tr>
+<tr><td>Attribute mỗi message</td><td>100; key 256 byte, value 1024 byte</td></tr>
+<tr><td>Giữ message chưa ack</td><td>mặc định <strong>7 ngày</strong></td></tr>
+<tr><td>Giữ message ở topic</td><td>tối đa <strong>31 ngày</strong></td></tr>
+<tr><td>Throughput mỗi ordering key</td><td><strong>1 MBps</strong></td></tr></tbody></table></div></div>
+<hr>
+<h1 id="phan-e-cloud-run-jobs">PHẦN E — Cloud Run Jobs</h1>
+<p>Khác Cloud Run <em>service</em> (nhận HTTP, luôn sẵn sàng), Cloud Run <em>job</em> <strong>không mở port</strong>: chạy container, làm việc, thoát.</p>
+<p>Đây là lời giải cho mọi việc không gói nổi trong một HTTP request:</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Thông số</th><th>Giá trị</th></tr></thead><tbody><tr><td>Số task</td><td>tối đa <strong>10.000</strong>, mặc định chạy song song</td></tr>
+<tr><td>Task timeout</td><td>mặc định <strong>10 phút</strong>, tối đa <strong>168 giờ (7 ngày)</strong></td></tr>
+<tr><td>Retry mỗi task</td><td>mặc định <strong>3</strong>, nhận số nguyên <strong>0–10</strong></td></tr>
+<tr><td>Biến môi trường</td><td><code>CLOUD_RUN_TASK_INDEX</code>, <code>CLOUD_RUN_TASK_COUNT</code></td></tr></tbody></table></div></div>
+<p>Task nào vượt số retry thì bị đánh dấu failed, và <strong>execution cũng bị đánh dấu failed</strong>.</p>
+<p>Chia việc bằng hai biến môi trường — GCP không tự chia hộ, <em>&quot;your code is responsible for determining which task handles which subset of the data&quot;</em>:</p>
+<div class="code-file"><div class="code-file__header"><span>TypeScript</span></div><pre class="code-file__body"><code><span class="cm">// src/job.ts — dùng chung Dockerfile với API, chỉ khác CMD</span>
+<span class="kw">const</span> index = Number(process.env.CLOUD_RUN_TASK_INDEX ?? <span class="nu">0</span>);
+<span class="kw">const</span> total = Number(process.env.CLOUD_RUN_TASK_COUNT ?? <span class="nu">1</span>);
+
+<span class="kw">const</span> app = <span class="kw">await</span> NestFactory.createApplicationContext(AppModule);
+<span class="kw">try</span> {
+  <span class="cm">// Chia theo phần dư để mỗi task lấy đúng một lát dữ liệu, không chồng nhau.</span>
+  <span class="kw">await</span> app
+    .<span class="kw">get</span>(ReportService)
+    .generateMonthlyReport({ shard: index, <span class="kw">of</span>: total });
+} <span class="kw">finally</span> {
+  <span class="kw">await</span> app.close();
+}</code></pre></div>
+<p>Ở đây dùng <code>createApplicationContext</code> (không HTTP server) — <strong>khác</strong> với worker BullMQ trên Cloud Run <em>service</em>, vốn buộc phải <code>listen($PORT)</code> (xem <a href="bullmq-nestjs-schedule-deep-dive.html">bullmq-nestjs-schedule-deep-dive.md §E2</a>). Cloud Run Jobs không có yêu cầu đó.</p>
+<p>Repo đã quen mô hình này: <a href="../initial-scripts/create-permission.ts">initial-scripts/create-permission.ts</a> boot app → làm việc → <code>app.close()</code>, và stage <code>migrator</code> trong <a href="../Dockerfile">Dockerfile</a> chính là một Cloud Run Job đang chờ được dùng.</p>
+<hr>
+<h1 id="phan-f-workflows-va-eventarc">PHẦN F — Workflows và Eventarc</h1>
+<p>Hai dịch vụ dự án <strong>chưa cần</strong>, nêu ở đây để biết khi nào thì cần.</p>
+<p><strong>Workflows</strong> — orchestration có state, định nghĩa bằng YAML. GCP giữ trạng thái giữa các bước, ngủ được rất lâu và chờ callback được. Đúng bài cho saga nhiều bước: &quot;tạo đơn → chờ thanh toán → xác nhận hoặc hủy&quot;.</p>
+<p>Cái giá: logic nghiệp vụ rời khỏi codebase, sang YAML — không test bằng Jest, không refactor bằng TypeScript, review khó. Với đội nhỏ, cái giá đó thường lớn hơn lợi ích. Một Cloud Task hẹn giờ cộng một cột <code>status</code> trong DB làm được cùng việc mà vẫn nằm trong code.</p>
+<p><strong>Eventarc</strong> — định tuyến event hạ tầng (GCS, Firestore, Audit Log) tới Cloud Run. Ví dụ kinh điển: upload file lên GCS tự trigger resize ảnh.</p>
+<p><strong>Không dùng được cho repo này</strong>, vì file đang nằm trên <strong>AWS S3</strong> (<a href="../src/shared/services/s3.service.ts">s3.service.ts</a>). Lựa chọn thay thế: chuyển sang GCS, dùng S3 Event Notification của AWS, hoặc đơn giản nhất — upload xong thì tự <code>createTask</code>, cách này không phụ thuộc nhà cung cấp nào.</p>
+<hr>
+<h1 id="phan-g-chon-cai-nao">PHẦN G — Chọn cái nào</h1>
+<p>Cây quyết định, đi từ trên xuống:</p>
+<div class="code-file"><div class="code-file__header"><span>Văn bản</span></div><pre class="code-file__body"><code>Việc chạy theo LỊCH CỐ ĐỊNH, không cần dữ liệu riêng mỗi lần?
+├─ có → Cloud Scheduler
+│        └─ chạy quá 30 phút? → Scheduler kích hoạt Cloud Run Job
+└─ không
+   │
+   Mỗi việc có DỮ LIỆU RIÊNG và GIỜ HẸN RIÊNG?
+   ├─ có → Cloud Tasks          (hủy đơn sau 15 phút, gửi OTP, webhook)
+   └─ không
+      │
+      Một sự kiện, NHIỀU bên quan tâm độc lập?
+      ├─ có → Pub/Sub
+      └─ không → xem lại, gần như chắc chắn bạn cần Cloud Tasks</code></pre></div>
+<p>Bảng đối chiếu nhanh:</p>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th></th><th>Cloud Scheduler</th><th>Cloud Tasks</th><th>Pub/Sub</th></tr></thead><tbody><tr><td>Đơn vị</td><td>Lịch</td><td>Task có dữ liệu</td><td>Message</td></tr>
+<tr><td>Dữ liệu riêng mỗi lần</td><td>Không</td><td><strong>Có</strong></td><td><strong>Có</strong></td></tr>
+<tr><td>Hẹn giờ riêng</td><td>Không</td><td><strong>Có</strong> (≤30 ngày)</td><td>Không</td></tr>
+<tr><td>Số người nhận</td><td>1</td><td>1</td><td><strong>N</strong></td></tr>
+<tr><td>Rate limit đầu ra</td><td>—</td><td><strong>Có</strong></td><td>Khó kiểm soát</td></tr>
+<tr><td>Dead-letter</td><td>Không</td><td><strong>Không</strong></td><td><strong>Có</strong></td></tr>
+<tr><td>Thứ tự</td><td>—</td><td>Không</td><td>Có (ordering key)</td></tr>
+<tr><td>Exactly-once</td><td>Không</td><td>Không</td><td>Chỉ pull, cùng region</td></tr>
+<tr><td>Payload tối đa</td><td>—</td><td>1 MiB</td><td>10 MB</td></tr></tbody></table></div></div>
+<hr>
+<h1 id="phan-h-ap-vao-repo">PHẦN H — Áp vào repo</h1>
+<div class="table-wrap"><div class="table-scroll"><table class="data-table"><thead><tr><th>Việc trong repo</th><th>Dịch vụ</th><th>Vì sao</th></tr></thead><tbody><tr><td>Dọn <code>VerificationCode</code> / <code>RefreshToken</code> hết hạn</td><td>Cloud Scheduler</td><td>Lịch cố định, không dữ liệu riêng</td></tr>
+<tr><td>Hủy đơn quá hạn — <a href="../src/repositories/order/order-checkout.repository.ts">order-checkout.repository.ts</a></td><td><strong>Cloud Tasks</strong></td><td>Mỗi đơn một mốc hẹn riêng; cron không diễn đạt được</td></tr>
+<tr><td>Gửi OTP — <a href="../src/routes/auth/auth.service.ts">auth.service.ts</a></td><td><strong>Cloud Tasks</strong></td><td>Cần retry + rate limit khớp quota Resend</td></tr>
+<tr><td>Webhook thanh toán → <code>PaymentTransaction</code></td><td>Cloud Tasks</td><td>Nhận → ghi raw → enqueue → trả 200 ngay</td></tr>
+<tr><td>Báo cáo doanh thu, re-index</td><td>Cloud Run Jobs</td><td>Vượt trần 30 phút của Scheduler</td></tr>
+<tr><td>Migration Postgres</td><td>Cloud Run Jobs</td><td>Stage <code>migrator</code> trong <a href="../Dockerfile">Dockerfile</a> đã sẵn</td></tr>
+<tr><td>Hậu xử lý ảnh</td><td>Cloud Tasks</td><td>Eventarc không dùng được vì đang ở AWS S3</td></tr></tbody></table></div></div>
+<p>Ba việc bắt buộc khi dựng, không phụ thuộc chọn dịch vụ nào:</p>
+<ol>
+<li><strong>Guard OIDC có kiểm tra <code>email</code> service account</strong> (§A2) — thiếu là mở endpoint cho cả Internet.</li>
+<li><strong>Bảng <code>FailedJob</code></strong> (§C6) — bù cho việc Cloud Tasks không có DLQ.</li>
+<li><strong>Loại route <code>internal/*</code> khỏi Swagger public và khỏi <code>ThrottlerGuard</code></strong> — job dồn một lúc sẽ bị rate limiter hiện có chặn nhầm.</li>
+</ol>
+<hr>
+<h2 id="tom-tat-mot-man-hinh">Tóm tắt một màn hình</h2>
+<ul>
+<li><strong>Mọi dịch vụ ở đây đều push</strong>: mã HTTP <code>2xx</code> <em>là</em> ack. Không process nào phải luôn sống.</li>
+<li><strong>OIDC phải kiểm tra cả <code>aud</code> lẫn <code>email</code> service account.</strong> Chữ ký hợp lệ không chứng minh gì — ai cũng lấy được token Google hợp lệ.</li>
+<li><strong>Cloud Scheduler</strong> = lịch cố định, không dữ liệu. <code>attemptDeadline</code> mặc định 3 phút, trần 30 phút — và <strong>hết deadline không giết handler</strong>, nên retry sẽ chạy chồng.</li>
+<li><strong>Cloud Tasks</strong> = task có dữ liệu + giờ hẹn riêng (≤30 ngày), 1 MiB, 500/s mỗi queue. Rate limit theo queue là tính năng đắt giá nhất. <strong>Không có DLQ</strong> — hết retry là mất trắng, phải tự ghi <code>FailedJob</code>.</li>
+<li><strong>Cloud Tasks không có <code>UnrecoverableError</code></strong>: muốn dừng retry sớm thì handler tự trả <code>2xx</code> và tự ghi lại thất bại. Mặc định <code>max-attempts = 100</code> rất cao.</li>
+<li><strong>Pub/Sub</strong> = fan-out. Mã ack cố định (<code>102/200/201/202/204</code>), <code>data</code> là base64. <strong>Có DLQ</strong> (5–100 lần) nhưng <strong>im lặng hỏng nếu thiếu 2 quyền IAM</strong>.</li>
+<li><strong>Exactly-once của Pub/Sub chỉ cho pull, cùng region, và không chặn trùng lặp phía publish</strong> → vẫn phải idempotent.</li>
+<li><strong>Ordering key</strong>: giao lại một message kéo theo giao lại cả đuôi cùng key. Thiết kế thao tác giao hoán rẻ hơn.</li>
+<li><strong>Cloud Run Jobs</strong>: tối đa 10.000 task, timeout tới 168 giờ — nơi đổ mọi việc không gói nổi trong một HTTP request.</li>
+</ul>
+<hr>
+<h2 id="nguon-tham-khao">Nguồn tham khảo</h2>
+<p>Mọi link đã được mở và kiểm tra tại thời điểm viết; tiêu đề ghi đúng như trang gốc.</p>
+<p><strong>Cloud Scheduler</strong></p>
+<ul>
+<li><a href="https://docs.cloud.google.com/scheduler/docs/configuring/cron-job-schedules" target="_blank" rel="noopener noreferrer">Cron job format and time zone</a> — unix-cron, tần suất nhỏ nhất 1 phút, cảnh báo DST (§B1, §B4)</li>
+<li><a href="https://docs.cloud.google.com/scheduler/docs/creating" target="_blank" rel="noopener noreferrer">Manage cron jobs</a> — target, attempt deadline, retry (§B2)</li>
+<li><a href="https://docs.cloud.google.com/scheduler/docs/http-target-auth" target="_blank" rel="noopener noreferrer">Use authentication with HTTP targets</a> — OIDC/OAuth (§A2)</li>
+</ul>
+<p><strong>Cloud Tasks</strong></p>
+<ul>
+<li><a href="https://docs.cloud.google.com/tasks/docs/configuring-queues" target="_blank" rel="noopener noreferrer">Configure queue routing, limits, and retries</a> — rate limit và công thức backoff (§C3, §C4)</li>
+<li><a href="https://docs.cloud.google.com/tasks/docs/quotas" target="_blank" rel="noopener noreferrer">Quotas and limits</a> — 1 MiB, 30 ngày, 500/s, 31 ngày (§C7)</li>
+<li><a href="https://docs.cloud.google.com/tasks/docs/creating-http-target-tasks" target="_blank" rel="noopener noreferrer">Create HTTP target tasks programmatically</a> — <code>oidcToken</code>, timeout handler 10/30 phút (§C1, §C7)</li>
+<li><a href="https://docs.cloud.google.com/tasks/docs/dual-overview" target="_blank" rel="noopener noreferrer">Understand Cloud Tasks</a> — tổng quan</li>
+</ul>
+<p><strong>Pub/Sub</strong></p>
+<ul>
+<li><a href="https://docs.cloud.google.com/pubsub/docs/push" target="_blank" rel="noopener noreferrer">Push subscriptions</a> — envelope, mã ack, push backoff (§D2)</li>
+<li><a href="https://docs.cloud.google.com/pubsub/docs/exactly-once-delivery" target="_blank" rel="noopener noreferrer">Exactly-once delivery</a> — giới hạn pull/region/publish-side (§D5)</li>
+<li><a href="https://docs.cloud.google.com/pubsub/docs/handling-failures" target="_blank" rel="noopener noreferrer">Dead-letter topics</a> — 5–100 lần, hai quyền IAM (§D7)</li>
+<li><a href="https://docs.cloud.google.com/pubsub/docs/ordering" target="_blank" rel="noopener noreferrer">Order messages</a> — 1 MBps mỗi key, giao lại cả đuôi (§D6)</li>
+<li><a href="https://docs.cloud.google.com/pubsub/quotas" target="_blank" rel="noopener noreferrer">Pub/Sub quotas and limits</a> — 10 MB, 7/31 ngày (§D8)</li>
+</ul>
+<p><strong>Cloud Run</strong></p>
+<ul>
+<li><a href="https://docs.cloud.google.com/run/docs/create-jobs" target="_blank" rel="noopener noreferrer">Create jobs</a> — 10.000 task, 168 giờ, retry 0–10 (§E)</li>
+<li><a href="https://docs.cloud.google.com/run/docs/container-contract" target="_blank" rel="noopener noreferrer">Container runtime contract</a> — ràng buộc <code>$PORT</code> và SIGTERM</li>
+</ul>
+<p><strong>Khác</strong></p>
+<ul>
+<li><a href="https://docs.cloud.google.com/workflows/docs" target="_blank" rel="noopener noreferrer">Workflows</a> · <a href="https://docs.cloud.google.com/eventarc/docs" target="_blank" rel="noopener noreferrer">Eventarc</a> (§F)</li>
+</ul>
+<p><strong>Tài liệu trong repo</strong></p>
+<ul>
+<li><a href="queue-job-worker-scheduler-guide.html">queue-job-worker-scheduler-guide.md</a> — nền tảng</li>
+<li><a href="queue-scheduler-gcp-vs-bullmq.html">queue-scheduler-gcp-vs-bullmq.md</a> — so sánh và chọn lựa</li>
+<li><a href="bullmq-nestjs-schedule-deep-dive.html">bullmq-nestjs-schedule-deep-dive.md</a> — cơ chế phía BullMQ</li>
+</ul>
+
+      </div>
+    </div>
+
+    <script>
+(function () {
+  var toggle = document.getElementById("themeToggle");
+  var saved = localStorage.getItem("theme");
+  var initial =
+    saved ||
+    (matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light");
+  if (saved) document.documentElement.setAttribute("data-theme", initial);
+  toggle.textContent = initial === "dark" ? "☀" : "☾";
+  toggle.addEventListener("click", function () {
+    var current =
+      document.documentElement.getAttribute("data-theme") ||
+      (matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
+    var next = current === "light" ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+    toggle.textContent = next === "dark" ? "☀" : "☾";
+  });
+})();
+
+(function () {
+  const toc = document.getElementById("toc");
+  const links = toc.querySelectorAll("a");
+  const sections = [];
+  links.forEach((link) => {
+    const id = link.getAttribute("href").slice(1);
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el, link });
+  });
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          links.forEach((l) => l.classList.remove("active"));
+          const match = sections.find((s) => s.el === entry.target);
+          if (match) {
+            match.link.classList.add("active");
+            if (window.innerWidth <= 1000) {
+              match.link.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest",
+                inline: "center",
+              });
+            }
+          }
+        }
+      });
+    },
+    { rootMargin: "-10% 0px -80% 0px" },
+  );
+  sections.forEach((s) => observer.observe(s.el));
+  links.forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const id = link.getAttribute("href").slice(1);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        history.replaceState(null, "", "#" + id);
+      }
+    });
+  });
+})();
+
+    </script>
+    <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+const config = {
+  fitPadding: 28,
+  minHeight: 340,
+  maxHeightPx: 960,
+  maxHeightVh: 0.84,
+  maxInitialZoom: 1.8,
+  minZoom: 0.08,
+  maxZoom: 6.5,
+  zoomStep: 0.14,
+  readabilityFloor: 0.58,
+};
+const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+let activeDrag = null;
+addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+addEventListener("mouseup", () => {
+  activeDrag?.onEnd();
+  activeDrag = null;
+});
+
+const isDark =
+  document.documentElement.getAttribute("data-theme") === "dark" ||
+  (!document.documentElement.getAttribute("data-theme") &&
+    matchMedia("(prefers-color-scheme: dark)").matches);
+
+mermaid.initialize({
+  startOnLoad: false,
+  theme: "base",
+  look: "classic",
+  themeVariables: {
+    fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+    fontSize: "16px",
+    primaryColor: isDark ? "#1b2336" : "#e6eefb",
+    primaryBorderColor: isDark ? "#60a5fa" : "#2563eb",
+    primaryTextColor: isDark ? "#e2e8f0" : "#1e293b",
+    secondaryColor: isDark ? "#123b3f" : "#d8eff1",
+    secondaryBorderColor: isDark ? "#5eead4" : "#0e7490",
+    secondaryTextColor: isDark ? "#e2e8f0" : "#1e293b",
+    tertiaryColor: isDark ? "#2f2a15" : "#f6efd9",
+    tertiaryBorderColor: isDark ? "#fbbf24" : "#b45309",
+    tertiaryTextColor: isDark ? "#e2e8f0" : "#1e293b",
+    lineColor: isDark ? "#94a3b8" : "#475569",
+    noteBkgColor: isDark ? "#1b2336" : "#ffffff",
+    noteTextColor: isDark ? "#e2e8f0" : "#1e293b",
+    noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+  },
+});
+
+function initDiagram(shell) {
+  const wrap = shell.querySelector(".mermaid-wrap");
+  const viewport = shell.querySelector(".mermaid-viewport");
+  const canvas = shell.querySelector(".mermaid-canvas");
+  const source = shell.querySelector(".diagram-source");
+  const label = shell.querySelector(".zoom-label");
+  if (!wrap || !viewport || !canvas || !source || !label) return;
+
+  let zoom = 1,
+    fitMode = "contain",
+    panX = 0,
+    panY = 0,
+    svgW = 0,
+    svgH = 0;
+  let sx = 0,
+    sy = 0,
+    spx = 0,
+    spy = 0,
+    touchDist = 0,
+    touchCx = 0,
+    touchCy = 0;
+
+  function constrainPan() {
+    const vpW = viewport.clientWidth,
+      vpH = viewport.clientHeight;
+    const rW = svgW * zoom,
+      rH = svgH * zoom,
+      pad = config.fitPadding;
+    panX =
+      rW + pad * 2 <= vpW
+        ? (vpW - rW) / 2
+        : clamp(panX, vpW - rW - pad, pad);
+    panY =
+      rH + pad * 2 <= vpH
+        ? (vpH - rH) / 2
+        : clamp(panY, vpH - rH - pad, pad);
+  }
+  function applyTransform() {
+    const svg = canvas.querySelector("svg");
+    if (!svg || !svgW) return;
+    constrainPan();
+    svg.style.width = svgW * zoom + "px";
+    svg.style.height = svgH * zoom + "px";
+    canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+    label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+  }
+  function canPan() {
+    return (
+      svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+      svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+    );
+  }
+  function computeSmartFit() {
+    const vpW = viewport.clientWidth,
+      vpH = viewport.clientHeight;
+    const aW = Math.max(80, vpW - config.fitPadding * 2);
+    const aH = Math.max(80, vpH - config.fitPadding * 2);
+    const contain = Math.min(aW / svgW, aH / svgH);
+    let z = contain,
+      mode = "contain";
+    if (contain < config.readabilityFloor) {
+      const chartR = svgH / svgW,
+        vpR = vpH / Math.max(vpW, 1);
+      if (chartR >= vpR) {
+        z = aW / svgW;
+        mode = "width-priority";
+      } else {
+        z = aH / svgH;
+        mode = "height-priority";
+      }
+    }
+    return {
+      zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+      mode,
+    };
+  }
+  function fitDiagram() {
+    if (!svgW) return;
+    const fit = computeSmartFit();
+    zoom = fit.zoom;
+    fitMode = fit.mode;
+    panX = (viewport.clientWidth - svgW * zoom) / 2;
+    panY = (viewport.clientHeight - svgH * zoom) / 2;
+    applyTransform();
+  }
+  function setOneToOne() {
+    zoom = clamp(1, config.minZoom, config.maxZoom);
+    fitMode = "1:1";
+    panX = (viewport.clientWidth - svgW * zoom) / 2;
+    panY = (viewport.clientHeight - svgH * zoom) / 2;
+    applyTransform();
+  }
+  function zoomAround(factor, cx, cy) {
+    const next = clamp(zoom * factor, config.minZoom, config.maxZoom);
+    const ratio = next / zoom;
+    panX = cx - ratio * (cx - panX);
+    panY = cy - ratio * (cy - panY);
+    zoom = next;
+    fitMode = "custom";
+    applyTransform();
+  }
+  function readSvgNaturalSize(svg) {
+    let w = 0,
+      h = 0;
+    if (svg.viewBox?.baseVal?.width > 0) {
+      w = svg.viewBox.baseVal.width;
+      h = svg.viewBox.baseVal.height;
+    }
+    if (!w) {
+      w = parseFloat(svg.getAttribute("width")) || 0;
+      h = parseFloat(svg.getAttribute("height")) || 0;
+    }
+    if (!w) {
+      const b = svg.getBBox();
+      w = b.width;
+      h = b.height;
+    }
+    if (!w) {
+      const r = svg.getBoundingClientRect();
+      w = r.width || 1000;
+      h = r.height || 700;
+    }
+    if (!svg.getAttribute("viewBox"))
+      svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+    return { w, h };
+  }
+  function setAdaptiveHeight() {
+    if (!svgW) return;
+    const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2);
+    const idealH = (svgH / svgW) * usableW + config.fitPadding * 2;
+    const maxVp = Math.floor(innerHeight * config.maxHeightVh);
+    const hardMax = Math.min(
+      config.maxHeightPx,
+      Math.max(config.minHeight + 40, maxVp),
+    );
+    wrap.style.height =
+      Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+  }
+  function openInNewTab() {
+    const svg = canvas.querySelector("svg");
+    if (!svg) return;
+    const clone = svg.cloneNode(true);
+    clone.style.width = "";
+    clone.style.height = "";
+    const bg = isDark ? "#0f172a" : "#f8fafc";
+    const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}
+svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+    open(
+      URL.createObjectURL(new Blob([html], { type: "text/html" })),
+      "_blank",
+    );
+  }
+  async function render() {
+    try {
+      const code = source.textContent.trim();
+      if (!code) {
+        label.textContent = "Lỗi: nguồn rỗng";
+        return;
+      }
+      const id =
+        "diagram-" +
+        Date.now() +
+        "-" +
+        Math.random().toString(36).slice(2, 8);
+      const { svg } = await mermaid.render(id, code);
+      canvas.innerHTML = svg;
+      const svgNode = canvas.querySelector("svg");
+      if (!svgNode) {
+        label.textContent = "Lỗi: không có SVG";
+        return;
+      }
+      const size = readSvgNaturalSize(svgNode);
+      svgW = size.w;
+      svgH = size.h;
+      svgNode.removeAttribute("width");
+      svgNode.removeAttribute("height");
+      svgNode.style.maxWidth = "none";
+      svgNode.style.display = "block";
+      setAdaptiveHeight();
+      fitDiagram();
+    } catch (err) {
+      console.error("Mermaid render failed:", err);
+      label.textContent = "Lỗi: " + (err.message || "render thất bại");
+    }
+  }
+
+  const actions = {
+    "zoom-in": () =>
+      zoomAround(
+        1 + config.zoomStep,
+        viewport.clientWidth / 2,
+        viewport.clientHeight / 2,
+      ),
+    "zoom-out": () =>
+      zoomAround(
+        1 / (1 + config.zoomStep),
+        viewport.clientWidth / 2,
+        viewport.clientHeight / 2,
+      ),
+    "zoom-fit": fitDiagram,
+    "zoom-one": setOneToOne,
+    "zoom-expand": openInNewTab,
+  };
+  Object.entries(actions).forEach(([action, handler]) => {
+    wrap
+      .querySelector(`[data-action="${action}"]`)
+      ?.addEventListener("click", handler);
+  });
+
+  viewport.addEventListener("dblclick", fitDiagram);
+  viewport.addEventListener(
+    "wheel",
+    (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        const rect = viewport.getBoundingClientRect();
+        const factor =
+          e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep);
+        zoomAround(factor, e.clientX - rect.left, e.clientY - rect.top);
+        return;
+      }
+      if (canPan()) {
+        e.preventDefault();
+        panX -= e.deltaX;
+        panY -= e.deltaY;
+        applyTransform();
+      }
+    },
+    { passive: false },
+  );
+
+  viewport.addEventListener("mousedown", (e) => {
+    if (e.target.closest(".zoom-controls") || !canPan()) return;
+    wrap.classList.add("is-panning");
+    sx = e.clientX;
+    sy = e.clientY;
+    spx = panX;
+    spy = panY;
+    e.preventDefault();
+    activeDrag = {
+      onMove: (ev) => {
+        panX = spx + (ev.clientX - sx);
+        panY = spy + (ev.clientY - sy);
+        applyTransform();
+      },
+      onEnd: () => wrap.classList.remove("is-panning"),
+    };
+  });
+
+  viewport.addEventListener(
+    "touchstart",
+    (e) => {
+      if (e.touches.length === 1) {
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        spx = panX;
+        spy = panY;
+      } else if (e.touches.length === 2) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        touchDist = Math.sqrt(dx * dx + dy * dy);
+        const r = viewport.getBoundingClientRect();
+        touchCx =
+          (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+        touchCy =
+          (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+      }
+    },
+    { passive: true },
+  );
+
+  viewport.addEventListener(
+    "touchmove",
+    (e) => {
+      if (e.touches.length === 1 && canPan()) {
+        if (touchDist > 0) {
+          sx = e.touches[0].clientX;
+          sy = e.touches[0].clientY;
+          spx = panX;
+          spy = panY;
+          touchDist = 0;
+        }
+        e.preventDefault();
+        panX = spx + (e.touches[0].clientX - sx);
+        panY = spy + (e.touches[0].clientY - sy);
+        applyTransform();
+      } else if (e.touches.length === 2 && touchDist > 0) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        zoomAround(d / touchDist, touchCx, touchCy);
+        touchDist = d;
+      }
+    },
+    { passive: false },
+  );
+
+  new ResizeObserver(() => {
+    if (svgW) {
+      setAdaptiveHeight();
+      fitDiagram();
+    }
+  }).observe(wrap);
+  render();
+}
+
+document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+
+    </script>
+  </body>
+</html>

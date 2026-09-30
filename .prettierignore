@@ -23,8 +23,18 @@ docs/generated/
 docs/features/
 docs/system/
 docs/README.md
-docs/.reading-order.json
-docs/_source-to-fcode.json
+
+# Self-contained HTML renderings of the Markdown docs next to them. They carry
+# their CSS and JS inline, and the mermaid sources inside them are
+# whitespace-sensitive, so Prettier must not reflow them. The one hand-built
+# page (authorization-mechanics-...) is NOT listed and stays checked.
+docs/queue-job-worker-scheduler-guide.html
+docs/queue-scheduler-gcp-vs-bullmq.html
+docs/bullmq-nestjs-schedule-deep-dive.html
+docs/gcp-queue-scheduler-deep-dive.html
+docs/aimo-message-queue-flow.html
+docs/aimo-gcp-services.html
+docs/worker-catalog-and-implementation.html
 
 # Vendored agent skills installed from an upstream repository — kept byte-for-byte
 # as published so they can be diffed against upstream.
