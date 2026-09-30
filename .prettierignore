@@ -23,8 +23,6 @@ docs/generated/
 docs/features/
 docs/system/
 docs/README.md
-docs/.reading-order.json
-docs/_source-to-fcode.json
 
 # Self-contained HTML renderings of the Markdown docs next to them. They carry
 # their CSS and JS inline, and the mermaid sources inside them are
