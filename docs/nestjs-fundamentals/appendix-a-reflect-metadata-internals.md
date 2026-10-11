@@ -282,10 +282,13 @@ Reflect.getMetadata("design:paramtypes", Dto); // [Dep]
 Reflect.getMetadata("design:paramtypes", NoDeco); // undefined
 ```
 
-**Đây là toàn bộ lý do `@Injectable()` tồn tại.** Bản thân nó chỉ dán một cờ gần như vô dụng; việc thật của nó là
-**ép `tsc` sinh `design:paramtypes` cho constructor**. Bỏ `@Injectable()` khỏi một service có dependency → mảng kiểu
-không được dán → Nest báo `Nest can't resolve dependencies of the RoleService (?)` (thí nghiệm ở [chương 1 §13](01-decorators-and-metadata.md#13-tự-kiểm-chứng)).
-Cùng lý do cho từng field DTO: `class-validator` cần `design:type` nên mỗi field phải có ít nhất một decorator.
+`@Injectable()` tạo điều kiện để `tsc` emit `design:paramtypes`, đồng thời **tự ghi watermark và options scope**.
+Bỏ decorator cuối cùng khỏi service có dependency có thể khiến Nest boot với dependency `undefined`, vì không còn
+mảng token nào để resolve. Khác với token đã được khai nhưng thiếu provider: lỗi đó mới bị phát hiện lúc boot.
+
+**Rule class-validator không nằm trong bảng này.** `@IsString()` đăng ký rule vào `MetadataStorage` riêng và kiểm
+giá trị, không cần `design:type`. Tương tự, `@Expose()` của class-transformer có kho riêng. `design:type` là metadata
+compiler emit; nó không phải rule validation. Xem [chương 1 §6.5](01-decorators-and-metadata.md#65-dán-cho-cả-quyển-hay-cho-một-trang).
 
 ### 5.2 Kiểu nào ra hàm dựng nào
 

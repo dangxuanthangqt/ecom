@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chương 2 — Reflector, ExecutionContext, Discovery</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chương 2 — Reflector, ExecutionContext và Discovery</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Azeret+Mono:wght@400;500;600&amp;display=swap"
       rel="stylesheet"
     />
     <style>
@@ -1092,1205 +1092,1466 @@
           max-width: none;
         }
       }
+
+      /* Markdown-generated content uses the existing paper/ink theme. */
+      h2.sec-head {
+        display: block;
+        font-size: 1.45rem;
+        line-height: 1.5;
+        scroll-margin-top: 24px;
+      }
+      h3.sub {
+        font-size: 1.15rem;
+        margin-top: 30px;
+        line-height: 1.6;
+      }
+      h4.sub,
+      h5.sub,
+      h6.sub {
+        margin-top: 24px;
+        line-height: 1.6;
+      }
+      blockquote {
+        margin: 20px 0;
+        padding: 12px 22px;
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+      }
+      blockquote .prose:last-child {
+        margin-bottom: 0;
+      }
+      .main > ul,
+      .main > ol {
+        padding-left: 26px;
+        margin: 16px 0 24px;
+      }
+      li {
+        line-height: 1.85;
+      }
+      li > .prose {
+        margin: 6px 0;
+      }
+      pre.code-file__body {
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      pre code {
+        font: inherit;
+        color: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .series-bar {
+        flex-wrap: wrap;
+      }
+      .series-bar a[aria-current="page"] {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .diagram-code {
+        margin: 10px 0 24px;
+      }
+      .diagram-code pre {
+        overflow-x: auto;
+        padding: 16px;
+        background: var(--surface);
+      }
+      .source-footer {
+        margin: 48px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.8rem;
+      }
+      .mermaid-wrap[hidden] {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <button
       class="theme-toggle"
       id="themeToggle"
-      title="Đổi giao diện sáng/tối"
       aria-label="Đổi giao diện sáng tối"
-    ></button>
+    >
+      ☾
+    </button>
     <div class="wrap">
-      <nav class="toc" id="toc">
-        <div class="toc-title">Chương 2</div>
-        <a href="#s1">Bốn hàm Reflector</a>
-        <a href="#s2">Thứ tự là hợp đồng</a>
-        <a href="#s3">ExecutionContext</a>
-        <a href="#s4">Mắt xích khép kín</a>
-        <a href="#s5">Quét toàn app</a>
-        <a href="#s6">Lifecycle hooks</a>
-        <a href="#s7">Nâng cao</a>
-        <a href="#s8">Trong dự án</a>
-        <a href="#s9">Tự kiểm chứng</a>
+      <nav class="toc" aria-label="Mục lục chương">
+        <div class="toc-title">Trong chương</div>
+        <a href="#1-reflector--bốn-hàm-một-bảng-ẩn"
+          >1. Reflector — bốn hàm, một bảng ẩn</a
+        ><a href="#2-thứ-tự-targets-là-một-hợp-đồng"
+          >2. Thứ tự targets là một hợp đồng</a
+        ><a href="#3-executioncontext--cửa-sổ-nhìn-vào-request-đang-chạy"
+          >3. ExecutionContext — cửa sổ nhìn vào request đang chạy</a
+        ><a
+          href="#4-mắt-xích-khép-kín-decorator-dán-lên-đúng-cái-gethandler-trả-về"
+          >4. Mắt xích khép kín: decorator dán lên đúng cái getHandler() trả
+          về</a
+        ><a href="#5-đọc-cả-ứng-dụng-một-lượt-discoveryservice--metadatascanner"
+          >5. Đọc cả ứng dụng một lượt: DiscoveryService + MetadataScanner</a
+        ><a href="#6-chạy-lúc-nào-lifecycle-hooks"
+          >6. Chạy lúc nào: lifecycle hooks</a
+        ><a href="#7-nâng-cao">7. Nâng cao</a
+        ><a href="#8-trong-dự-án-này">8. Trong dự án này</a
+        ><a href="#9-tự-kiểm-chứng">9. Tự kiểm chứng</a>
         <div class="toc-series">
           <a href="index.html">↑ Mục lục bộ</a
-          ><a href="01-decorators-and-metadata.html">← Chương 1</a
-          ><a href="03-guards.html">→ Chương 3</a>
+          ><a href="02-reflector-execution-context-and-discovery.md"
+            >Bản Markdown</a
+          >
         </div>
       </nav>
-
-      <div class="main">
-        <div class="series-bar">
-          <a href="index.html">Mục lục</a><span class="sep">·</span>
-          <a href="00-prototype-and-this.html">00 Prototype</a>
-          <a href="01-decorators-and-metadata.html">01 Decorator</a>
-          <span>02 Reflector</span>
-          <a href="03-guards.html">03 Guard</a>
-          <a href="04-middleware.html">04 Middleware</a>
-          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
-          <a href="06-modules-and-dependency-injection.html"
+      <main class="main">
+        <nav class="series-bar" aria-label="Các chương">
+          <a href="index.html">Mục lục</a
+          ><a href="00-prototype-and-this.html">00 Prototype</a
+          ><a href="01-decorators-and-metadata.html">01 Decorator</a
+          ><a
+            href="02-reflector-execution-context-and-discovery.html"
+            aria-current="page"
+            >02 Reflector</a
+          ><a href="03-guards.html">03 Guard</a
+          ><a href="04-middleware.html">04 Middleware</a
+          ><a href="05-request-lifecycle-in-this-project.html"
+            >05 Vòng đời request</a
+          ><a href="06-modules-and-dependency-injection.html"
             >06 Module &amp; DI</a
-          >
-          <a href="07-dto-validation-transformation-serialization.html"
+          ><a href="07-dto-validation-transformation-serialization.html"
             >07 DTO</a
+          ><a href="08-request-and-provider-instances.html"
+            >08 Instance &amp; scope</a
+          ><a href="09-interceptors.html">09 Interceptor</a
+          ><a href="10-exception-filters.html">10 Filter</a
+          ><a href="11-controllers-and-http-routing.html">11 Controller</a
+          ><a href="12-pipes-and-input-contracts.html">12 Pipe</a
+          ><a href="13-testing-fundamentals.html">13 Testing</a
+          ><a href="14-bootstrap-configuration-and-shutdown.html"
+            >14 Bootstrap</a
+          ><a href="appendix-a-reflect-metadata-internals.html"
+            >Phụ lục A — reflect-metadata bên trong</a
           >
-          <a href="appendix-a-reflect-metadata-internals.html"
-            >A reflect-metadata</a
-          >
-          <span class="sep">·</span
-          ><a href="02-reflector-execution-context-and-discovery.md"
-            >bản markdown đầy đủ</a
-          >
-        </div>
-
+        </nav>
         <header class="masthead">
-          <div class="eyebrow">Chương 2</div>
-          <h1>Reflector, ExecutionContext và Discovery</h1>
-          <p class="subtitle">
+          <h1 id="chương-2--reflector-executioncontext-và-discovery">
+            Chương 2 — Reflector, ExecutionContext và Discovery
+          </h1>
+        </header>
+        <blockquote>
+          <p class="prose">
             <a href="01-decorators-and-metadata.html">Chương 1</a> dán nhãn.
-            Chương này:
+            Chương này trả lời
             <strong
               >ai đọc lại nhãn, đọc ở đâu, và đọc cả ứng dụng một lượt bằng cách
               nào</strong
-            >.
+            >. Ba công cụ: <code>Reflector</code> (đọc nhãn của một handler, mỗi
+            request), <code>ExecutionContext</code> (cho biết handler nào đang
+            được gọi), <code>DiscoveryService</code> (liệt kê mọi controller lúc
+            boot).
           </p>
-        </header>
-
-        <div class="sec-head" id="s1">
-          <span class="sec-head__num">01</span
-          ><span class="sec-head__text">Reflector — bốn hàm, một bảng ẩn</span>
-        </div>
-        <p class="lead">
-          <code>Reflector</code> là service của <code>@nestjs/core</code>, bên
-          trong không có gì ngoài <code>Reflect.getMetadata</code>. Giá trị nằm
-          ở bốn hàm tiện ích.
+        </blockquote>
+        <p class="prose"><strong>Mục lục</strong></p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <a href="#1-reflector--bốn-hàm-một-bảng-ẩn"
+                >Reflector — bốn hàm, một bảng ẩn</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#2-thứ-tự-targets-là-một-hợp-đồng"
+                >Thứ tự <code>targets</code> là một hợp đồng</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#3-executioncontext--cửa-sổ-nhìn-vào-request-đang-chạy"
+                >ExecutionContext — cửa sổ nhìn vào request đang chạy</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#4-mắt-xích-khép-kín-decorator-dán-lên-đúng-cái-gethandler-trả-về"
+                >Mắt xích khép kín: decorator dán lên đúng cái
+                <code>getHandler()</code> trả về</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#5-đọc-cả-ứng-dụng-một-lượt-discoveryservice--metadatascanner"
+                >Đọc cả ứng dụng một lượt: DiscoveryService + MetadataScanner</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#6-chạy-lúc-nào-lifecycle-hooks"
+                >Chạy lúc nào: lifecycle hooks</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#7-nâng-cao">Nâng cao</a></p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#8-trong-dự-án-này">Trong dự án này</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#9-tự-kiểm-chứng">Tự kiểm chứng</a></p>
+          </li>
+        </ol>
+        <hr />
+        <h2 id="1-reflector--bốn-hàm-một-bảng-ẩn" class="sec-head">
+          1. Reflector — bốn hàm, một bảng ẩn
+        </h2>
+        <p class="prose">
+          <code>Reflector</code> là một service của <code>@nestjs/core</code>,
+          tiêm được vào bất kỳ đâu. Bên trong nó
+          <strong>không có gì ngoài</strong> <code>Reflect.getMetadata</code> —
+          cái bảng ẩn của
+          <a href="01-decorators-and-metadata.html">chương 1</a>. Giá trị của nó
+          nằm ở bốn hàm tiện ích:
         </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>ví dụ: decorator Roles dán ở cả class và method</span>
-          </div>
+          <div class="code-file__header">ts</div>
           <pre
             class="code-file__body"
-          ><code><span class="kw">const</span> Roles = (...roles: string[]) =&gt; <span class="fn">SetMetadata</span>(<span class="st">"roles"</span>, roles);
+          ><code>import { Reflector } from &quot;@nestjs/core&quot;;
 
-@<span class="fn">Roles</span>(<span class="st">"admin"</span>)
-<span class="kw">class</span> UserController {
-  @<span class="fn">Roles</span>(<span class="st">"seller"</span>) <span class="fn">list</span>() {}
-  <span class="fn">plain</span>() {}
+reflector.get(key, target); // đọc một chỗ
+reflector.getAll(key, [t1, t2]); // đọc nhiều chỗ, trả mảng thô
+reflector.getAllAndOverride(key, [t1, t2]); // đọc nhiều chỗ, lấy CÁI ĐẦU TIÊN có giá trị
+reflector.getAllAndMerge(key, [t1, t2]); // đọc nhiều chỗ, GỘP lại</code></pre>
+        </div>
+        <p class="prose">
+          Ví dụ với một decorator <code>Roles</code> dán ở cả class và method:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const Roles = (...roles: string[]) =&gt; SetMetadata(&quot;roles&quot;, roles);
+
+@Roles(&quot;admin&quot;)
+class UserController {
+  @Roles(&quot;seller&quot;)
+  list() {}
+
+  plain() {}
 }</code></pre>
         </div>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Gọi</th>
-                  <th>Kết quả</th>
-                  <th>Vì sao</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>get("roles", list)</code></td>
-                  <td><code>["seller"]</code></td>
-                  <td>đọc đúng hàm <code>list</code></td>
-                </tr>
-                <tr>
-                  <td><code>get("roles", plain)</code></td>
-                  <td><code>undefined</code></td>
-                  <td><code>plain</code> không có nhãn</td>
-                </tr>
-                <tr>
-                  <td>
-                    <code
-                      >getAllAndOverride("roles", [list, UserController])</code
-                    >
-                  </td>
-                  <td><code>["seller"]</code></td>
-                  <td>
-                    <code>list</code> có giá trị → lấy, <strong>dừng</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <code
-                      >getAllAndOverride("roles", [plain, UserController])</code
-                    >
-                  </td>
-                  <td><code>["admin"]</code></td>
-                  <td>
-                    <code>plain</code> là <code>undefined</code> → nhìn tiếp
-                    sang class
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <code
-                      >getAllAndOverride("roles", [UserController, list])</code
-                    >
-                  </td>
-                  <td><code>["admin"]</code></td>
-                  <td>
-                    <strong>đảo thứ tự</strong> → class thắng dù
-                    <code>list</code> có nhãn riêng
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>getAllAndMerge("roles", [list, UserController])</code>
-                  </td>
-                  <td><code>["seller", "admin"]</code></td>
-                  <td>hai mảng nối lại</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label">Dùng <code>Override</code> khi</div>
-            <p>
-              Nhãn là một <strong>quyết định</strong>: quyền cần, public hay
-              không, mã HTTP. Method nói gì nghe method, không thì nghe class.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              Dùng <code>Merge</code> khi
-            </div>
-            <p>
-              Nhãn là <strong>danh sách cộng dồn</strong>: nhiều role được phép,
-              nhiều tag. Dự án dùng <em>override</em> cho mọi nhãn tự viết.
-            </p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s2">
-          <span class="sec-head__num">02</span
-          ><span class="sec-head__text"
-            >Thứ tự <code>targets</code> là một hợp đồng</span
-          >
-        </div>
-        <div class="code-file">
-          <div class="code-file__header">
-            <span>src/shared/guards/access-token.guard.ts</span
-            ><span>dòng 77-79</span>
-          </div>
-          <pre
-            class="code-file__body"
-          ><code><span class="kw">const</span> required = <span class="kw">this</span>.reflector.<span class="fn">getAllAndOverride</span>&lt;PermissionKey | undefined&gt;(
-  PERMISSION_KEY,
-  [context.<span class="fn">getHandler</span>(), context.<span class="fn">getClass</span>()],   <span class="cm">// ← handler TRƯỚC</span>
-);</code></pre>
-        </div>
-        <div class="diff-panels">
-          <div>
-            <div class="diff-panel__header diff-panel__header--good">
-              [handler, class] — như dự án
-            </div>
-            <div class="diff-panel__body">
-              <ul>
-                <li>Method có nhãn → dùng nó</li>
-                <li>Method không, class có → mặc định của controller</li>
-                <li>
-                  Cả hai không → <code>undefined</code> → guard trả 500 (<a
-                    href="03-guards.html"
-                    >chương 3</a
-                  >)
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div>
-            <div class="diff-panel__header diff-panel__header--bad">
-              [class, handler] — "dọn code" sai
-            </div>
-            <div class="diff-panel__body">
-              <ul>
-                <li>
-                  Compile vẫn qua, test vẫn xanh nếu chưa controller nào dán cấp
+          <table>
+            <thead>
+              <tr>
+                <th>Gọi</th>
+                <th>Kết quả</th>
+                <th>Vì sao</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>get(&quot;roles&quot;, list)</code></td>
+                <td><code>[&quot;seller&quot;]</code></td>
+                <td>đọc đúng hàm <code>list</code></td>
+              </tr>
+              <tr>
+                <td><code>get(&quot;roles&quot;, plain)</code></td>
+                <td><code>undefined</code></td>
+                <td><code>plain</code> không có nhãn</td>
+              </tr>
+              <tr>
+                <td><code>get(&quot;roles&quot;, UserController)</code></td>
+                <td><code>[&quot;admin&quot;]</code></td>
+                <td>đọc class</td>
+              </tr>
+              <tr>
+                <td>
+                  <code
+                    >getAllAndOverride(&quot;roles&quot;, [list,
+                    UserController])</code
+                  >
+                </td>
+                <td><code>[&quot;seller&quot;]</code></td>
+                <td><code>list</code> có giá trị → lấy, dừng</td>
+              </tr>
+              <tr>
+                <td>
+                  <code
+                    >getAllAndOverride(&quot;roles&quot;, [plain,
+                    UserController])</code
+                  >
+                </td>
+                <td><code>[&quot;admin&quot;]</code></td>
+                <td>
+                  <code>plain</code> là <code>undefined</code> → nhìn tiếp sang
                   class
-                </li>
-                <li>
-                  Ngày đầu tiên có nhãn cấp class →
-                  <strong>mọi method bị ghi đè</strong>
-                </li>
-                <li>Không có lỗi, chỉ có 403 khó hiểu</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="code-file">
-          <div class="code-file__header">
-            <span>src/shared/guards/authorization-header.guard.ts</span
-            ><span>dòng 40-47</span>
-          </div>
-          <pre
-            class="code-file__body"
-          ><code><span class="kw">const</span> authorizationMetadata = <span class="kw">this</span>.reflector.<span class="fn">getAllAndOverride</span>&lt;AuthorizationHeaderMetadata | undefined&gt;(
-  AUTHORIZATION_HEADER_KEY, [context.<span class="fn">getHandler</span>(), context.<span class="fn">getClass</span>()]);
-
-<span class="kw">const</span> {
-  authorizationTypes = [AuthorizationType.BEARER],        <span class="cm">// Default value is BEARER</span>
-  combinedCondition = CombinedAuthorizationCondition.AND, <span class="cm">// Default value is AND</span>
-} = authorizationMetadata ?? {};</code></pre>
-        </div>
-        <div class="callout callout--success">
-          <div class="callout__title">Mẫu hay để học</div>
-          <code>undefined</code> từ Reflector được biến thành mặc định
-          <strong>ngay tại chỗ đọc</strong>, và mặc định là
-          <strong>đóng</strong> (<code>BEARER</code>). Route không dán gì =
-          route cần đăng nhập. Không ai phải nhớ dán
-          <code>@AuthApi([BEARER])</code>.
-        </div>
-
-        <div class="sec-head" id="s3">
-          <span class="sec-head__num">03</span
-          ><span class="sec-head__text"
-            >ExecutionContext — cửa sổ nhìn vào request đang chạy</span
-          >
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            <div class="ve-card__label">
-              "Request này là gì?" — từ <code>ArgumentsHost</code>
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 13px;
-              "
-            ><code>context.<span class="fn">getType</span>()                    <span class="cm">// "http" | "rpc" | "ws"</span>
-context.<span class="fn">switchToHttp</span>().<span class="fn">getRequest</span>()  <span class="cm">// Express Request</span>
-context.<span class="fn">switchToHttp</span>().<span class="fn">getResponse</span>() <span class="cm">// Express Response</span>
-context.<span class="fn">getArgs</span>()                    <span class="cm">// [req, res, next]</span></code></pre>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 1">
-            <div class="ve-card__label ve-card__label--c">
-              "Sẽ rơi vào đâu?" — chỉ <code>ExecutionContext</code> có
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 13px;
-              "
-            ><code>context.<span class="fn">getClass</span>()    <span class="cm">// ManageProductController</span>
-context.<span class="fn">getHandler</span>()  <span class="cm">// ManageProductController
-                      //   .prototype.getManageProducts</span></code></pre>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Nơi</th>
-                  <th>Nhận</th>
-                  <th>Biết handler?</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Guard <code>canActivate(context)</code></td>
-                  <td><code>ExecutionContext</code></td>
-                  <td><span class="status status--match">Có</span></td>
-                </tr>
-                <tr>
-                  <td>Interceptor <code>intercept(context, next)</code></td>
-                  <td><code>ExecutionContext</code></td>
-                  <td><span class="status status--match">Có</span></td>
-                </tr>
-                <tr>
-                  <td>Param decorator factory <code>(data, context)</code></td>
-                  <td><code>ExecutionContext</code></td>
-                  <td><span class="status status--match">Có</span></td>
-                </tr>
-                <tr>
-                  <td>Exception filter <code>catch(exception, host)</code></td>
-                  <td><code>ArgumentsHost</code></td>
-                  <td>
-                    <span class="status status--gap">Không</span> — lỗi có thể
-                    ném từ nơi chưa chọn handler
-                  </td>
-                </tr>
-                <tr>
-                  <td>Middleware <code>use(req, res, next)</code></td>
-                  <td>không có context</td>
-                  <td>
-                    <span class="status status--gap">Không</span> —
-                    <a href="04-middleware.html">chương 4</a>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <p class="dim">
-          Dự án dùng <code>getType()</code> ở
-          <code>global-exception.filter.ts:36</code> để phòng ngày có WebSocket
-          gateway.
-        </p>
-
-        <div class="sec-head" id="s4">
-          <span class="sec-head__num">04</span
-          ><span class="sec-head__text">Mắt xích khép kín</span>
-        </div>
-        <p class="lead">
-          <a href="01-decorators-and-metadata.html">Chương 1</a>:
-          <code>SetMetadata</code> dán lên <code>descriptor.value</code> — hàm
-          method trên prototype. Chương này: <code>getHandler()</code> trả về
-          hàm method trên prototype.
-          <strong>Cùng một object.</strong>
-        </p>
-        <section class="diagram-shell">
-          <div class="mermaid-wrap" style="min-height: 280px">
-            <div class="zoom-controls">
-              <button type="button" data-action="zoom-in">+</button
-              ><button type="button" data-action="zoom-out">&minus;</button
-              ><button type="button" data-action="zoom-fit">&#8634;</button
-              ><button type="button" data-action="zoom-one">1:1</button
-              ><button type="button" data-action="zoom-expand">&#x26F6;</button
-              ><span class="zoom-label">Đang tải...</span>
-            </div>
-            <div class="mermaid-viewport">
-              <div class="mermaid mermaid-canvas"></div>
-            </div>
-          </div>
-          <script type="text/plain" class="diagram-source">
-            flowchart LR
-                subgraph D["Lúc định nghĩa class — một lần"]
-                    A["@RequirePermission('x')"] --> B["SetMetadata(KEY, 'x')"] --> C["Reflect.defineMetadata(KEY, 'x', fn)"]
-                end
-                subgraph R["Lúc có request — mỗi lần"]
-                    E["context.getHandler()"] --> F["reflector.get(KEY, fn)"] --> G["Reflect.getMetadata(KEY, fn)"] --> H["'x'"]
-                end
-                C --> FN[("fn = ManageProductController<br/>.prototype.getManageProducts")]
-                E --> FN
-                classDef fn fill:#c2410c33,stroke:#c2410c,stroke-width:2px
-                class FN fn
-          </script>
-        </section>
-        <div class="callout callout--warning">
-          <div class="callout__title">Hệ quả thực hành</div>
-          Không bao giờ bind hay wrap method controller kiểu
-          <code>this.list = this.list.bind(this)</code>. Hàm mới không mang
-          metadata của hàm cũ — mắt xích đứt.
-        </div>
-
-        <div class="sec-head" id="s5">
-          <span class="sec-head__num">05</span
-          ><span class="sec-head__text"
-            >Đọc cả ứng dụng một lượt: DiscoveryService + MetadataScanner</span
-          >
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code
+                    >getAllAndMerge(&quot;roles&quot;, [list,
+                    UserController])</code
+                  >
+                </td>
+                <td><code>[&quot;seller&quot;, &quot;admin&quot;]</code></td>
+                <td>hai mảng nối lại</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <p class="prose">
+          Mã nguồn thật của hai hàm quan trọng (rút gọn), để thấy chúng đơn giản
+          đến mức nào:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>getAllAndOverride(key, targets) {
+  for (const target of targets) {
+    const result = this.get(key, target);
+    if (result !== undefined) return result;
+  }
+  return undefined;
+}
+
+getAllAndMerge(key, targets) {
+  const values = this.getAll(key, targets).filter(v =&gt; v !== undefined);
+  // ...một giá trị → trả nó; nhiều giá trị → mảng thì concat, object thì spread
+}</code></pre>
+        </div>
+        <p class="prose">Chọn hàm nào:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Override</strong> khi nhãn là một
+              <strong>quyết định</strong>: quyền cần, có public hay không, mã
+              HTTP trả về. Method nói gì thì nghe method, không thì nghe class.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Merge</strong> khi nhãn là một
+              <strong>danh sách cộng dồn</strong>: nhiều role được phép, nhiều
+              tag.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Dự án dùng <strong>override</strong> cho mọi nhãn tự viết — vì
+          <code>@RequirePermission</code> là quyết định, không phải danh sách.
+        </p>
+        <hr />
+        <h2 id="2-thứ-tự-targets-là-một-hợp-đồng" class="sec-head">
+          2. Thứ tự <code>targets</code> là một hợp đồng
+        </h2>
+        <p class="prose">
+          Đây là dòng quan trọng nhất trong cả hệ phân quyền —
+          <a href="../../src/shared/guards/access-token.guard.ts#L77-L79"
+            >access-token.guard.ts:77-79</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const required = this.reflector.getAllAndOverride&lt;PermissionKey | undefined&gt;(
+  PERMISSION_KEY,
+  [context.getHandler(), context.getClass()],
+);</code></pre>
+        </div>
+        <p class="prose">
+          <code>[handler, class]</code> — <strong>handler trước</strong>. Với
+          <code>getAllAndOverride</code>, thứ tự mảng là thứ tự ưu tiên. Nghĩa
+          là:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              Method có <code>@RequirePermission</code> → dùng nó.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Method không có, class có → dùng của class (một &quot;mặc định cho
+              cả controller&quot;).
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Cả hai không có → <code>undefined</code> → guard trả 500 (<a
+                href="03-guards.html"
+                >chương 3</a
+              >).
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Nếu ai đó &quot;dọn code&quot; thành
+          <code>[context.getClass(), context.getHandler()]</code>, hệ thống vẫn
+          compile, test vẫn chạy nếu không có controller nào dán ở cấp class —
+          nhưng ngày controller đầu tiên dán nhãn cấp class xuất hiện,
+          <strong>mọi method bên trong bị ghi đè</strong> bởi nhãn của class.
+          Không có lỗi, chỉ có 403 khó hiểu.
+        </p>
+        <p class="prose">
+          Cùng thứ tự đó ở guard điều phối —
+          <a
+            href="../../src/shared/guards/authorization-header.guard.ts#L40-L47"
+            >authorization-header.guard.ts:40-47</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const authorizationMetadata = this.reflector.getAllAndOverride&lt;
+  AuthorizationHeaderMetadata | undefined
+&gt;(AUTHORIZATION_HEADER_KEY, [context.getHandler(), context.getClass()]);
+
+const {
+  authorizationTypes = [AuthorizationType.BEARER], // Default value is BEARER
+  combinedCondition = CombinedAuthorizationCondition.AND, // Default value is AND
+} = authorizationMetadata ?? {};</code></pre>
+        </div>
+        <p class="prose">
+          Hai dòng cuối là mẫu hay để học:
+          <strong
+            ><code>undefined</code> từ Reflector được biến thành mặc định ngay
+            tại chỗ đọc</strong
+          >, và mặc định là <strong>đóng</strong> (<code>BEARER</code>). Route
+          không dán gì = route cần đăng nhập. Không ai phải nhớ dán
+          <code>@AuthApi([BEARER])</code>.
+        </p>
+        <hr />
+        <h2
+          id="3-executioncontext--cửa-sổ-nhìn-vào-request-đang-chạy"
+          class="sec-head"
+        >
+          3. ExecutionContext — cửa sổ nhìn vào request đang chạy
+        </h2>
+        <p class="prose">
+          Guard, interceptor và param decorator đều nhận một
+          <code>ExecutionContext</code>. Nó trả lời hai loại câu hỏi:
+        </p>
+        <p class="prose">
+          <strong>&quot;Request này là gì?&quot;</strong> — thừa kế từ
+          <code>ArgumentsHost</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>context.getType(); // &quot;http&quot; | &quot;rpc&quot; | &quot;ws&quot;
+context.switchToHttp().getRequest(); // Express Request
+context.switchToHttp().getResponse(); // Express Response
+context.switchToHttp().getNext(); // Express next()
+context.getArgs(); // [req, res, next] thô</code></pre>
+        </div>
+        <p class="prose">
+          <strong>&quot;Request này sẽ rơi vào đâu?&quot;</strong> — chỉ
+          <code>ExecutionContext</code> mới có:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>context.getClass(); // constructor của controller, ví dụ ManageProductController
+context.getHandler(); // hàm method, ví dụ ManageProductController.prototype.getManageProducts</code></pre>
+        </div>
+        <p class="prose">Ai nhận cái nào:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nơi</th>
+                <th>Nhận</th>
+                <th>Biết handler?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Guard <code>canActivate(context)</code></td>
+                <td><code>ExecutionContext</code></td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td>Interceptor <code>intercept(context, next)</code></td>
+                <td><code>ExecutionContext</code></td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td>Param decorator factory <code>(data, context)</code></td>
+                <td><code>ExecutionContext</code></td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td>Exception filter <code>catch(exception, host)</code></td>
+                <td><code>ArgumentsHost</code></td>
+                <td>
+                  <strong>Không</strong> — lỗi có thể ném từ nơi chưa chọn
+                  handler
+                </td>
+              </tr>
+              <tr>
+                <td>Middleware <code>use(req, res, next)</code></td>
+                <td>Không có context nào</td>
+                <td>
+                  <strong>Không</strong> —
+                  <a href="04-middleware.html">chương 4</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Dự án dùng <code>getType()</code> ở
+          <a href="../../src/shared/filters/global-exception.filter.ts#L36"
+            >global-exception.filter.ts:36</a
+          >
+          để phòng ngày có gateway WebSocket — lúc đó
+          <code>switchToHttp()</code> sẽ trả về thứ không có
+          <code>.status()</code>.
+        </p>
+        <hr />
+        <h2
+          id="4-mắt-xích-khép-kín-decorator-dán-lên-đúng-cái-gethandler-trả-về"
+          class="sec-head"
+        >
+          4. Mắt xích khép kín: decorator dán lên đúng cái
+          <code>getHandler()</code> trả về
+        </h2>
+        <p class="prose">Đây là chỗ hai chương nối vào nhau. Nhìn lại:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <a
+                href="01-decorators-and-metadata.html#7-setmetadata--decorator-metadata-trong-một-dòng"
+                >Chương 1, mục 7</a
+              >: <code>SetMetadata</code> dán lên
+              <strong><code>descriptor.value</code></strong> — chính là hàm
+              method trên prototype.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Chương này: <code>context.getHandler()</code> trả về
+              <strong>hàm method trên prototype</strong>.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Cùng một object. Vì thế
+          <code>reflector.get(KEY, context.getHandler())</code> tìm thấy đúng
+          cái decorator đã dán. Không có đăng ký, không có bảng tra riêng của
+          Nest — chỉ là hai bên cùng chỉ vào một hàm.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>Lúc định nghĩa class                          Lúc có request
+──────────────────────────                    ───────────────────────────────
+@RequirePermission(&quot;x&quot;)                       context.getHandler()
+  → SetMetadata(KEY, &quot;x&quot;)                       → ManageProductController.prototype.getManageProducts
+  → Reflect.defineMetadata(                   reflector.get(KEY, ↑)
+      KEY, &quot;x&quot;,                                 → Reflect.getMetadata(KEY, ↑)
+      ManageProductController                   → &quot;x&quot;
+        .prototype.getManageProducts)</code></pre>
+        </div>
+        <p class="prose">
+          Hệ quả thực tế:
+          <strong>không bao giờ bind hay wrap method controller</strong> kiểu
+          <code>this.list = this.list.bind(this)</code> trong constructor. Hàm
+          mới không mang metadata của hàm cũ.
+        </p>
+        <hr />
+        <h2
+          id="5-đọc-cả-ứng-dụng-một-lượt-discoveryservice--metadatascanner"
+          class="sec-head"
+        >
+          5. Đọc cả ứng dụng một lượt: DiscoveryService + MetadataScanner
+        </h2>
+        <p class="prose">
           Reflector đọc nhãn của <strong>một</strong> handler đang được gọi. Hai
-          việc cần đọc <strong>mọi</strong> handler khi chưa có request nào:
-          boot-check "có route nào quên nhãn?" và seed "gom mọi key đã khai vào
-          bảng <code>Permission</code>".
+          việc trong dự án cần đọc nhãn của <strong>mọi</strong> handler mà
+          không có request nào:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              Lúc boot: có route nào quên <code>@RequirePermission</code> không?
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Lúc seed: tập hợp mọi key đã khai để ghi vào bảng
+              <code>Permission</code>.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">Ba mảnh ghép, đều từ <code>@nestjs/core</code>:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Mảnh</th>
+                <th>Cho bạn</th>
+                <th>Cách lấy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>DiscoveryModule</code></td>
+                <td>quyền dùng hai thứ dưới</td>
+                <td>
+                  <code>imports: [DiscoveryModule]</code> —
+                  <a href="../../src/shared/modules/base.module.ts#L104"
+                    >base.module.ts:104</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td><code>DiscoveryService</code></td>
+                <td>
+                  <code>getControllers()</code>, <code>getProviders()</code> →
+                  mảng <code>InstanceWrapper</code>
+                </td>
+                <td>inject</td>
+              </tr>
+              <tr>
+                <td><code>MetadataScanner</code></td>
+                <td>
+                  <code>getAllMethodNames(prototype)</code> → tên mọi method, kể
+                  cả kế thừa
+                </td>
+                <td>inject</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          <code>InstanceWrapper</code> là vỏ bọc Nest giữ cho mỗi
+          provider/controller: <code>.metatype</code> (class),
+          <code>.instance</code> (object đã tạo), <code>.name</code>. Bạn cần
+          <code>.metatype</code> để lấy <code>.prototype</code> rồi đọc
+          metadata.
+        </p>
+        <p class="prose">
+          Hàm dùng chung của dự án —
+          <a
+            href="../../src/shared/utils/collect-route-permissions.util.ts#L34-L87"
+            >collect-route-permissions.util.ts:34-87</a
+          >. Bản dưới đây
+          <strong>đã rút gọn và thêm chú thích đánh số</strong> để đọc theo từng
+          bước; file gốc không có mấy dòng <code>// 1.</code>,
+          <code>// 2.</code> này:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>for (const wrapper of discoveryService.getControllers()) {         // 1. mọi controller
+  const controllerClass = wrapper.metatype as Type&lt;unknown&gt; | undefined;
+  if (!controllerClass) continue;
+
+  const prototype = controllerClass.prototype as Record&lt;string, unknown&gt;;
+
+  for (const methodName of metadataScanner.getAllMethodNames(prototype)) {   // 2. mọi method
+    const handler = prototype[methodName];
+    if (typeof handler !== &quot;function&quot;) continue;
+
+    if (Reflect.getMetadata(PATH_METADATA, handler) === undefined) continue;  // 3. chỉ giữ route
+
+    const key = reflector.getAllAndOverride&lt;PermissionKey | undefined&gt;(      // 4. đọc nhãn, đúng thứ tự
+      PERMISSION_KEY,
+      [handler, controllerClass],
+    );
+
+    const authorization = reflector.getAllAndOverride&lt;...&gt;(
+      AUTHORIZATION_HEADER_KEY,
+      [handler, controllerClass],
+    );
+
+    // 5. suy ra isPublic / mixesPublicWithAuth, đẩy vào mảng kết quả
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Điểm đáng chú ý ở bước 4:
+          <strong
+            >cùng <code>getAllAndOverride</code>, cùng
+            <code>[handler, controllerClass]</code></strong
+          >
+          như trong guard. Đây là cố ý — nếu quét dùng thứ tự khác guard,
+          boot-check sẽ nói &quot;route này có nhãn&quot; trong khi guard lại
+          đọc ra nhãn khác. Một hàm, hai nơi gọi, không thể lệch.
+        </p>
+        <hr />
+        <h2 id="6-chạy-lúc-nào-lifecycle-hooks" class="sec-head">
+          6. Chạy lúc nào: lifecycle hooks
+        </h2>
+        <p class="prose">
+          Quét toàn app chỉ có nghĩa khi <strong>toàn app đã dựng xong</strong>.
+          Nest cho bốn móc theo thứ tự:
         </p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Mảnh (<code>@nestjs/core</code>)</th>
-                  <th>Cho bạn</th>
-                  <th>Lấy bằng</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>DiscoveryModule</code></td>
-                  <td>quyền dùng hai thứ dưới</td>
-                  <td>
-                    <code>imports: [DiscoveryModule]</code> —
-                    <code>base.module.ts:104</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>DiscoveryService</code></td>
-                  <td>
-                    <code>getControllers()</code> /
-                    <code>getProviders()</code> →
-                    <code>InstanceWrapper[]</code> (<code>.metatype</code>,
-                    <code>.instance</code>, <code>.name</code>)
-                  </td>
-                  <td>inject</td>
-                </tr>
-                <tr>
-                  <td><code>MetadataScanner</code></td>
-                  <td>
-                    <code>getAllMethodNames(prototype)</code> — kể cả method kế
-                    thừa
-                  </td>
-                  <td>inject</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Hook</th>
+                <th>Chạy khi</th>
+                <th>Dùng để</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>onModuleInit()</code></td>
+                <td>module <strong>đó</strong> đã resolve xong dependency</td>
+                <td>khởi tạo nội bộ một module</td>
+              </tr>
+              <tr>
+                <td><code>onApplicationBootstrap()</code></td>
+                <td><strong>mọi</strong> module đã init</td>
+                <td>việc cần nhìn toàn app — quét controller</td>
+              </tr>
+              <tr>
+                <td>
+                  <code>onModuleDestroy()</code> /
+                  <code>beforeApplicationShutdown()</code> /
+                  <code>onApplicationShutdown()</code>
+                </td>
+                <td>tắt app</td>
+                <td>đóng kết nối</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="timeline">
-          <div class="timeline__item">
-            <div class="timeline__title">
-              1 · <code>discoveryService.getControllers()</code>
-            </div>
-            <div class="timeline__desc">
-              Mọi controller DI container đã tạo. Lấy
-              <code>wrapper.metatype</code> → class → <code>.prototype</code>.
-            </div>
-          </div>
-          <div class="timeline__item">
-            <div class="timeline__title">
-              2 · <code>metadataScanner.getAllMethodNames(prototype)</code>
-            </div>
-            <div class="timeline__desc">
-              Tên mọi method. Bỏ qua thứ không phải function.
-            </div>
-          </div>
-          <div class="timeline__item timeline__item--stop">
-            <div class="timeline__title">
-              3 ·
-              <code
-                >Reflect.getMetadata(PATH_METADATA, handler) === undefined</code
-              >
-              → bỏ
-            </div>
-            <div class="timeline__desc">
-              Chỉ giữ method Nest đăng ký làm route. Helper private trên
-              controller bị loại tại đây.
-            </div>
-          </div>
-          <div class="timeline__item timeline__item--ok">
-            <div class="timeline__title">
-              4 ·
-              <code
-                >reflector.getAllAndOverride(KEY, [handler,
-                controllerClass])</code
-              >
-            </div>
-            <div class="timeline__desc">
-              <strong>Cùng hàm, cùng thứ tự</strong> như trong guard — cố ý.
-              Boot-check và guard không thể lệch nhau về "route này cần gì".
-            </div>
-          </div>
-          <div class="timeline__item">
-            <div class="timeline__title">
-              5 · Suy ra <code>isPublic</code>,
-              <code>mixesPublicWithAuth</code>, đẩy vào mảng
-            </div>
-            <div class="timeline__desc">
-              <code>collect-route-permissions.util.ts:72-82</code>.
-            </div>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s6">
-          <span class="sec-head__num">06</span
-          ><span class="sec-head__text">Chạy lúc nào: lifecycle hooks</span>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Hook</th>
-                  <th>Chạy khi</th>
-                  <th>Dùng để</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>onModuleInit()</code></td>
-                  <td>module <strong>đó</strong> resolve xong dependency</td>
-                  <td>khởi tạo nội bộ một module</td>
-                </tr>
-                <tr>
-                  <td><code>onApplicationBootstrap()</code></td>
-                  <td><strong>mọi</strong> module đã init</td>
-                  <td>việc cần nhìn toàn app — quét controller</td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>onModuleDestroy()</code> /
-                    <code>beforeApplicationShutdown()</code> /
-                    <code>onApplicationShutdown()</code>
-                  </td>
-                  <td>tắt app</td>
-                  <td>đóng kết nối</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            <div class="ve-card__label">
-              Vì sao <code>PermissionCoverageService</code> dùng
-              <code>onApplicationBootstrap</code>
-            </div>
-            <p>
-              Nếu dùng <code>onModuleInit</code>: lúc
-              <code>BaseModule</code> init thì <code>RouteModule</code> có thể
-              chưa → <code>getControllers()</code> trả danh sách thiếu → check
-              xanh giả.
-            </p>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 1">
-            <div class="ve-card__label ve-card__label--c">
-              Hook chạy trong <code>app.init()</code>, không cần
-              <code>listen()</code>
-            </div>
-            <p>
-              Script seed (<code>create-permission.ts:22-23</code>) gọi
-              <code>NestFactory.create</code> → <code>app.init()</code> → hook
-              chạy, controller có mặt, <strong>không bind port</strong>.
-              Boot-check chạy ngay trong bước này → script seed cũng bị chặn nếu
-              có route thiếu nhãn.
-            </p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s7">
-          <span class="sec-head__num">07</span
-          ><span class="sec-head__text">Nâng cao</span>
-        </div>
-        <details class="collapsible" open>
-          <summary>
-            Decorator mang kiểu cho cả Reflector và Discovery (Nest 10.2+, có
-            trong 11)
-          </summary>
-          <div class="collapsible__body">
-            <pre
-              class="code-file__body"
-              style="border: 1px solid var(--border); border-radius: 8px"
-            ><code><span class="cm">// thay SetMetadata + hằng số</span>
-<span class="kw">export const</span> RequirePermission = Reflector.<span class="fn">createDecorator</span>&lt;PermissionKey&gt;();
-reflector.<span class="fn">get</span>(RequirePermission, context.<span class="fn">getHandler</span>()); <span class="cm">// đã có kiểu</span>
-
-<span class="cm">// đánh dấu provider để lọc lúc quét</span>
-<span class="kw">export const</span> Job = DiscoveryService.<span class="fn">createDecorator</span>&lt;{ cron: string }&gt;();
-discoveryService.<span class="fn">getProviders</span>({ metadataKey: Job.KEY });
-discoveryService.<span class="fn">getMetadataByDecorator</span>(Job, wrapper);</code></pre>
-            <p style="margin: 10px 0 0">
-              Dự án chưa dùng — đây là hướng đi khi có loại metadata thứ ba, thứ
-              tư.
-            </p>
-          </div>
-        </details>
-        <div class="card-grid">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label ve-card__label--amber">
-              Điểm mù: module lazy
-            </div>
-            <p>
-              <code>DiscoveryService</code> chỉ thấy những gì container
-              <em>đã</em> tạo. Controller nạp qua
-              <code>LazyModuleLoader</code> sau bootstrap thoát boot-check.
-              Comment ở <code>permission-coverage.service.ts:13-17</code> ghi
-              rõ; guard vẫn trả 500 → điểm mù ồn ào, không im lặng.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--amber">
-              Kế thừa và override
-            </div>
-            <p>
-              <code>getAllAndOverride(KEY, [handler, class])</code> với
-              <code>handler</code> kế thừa từ controller cha vẫn đọc được nhãn ở
-              cha. Tận dụng cho <code>BaseAdminController</code>; nhưng method
-              con không dán gì sẽ lấy nhãn cha.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--b">
-              Interceptor, pipe cũng đọc được
-            </div>
-            <p>
-              Cả hai nhận <code>ExecutionContext</code>.
-              <code>ClassSerializerInterceptor</code> đọc
-              <code>@SerializeOptions()</code> đúng cách này. "Route này cache
-              60s" = interceptor + <code>SetMetadata("cache-ttl", 60)</code>.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 3">
-            <div class="ve-card__label ve-card__label--b">
-              Không cần cache kết quả Reflector
-            </div>
-            <p>
-              Bên dưới là <code>WeakMap.get</code> — nhanh hơn bất kỳ cache nào
-              bạn tự viết.
-            </p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s8">
-          <span class="sec-head__num">08</span
-          ><span class="sec-head__text">Trong dự án này</span>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Việc</th>
-                  <th>File</th>
-                  <th>Công cụ</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Đọc quyền handler cần</td>
-                  <td><code>access-token.guard.ts:77-79</code></td>
-                  <td><code>Reflector.getAllAndOverride</code></td>
-                </tr>
-                <tr>
-                  <td>Đọc policy xác thực, có mặc định</td>
-                  <td><code>authorization-header.guard.ts:40-47</code></td>
-                  <td><code>Reflector.getAllAndOverride</code></td>
-                </tr>
-                <tr>
-                  <td>Đọc <code>@Throttle</code> của thư viện</td>
-                  <td>
-                    <code>ThrottlerGuard</code>; nhãn ở
-                    <code>auth.controller.ts:71,89,114…</code>
-                  </td>
-                  <td><code>Reflector</code></td>
-                </tr>
-                <tr>
-                  <td>Lấy payload JWT xuống handler</td>
-                  <td><code>active-user.decorator.ts:9-10</code></td>
-                  <td><code>switchToHttp().getRequest()</code></td>
-                </tr>
-                <tr>
-                  <td>Lấy ngôn ngữ xuống handler</td>
-                  <td><code>current-lang.decorator.ts:6</code></td>
-                  <td><code>I18nContext.current(ctx)</code></td>
-                </tr>
-                <tr>
-                  <td>Phòng non-HTTP trong filter</td>
-                  <td><code>global-exception.filter.ts:36</code></td>
-                  <td><code>ArgumentsHost.getType()</code></td>
-                </tr>
-                <tr>
-                  <td>Quét mọi route</td>
-                  <td><code>collect-route-permissions.util.ts:34-87</code></td>
-                  <td>Discovery + Scanner + Reflector</td>
-                </tr>
-                <tr>
-                  <td>Chạy quét sau khi app dựng xong</td>
-                  <td><code>permission-coverage.service.ts:29</code></td>
-                  <td><code>onApplicationBootstrap</code></td>
-                </tr>
-                <tr>
-                  <td>Quét từ script ngoài</td>
-                  <td><code>sync-permission-catalog.ts:34-38</code></td>
-                  <td>
-                    <code>app.get(DiscoveryService)</code> sau
-                    <code>app.init()</code>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s9">
-          <span class="sec-head__num">09</span
-          ><span class="sec-head__text"
-            >Tự kiểm chứng — đã chạy thật khi viết</span
+        <p class="prose">
+          <a
+            href="../../src/shared/services/permission-coverage.service.ts#L20-L29"
+            >permission-coverage.service.ts:20-29</a
           >
+          implement <code>OnApplicationBootstrap</code>, không phải
+          <code>OnModuleInit</code>. Controller của các module đã được khám phá
+          và dựng trước khi <code>onModuleInit()</code> chạy;
+          <code>DiscoveryService</code> không mặc nhiên thiếu controller ở hook
+          đó. Chọn bootstrap vì cần
+          <strong>mọi hook <code>onModuleInit()</code> đã hoàn tất</strong>, sau
+          khi cả app được khởi tạo, trước khi nhận kết nối.
+        </p>
+        <p class="prose">
+          Một chi tiết vận hành: các hook này chạy trong
+          <strong><code>app.init()</code></strong
+          >, không cần <code>app.listen()</code>. Script seed tận dụng điều đó —
+          <a href="../../initial-scripts/create-permission.ts#L22-L23"
+            >create-permission.ts:22-23</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const app = await NestFactory.create(AppModule);
+await app.init(); // ← chú thích của tài liệu: hook chạy, controller có mặt, nhưng không bind port</code></pre>
         </div>
-        <div class="stack">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label">
-              01 · Bốn hàm Reflector, không boot Nest
-            </div>
-            <p>
-              <code>Reflector</code> không có dependency —
-              <code>new Reflector()</code> là đủ. Code đầy đủ trong bản
-              markdown; output thật:
-            </p>
-            <pre
-              class="code-file__body out"
-              style="border: 1px solid var(--border); border-radius: 8px"
-            >
-get list          : [ 'seller' ]
-get plain         : undefined
-override [list,C] : [ 'seller' ]
-override [plain,C]: [ 'admin' ]
-override [C,list] : [ 'admin' ]   ← đảo thứ tự
-merge [list,C]    : [ 'seller', 'admin' ]</pre
-            >
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              02 · Ba loại vi phạm boot-check bắt
-            </div>
-            <p>
-              <code
-                >npx jest
-                src/shared/services/__tests__/permission-coverage.service.spec.ts</code
-              >
-              — đọc file spec: nó là tài liệu ngắn nhất về ba nhánh lỗi.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              03 · <code>onApplicationBootstrap</code> chạy trong
-              <code>app.init()</code>
-            </div>
-            <p>
-              Chạy <code>pnpm seed:initial-scripts:create-permission</code> (cần
-              DB): dòng <code>Permission coverage OK: N routes…</code> xuất hiện
-              <strong>trước</strong> <code>Permission catalogue: …</code>.
-            </p>
-          </div>
-        </div>
-
-        <div class="footer-nav">
-          <a href="01-decorators-and-metadata.html"
-            ><small>Chương trước</small>← 01 — Decorator và metadata</a
+        <p class="prose">
+          Boot-check chạy ngay trong bước <code>init()</code> này, nên
+          <strong>script seed cũng bị chặn</strong> nếu có route thiếu nhãn.
+          Danh mục không thể được ghi từ một app không nhất quán.
+        </p>
+        <hr />
+        <h2 id="7-nâng-cao" class="sec-head">7. Nâng cao</h2>
+        <p class="prose">
+          <strong
+            >Decorator mang kiểu cho cả Reflector và Discovery (Nest 10.2+, có
+            trong 11).</strong
           >
-          <a href="03-guards.html"><small>Chương tiếp</small>03 — Guard →</a>
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// Reflector.createDecorator: thay SetMetadata + hằng số
+export const RequirePermission = Reflector.createDecorator&lt;PermissionKey&gt;();
+reflector.get(RequirePermission, context.getHandler()); // đã có kiểu PermissionKey | undefined
+
+// DiscoveryService.createDecorator: đánh dấu provider để lọc lúc quét
+export const Job = DiscoveryService.createDecorator&lt;{ cron: string }&gt;();
+discoveryService.getProviders({ metadataKey: Job.KEY }); // chỉ provider có @Job
+discoveryService.getMetadataByDecorator(Job, wrapper); // đọc { cron } ra</code></pre>
         </div>
-      </div>
-      <!-- /main -->
+        <p class="prose">
+          Dự án chưa dùng, nhưng đây là hướng đi khi bạn thêm loại metadata thứ
+          ba, thứ tư.
+        </p>
+        <p class="prose">
+          <strong>Điểm mù: module lazy.</strong>
+          <code>DiscoveryService</code> chỉ thấy những gì DI container
+          <strong>đã</strong> tạo. Controller nạp qua
+          <code>LazyModuleLoader</code> sau
+          <code>onApplicationBootstrap</code> sẽ thoát boot-check. Comment ở
+          <a
+            href="../../src/shared/services/permission-coverage.service.ts#L13-L17"
+            >permission-coverage.service.ts:13-17</a
+          >
+          ghi rõ, và guard vẫn trả 500 cho route thiếu nhãn — điểm mù ồn ào,
+          không im lặng.
+        </p>
+        <p class="prose">
+          <strong>Kế thừa và override.</strong>
+          <code>Reflect.getMetadata</code> đi ngược prototype chain, nên
+          <code>getAllAndOverride(KEY, [handler, class])</code> với
+          <code>handler</code> là method
+          <strong>kế thừa từ controller cha</strong> vẫn đọc được nhãn dán ở
+          cha. Bạn có thể tận dụng để làm <code>BaseAdminController</code> dán
+          <code>@RequirePermission</code> cấp class; nhưng nhớ
+          <a href="#2-thứ-tự-targets-là-một-hợp-đồng">mục 2</a> — method con
+          không dán gì sẽ lấy nhãn cha.
+        </p>
+        <p class="prose">
+          <strong
+            >Interceptor nhận <code>ExecutionContext</code>; pipe nhận
+            <code>ArgumentMetadata</code>.</strong
+          >
+          <code>ClassSerializerInterceptor</code> đọc
+          <code>@SerializeOptions()</code> bằng <code>getHandler()</code> /
+          <code>getClass()</code>. Pipe chỉ nhận <code>value</code> và
+          <code>{ type, metatype, data }</code>, nên không có API lấy handler
+          hiện tại. Muốn đọc policy cache 60s trên route, dùng interceptor +
+          <code>SetMetadata(&quot;cache-ttl&quot;, 60)</code>. Muốn chọn schema
+          trong pipe, truyền schema qua constructor hoặc dùng DTO metatype.
+        </p>
+        <p class="prose">
+          <strong>Đừng tự cache kết quả Reflector khi chưa đo.</strong> Metadata
+          lookup thường nhỏ so với I/O; nó còn có thể duyệt prototype chain và
+          nhiều target. Chỉ tối ưu nếu profiling cho thấy đây là bottleneck,
+          không khẳng định nó nhanh hơn mọi cache.
+        </p>
+        <hr />
+        <h2 id="8-trong-dự-án-này" class="sec-head">8. Trong dự án này</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Việc</th>
+                <th>File</th>
+                <th>Công cụ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Đọc quyền handler cần</td>
+                <td>
+                  <a
+                    href="../../src/shared/guards/access-token.guard.ts#L77-L79"
+                    >access-token.guard.ts:77-79</a
+                  >
+                </td>
+                <td><code>Reflector.getAllAndOverride</code></td>
+              </tr>
+              <tr>
+                <td>Đọc policy xác thực, có mặc định</td>
+                <td>
+                  <a
+                    href="../../src/shared/guards/authorization-header.guard.ts#L40-L47"
+                    >authorization-header.guard.ts:40-47</a
+                  >
+                </td>
+                <td><code>Reflector.getAllAndOverride</code></td>
+              </tr>
+              <tr>
+                <td>Đọc <code>@Throttle</code> của thư viện</td>
+                <td>
+                  <code>ThrottlerGuard</code> (trong
+                  <code>@nestjs/throttler</code>), nhãn dán ở
+                  <a href="../../src/routes/auth/auth.controller.ts#L71"
+                    >auth.controller.ts:71,89,114,...</a
+                  >
+                </td>
+                <td><code>Reflector</code></td>
+              </tr>
+              <tr>
+                <td>Lấy payload JWT xuống handler</td>
+                <td>
+                  <a
+                    href="../../src/shared/param-decorators/active-user.decorator.ts#L9-L10"
+                    >active-user.decorator.ts:9-10</a
+                  >
+                </td>
+                <td>
+                  <code>ExecutionContext.switchToHttp().getRequest()</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Lấy ngôn ngữ xuống handler</td>
+                <td>
+                  <a
+                    href="../../src/shared/param-decorators/current-lang.decorator.ts#L6"
+                    >current-lang.decorator.ts:6</a
+                  >
+                </td>
+                <td>
+                  <code>I18nContext.current(ctx)</code> — thư viện đọc từ
+                  context
+                </td>
+              </tr>
+              <tr>
+                <td>Phòng non-HTTP trong filter</td>
+                <td>
+                  <a
+                    href="../../src/shared/filters/global-exception.filter.ts#L36"
+                    >global-exception.filter.ts:36</a
+                  >
+                </td>
+                <td><code>ArgumentsHost.getType()</code></td>
+              </tr>
+              <tr>
+                <td>Quét mọi route</td>
+                <td>
+                  <a
+                    href="../../src/shared/utils/collect-route-permissions.util.ts#L34-L87"
+                    >collect-route-permissions.util.ts:34-87</a
+                  >
+                </td>
+                <td>
+                  <code>DiscoveryService</code> + <code>MetadataScanner</code> +
+                  <code>Reflector</code>
+                </td>
+              </tr>
+              <tr>
+                <td>Chạy quét sau khi app dựng xong</td>
+                <td>
+                  <a
+                    href="../../src/shared/services/permission-coverage.service.ts#L29"
+                    >permission-coverage.service.ts:29</a
+                  >
+                </td>
+                <td><code>onApplicationBootstrap</code></td>
+              </tr>
+              <tr>
+                <td>Quét từ script ngoài</td>
+                <td>
+                  <a
+                    href="../../initial-scripts/sync-permission-catalog.ts#L34-L38"
+                    >sync-permission-catalog.ts:34-38</a
+                  >
+                </td>
+                <td>
+                  <code>app.get(DiscoveryService)</code> sau
+                  <code>app.init()</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <hr />
+        <h2 id="9-tự-kiểm-chứng" class="sec-head">9. Tự kiểm chứng</h2>
+        <p class="prose">
+          <strong>1. Bốn hàm Reflector, không cần boot Nest.</strong>
+          <code>Reflector</code> không có dependency, tạo bằng
+          <code>new</code> được:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// scratch-reflector.ts
+import &quot;reflect-metadata&quot;;
+import { SetMetadata } from &quot;@nestjs/common&quot;;
+import { Reflector } from &quot;@nestjs/core&quot;;
+
+const Roles = (...roles: string[]) =&gt; SetMetadata(&quot;roles&quot;, roles);
+
+@Roles(&quot;admin&quot;)
+class UserController {
+  @Roles(&quot;seller&quot;) list() {}
+  plain() {}
+}
+
+const r = new Reflector();
+const { list, plain } = UserController.prototype;
+
+console.log(&quot;get list          :&quot;, r.get(&quot;roles&quot;, list));
+console.log(&quot;get plain         :&quot;, r.get(&quot;roles&quot;, plain));
+console.log(
+  &quot;override [list,C] :&quot;,
+  r.getAllAndOverride(&quot;roles&quot;, [list, UserController]),
+);
+console.log(
+  &quot;override [plain,C]:&quot;,
+  r.getAllAndOverride(&quot;roles&quot;, [plain, UserController]),
+);
+console.log(
+  &quot;override [C,list] :&quot;,
+  r.getAllAndOverride(&quot;roles&quot;, [UserController, list]),
+  &quot;← đảo thứ tự&quot;,
+);
+console.log(
+  &quot;merge [list,C]    :&quot;,
+  r.getAllAndMerge(&quot;roles&quot;, [list, UserController]),
+);</code></pre>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>npx ts-node --transpile-only scratch-reflector.ts</code></pre>
+        </div>
+        <p class="prose">
+          Dòng <code>override [C,list]</code> trả
+          <code>[&quot;admin&quot;]</code> dù <code>list</code> có nhãn riêng —
+          đó chính là lỗi &quot;đảo thứ tự&quot; ở
+          <a href="#2-thứ-tự-targets-là-một-hợp-đồng">mục 2</a>.
+        </p>
+        <p class="prose">
+          <strong>2. Xem quét toàn app trả về gì.</strong> Test có sẵn dựng
+          <code>DiscoveryService</code> giả và kiểm tra từng nhánh lỗi:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>npx jest src/shared/services/__tests__/permission-coverage.service.spec.ts</code></pre>
+        </div>
+        <p class="prose">
+          Đọc file spec đó — nó là tài liệu ngắn nhất về ba loại vi phạm mà
+          boot-check bắt.
+        </p>
+        <p class="prose">
+          <strong
+            >3. Chứng minh <code>onApplicationBootstrap</code> chạy trong
+            <code>app.init()</code>.</strong
+          >
+          Chạy script seed ở môi trường có DB (<code
+            >pnpm seed:initial-scripts:create-permission</code
+          >) và để ý dòng log
+          <code
+            >Permission coverage OK: N routes, M distinct permission keys</code
+          >
+          xuất hiện <strong>trước</strong> dòng
+          <code>Permission catalogue: ...</code>. Hook chạy xong rồi script mới
+          quét.
+        </p>
+        <hr />
+        <p class="prose">
+          <strong>Tiếp theo:</strong>
+          <a href="03-guards.html">Chương 3 — Guard</a>: người dùng kết quả
+          Reflector để quyết định cho qua hay chặn.
+        </p>
+        <footer class="source-footer">
+          <a href="02-reflector-execution-context-and-discovery.md"
+            >Nguồn Markdown</a
+          >
+          · Sinh bằng scripts/build-nestjs-fundamentals.cjs
+        </footer>
+      </main>
     </div>
-    <!-- /wrap -->
-
-    <script>
-      (function () {
-        var toggle = document.getElementById("themeToggle");
-        var saved = null;
-        try {
-          saved = localStorage.getItem("theme");
-        } catch (e) {}
-        var initial =
-          saved ||
-          (matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        if (saved) document.documentElement.setAttribute("data-theme", initial);
-        toggle.textContent = initial === "dark" ? "☀" : "☾";
-        toggle.addEventListener("click", function () {
-          var current =
-            document.documentElement.getAttribute("data-theme") ||
-            (matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light");
-          var next = current === "light" ? "dark" : "light";
-          document.documentElement.setAttribute("data-theme", next);
-          try {
-            localStorage.setItem("theme", next);
-          } catch (e) {}
-          toggle.textContent = next === "dark" ? "☀" : "☾";
-        });
-      })();
-    </script>
-
     <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      const config = {
-        fitPadding: 28,
-        minHeight: 320,
-        maxHeightPx: 960,
-        maxHeightVh: 0.84,
-        maxInitialZoom: 1.8,
-        minZoom: 0.08,
-        maxZoom: 6.5,
-        zoomStep: 0.14,
-        readabilityFloor: 0.58,
-      };
-      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-      let activeDrag = null;
-      addEventListener("mousemove", (e) => activeDrag?.onMove(e));
-      addEventListener("mouseup", () => {
-        activeDrag?.onEnd();
-        activeDrag = null;
+      // Shared behavior for the Markdown-generated foundation pages.
+      const themeToggle = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+      }
+      let initialTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      try {
+        initialTheme =
+          localStorage.getItem("fundamentals-theme") ?? initialTheme;
+      } catch {
+        // Storage can be unavailable when opening a local HTML file.
+      }
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        try {
+          localStorage.setItem("fundamentals-theme", theme);
+        } catch {
+          // Storage can be unavailable when opening a local HTML file.
+        }
+        applyTheme(theme);
       });
-      const attr = document.documentElement.getAttribute("data-theme");
-      const isDark =
-        attr === "dark" ||
-        (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "base",
-        look: "classic",
-        themeVariables: {
-          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-          fontSize: "15px",
-          primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
-          primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
-          primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
-          secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
-          secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
-          tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
-          tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          lineColor: isDark ? "#a89e90" : "#7c756a",
-          noteBkgColor: isDark ? "#342e29" : "#fffdf7",
-          noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          noteBorderColor: isDark ? "#fbbf24" : "#b45309",
-          actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
-          actorBorder: isDark ? "#f0743f" : "#c2410c",
-          actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          signalColor: isDark ? "#a89e90" : "#7c756a",
-          signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-        },
-      });
-      function initDiagram(shell) {
-        const wrap = shell.querySelector(".mermaid-wrap"),
-          viewport = shell.querySelector(".mermaid-viewport"),
-          canvas = shell.querySelector(".mermaid-canvas"),
-          source = shell.querySelector(".diagram-source"),
-          label = shell.querySelector(".zoom-label");
-        if (!wrap || !viewport || !canvas || !source || !label) return;
-        let zoom = 1,
-          fitMode = "contain",
-          panX = 0,
-          panY = 0,
-          svgW = 0,
-          svgH = 0,
-          sx = 0,
-          sy = 0,
-          spx = 0,
-          spy = 0,
-          touchDist = 0,
-          touchCx = 0,
-          touchCy = 0;
-        function constrainPan() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            rW = svgW * zoom,
-            rH = svgH * zoom,
-            pad = config.fitPadding;
-          panX =
-            rW + pad * 2 <= vpW
-              ? (vpW - rW) / 2
-              : clamp(panX, vpW - rW - pad, pad);
-          panY =
-            rH + pad * 2 <= vpH
-              ? (vpH - rH) / 2
-              : clamp(panY, vpH - rH - pad, pad);
-        }
-        function applyTransform() {
-          const svg = canvas.querySelector("svg");
-          if (!svg || !svgW) return;
-          constrainPan();
-          svg.style.width = svgW * zoom + "px";
-          svg.style.height = svgH * zoom + "px";
-          canvas.style.transform = `translate(${panX}px, ${panY}px)`;
-          label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
-        }
-        function canPan() {
-          return (
-            svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
-            svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
-          );
-        }
-        function computeSmartFit() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            aW = Math.max(80, vpW - config.fitPadding * 2),
-            aH = Math.max(80, vpH - config.fitPadding * 2),
-            contain = Math.min(aW / svgW, aH / svgH);
-          let z = contain,
-            mode = "contain";
-          if (contain < config.readabilityFloor) {
-            const chartR = svgH / svgW,
-              vpR = vpH / Math.max(vpW, 1);
-            if (chartR >= vpR) {
-              z = aW / svgW;
-              mode = "width-priority";
-            } else {
-              z = aH / svgH;
-              mode = "height-priority";
-            }
-          }
-          return {
-            zoom: clamp(z, config.minZoom, config.maxInitialZoom),
-            mode,
-          };
-        }
-        function fitDiagram() {
-          if (!svgW) return;
-          const fit = computeSmartFit();
-          zoom = fit.zoom;
-          fitMode = fit.mode;
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function setOneToOne() {
-          zoom = clamp(1, config.minZoom, config.maxZoom);
-          fitMode = "1:1";
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function zoomAround(factor, cx, cy) {
-          const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
-            ratio = next / zoom;
-          panX = cx - ratio * (cx - panX);
-          panY = cy - ratio * (cy - panY);
-          zoom = next;
-          fitMode = "custom";
-          applyTransform();
-        }
-        function readSvgNaturalSize(svg) {
-          let w = 0,
-            h = 0;
-          if (svg.viewBox?.baseVal?.width > 0) {
-            w = svg.viewBox.baseVal.width;
-            h = svg.viewBox.baseVal.height;
-          }
-          if (!w) {
-            w = parseFloat(svg.getAttribute("width")) || 0;
-            h = parseFloat(svg.getAttribute("height")) || 0;
-          }
-          if (!w) {
-            const b = svg.getBBox();
-            w = b.width;
-            h = b.height;
-          }
-          if (!w) {
-            const r = svg.getBoundingClientRect();
-            w = r.width || 1000;
-            h = r.height || 700;
-          }
-          if (!svg.getAttribute("viewBox"))
-            svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-          return { w, h };
-        }
-        function setAdaptiveHeight() {
-          if (!svgW) return;
-          const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2),
-            idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
-            maxVp = Math.floor(innerHeight * config.maxHeightVh),
-            hardMax = Math.min(
-              config.maxHeightPx,
-              Math.max(config.minHeight + 40, maxVp),
-            );
-          wrap.style.height =
-            Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
-        }
-        function openInNewTab() {
-          const svg = canvas.querySelector("svg");
-          if (!svg) return;
-          const clone = svg.cloneNode(true);
-          clone.style.width = "";
-          clone.style.height = "";
-          const bg = isDark ? "#1c1916" : "#faf6f0";
-          const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
-          open(
-            URL.createObjectURL(new Blob([html], { type: "text/html" })),
-            "_blank",
-          );
-        }
-        async function render() {
-          try {
-            const code = source.textContent.trim();
-            if (!code) {
-              label.textContent = "Lỗi: nguồn rỗng";
-              return;
-            }
-            const id =
-              "diagram-" +
-              Date.now() +
-              "-" +
-              Math.random().toString(36).slice(2, 8);
-            const { svg } = await mermaid.render(id, code);
-            canvas.innerHTML = svg;
-            const svgNode = canvas.querySelector("svg");
-            if (!svgNode) {
-              label.textContent = "Lỗi: không có SVG";
-              return;
-            }
-            const size = readSvgNaturalSize(svgNode);
-            svgW = size.w;
-            svgH = size.h;
-            svgNode.removeAttribute("width");
-            svgNode.removeAttribute("height");
-            svgNode.style.maxWidth = "none";
-            svgNode.style.display = "block";
-            setAdaptiveHeight();
-            fitDiagram();
-          } catch (err) {
-            console.error("Mermaid render failed:", err);
-            label.textContent = "Lỗi: " + (err.message || "render thất bại");
-          }
-        }
-        const actions = {
-          "zoom-in": () =>
-            zoomAround(
-              1 + config.zoomStep,
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-out": () =>
-            zoomAround(
-              1 / (1 + config.zoomStep),
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-fit": fitDiagram,
-          "zoom-one": setOneToOne,
-          "zoom-expand": openInNewTab,
+
+      let mermaid;
+      try {
+        ({ default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+        ));
+      } catch {
+        document.querySelectorAll(".diagram-shell").forEach((shell) => {
+          shell.querySelector(".mermaid-wrap").hidden = true;
+          shell.querySelector(".diagram-code").open = true;
+        });
+      }
+      if (mermaid) {
+        const config = {
+          fitPadding: 28,
+          minHeight: 320,
+          maxHeightPx: 960,
+          maxHeightVh: 0.84,
+          maxInitialZoom: 1.8,
+          minZoom: 0.08,
+          maxZoom: 6.5,
+          zoomStep: 0.14,
+          readabilityFloor: 0.58,
         };
-        Object.entries(actions).forEach(([action, handler]) => {
-          wrap
-            .querySelector(`[data-action="${action}"]`)
-            ?.addEventListener("click", handler);
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+        let activeDrag = null;
+        addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+        addEventListener("mouseup", () => {
+          activeDrag?.onEnd();
+          activeDrag = null;
         });
-        viewport.addEventListener("dblclick", fitDiagram);
-        viewport.addEventListener(
-          "wheel",
-          (e) => {
-            if (e.ctrlKey || e.metaKey) {
-              e.preventDefault();
-              const rect = viewport.getBoundingClientRect();
-              zoomAround(
-                e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep),
-                e.clientX - rect.left,
-                e.clientY - rect.top,
+        const attr = document.documentElement.getAttribute("data-theme");
+        const isDark =
+          attr === "dark" ||
+          (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "classic",
+          themeVariables: {
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontSize: "15px",
+            primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+            primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+            primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+            secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+            secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+            tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+            tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            lineColor: isDark ? "#a89e90" : "#7c756a",
+            noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+            noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+            actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+            actorBorder: isDark ? "#f0743f" : "#c2410c",
+            actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            signalColor: isDark ? "#a89e90" : "#7c756a",
+            signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          },
+        });
+        function initDiagram(shell) {
+          const wrap = shell.querySelector(".mermaid-wrap"),
+            viewport = shell.querySelector(".mermaid-viewport"),
+            canvas = shell.querySelector(".mermaid-canvas"),
+            source = shell.querySelector(".diagram-source"),
+            label = shell.querySelector(".zoom-label");
+          if (!wrap || !viewport || !canvas || !source || !label) return;
+          let zoom = 1,
+            fitMode = "contain",
+            panX = 0,
+            panY = 0,
+            svgW = 0,
+            svgH = 0,
+            sx = 0,
+            sy = 0,
+            spx = 0,
+            spy = 0,
+            touchDist = 0,
+            touchCx = 0,
+            touchCy = 0;
+          function constrainPan() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              rW = svgW * zoom,
+              rH = svgH * zoom,
+              pad = config.fitPadding;
+            panX =
+              rW + pad * 2 <= vpW
+                ? (vpW - rW) / 2
+                : clamp(panX, vpW - rW - pad, pad);
+            panY =
+              rH + pad * 2 <= vpH
+                ? (vpH - rH) / 2
+                : clamp(panY, vpH - rH - pad, pad);
+          }
+          function applyTransform() {
+            const svg = canvas.querySelector("svg");
+            if (!svg || !svgW) return;
+            constrainPan();
+            svg.style.width = svgW * zoom + "px";
+            svg.style.height = svgH * zoom + "px";
+            canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+            label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+          }
+          function canPan() {
+            return (
+              svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+              svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+            );
+          }
+          function computeSmartFit() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              aW = Math.max(80, vpW - config.fitPadding * 2),
+              aH = Math.max(80, vpH - config.fitPadding * 2),
+              contain = Math.min(aW / svgW, aH / svgH);
+            let z = contain,
+              mode = "contain";
+            if (contain < config.readabilityFloor) {
+              const chartR = svgH / svgW,
+                vpR = vpH / Math.max(vpW, 1);
+              if (chartR >= vpR) {
+                z = aW / svgW;
+                mode = "width-priority";
+              } else {
+                z = aH / svgH;
+                mode = "height-priority";
+              }
+            }
+            return {
+              zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+              mode,
+            };
+          }
+          function fitDiagram() {
+            if (!svgW) return;
+            const fit = computeSmartFit();
+            zoom = fit.zoom;
+            fitMode = fit.mode;
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function setOneToOne() {
+            zoom = clamp(1, config.minZoom, config.maxZoom);
+            fitMode = "1:1";
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function zoomAround(factor, cx, cy) {
+            const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+              ratio = next / zoom;
+            panX = cx - ratio * (cx - panX);
+            panY = cy - ratio * (cy - panY);
+            zoom = next;
+            fitMode = "custom";
+            applyTransform();
+          }
+          function readSvgNaturalSize(svg) {
+            let w = 0,
+              h = 0;
+            if (svg.viewBox?.baseVal?.width > 0) {
+              w = svg.viewBox.baseVal.width;
+              h = svg.viewBox.baseVal.height;
+            }
+            if (!w) {
+              w = parseFloat(svg.getAttribute("width")) || 0;
+              h = parseFloat(svg.getAttribute("height")) || 0;
+            }
+            if (!w) {
+              const b = svg.getBBox();
+              w = b.width;
+              h = b.height;
+            }
+            if (!w) {
+              const r = svg.getBoundingClientRect();
+              w = r.width || 1000;
+              h = r.height || 700;
+            }
+            if (!svg.getAttribute("viewBox"))
+              svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            return { w, h };
+          }
+          function setAdaptiveHeight() {
+            if (!svgW) return;
+            const usableW = Math.max(
+                280,
+                wrap.getBoundingClientRect().width - 2,
+              ),
+              idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+              maxVp = Math.floor(innerHeight * config.maxHeightVh),
+              hardMax = Math.min(
+                config.maxHeightPx,
+                Math.max(config.minHeight + 40, maxVp),
               );
-              return;
+            wrap.style.height =
+              Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+          }
+          function openInNewTab() {
+            const svg = canvas.querySelector("svg");
+            if (!svg) return;
+            const clone = svg.cloneNode(true);
+            clone.style.width = "";
+            clone.style.height = "";
+            const bg = isDark ? "#1c1916" : "#faf6f0";
+            const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+            open(
+              URL.createObjectURL(new Blob([html], { type: "text/html" })),
+              "_blank",
+            );
+          }
+          async function render() {
+            try {
+              const code = source.textContent.trim();
+              if (!code) {
+                label.textContent = "Lỗi: nguồn rỗng";
+                return;
+              }
+              const id =
+                "diagram-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).slice(2, 8);
+              const { svg } = await mermaid.render(id, code);
+              canvas.innerHTML = svg;
+              const svgNode = canvas.querySelector("svg");
+              if (!svgNode) {
+                label.textContent = "Lỗi: không có SVG";
+                return;
+              }
+              const size = readSvgNaturalSize(svgNode);
+              svgW = size.w;
+              svgH = size.h;
+              svgNode.removeAttribute("width");
+              svgNode.removeAttribute("height");
+              svgNode.style.maxWidth = "none";
+              svgNode.style.display = "block";
+              setAdaptiveHeight();
+              fitDiagram();
+            } catch (err) {
+              console.error("Mermaid render failed:", err);
+              label.textContent = "Lỗi: " + (err.message || "render thất bại");
             }
-            if (canPan()) {
-              e.preventDefault();
-              panX -= e.deltaX;
-              panY -= e.deltaY;
-              applyTransform();
-            }
-          },
-          { passive: false },
-        );
-        viewport.addEventListener("mousedown", (e) => {
-          if (e.target.closest(".zoom-controls") || !canPan()) return;
-          wrap.classList.add("is-panning");
-          sx = e.clientX;
-          sy = e.clientY;
-          spx = panX;
-          spy = panY;
-          e.preventDefault();
-          activeDrag = {
-            onMove: (ev) => {
-              panX = spx + (ev.clientX - sx);
-              panY = spy + (ev.clientY - sy);
-              applyTransform();
-            },
-            onEnd: () => wrap.classList.remove("is-panning"),
+          }
+          const actions = {
+            "zoom-in": () =>
+              zoomAround(
+                1 + config.zoomStep,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-out": () =>
+              zoomAround(
+                1 / (1 + config.zoomStep),
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-fit": fitDiagram,
+            "zoom-one": setOneToOne,
+            "zoom-expand": openInNewTab,
           };
-        });
-        viewport.addEventListener(
-          "touchstart",
-          (e) => {
-            if (e.touches.length === 1) {
-              sx = e.touches[0].clientX;
-              sy = e.touches[0].clientY;
-              spx = panX;
-              spy = panY;
-            } else if (e.touches.length === 2) {
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY;
-              touchDist = Math.sqrt(dx * dx + dy * dy);
-              const r = viewport.getBoundingClientRect();
-              touchCx =
-                (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
-              touchCy =
-                (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
-            }
-          },
-          { passive: true },
-        );
-        viewport.addEventListener(
-          "touchmove",
-          (e) => {
-            if (e.touches.length === 1 && canPan()) {
-              if (touchDist > 0) {
+          Object.entries(actions).forEach(([action, handler]) => {
+            wrap
+              .querySelector(`[data-action="${action}"]`)
+              ?.addEventListener("click", handler);
+          });
+          viewport.addEventListener("dblclick", fitDiagram);
+          viewport.addEventListener(
+            "wheel",
+            (e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                zoomAround(
+                  e.deltaY < 0
+                    ? 1 + config.zoomStep
+                    : 1 / (1 + config.zoomStep),
+                  e.clientX - rect.left,
+                  e.clientY - rect.top,
+                );
+                return;
+              }
+              if (canPan()) {
+                e.preventDefault();
+                panX -= e.deltaX;
+                panY -= e.deltaY;
+                applyTransform();
+              }
+            },
+            { passive: false },
+          );
+          viewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest(".zoom-controls") || !canPan()) return;
+            wrap.classList.add("is-panning");
+            sx = e.clientX;
+            sy = e.clientY;
+            spx = panX;
+            spy = panY;
+            e.preventDefault();
+            activeDrag = {
+              onMove: (ev) => {
+                panX = spx + (ev.clientX - sx);
+                panY = spy + (ev.clientY - sy);
+                applyTransform();
+              },
+              onEnd: () => wrap.classList.remove("is-panning"),
+            };
+          });
+          viewport.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length === 1) {
                 sx = e.touches[0].clientX;
                 sy = e.touches[0].clientY;
                 spx = panX;
                 spy = panY;
-                touchDist = 0;
+              } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchDist = Math.sqrt(dx * dx + dy * dy);
+                const r = viewport.getBoundingClientRect();
+                touchCx =
+                  (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+                touchCy =
+                  (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
               }
-              e.preventDefault();
-              panX = spx + (e.touches[0].clientX - sx);
-              panY = spy + (e.touches[0].clientY - sy);
-              applyTransform();
-            } else if (e.touches.length === 2 && touchDist > 0) {
-              e.preventDefault();
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY,
-                d = Math.sqrt(dx * dx + dy * dy);
-              zoomAround(d / touchDist, touchCx, touchCy);
-              touchDist = d;
-            }
-          },
-          { passive: false },
-        );
-        new ResizeObserver(() => {
-          if (svgW) {
-            setAdaptiveHeight();
-            fitDiagram();
-          }
-        }).observe(wrap);
-        render();
-      }
-      document.querySelectorAll(".diagram-shell").forEach(initDiagram);
-    </script>
-
-    <script>
-      (function () {
-        const toc = document.getElementById("toc");
-        if (!toc) return;
-        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
-        const sections = [];
-        links.forEach((link) => {
-          const id = link.getAttribute("href").slice(1);
-          const el = document.getElementById(id);
-          if (el) sections.push({ id, el, link });
-        });
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                links.forEach((l) => l.classList.remove("active"));
-                const match = sections.find((s) => s.el === entry.target);
-                if (match) {
-                  match.link.classList.add("active");
-                  if (window.innerWidth <= 1000)
-                    match.link.scrollIntoView({
-                      behavior: "smooth",
-                      block: "nearest",
-                      inline: "center",
-                    });
+            },
+            { passive: true },
+          );
+          viewport.addEventListener(
+            "touchmove",
+            (e) => {
+              if (e.touches.length === 1 && canPan()) {
+                if (touchDist > 0) {
+                  sx = e.touches[0].clientX;
+                  sy = e.touches[0].clientY;
+                  spx = panX;
+                  spy = panY;
+                  touchDist = 0;
                 }
+                e.preventDefault();
+                panX = spx + (e.touches[0].clientX - sx);
+                panY = spy + (e.touches[0].clientY - sy);
+                applyTransform();
+              } else if (e.touches.length === 2 && touchDist > 0) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY,
+                  d = Math.sqrt(dx * dx + dy * dy);
+                zoomAround(d / touchDist, touchCx, touchCy);
+                touchDist = d;
               }
-            });
-          },
-          { rootMargin: "-10% 0px -80% 0px" },
-        );
-        sections.forEach((s) => observer.observe(s.el));
-        links.forEach((link) => {
-          link.addEventListener("click", (e) => {
-            e.preventDefault();
-            const id = link.getAttribute("href").slice(1);
-            const el = document.getElementById(id);
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth", block: "start" });
-              history.replaceState(null, "", "#" + id);
+            },
+            { passive: false },
+          );
+          new ResizeObserver(() => {
+            if (svgW) {
+              setAdaptiveHeight();
+              fitDiagram();
             }
-          });
-        });
-      })();
+          }).observe(wrap);
+          render();
+        }
+        document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+      }
     </script>
   </body>
 </html>

@@ -20,6 +20,7 @@
    - [6.1 Chuỗi đó đi đâu?](#61-câu-hỏi-cụ-thể-chuỗi-đó-đi-đâu) · [6.2 Hình dung: cuốn sổ của thủ thư](#62-hình-dung-cuốn-sổ-riêng-của-thủ-thư) · [6.3 Ba hàm đầu tiên](#63-ba-hàm-đầu-tiên) · [6.4 Class và hàm là hai quyển khác nhau](#64-một-class-một-hàm--hai-quyển-sách-khác-nhau) · [6.5 Cả quyển hay một trang](#65-dán-cho-cả-quyển-hay-cho-một-trang) · [6.6 Sai địa chỉ: class hay prototype](#66-sai-địa-chỉ-example-hay-exampleprototype) · [6.7 Kế thừa](#67-kế-thừa-con-đọc-được-nhãn-của-cha) · [6.8 Metadata thật trong dự án](#68-xem-metadata-thật-trong-dự-án) · [6.9 Bảng tra API](#69-bảng-tra-api) · [6.10 Hai điều nên nhớ](#610-hai-điều-nên-nhớ)
 7. [`SetMetadata` — decorator metadata trong một dòng](#7-setmetadata--decorator-metadata-trong-một-dòng)
 8. [`createParamDecorator` — loại decorator thứ hai, chạy mỗi request](#8-createparamdecorator--loại-decorator-thứ-hai-chạy-mỗi-request)
+   - [8.1 Bốn decorator của dự án](#81-bốn-param-decorator-của-dự-án) · [8.2 Mã nguồn thật](#82-mã-nguồn-thật-của-createparamdecorator) · [8.3 Bảng `__routeArguments__`](#83-nhìn-bảng-__routearguments__-thật) · [8.4 Mỗi request Nest làm gì](#84-mỗi-request-nest-làm-gì-với-bảng-đó) · [8.5 Ai đặt dữ liệu lên request](#85-nguồn-dữ-liệu-nằm-trên-request-và-ai-đặt-nó-ở-đó) · [8.6 Pipe](#86-pipe-đi-sau-factory) · [8.7 Unit test](#87-unit-test-một-param-decorator) · [8.8 Khi nào dùng](#88-khi-nào-viết-param-decorator-khi-nào-không)
 9. [`applyDecorators` — ghép nhiều decorator thành một](#9-applydecorators--ghép-nhiều-decorator-thành-một)
 10. [Decorator có sẵn của Nest cũng chỉ là metadata](#10-decorator-có-sẵn-của-nest-cũng-chỉ-là-metadata)
 11. [Nâng cao: những chỗ dễ vấp](#11-nâng-cao-những-chỗ-dễ-vấp)
@@ -155,14 +156,15 @@ hàm đó** (chương 2). Hai bên gặp nhau ở cùng một object.
 Tham số thứ ba là `undefined`, và điều đó có lý: lúc decorator chạy, property **chưa tồn tại** — nó chỉ được gán khi
 ai đó `new` class ra.
 
-Nên property decorator chỉ làm một việc: **dán nhãn lên cặp `(prototype, tên property)`**. Đó chính xác là cách
-`class-validator` và Swagger hoạt động:
+Property decorator nhận **toạ độ `(prototype, tên property)`** để đăng ký thông tin. Nơi lưu tuỳ thư viện:
+Swagger dùng `Reflect.defineMetadata`; `class-validator` dùng `MetadataStorage` riêng, với target là
+`prototype.constructor` và `propertyName`. Đừng đồng nhất toạ độ decorator nhận với địa chỉ lưu metadata:
 
 ```ts
 export class CreateRoleRequestDto {
   @ApiProperty({ description: "Role name" })
   @IsString()
-  name: string; // ← hai nhãn ghi vào (CreateRoleRequestDto.prototype, "name")
+  name: string; // ← cùng field, nhưng hai thư viện đăng ký vào hai kho khác nhau
 }
 ```
 
@@ -177,8 +179,8 @@ Vậy `@Body()`, `@ActiveUser("userId")` lấy giá trị bằng cách nào? Ch�
 kiểu _"tham số số 2 của method này lấy giá trị bằng hàm factory kia"_, rồi **Nest** đọc dòng đó mỗi request và gọi
 factory hộ — đó là `createParamDecorator` ở [mục 8](#8-createparamdecorator--loại-decorator-thứ-hai-chạy-mỗi-request).
 
-> **Hệ quả thực tế:** vì `@Inject("TOKEN")` ghi metadata theo `index`, thêm hay bớt một tham số ở giữa constructor
-> sẽ làm lệch chỉ số. Một lý do nữa để inject bằng class thay vì token chuỗi.
+> `@Inject("TOKEN")` ghi metadata theo `index`. Khi sửa constructor rồi biên dịch lại, compiler gọi decorator với
+> chỉ số mới, nên không tự xảy ra lệch chỉ số. Chỉ có nguy cơ khi bạn tự ghi hoặc sửa metadata bằng tay.
 
 ### 2.6 Mỗi loại trong dự án dùng để làm gì
 
@@ -320,8 +322,10 @@ export class RoleService {
 ```
 
 Vì class có decorator (`@Injectable()`), compiler dán `design:paramtypes = [RoleRepository, RolePermissionCacheService]`
-lên class. Nest đọc mảng đó, tra container, tiêm vào. **Bỏ `@Injectable()` đi là mảng này không được dán**, và Nest
-báo "can't resolve dependencies" — không phải vì `@Injectable` làm gì, mà vì nó là cái cớ để compiler emit metadata.
+lên class. Nest đọc mảng đó, tra container, tiêm vào. Nếu bỏ decorator cuối cùng và không có metadata kế thừa hay
+`@Inject()` tường minh, Nest có thể dựng class **không truyền dependency**: app boot được nhưng field là `undefined`,
+rồi nổ lúc gọi method. "Không có metadata" khác với "có token nhưng không tìm được provider"; trường hợp thứ hai
+mới gây `can't resolve dependencies`. `@Injectable()` còn ghi watermark và options scope cho Nest.
 
 Cùng cơ chế: `@Body() body: CreateRoleRequestDto` — `ValidationPipe` biết phải validate theo class
 `CreateRoleRequestDto` là nhờ đọc `design:paramtypes` của handler.
@@ -507,16 +511,18 @@ export class CreateRoleRequestDto {
 }
 ```
 
-Cả ba cùng dán lên `CreateRoleRequestDto.prototype`. Không có tham số thứ tư thì ba ghi chú đè lên nhau và chỉ còn
-một cái sống sót.
+Cả ba decorator nhận cùng prototype nhưng tên field khác nhau. `class-validator` ghi từng rule vào storage riêng,
+khóa theo class và tên field; nó không dùng tham số thứ tư của `Reflect.defineMetadata` để lưu các rule này.
 
 **Ai dùng dạng nào** — bảng này đủ để đọc hiểu mọi metadata trong dự án:
 
-| Decorator                                       | Dán vào                        | Dạng      |
-| ----------------------------------------------- | ------------------------------ | --------- |
-| `@Controller("roles")`                          | class `RoleController`         | cả quyển  |
-| `@Get()`, `@RequirePermission()`, `@HttpCode()` | **hàm** `descriptor.value`     | cả quyển  |
-| `@IsString()`, `@Expose()`, `@ApiProperty()`    | `(Dto.prototype, "tên field")` | một trang |
+| Decorator                                       | Dán vào                          | Dạng                                       |
+| ----------------------------------------------- | -------------------------------- | ------------------------------------------ |
+| `@Controller("roles")`                          | class `RoleController`           | cả quyển                                   |
+| `@Get()`, `@RequirePermission()`, `@HttpCode()` | **hàm** `descriptor.value`       | cả quyển                                   |
+| `design:type`, `@ApiProperty()`                 | `(Dto.prototype, "tên field")`   | một trang trong `reflect-metadata`         |
+| `@IsString()`                                   | storage riêng: class + tên field | `class-validator.MetadataStorage`          |
+| `@Expose()`                                     | storage riêng: class + tên field | `class-transformer.defaultMetadataStorage` |
 
 Dòng giữa nối thẳng về [mục 2.3](#23-descriptorvalue-chính-là-hàm-method): `SetMetadata` dán lên `descriptor.value`
 — **chính hàm** — và `context.getHandler()` của guard trả về **chính hàm đó**. Cùng một quyển sách, hai người cùng
@@ -680,7 +686,7 @@ D. Trên PROPERTY của DTO (dạng "một trang"):
   ([chương 6](06-modules-and-dependency-injection.md)).
 - `design:type` của `permissionIds` là `[class Array]`, **không** phải `string[]` — giới hạn đã nói ở
   [mục 5](#5-hai-cờ-tsconfig-quyết-định-mọi-thứ): metadata kiểu không giữ được tham số generic. Vì thế
-  `class-validator` cần `@IsArray()` **và** `{ each: true }` chứ không tự suy ra kiểu phần tử.
+  `@IsArray()` kiểm container; validator phần tử như `@IsUUID("4", { each: true })` phải được khai riêng. Thư viện không tự suy ra kiểu phần tử.
 
 > **Bẫy khi tự viết script in metadata:** `JSON.stringify` biến function thành `null`, nên
 > `JSON.stringify(Reflect.getMetadata("design:paramtypes", RoleService))` in ra `[null,null]` và trông như DI bị
@@ -723,7 +729,7 @@ Hai điều về key:
 **Metadata gắn với hàm/class, không gắn với instance.** Mọi instance của `RoleController` dùng chung một
 `RoleController.prototype.createRole`, nên dùng chung một bộ ghi chú. Đừng bao giờ lưu trạng thái theo-request vào
 metadata — chỗ của nó là object `request`
-([chương 3 §9](03-guards.md#9-truyền-dữ-liệu-từ-guard-xuống-handler)).
+([chương 3 §9](03-guards.md#11-truyền-dữ-liệu-từ-guard-xuống-handler)).
 
 **Metadata chỉ là nơi cất, không phải cơ chế thi hành.** Dán `required_permission` lên một hàm **không** làm hàm đó
 được bảo vệ — y như viết "phòng này cấm vào" lên giấy nhớ không khoá được cửa. Phải có ai đó đọc và hành động, và đó
@@ -793,17 +799,25 @@ nên typo vẫn bị compile bắt. Hai cách tương đương về hành vi; `c
 Đến đây là ngã ba quan trọng nhất của chương. Trong thư mục `src/shared/param-decorators/` có **hai loại decorator
 khác hẳn nhau về thời điểm chạy**:
 
-|              | Decorator metadata                     | Param decorator                                   |
-| ------------ | -------------------------------------- | ------------------------------------------------- |
-| Tạo bằng     | `SetMetadata`                          | `createParamDecorator`                            |
-| Dán lên      | method hoặc class                      | **tham số** của method                            |
-| Chạy lúc nào | **Một lần**, khi class được định nghĩa | **Mỗi request**, ngay trước khi gọi handler       |
-| Làm gì       | Dán nhãn để ai đó đọc sau              | **Tính ra giá trị** để truyền vào tham số         |
-| Ví dụ dự án  | `@RequirePermission`, `@AuthApi`       | `@ActiveUser`, `@PermissionScope`, `@CurrentLang` |
+|              | Decorator metadata                     | Param decorator                                                 |
+| ------------ | -------------------------------------- | --------------------------------------------------------------- |
+| Tạo bằng     | `SetMetadata`                          | `createParamDecorator`                                          |
+| Dán lên      | method hoặc class                      | **tham số** của method                                          |
+| Chạy lúc nào | **Một lần**, khi class được định nghĩa | **Mỗi request**, ngay trước khi gọi handler                     |
+| Làm gì       | Dán nhãn để ai đó đọc sau              | **Tính ra giá trị** để truyền vào tham số                       |
+| Ví dụ dự án  | `@RequirePermission`, `@AuthApi`       | `@ActiveUser`, `@PermissionScope`, `@CurrentLang`, `@UserAgent` |
 
-`createParamDecorator` nhận một **hàm factory** `(data, context) => giá trị`:
+Câu hỏi của mục này: một decorator dán lên **tham số** — thứ mà [mục 2.5](#25-parameter-decorator-một-mình-không-làm-được-gì)
+đã nói là "không chạm được vào giá trị" — làm sao lại đưa được `userId` vào handler? Trả lời ngắn: **nó không tự
+làm**; nó để lại một hàm trong metadata, và Nest gọi hàm đó hộ, mỗi request. Phần còn lại của mục là chứng minh
+câu đó bằng mã nguồn thật.
+
+### 8.1 Bốn param decorator của dự án
+
+Cả bốn đều có cùng khung: `createParamDecorator((data, context) => giá trị)`.
 
 ```ts
+// active-user.decorator.ts — data là TÊN TRƯỜNG của JWT payload
 const ActiveUser = createParamDecorator(
   (field: keyof AccessTokenPayload, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest<Request>();
@@ -812,30 +826,384 @@ const ActiveUser = createParamDecorator(
     return field ? user[field] : user;
   },
 );
-
 export default ActiveUser;
+
+// permission-scope.decorator.ts — data là một TUPLE [resource, action]
+export const PermissionScope = createParamDecorator(
+  (
+    [resource, action]: [ResourceType, ActionType],
+    context: ExecutionContext,
+  ): ScopeType => {
+    const request = context.switchToHttp().getRequest<Request>();
+    const granted = request[REQUEST_GRANTED_PERMISSIONS_KEY] as
+      | ReadonlySet<PermissionKey>
+      | undefined;
+
+    return scopeOf(granted ?? new Set(), resource, action);
+  },
+);
+
+// current-lang.decorator.ts — KHÔNG dùng data
+export const CurrentLang = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext): string =>
+    (I18nContext.current(ctx) as I18nContext).lang,
+);
+
+// user-agent.decorator.ts — KHÔNG dùng data
+export const UserAgent = createParamDecorator(
+  (_: unknown, ctx: ExecutionContext): string =>
+    ctx.switchToHttp().getRequest<Request>().headers["user-agent"] as string,
+);
 ```
 
-([active-user.decorator.ts:7-16](../../src/shared/param-decorators/active-user.decorator.ts#L7-L16)) — để ý đây là
-**default export**, nên import không có ngoặc nhọn: `import ActiveUser from "@/shared/param-decorators/active-user.decorator";`
+([active-user.decorator.ts](../../src/shared/param-decorators/active-user.decorator.ts) ·
+[permission-scope.decorator.ts](../../src/shared/param-decorators/permission-scope.decorator.ts) ·
+[current-lang.decorator.ts](../../src/shared/param-decorators/current-lang.decorator.ts) ·
+[user-agent.decorator.ts](../../src/shared/param-decorators/user-agent.decorator.ts))
 
-- `data` (ở đây là `field`) là thứ bạn truyền khi dùng: `@ActiveUser("userId")` → `field = "userId"`.
-  `@ActiveUser()` → `field = undefined` → trả cả payload.
-- `context` là `ExecutionContext` — cửa sổ nhìn vào request hiện tại ([chương 2](02-reflector-execution-context-and-discovery.md)).
-- Giá trị trả về **chính là giá trị tham số** handler nhận.
+Và cách dùng trong controller:
 
-Vậy lúc định nghĩa class, `@ActiveUser("userId")` làm gì? Nó **cũng dán metadata** — nhưng là metadata kiểu
-"tham số số 2 của method này lấy giá trị bằng hàm factory này với data là `userId`". Nest đọc metadata đó mỗi
-request, gọi factory, lấy kết quả, ghép vào danh sách tham số. Nên nói cho đúng: **mọi decorator đều chạy lúc định
-nghĩa; nhưng param decorator dán vào một hàm mà Nest sẽ gọi lại mỗi request.**
+```ts
+// cart.controller.ts
+@RequirePermission("cart:read:own")
+@Get()
+async getCartItems(
+  @Query() query: CartPaginationQueryDto,
+  @ActiveUser("userId") userId: UserSchema["id"],
+) { ... }
 
-Param decorator còn nhận **pipe** làm tham số thêm:
+// manage-order.controller.ts
+@PermissionScope(["order-fulfilment", "read"]) scope: ScopeType,
+
+// brand.controller.ts
+@CurrentLang() languageId: LanguageSchema["id"],
+```
+
+Ba điều rút ra ngay từ bốn file:
+
+- **`data` là thứ bạn viết trong ngoặc khi dùng.** `@ActiveUser("userId")` → `field = "userId"`. `@ActiveUser()` →
+  `field = undefined` → trả cả payload. `@PermissionScope(["order-fulfilment", "read"])` → `data` là cả tuple.
+- **Kiểu của `data` chính là kiểu tham số đầu của factory.** `field: keyof AccessTokenPayload` nên
+  `@ActiveUser("userID")` (sai hoa thường) đỏ ngay lúc compile. Tuple `[ResourceType, ActionType]` cũng vậy — gõ sai
+  tên resource là lỗi biên dịch, không phải lỗi runtime. Đây là lý do nên **luôn khai kiểu cho `data`**, kể cả khi
+  không dùng (`data: unknown`).
+- **Giá trị factory trả về là giá trị tham số handler nhận.** Không có bước nào ở giữa, trừ pipe ([mục 8.6](#86-pipe-đi-sau-factory)).
+- Chú ý `ActiveUser` là **default export**, ba cái còn lại là named export. Import cho đúng:
+  `import ActiveUser from "@/shared/param-decorators/active-user.decorator";` — không có ngoặc nhọn.
+
+### 8.2 Mã nguồn thật của `createParamDecorator`
+
+Đây là toàn bộ hàm trong `@nestjs/common` (bỏ comment, giữ nguyên logic):
+
+```js
+function createParamDecorator(factory, enhancers = []) {
+  const paramtype = uid(21); // ①  một id ngẫu nhiên, sinh MỘT LẦN cho mỗi decorator
+
+  return (data, ...pipes) =>
+    (target, key, index) => {
+      // ②  factory 2 tầng
+      const args =
+        Reflect.getMetadata(ROUTE_ARGS_METADATA, target.constructor, key) || {}; // ③
+
+      const isPipe = (pipe) =>
+        pipe &&
+        ((isFunction(pipe) &&
+          pipe.prototype &&
+          isFunction(pipe.prototype.transform)) ||
+          isFunction(pipe.transform));
+      const hasParamData = isNil(data) || !isPipe(data); // ④  đối số đầu là data hay là pipe?
+      const paramData = hasParamData ? data : undefined;
+      const paramPipes = hasParamData ? pipes : [data, ...pipes];
+
+      Reflect.defineMetadata(
+        ROUTE_ARGS_METADATA,
+        assignCustomParameterMetadata(
+          args,
+          paramtype,
+          index,
+          factory,
+          paramData,
+          ...paramPipes,
+        ), // ⑤
+        target.constructor,
+        key,
+      );
+      enhancers.forEach((fn) => fn(target, key, index)); // ⑥
+    };
+}
+
+// assign-custom-metadata.util.js
+function assignCustomParameterMetadata(
+  args,
+  paramtype,
+  index,
+  factory,
+  data,
+  ...pipes
+) {
+  return {
+    ...args,
+    [`${paramtype}__customRouteArgs__:${index}`]: {
+      index,
+      factory,
+      data,
+      pipes,
+    },
+  };
+}
+```
+
+Đọc theo số:
+
+- **①** Mỗi lần gọi `createParamDecorator` sinh một `paramtype` ngẫu nhiên. `ActiveUser` có một id, `PermissionScope`
+  có id khác. Id này chỉ để làm **key không trùng** trong bảng metadata, không có ý nghĩa gì khác.
+- **②** Hai tầng factory, đúng như [mục 3](#3-decorator-factory--vì-sao-có-dấu-ngoặc): `ActiveUser("userId")` chạy tầng
+  ngoài, trả về parameter decorator thật `(target, key, index) => ...`; TypeScript gọi tầng trong khi định nghĩa class.
+  `target` là `CartController.prototype`, `key` là `"getCartItems"`, `index` là vị trí tham số (`1` cho `userId` ở
+  ví dụ trên — đếm từ 0).
+- **③** Đọc bảng `__routeArguments__` hiện có của method này. Địa chỉ là **`target.constructor` + `key`**, tức
+  "dán lên class, theo tên method" — dạng "một trang" của [mục 6.5](#65-dán-cho-cả-quyển-hay-cho-một-trang). Khác
+  `SetMetadata` (dán lên chính hàm `descriptor.value`), vì parameter decorator **không có** `descriptor` để lấy hàm.
+- **④** Nest phải đoán: đối số đầu là `data` hay là pipe? Nếu nó trông giống pipe (class có `prototype.transform`, hoặc
+  object có `transform`) thì coi như `data = undefined`. Vì thế `@ActiveUser(ParseUUIDPipe)` và
+  `@ActiveUser(undefined, ParseUUIDPipe)` giống nhau.
+- **⑤** Ghi lại bảng, thêm một dòng key `"<uid>__customRouteArgs__:<index>"` → `{ index, factory, data, pipes }`.
+  **`factory` chính là hàm bạn viết**, được cất nguyên vào metadata. Không gọi. Chỉ cất.
+- **⑥** `enhancers` là mảng decorator phụ, ít dùng; ví dụ muốn `@ActiveUser` tự dán thêm metadata Swagger.
+
+Vậy sau khi TypeScript định nghĩa xong `CartController`, chuyện duy nhất đã xảy ra là **một dòng trong bảng
+`__routeArguments__`**. Chưa có request nào, chưa có `userId` nào, factory chưa chạy lần nào.
+
+### 8.3 Nhìn bảng `__routeArguments__` thật
+
+Bảng này chứa **cả** decorator có sẵn (`@Body`, `@Query`, `@Param`…) lẫn decorator tự viết. Decorator có sẵn dùng key
+`"<số enum>:<index>"` với `RouteParamtypes` (`BODY = 3`, `QUERY = 4`, `PARAM = 5`…); decorator tự viết dùng key chứa
+uid. Với `getCartItems` ở trên:
+
+```ts
+import { ROUTE_ARGS_METADATA } from "@nestjs/common/constants";
+
+Reflect.getMetadata(ROUTE_ARGS_METADATA, CartController, "getCartItems");
+// {
+//   "4:0": { index: 0, data: undefined, pipes: [] },                       // @Query()  → QUERY = 4, tham số 0
+//   "aB3…xY__customRouteArgs__:1": {                                       // @ActiveUser("userId"), tham số 1
+//     index: 1,
+//     factory: [Function],                                                 // hàm (field, context) => ...
+//     data: "userId",
+//     pipes: [],
+//   },
+// }
+```
+
+Để ý `@Query()` **không có `factory`** — Nest biết sẵn cách lấy query nên chỉ ghi `type`. Decorator tự viết không có
+số enum để Nest tra, nên phải mang theo `factory`. Đó là toàn bộ khác biệt giữa "có sẵn" và "tự viết".
+
+### 8.4 Mỗi request, Nest làm gì với bảng đó
+
+Phần này nằm trong `@nestjs/core/router/router-execution-context.js`, rút gọn về những dòng quan trọng:
+
+```js
+// LÚC BOOT — chạy một lần cho mỗi route, khi Nest map controller
+exchangeKeysForValues(keys, metadata, ...) {
+  return keys.map((key) => {
+    const { index, data, pipes } = metadata[key];
+    if (key.includes("__customRouteArgs__")) {
+      const { factory } = metadata[key];
+      // bọc factory của bạn thành một hàm nhận (req, res, next)
+      const extractValue = (...args) => factory(data, contextFactory(args));
+      return { index, extractValue, type: key, data, pipes };
+    }
+    // decorator có sẵn: tra bảng theo số enum
+    const extractValue = (req, res, next) => this.paramsFactory.exchangeKeyForValue(Number(type), data, { req, res, next });
+    return { index, extractValue, type: Number(type), data, pipes };
+  });
+}
+
+// MỖI REQUEST — sau guard, sau interceptor (nửa trước), ngay trước handler
+const pipesFn = async (args, req, res, next) => {
+  const resolveParamValue = async (param) => {
+    const { index, extractValue, type, data, metatype, pipes: paramPipes } = param;
+    const value = extractValue(req, res, next);            // ← factory của bạn chạy Ở ĐÂY
+    args[index] = this.isPipeable(type)
+      ? await this.getParamValue(value, { metatype, type, data }, pipes.concat(paramPipes))
+      : value;
+  };
+  await Promise.all(paramsOptions.map(resolveParamValue));
+};
+// rồi: handler.apply(instance, args)
+```
+
+Ghép lại thành một dòng thời gian cho `GET /cart` với `@ActiveUser("userId")`:
+
+| Khi nào            | Chuyện gì xảy ra                                                                                                                                                  |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Import file        | `ActiveUser("userId")` chạy → parameter decorator chạy → ghi một dòng vào `__routeArguments__` của `CartController`/`getCartItems`. **Factory chưa chạy.**        |
+| Boot               | Nest đọc bảng đó **một lần**, bọc `factory` thành `extractValue = (req, res, next) => factory("userId", new ExecutionContextHost([req, res, next], …))`. Cất sẵn. |
+| Request đến        | Middleware → guard (`AccessTokenGuard` đặt `request[REQUEST_USER_KEY] = payload`) → interceptor nửa trước.                                                        |
+| Ngay trước handler | `pipesFn` chạy: gọi `extractValue(req, res, next)` → **factory của bạn chạy**, đọc `request[REQUEST_USER_KEY].userId`, trả về chuỗi.                              |
+| Pipe               | Chuỗi đi qua pipe toàn cục + pipe khai trên tham số (nếu có).                                                                                                     |
+| Handler            | `args[1] = "…userId…"`; Nest gọi `getCartItems(query, userId)`.                                                                                                   |
+
+Ba hệ quả thực tế từ đoạn mã trên:
+
+- **Param decorator chạy sau guard.** Vì thế `@ActiveUser` đọc được `request[REQUEST_USER_KEY]` mà guard vừa đặt
+  ([access-token.guard.ts:128](../../src/shared/guards/access-token.guard.ts#L128)). Thứ tự này là của Nest, không
+  phải của dự án, và không đổi được.
+- **Các tham số được tính bằng `Promise.all`** — tức là **đồng thời, không theo thứ tự trái → phải**. Đừng viết
+  factory của tham số 2 dựa vào việc tham số 1 đã ghi gì đó lên `request`.
+- **`context` mỗi request là một `ExecutionContextHost` mới**, bọc `[req, res, next]` cộng thêm class và handler. Đó là
+  lý do `I18nContext.current(ctx)` trong `@CurrentLang` tìm được đúng ngôn ngữ của request này
+  ([chương 2](02-reflector-execution-context-and-discovery.md) nói kỹ về `ExecutionContext`).
+
+Nên nói cho đúng: **mọi decorator đều chạy lúc định nghĩa; param decorator chỉ khác ở chỗ nó cất một hàm mà Nest sẽ
+gọi lại mỗi request.**
+
+### 8.5 Nguồn dữ liệu nằm trên `request`, và ai đặt nó ở đó
+
+Param decorator không sinh ra dữ liệu. Nó **đọc** thứ tầng trước đã để lại:
+
+| Decorator          | Đọc từ                                     | Ai đặt, ở đâu                                                                                                         |
+| ------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `@ActiveUser`      | `request[REQUEST_USER_KEY]`                | `AccessTokenGuard.canActivate` ([access-token.guard.ts:128](../../src/shared/guards/access-token.guard.ts#L128))      |
+| `@PermissionScope` | `request[REQUEST_GRANTED_PERMISSIONS_KEY]` | `AccessTokenGuard.verifyPermission` ([access-token.guard.ts:102](../../src/shared/guards/access-token.guard.ts#L102)) |
+| `@CurrentLang`     | `I18nContext.current(ctx)`                 | middleware/resolver của `nestjs-i18n` ([chương 4](04-middleware.md))                                                  |
+| `@UserAgent`       | `request.headers["user-agent"]`            | Express, từ HTTP header                                                                                               |
+
+Hệ quả: **dùng `@ActiveUser` trên một route `@IsPublicApi()` là lỗi logic**. Route public đi qua nhánh
+`AuthorizationType.NONE` (`canActivate: () => true`), `AccessTokenGuard` không chạy, `request[REQUEST_USER_KEY]` là
+`undefined`, và `user[field]` ném `TypeError` → client nhận 500. Compiler không bắt được; chỉ có hiểu thứ tự
+tầng mới tránh được.
+
+So sánh cách hai decorator xử lý trường hợp "guard chưa đặt gì":
+
+- `@ActiveUser`: **không có fallback**. Hợp lý, vì handler cần `userId` thì không có `userId` là lỗi hệ thống, nên nổ to
+  là đúng.
+- `@PermissionScope`: `granted ?? new Set()` → `scopeOf(Set rỗng)` → `"own"`. Fallback về phía **hẹp nhất**. Nếu vì lý
+  do nào đó tập quyền không được gắn, service chỉ thấy dữ liệu của chính người gọi — không bao giờ vô tình mở rộng.
+  Test thứ ba trong [permission-scope.decorator.spec.ts](../../src/shared/param-decorators/__tests__/permission-scope.decorator.spec.ts)
+  khoá đúng hành vi này.
+
+Quy tắc chung: **khi thiếu dữ liệu, một là nổ, hai là rơi về phía an toàn — không bao giờ đoán về phía rộng.**
+
+### 8.6 Pipe đi sau factory
+
+Param decorator nhận pipe làm đối số thêm, y như `@Param("id", ParseUUIDPipe)`:
 
 ```ts
 @ActiveUser("userId", ParseUUIDPipe) userId: string
 ```
 
-Giá trị factory trả về đi qua pipe trước khi vào handler. Dự án chưa cần, nhưng cơ chế có sẵn.
+**Truyền pipe vào thì chuyện gì xảy ra?** Giá trị factory trả về không đi thẳng vào handler nữa. Theo đúng đoạn mã ở
+[mục 8.4](#84-mỗi-request-nest-làm-gì-với-bảng-đó), một request đi qua bốn bước:
+
+1. **Lúc định nghĩa class**, dòng ④ ở [mục 8.2](#82-mã-nguồn-thật-của-createparamdecorator) thấy đối số thứ hai là
+   một class có `prototype.transform` → ghi vào metadata `data = "userId"`, `pipes = [ParseUUIDPipe]`.
+2. **Mỗi request**, Nest gọi factory → đọc `request[REQUEST_USER_KEY].userId` → được một chuỗi.
+3. Chuỗi đó đi vào `getParamValue` với danh sách `pipes.concat(paramPipes)` — **pipe toàn cục trước, pipe của tham
+   số sau**: `ValidationPipe` của dự án chạy trước, rồi đến `ParseUUIDPipe`.
+4. `ParseUUIDPipe.transform` kiểm tra dạng UUID. Đúng → trả nguyên chuỗi, handler nhận `userId`. Sai → ném
+   `BadRequestException("Validation failed (uuid is expected)")` → client nhận **400 không có `details`** (dòng "tầng
+   10 pipe cục bộ" trong bảng lỗi của [chương 5](05-request-lifecycle-in-this-project.md)). Handler không được gọi.
+
+**Không cần sửa gì trong `ActiveUser` để nhận pipe.** Nhìn lại chữ ký ở [mục 8.2](#82-mã-nguồn-thật-của-createparamdecorator):
+
+```js
+return (data, ...pipes) => (target, key, index) => { ... };
+```
+
+Hàm bạn viết chỉ là `factory` bên trong. Phần nhận `(data, ...pipes)` là do Nest sinh ra cho **mọi** decorator tạo
+bằng `createParamDecorator`, giống hệt `@Param`, `@Query`. Nên vừa viết xong
+`createParamDecorator((field, context) => ...)` là `ActiveUser` đã tự có dạng `ActiveUser(data, ...pipes)`. Việc của
+nó chỉ là ghi `pipes` vào metadata (dòng ⑤); việc **chạy** pipe là của Nest ở `getParamValue` mỗi request. Factory
+không biết, và không cần biết, có pipe hay không. Rê chuột lên `ActiveUser` trong editor sẽ thấy compiler cũng đã
+biết điều đó:
+
+```ts
+(
+  ...dataOrPipes: (
+    | keyof AccessTokenPayload
+    | PipeTransform
+    | Type<PipeTransform>
+  )[]
+) => ParameterDecorator;
+```
+
+Bốn điều cần biết trước khi dùng:
+
+- **Pipe kiểm tra kết quả của factory, không kiểm tra `data`.** `@ActiveUser(ParseUUIDPipe)` (bỏ `data`) vẫn hợp lệ nhờ
+  dòng ④, nhưng lúc đó factory trả về **cả payload object**, `ParseUUIDPipe` nhận object và ném
+  `The value passed as UUID is not a string` → 400. Chọn pipe phải khớp với thứ factory trả ra.
+- **Với `@ActiveUser` của dự án, pipe này gần như thừa.** `userId` lấy từ JWT do chính server ký, cột `id` của `User`
+  là `@db.Uuid`; nếu nó không phải UUID thì lỗi ở chỗ phát token, không phải ở client — trả 400 là báo sai người.
+  Pipe trên param decorator có ý nghĩa khi nguồn dữ liệu là thứ **client kiểm soát**: một decorator đọc header, cookie,
+  hay query tuỳ biến.
+- **Truyền instance để cấu hình, truyền nhiều pipe để nối tiếp.** `@ActiveUser("userId", new ParseUUIDPipe({ version: "4" }))`
+  hoặc `@X("k", PipeA, PipeB)` — A chạy trước, đầu ra của A là đầu vào của B.
+- **Pipe toàn cục được gọi, nhưng `ValidationPipe` mặc định bỏ qua custom decorator.** Metadata tham số có
+  `type: "custom"`; `validateCustomDecorators` mặc định là `false`, và cấu hình dự án chưa bật nó. Trả instance DTO
+  cũng không thay đổi điều đó. Muốn validate một custom decorator, gắn pipe riêng có
+  `new ValidationPipe({ validateCustomDecorators: true, transform: true, whitelist: true, forbidNonWhitelisted: true })`
+  và khai kiểu DTO class cho tham số handler. Pipe dựa vào `metatype` của tham số, không tự suy ra chỉ từ giá trị
+  factory trả về. Xem [chương 12](12-pipes-and-input-contracts.md#5-custom-decorator-không-tự-được-validate).
+
+Dự án chưa dùng pipe trên param decorator tự viết; cơ chế có sẵn khi cần.
+
+### 8.7 Unit test một param decorator
+
+Thứ `createParamDecorator` trả về không gọi trực tiếp được — nó là decorator, chỉ có nghĩa khi áp lên tham số. Cách
+test được ghi trong tài liệu Nest và dự án đã áp dụng: **áp decorator lên một class mồi, rồi móc `factory` ra khỏi
+metadata**:
+
+```ts
+// permission-scope.decorator.spec.ts
+const factoryOf = (data: [ResourceType, ActionType]) => {
+  class Probe {
+    handler(@PermissionScope(data) _scope: unknown) {}
+  }
+
+  const metadata = Reflect.getMetadata(ROUTE_ARGS_METADATA, Probe, "handler");
+
+  return Object.values(metadata)[0].factory; // đúng hàm bạn viết trong createParamDecorator
+};
+
+const contextWith = (granted?: Set<PermissionKey>) =>
+  ({
+    switchToHttp: () => ({
+      getRequest: () => ({ [REQUEST_GRANTED_PERMISSIONS_KEY]: granted }),
+    }),
+  }) as unknown as ExecutionContext;
+
+it("yields `any` when the caller holds the unrestricted form", () => {
+  const factory = factoryOf(["product", "read"]);
+  expect(
+    factory(["product", "read"], contextWith(new Set(["product:read:any"]))),
+  ).toBe("any");
+});
+```
+
+([permission-scope.decorator.spec.ts](../../src/shared/param-decorators/__tests__/permission-scope.decorator.spec.ts))
+
+Đọc lại [mục 8.2](#82-mã-nguồn-thật-của-createparamdecorator) là thấy vì sao cách này đúng: `Reflect.getMetadata(ROUTE_ARGS_METADATA, Probe, "handler")`
+chính là địa chỉ ③, và `factory` là thứ ⑤ cất vào. `ExecutionContext` giả chỉ cần đủ phương thức mà factory gọi.
+Không cần boot Nest, không cần HTTP.
+
+### 8.8 Khi nào viết param decorator, khi nào không
+
+Param decorator hợp khi việc cần làm là **"đọc một thứ có sẵn trên request và đưa vào handler với kiểu đẹp"**. Nó
+không hợp cho những việc sau, và mỗi việc có chỗ đúng của nó:
+
+| Muốn làm                                          | Không dùng param decorator vì                                                                     | Dùng                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Gọi service, đọc DB, đọc cache                    | Factory là hàm thuần, **không có dependency injection** — không `constructor(private svc)` nào cả | Guard (đặt lên `request`) hoặc pipe (có `@Injectable`) |
+| Từ chối request (401/403)                         | Ném lỗi ở đây là ném **sau** guard, sau interceptor — sai tầng, và sai mã lỗi mặc định            | Guard ([chương 3](03-guards.md))                       |
+| Ghi log, đo thời gian, biến đổi response          | Param decorator không thấy response                                                               | Interceptor                                            |
+| Validate / ép kiểu giá trị                        | Có thể, nhưng đã có cơ chế chuẩn                                                                  | Pipe truyền vào tham số thứ hai                        |
+| Đọc `req.user.userId` với kiểu `UserSchema["id"]` | —                                                                                                 | **Đây** — `@ActiveUser("userId")`                      |
+
+Điểm về DI đáng nhấn thêm một lần: `createParamDecorator` nhận một **hàm**, không phải class, nên không có
+constructor để inject. Nếu bạn thấy mình muốn `this.prisma` trong factory, đó là dấu hiệu logic thuộc về guard hoặc
+service. `@PermissionScope` là ví dụ: việc _tính_ tập quyền (cần DB, cần cache) nằm ở guard; decorator chỉ _đọc_ tập
+đã tính và rút gọn thành `"own"` / `"any"` bằng một hàm thuần `scopeOf`.
 
 ---
 
@@ -867,7 +1235,7 @@ export function ApiAuth({ type, options, statusCode = HttpStatus.OK }): MethodDe
 `(target, key, descriptor)`. Không có gì khác một vòng `for`.
 
 Điều đáng học từ file này: `ApiAuth`, `ApiPublic`, `ApiPageOkResponse` là ba composite khác nhau **vì ba nhóm route
-có hợp đồng lỗi khác nhau**. Route public không thể trả 401/403, nên `ApiPublic` không khai hai mã đó. Composite
+có hợp đồng lỗi khác nhau**. `ApiPublic` không khai 401/403 do chính sách auth mặc định của repo. Route public vẫn có thể trả hai mã này từ middleware, guard khác hoặc nghiệp vụ; Swagger cần bổ sung khi route có hợp đồng đó. Composite
 decorator là chỗ tốt để **mã hoá quy ước của dự án** thành một từ.
 
 ---
@@ -1033,8 +1401,9 @@ Hai giá trị đầu hé lộ cách Nest lưu route: `@Get()` không tham số 
 request nào.
 
 **3. Làm vỡ DI để thấy `emitDecoratorMetadata` quan trọng.** Tạm xoá `@Injectable()` trên
-`src/routes/role/role.service.ts`, chạy `pnpm types-check` (vẫn xanh — đây là lỗi runtime), rồi chạy app: Nest báo
-`Nest can't resolve dependencies of the RoleService (?, ...)`. Khôi phục lại.
+`src/routes/role/role.service.ts`, chạy `pnpm types-check`, rồi in `design:paramtypes` và các dependency. Không còn
+metadata constructor thì Nest có thể boot với dependency `undefined`; lỗi xuất hiện khi gọi service, hoặc khi hook
+khởi tạo khác dùng service đó. Đừng mặc định chờ `can't resolve dependencies`. Khôi phục decorator.
 
 **4. In ra đúng những gì mỗi loại decorator nhận** (nguồn của output ở [mục 2.1](#21-nhìn-tận-mắt)).
 

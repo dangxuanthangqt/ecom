@@ -254,8 +254,9 @@ Quét toàn app chỉ có nghĩa khi **toàn app đã dựng xong**. Nest cho b�
 | `onModuleDestroy()` / `beforeApplicationShutdown()` / `onApplicationShutdown()` | tắt app                                  | đóng kết nối                             |
 
 [permission-coverage.service.ts:20-29](../../src/shared/services/permission-coverage.service.ts#L20-L29) implement
-`OnApplicationBootstrap`, không phải `OnModuleInit`. Nếu dùng `onModuleInit`, lúc `BaseModule` init thì
-`RouteModule` có thể chưa — `getControllers()` trả về danh sách thiếu, check xanh giả.
+`OnApplicationBootstrap`, không phải `OnModuleInit`. Controller của các module đã được khám phá và dựng trước khi
+`onModuleInit()` chạy; `DiscoveryService` không mặc nhiên thiếu controller ở hook đó. Chọn bootstrap vì cần **mọi
+hook `onModuleInit()` đã hoàn tất**, sau khi cả app được khởi tạo, trước khi nhận kết nối.
 
 Một chi tiết vận hành: các hook này chạy trong **`app.init()`**, không cần `app.listen()`. Script seed tận dụng điều
 đó — [create-permission.ts:22-23](../../initial-scripts/create-permission.ts#L22-L23):
@@ -296,12 +297,13 @@ và guard vẫn trả 500 cho route thiếu nhãn — điểm mù ồn ào, khô
 với `handler` là method **kế thừa từ controller cha** vẫn đọc được nhãn dán ở cha. Bạn có thể tận dụng để làm
 `BaseAdminController` dán `@RequirePermission` cấp class; nhưng nhớ [mục 2](#2-thứ-tự-targets-là-một-hợp-đồng) — method con không dán gì sẽ lấy nhãn cha.
 
-**Đọc metadata ở interceptor và pipe cũng được.** Cả hai nhận `ExecutionContext`. `ClassSerializerInterceptor` của
-Nest đọc `@SerializeOptions()` đúng bằng cách này. Nếu bạn cần "route này trả về cache 60s", một interceptor +
-`SetMetadata("cache-ttl", 60)` là đủ.
+**Interceptor nhận `ExecutionContext`; pipe nhận `ArgumentMetadata`.** `ClassSerializerInterceptor` đọc
+`@SerializeOptions()` bằng `getHandler()` / `getClass()`. Pipe chỉ nhận `value` và `{ type, metatype, data }`, nên
+không có API lấy handler hiện tại. Muốn đọc policy cache 60s trên route, dùng interceptor +
+`SetMetadata("cache-ttl", 60)`. Muốn chọn schema trong pipe, truyền schema qua constructor hoặc dùng DTO metatype.
 
-**Không cần cache kết quả Reflector.** Bên dưới là `WeakMap.get` — nhanh hơn bất kỳ cache nào bạn tự viết. Đừng tối ưu
-chỗ này.
+**Đừng tự cache kết quả Reflector khi chưa đo.** Metadata lookup thường nhỏ so với I/O; nó còn có thể duyệt prototype
+chain và nhiều target. Chỉ tối ưu nếu profiling cho thấy đây là bottleneck, không khẳng định nó nhanh hơn mọi cache.
 
 ---
 

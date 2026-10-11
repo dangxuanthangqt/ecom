@@ -1,0 +1,3208 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chương 9 — Interceptor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Azeret+Mono:wght@400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Paper/Ink · light default ── */
+      :root {
+        --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+        --font-mono: "Azeret Mono", "SF Mono", Consolas, monospace;
+
+        --bg: #faf6f0;
+        --surface: #ffffff;
+        --surface2: #f3ece2;
+        --surface-elevated: #fffdf7;
+        --border: rgba(60, 40, 20, 0.09);
+        --border-bright: rgba(60, 40, 20, 0.2);
+        --text: #2c2a25;
+        --text-dim: #7c756a;
+        --text-bright: #1a1814;
+        --accent: #c2410c;
+        --accent-dim: rgba(194, 65, 12, 0.08);
+
+        --node-a: #c2410c;
+        --node-a-dim: rgba(194, 65, 12, 0.08);
+        --node-b: #4d7c0f;
+        --node-b-dim: rgba(77, 124, 15, 0.09);
+        --node-c: #0f766e;
+        --node-c-dim: rgba(15, 118, 110, 0.09);
+
+        --green: #3f6212;
+        --green-dim: rgba(63, 98, 18, 0.1);
+        --red: #b3261e;
+        --red-dim: rgba(179, 38, 30, 0.09);
+        --amber: #b45309;
+        --amber-dim: rgba(180, 83, 9, 0.1);
+        --sage: #65a30d;
+        --sage-dim: rgba(101, 163, 13, 0.09);
+        --teal: #0f766e;
+        --teal-dim: rgba(15, 118, 110, 0.09);
+        --plum: #9f1239;
+        --plum-dim: rgba(159, 18, 57, 0.09);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #1c1916;
+          --surface: #262220;
+          --surface2: #302a26;
+          --surface-elevated: #342e29;
+          --border: rgba(200, 180, 160, 0.09);
+          --border-bright: rgba(200, 180, 160, 0.2);
+          --text: #f0e8dc;
+          --text-dim: #a89e90;
+          --text-bright: #fbf6ee;
+          --accent: #f0743f;
+          --accent-dim: rgba(240, 116, 63, 0.13);
+          --node-a: #f0743f;
+          --node-a-dim: rgba(240, 116, 63, 0.13);
+          --node-b: #a3e635;
+          --node-b-dim: rgba(163, 230, 53, 0.11);
+          --node-c: #5eead4;
+          --node-c-dim: rgba(94, 234, 212, 0.11);
+          --green: #a3e635;
+          --green-dim: rgba(163, 230, 53, 0.12);
+          --red: #fca5a5;
+          --red-dim: rgba(252, 165, 165, 0.12);
+          --amber: #fbbf24;
+          --amber-dim: rgba(251, 191, 36, 0.12);
+          --sage: #bef264;
+          --sage-dim: rgba(190, 242, 100, 0.12);
+          --teal: #5eead4;
+          --teal-dim: rgba(94, 234, 212, 0.12);
+          --plum: #fda4af;
+          --plum-dim: rgba(253, 164, 175, 0.12);
+        }
+      }
+      [data-theme="dark"] {
+        --bg: #1c1916;
+        --surface: #262220;
+        --surface2: #302a26;
+        --surface-elevated: #342e29;
+        --border: rgba(200, 180, 160, 0.09);
+        --border-bright: rgba(200, 180, 160, 0.2);
+        --text: #f0e8dc;
+        --text-dim: #a89e90;
+        --text-bright: #fbf6ee;
+        --accent: #f0743f;
+        --accent-dim: rgba(240, 116, 63, 0.13);
+        --node-a: #f0743f;
+        --node-a-dim: rgba(240, 116, 63, 0.13);
+        --node-b: #a3e635;
+        --node-b-dim: rgba(163, 230, 53, 0.11);
+        --node-c: #5eead4;
+        --node-c-dim: rgba(94, 234, 212, 0.11);
+        --green: #a3e635;
+        --green-dim: rgba(163, 230, 53, 0.12);
+        --red: #fca5a5;
+        --red-dim: rgba(252, 165, 165, 0.12);
+        --amber: #fbbf24;
+        --amber-dim: rgba(251, 191, 36, 0.12);
+        --sage: #bef264;
+        --sage-dim: rgba(190, 242, 100, 0.12);
+        --teal: #5eead4;
+        --teal-dim: rgba(94, 234, 212, 0.12);
+        --plum: #fda4af;
+        --plum-dim: rgba(253, 164, 175, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 28px 40px 80px;
+        font-family: var(--font-body);
+        color: var(--text);
+        background-color: var(--bg);
+        background-image: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 40px,
+          var(--border) 40px,
+          var(--border) 41px
+        );
+        overflow-wrap: break-word;
+        line-height: 1.65;
+        font-size: 15.5px;
+      }
+      .grid > *,
+      .flex > * {
+        min-width: 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 300;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-dim);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      }
+      .theme-toggle:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 0 40px;
+      }
+      .main {
+        min-width: 0;
+      }
+      .toc {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        padding: 14px 0;
+        grid-row: 1 / -1;
+        max-height: calc(100dvh - 48px);
+        overflow-y: auto;
+      }
+      .toc::-webkit-scrollbar {
+        width: 3px;
+      }
+      .toc::-webkit-scrollbar-thumb {
+        background: var(--surface-elevated);
+        border-radius: 2px;
+      }
+      .toc-title {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+        padding: 0 0 10px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .toc a {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 5px 8px;
+        border-radius: 5px;
+        border-left: 2px solid transparent;
+        transition: all 0.15s;
+        line-height: 1.4;
+        margin-bottom: 1px;
+      }
+      .toc a:hover {
+        color: var(--text);
+        background: var(--surface2);
+      }
+      .toc a.active {
+        color: var(--text);
+        border-left-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .toc-series {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+      .toc-series a {
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+
+      .series-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-bottom: 18px;
+      }
+      .series-bar a {
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 4px 9px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+      .series-bar a:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .series-bar .sep {
+        opacity: 0.5;
+      }
+
+      .masthead {
+        border-bottom: 2px solid var(--border-bright);
+        padding-bottom: 22px;
+        margin-bottom: 30px;
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2.4px;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(28px, 3.4vw, 42px);
+        line-height: 1.12;
+        margin: 0 0 12px;
+        letter-spacing: -0.8px;
+        color: var(--text-bright);
+        font-weight: 800;
+      }
+      .subtitle {
+        font-size: 17px;
+        color: var(--text-dim);
+        margin: 0;
+        max-width: 70ch;
+      }
+      .masthead-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin: 50px 0 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        scroll-margin-top: 20px;
+      }
+      .sec-head__num {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent);
+        background: var(--accent-dim);
+        padding: 3px 9px;
+        border-radius: 5px;
+        flex-shrink: 0;
+      }
+      .sec-head__text {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        color: var(--text-bright);
+      }
+      h3.sub {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 26px 0 10px;
+        color: var(--text-bright);
+      }
+      p.lead {
+        font-size: 16.5px;
+        color: var(--text);
+        max-width: 72ch;
+      }
+      p.dim {
+        color: var(--text-dim);
+      }
+      .prose {
+        max-width: 74ch;
+      }
+
+      .ve-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 22px;
+        position: relative;
+      }
+      .ve-card--elevated {
+        background: var(--surface-elevated);
+        box-shadow:
+          0 2px 8px rgba(0, 0, 0, 0.07),
+          0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      .ve-card--recessed {
+        background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .ve-card--hero {
+        background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.07),
+          0 1px 3px rgba(0, 0, 0, 0.04);
+        border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+      }
+      .ve-card__label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--node-a);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ve-card__label::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+      }
+      .ve-card__label--b {
+        color: var(--node-b);
+      }
+      .ve-card__label--c {
+        color: var(--node-c);
+      }
+      .ve-card__label--plum {
+        color: var(--plum);
+      }
+      .ve-card__label--amber {
+        color: var(--amber);
+      }
+      .ve-card__label--red {
+        color: var(--red);
+      }
+      .ve-card p {
+        margin: 0 0 10px;
+      }
+      .ve-card p:last-child {
+        margin-bottom: 0;
+      }
+      .ve-card ul,
+      .ve-card ol {
+        padding-left: 1.6em;
+        margin: 6px 0 0;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+      }
+      .card-grid--2 {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .tag {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 5px;
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        display: inline-block;
+      }
+      .tag--b {
+        background: var(--node-b-dim);
+        color: var(--node-b);
+      }
+      .tag--c {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+      }
+      .tag--amber {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .tag--red {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .tag--green {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .tag--plum {
+        background: var(--plum-dim);
+        color: var(--plum);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      .status--match {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .status--gap {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .status--warn {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .status--info {
+        background: var(--accent-dim);
+        color: var(--accent);
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.88em;
+        background: var(--accent-dim);
+        color: var(--accent);
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .code-file {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .code-file__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px 15px;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .code-file__header span:first-child {
+        color: var(--text);
+      }
+      .code-file__body {
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+        line-height: 1.6;
+        padding: 15px;
+        margin: 0;
+        background: var(--surface);
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 480px;
+        overflow: auto;
+        color: var(--text);
+      }
+      .cm {
+        color: var(--text-dim);
+        font-style: italic;
+      }
+      .kw {
+        color: var(--plum);
+      }
+      .st {
+        color: var(--node-b);
+      }
+      .fn {
+        color: var(--node-c);
+      }
+      .out {
+        color: var(--text-dim);
+      }
+
+      .pipeline {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+      .pipeline__step {
+        min-width: 150px;
+        flex: 1 1 0;
+      }
+      .pipeline__step--hi {
+        border-color: color-mix(in srgb, var(--border) 40%, var(--accent) 60%);
+        background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+      }
+      .pipeline__step--mute {
+        opacity: 0.72;
+      }
+      .pipeline__arrow {
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        color: var(--border-bright);
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .node-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+      .node-list li {
+        padding-left: 15px;
+        position: relative;
+      }
+      .node-list li::before {
+        content: "›";
+        color: var(--text-dim);
+        font-weight: 600;
+        position: absolute;
+        left: 0;
+      }
+
+      .table-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .data-table th {
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        text-align: left;
+        padding: 11px 15px;
+        border-bottom: 2px solid var(--border-bright);
+        white-space: nowrap;
+      }
+      .data-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        color: var(--text);
+      }
+      .data-table tbody tr:nth-child(even) {
+        background: var(--accent-dim);
+      }
+      .data-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table code {
+        font-size: 12px;
+      }
+      .data-table small {
+        display: block;
+        color: var(--text-dim);
+        font-size: 12px;
+        margin-top: 3px;
+      }
+      .data-table .num {
+        font-family: var(--font-mono);
+        color: var(--text-dim);
+        text-align: right;
+      }
+
+      .callout {
+        padding: 16px 20px;
+        border-radius: 8px;
+        border-left: 4px solid var(--callout-border);
+        background: var(--callout-bg);
+        margin: 18px 0;
+        font-size: 15px;
+      }
+      .callout--info {
+        --callout-border: var(--accent);
+        --callout-bg: color-mix(in srgb, var(--accent) 9%, transparent);
+      }
+      .callout--warning {
+        --callout-border: var(--amber);
+        --callout-bg: color-mix(in srgb, var(--amber) 10%, transparent);
+      }
+      .callout--success {
+        --callout-border: var(--green);
+        --callout-bg: color-mix(in srgb, var(--green) 9%, transparent);
+      }
+      .callout--danger {
+        --callout-border: var(--red);
+        --callout-bg: color-mix(in srgb, var(--red) 9%, transparent);
+      }
+      .callout__title {
+        font-weight: 700;
+        margin-bottom: 7px;
+        color: var(--callout-border);
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .callout ul {
+        padding-left: 1.5em;
+        margin: 8px 0 0;
+      }
+
+      .diff-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .diff-panels > * {
+        min-width: 0;
+        overflow-wrap: break-word;
+      }
+      .diff-panel__header {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 10px 16px;
+      }
+      .diff-panel__header--a {
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        border-bottom: 2px solid var(--node-a);
+      }
+      .diff-panel__header--b {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+        border-bottom: 2px solid var(--node-c);
+      }
+      .diff-panel__header--bad {
+        background: var(--red-dim);
+        color: var(--red);
+        border-bottom: 2px solid var(--red);
+      }
+      .diff-panel__header--good {
+        background: var(--green-dim);
+        color: var(--green);
+        border-bottom: 2px solid var(--green);
+      }
+      .diff-panel__body {
+        padding: 16px;
+        background: var(--surface);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .diff-panel__body ul {
+        padding-left: 1.4em;
+        margin: 0;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 28px;
+        margin: 12px 0;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 6px;
+        bottom: 6px;
+        width: 2px;
+        background: var(--border-bright);
+      }
+      .timeline__item {
+        position: relative;
+        margin-bottom: 14px;
+      }
+      .timeline__item::before {
+        content: "";
+        position: absolute;
+        left: -24px;
+        top: 8px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 2px solid var(--accent);
+      }
+      .timeline__item--stop::before {
+        border-color: var(--red);
+        background: var(--red-dim);
+      }
+      .timeline__item--ok::before {
+        border-color: var(--green);
+        background: var(--green-dim);
+      }
+      .timeline__item--mute::before {
+        border-color: var(--border-bright);
+      }
+      .timeline__title {
+        font-weight: 700;
+        color: var(--text-bright);
+      }
+      .timeline__title code {
+        font-size: 13px;
+      }
+      .timeline__desc {
+        color: var(--text-dim);
+        font-size: 14.5px;
+        margin-top: 2px;
+      }
+
+      .diagram-shell {
+        position: relative;
+        margin: 8px 0 4px;
+      }
+      .diagram-shell__hint {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin: 0 0 8px;
+        opacity: 0.75;
+      }
+      .mermaid-wrap {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px 22px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 380px;
+        cursor: grab;
+      }
+      .mermaid-wrap.is-panning {
+        cursor: grabbing;
+        user-select: none;
+      }
+      .zoom-controls {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 2px;
+        z-index: 10;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px;
+        align-items: center;
+      }
+      .zoom-controls button {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .zoom-controls button:hover {
+        background: var(--border);
+        color: var(--text);
+      }
+      .zoom-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        padding: 0 6px;
+        white-space: nowrap;
+      }
+      .mermaid-viewport {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+      }
+      .mermaid-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .mermaid .nodeLabel {
+        color: var(--text) !important;
+        font-family: var(--font-body) !important;
+        font-size: 15px !important;
+      }
+      .mermaid .edgeLabel {
+        color: var(--text-dim) !important;
+        background-color: var(--bg) !important;
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+      .mermaid .edgeLabel rect {
+        fill: var(--bg) !important;
+      }
+      .mermaid .messageText {
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+
+      details.collapsible {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--surface);
+        margin: 12px 0;
+      }
+      details.collapsible summary {
+        padding: 13px 19px;
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text);
+      }
+      details.collapsible summary::-webkit-details-marker {
+        display: none;
+      }
+      details.collapsible summary::before {
+        content: "▸";
+        font-size: 11px;
+        color: var(--text-dim);
+        transition: transform 0.15s ease;
+      }
+      details.collapsible[open] summary::before {
+        transform: rotate(90deg);
+      }
+      .collapsible__body {
+        padding: 16px 19px;
+        border-top: 1px solid var(--border);
+        font-size: 15px;
+      }
+
+      .chapter-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .chapter-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+      .chapter-card__num {
+        font-family: var(--font-mono);
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .chapter-card__title {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--text-bright);
+        margin-bottom: 6px;
+      }
+      .chapter-card__q {
+        font-size: 14px;
+        color: var(--text-dim);
+      }
+      .chapter-card__links {
+        margin-top: 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+      .chapter-card__links a {
+        margin-right: 10px;
+      }
+
+      .footer-nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .footer-nav a {
+        text-decoration: none;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text);
+        max-width: 48%;
+      }
+      .footer-nav a:hover {
+        border-color: var(--accent);
+      }
+      .footer-nav small {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 3px;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .ve-card {
+        animation: fadeUp 0.4s ease-out both;
+        animation-delay: calc(var(--i, 0) * 0.05s);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 1000px) {
+        body {
+          padding: 0 20px 60px;
+        }
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+        .toc {
+          position: sticky;
+          top: 0;
+          z-index: 200;
+          max-height: none;
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          overflow-x: auto;
+          background: var(--bg);
+          border-bottom: 1px solid var(--border);
+          padding: 10px 20px;
+          margin: 0 -20px;
+          grid-row: auto;
+        }
+        .toc::-webkit-scrollbar {
+          display: none;
+        }
+        .toc-title,
+        .toc-series {
+          display: none;
+        }
+        .toc a {
+          white-space: nowrap;
+          flex-shrink: 0;
+          border-left: none;
+          border-bottom: 2px solid transparent;
+          border-radius: 4px 4px 0 0;
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+        .toc a.active {
+          border-left: none;
+          border-bottom-color: var(--accent);
+          background: var(--surface);
+        }
+        .main {
+          padding-top: 22px;
+        }
+        .sec-head {
+          scroll-margin-top: 56px;
+        }
+        .pipeline {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .pipeline__arrow {
+          display: none;
+        }
+        .pipeline__step {
+          min-width: 100%;
+        }
+        .diff-panels {
+          grid-template-columns: 1fr;
+        }
+        .footer-nav {
+          flex-direction: column;
+        }
+        .footer-nav a {
+          max-width: none;
+        }
+      }
+
+      /* Markdown-generated content uses the existing paper/ink theme. */
+      h2.sec-head {
+        display: block;
+        font-size: 1.45rem;
+        line-height: 1.5;
+        scroll-margin-top: 24px;
+      }
+      h3.sub {
+        font-size: 1.15rem;
+        margin-top: 30px;
+        line-height: 1.6;
+      }
+      h4.sub,
+      h5.sub,
+      h6.sub {
+        margin-top: 24px;
+        line-height: 1.6;
+      }
+      blockquote {
+        margin: 20px 0;
+        padding: 12px 22px;
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+      }
+      blockquote .prose:last-child {
+        margin-bottom: 0;
+      }
+      .main > ul,
+      .main > ol {
+        padding-left: 26px;
+        margin: 16px 0 24px;
+      }
+      li {
+        line-height: 1.85;
+      }
+      li > .prose {
+        margin: 6px 0;
+      }
+      pre.code-file__body {
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      pre code {
+        font: inherit;
+        color: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .series-bar {
+        flex-wrap: wrap;
+      }
+      .series-bar a[aria-current="page"] {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .diagram-code {
+        margin: 10px 0 24px;
+      }
+      .diagram-code pre {
+        overflow-x: auto;
+        padding: 16px;
+        background: var(--surface);
+      }
+      .source-footer {
+        margin: 48px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.8rem;
+      }
+      .mermaid-wrap[hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      class="theme-toggle"
+      id="themeToggle"
+      aria-label="Đổi giao diện sáng tối"
+    >
+      ☾
+    </button>
+    <div class="wrap">
+      <nav class="toc" aria-label="Mục lục chương">
+        <div class="toc-title">Trong chương</div>
+        <a href="#1-interceptor-bọc-handler-không-đứng-trước-nó"
+          >1. Interceptor bọc handler, không đứng trước nó</a
+        ><a href="#2-hợp-đồng-nestinterceptor-và-callhandler"
+          >2. Hợp đồng NestInterceptor và CallHandler</a
+        ><a href="#3-vì-sao-là-observable-và-bạn-cần-biết-bao-nhiêu-rxjs"
+          >3. Vì sao là Observable, và bạn cần biết bao nhiêu RxJS</a
+        ><a href="#4-đọc-mã-nguồn-nest-xếp-các-interceptor-lồng-nhau-thế-nào"
+          >4. Đọc mã nguồn: Nest xếp các interceptor lồng nhau thế nào</a
+        ><a href="#5-ba-cách-đăng-ký-và-thứ-tự-chạy"
+          >5. Ba cách đăng ký, và thứ tự chạy</a
+        ><a href="#6-interceptor-thứ-nhất-của-dự-án-classserializerinterceptor"
+          >6. Interceptor thứ nhất của dự án: ClassSerializerInterceptor</a
+        ><a
+          href="#7-interceptor-thứ-hai-fileinterceptor--chạy-multer-rồi-mới-handle"
+          >7. Interceptor thứ hai: FileInterceptor — chạy multer rồi mới
+          handle()</a
+        ><a href="#8-interceptor-viết-tay-đang-nằm-không-transforminterceptor"
+          >8. Interceptor viết tay đang nằm không: TransformInterceptor</a
+        ><a href="#9-interceptor-nhìn-thấy-gì--và-không-thấy-gì"
+          >9. Interceptor nhìn thấy gì — và không thấy gì</a
+        ><a href="#10-lỗi-và-interceptor-catcherror-không-thay-được-filter"
+          >10. Lỗi và interceptor: catchError không thay được filter</a
+        ><a href="#11-res-bỏ-qua-kết-quả-trả-về-interceptor-vẫn-chạy"
+          >11. @Res() bỏ qua kết quả trả về, interceptor vẫn chạy</a
+        ><a href="#12-test-một-interceptor">12. Test một interceptor</a
+        ><a href="#13-nâng-cao">13. Nâng cao</a
+        ><a href="#14-trong-dự-án-này">14. Trong dự án này</a
+        ><a href="#15-tự-kiểm-chứng">15. Tự kiểm chứng</a>
+        <div class="toc-series">
+          <a href="index.html">↑ Mục lục bộ</a
+          ><a href="09-interceptors.md">Bản Markdown</a>
+        </div>
+      </nav>
+      <main class="main">
+        <nav class="series-bar" aria-label="Các chương">
+          <a href="index.html">Mục lục</a
+          ><a href="00-prototype-and-this.html">00 Prototype</a
+          ><a href="01-decorators-and-metadata.html">01 Decorator</a
+          ><a href="02-reflector-execution-context-and-discovery.html"
+            >02 Reflector</a
+          ><a href="03-guards.html">03 Guard</a
+          ><a href="04-middleware.html">04 Middleware</a
+          ><a href="05-request-lifecycle-in-this-project.html"
+            >05 Vòng đời request</a
+          ><a href="06-modules-and-dependency-injection.html"
+            >06 Module &amp; DI</a
+          ><a href="07-dto-validation-transformation-serialization.html"
+            >07 DTO</a
+          ><a href="08-request-and-provider-instances.html"
+            >08 Instance &amp; scope</a
+          ><a href="09-interceptors.html" aria-current="page">09 Interceptor</a
+          ><a href="10-exception-filters.html">10 Filter</a
+          ><a href="11-controllers-and-http-routing.html">11 Controller</a
+          ><a href="12-pipes-and-input-contracts.html">12 Pipe</a
+          ><a href="13-testing-fundamentals.html">13 Testing</a
+          ><a href="14-bootstrap-configuration-and-shutdown.html"
+            >14 Bootstrap</a
+          ><a href="appendix-a-reflect-metadata-internals.html"
+            >Phụ lục A — reflect-metadata bên trong</a
+          >
+        </nav>
+        <header class="masthead">
+          <h1 id="chương-9--interceptor">Chương 9 — Interceptor</h1>
+        </header>
+        <blockquote>
+          <p class="prose">
+            Interceptor là tầng duy nhất trong dây chuyền
+            <strong>bọc được cả hai chiều</strong> của một handler: chạy trước
+            nó, và chạy tiếp <em>sau khi</em> nó trả về. Chương này đi từ hợp
+            đồng <code>NestInterceptor</code>, qua cái
+            <code>Observable</code> mà nhiều người né, đến hai interceptor dự án
+            đang chạy thật (<code>ClassSerializerInterceptor</code> và
+            <code>FileInterceptor</code> của multer), một interceptor viết tay
+            đang nằm không (<code>TransformInterceptor</code>), và những chỗ
+            interceptor <strong>không</strong> với tới được.
+          </p>
+          <p class="prose">
+            <strong>Cần đọc trước:</strong>
+            <a href="02-reflector-execution-context-and-discovery.html"
+              >chương 2</a
+            >
+            (<code>ExecutionContext</code>),
+            <a
+              href="03-guards.html#6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard"
+              >chương 3 §4</a
+            >
+            (ba cách đăng ký, <code>APP_*</code>),
+            <a
+              href="07-dto-validation-transformation-serialization.html#6-serialization-chiều-ra"
+              >chương 7 §6</a
+            >
+            (serialization — chương này không lặp lại, chỉ chỉ ra
+            <em>vì sao nó là interceptor</em>).
+          </p>
+        </blockquote>
+        <p class="prose"><strong>Mục lục</strong></p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <a href="#1-interceptor-bọc-handler-không-đứng-trước-nó"
+                >Interceptor bọc handler, không đứng trước nó</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#2-hợp-đồng-nestinterceptor-và-callhandler"
+                >Hợp đồng <code>NestInterceptor</code> và
+                <code>CallHandler</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#3-vì-sao-là-observable-và-bạn-cần-biết-bao-nhiêu-rxjs"
+                >Vì sao là <code>Observable</code>, và bạn cần biết bao nhiêu
+                RxJS</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#4-đọc-mã-nguồn-nest-xếp-các-interceptor-lồng-nhau-thế-nào"
+                >Đọc mã nguồn: Nest xếp các interceptor lồng nhau thế nào</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#5-ba-cách-đăng-ký-và-thứ-tự-chạy"
+                >Ba cách đăng ký, và thứ tự chạy</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#6-interceptor-thứ-nhất-của-dự-án-classserializerinterceptor"
+                >Interceptor thứ nhất của dự án:
+                <code>ClassSerializerInterceptor</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#7-interceptor-thứ-hai-fileinterceptor--chạy-multer-rồi-mới-handle"
+                >Interceptor thứ hai: <code>FileInterceptor</code> — chạy multer
+                rồi mới <code>handle()</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#8-interceptor-viết-tay-đang-nằm-không-transforminterceptor"
+                >Interceptor viết tay đang nằm không:
+                <code>TransformInterceptor</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#9-interceptor-nhìn-thấy-gì--và-không-thấy-gì"
+                >Interceptor nhìn thấy gì — và không thấy gì</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#10-lỗi-và-interceptor-catcherror-không-thay-được-filter"
+                >Lỗi và interceptor: <code>catchError</code> không thay được
+                filter</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#11-res-bỏ-qua-kết-quả-trả-về-interceptor-vẫn-chạy"
+                ><code>@Res()</code> bỏ qua kết quả trả về, interceptor vẫn
+                chạy</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#12-test-một-interceptor">Test một interceptor</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#13-nâng-cao">Nâng cao</a></p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#14-trong-dự-án-này">Trong dự án này</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#15-tự-kiểm-chứng">Tự kiểm chứng</a></p>
+          </li>
+        </ol>
+        <hr />
+        <h2 id="1-interceptor-bọc-handler-không-đứng-trước-nó" class="sec-head">
+          1. Interceptor bọc handler, không đứng trước nó
+        </h2>
+        <p class="prose">
+          Guard, pipe, middleware đều là những <strong>trạm</strong> request đi
+          qua rồi đi tiếp. Interceptor khác về hình: nó là một cái
+          <strong>vỏ</strong> bọc quanh handler.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>                 ┌─────────────── Interceptor ────────────────┐
+request  ──────▶ │ (code trước)  ──▶  handler  ──▶ (code sau) │ ──────▶ response
+                 └────────────────────────────────────────────┘</code></pre>
+        </div>
+        <p class="prose">
+          Cùng một hàm <code>intercept()</code> có cả hai nửa. Nửa trước chạy
+          trước khi handler được gọi; nửa sau nhận
+          <strong>giá trị handler trả về</strong> và có quyền thay nó bằng thứ
+          khác. Không tầng nào khác làm được vế thứ hai:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              Middleware và guard chạy xong là <strong>hết</strong>, không được
+              gọi lại khi handler trả về.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Pipe chỉ chạm vào <strong>tham số</strong> vào handler.
+            </p>
+          </li>
+          <li>
+            <p class="prose">Filter chỉ chạy khi <strong>có lỗi</strong>.</p>
+          </li>
+        </ul>
+        <p class="prose">
+          Vì thế mọi việc thuộc loại &quot;sửa cái handler trả về&quot; —
+          serialize, bọc envelope, cache, đo thời gian, log kết quả — đều là
+          interceptor. Dự án dùng đúng hai việc trong danh sách đó: serialize
+          (<a
+            href="#6-interceptor-thứ-nhất-của-dự-án-classserializerinterceptor"
+            >mục 6</a
+          >) và đọc multipart trước handler (<a
+            href="#7-interceptor-thứ-hai-fileinterceptor--chạy-multer-rồi-mới-handle"
+            >mục 7</a
+          >).
+        </p>
+        <hr />
+        <h2 id="2-hợp-đồng-nestinterceptor-và-callhandler" class="sec-head">
+          2. Hợp đồng <code>NestInterceptor</code> và <code>CallHandler</code>
+        </h2>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from &quot;@nestjs/common&quot;;
+import { Observable } from &quot;rxjs&quot;;
+
+@Injectable()
+export class MyInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable&lt;unknown&gt; {
+    // (1) code trước handler
+    return next.handle(); // (2) gọi tiếp — trả về Observable của kết quả handler
+  }
+}</code></pre>
+        </div>
+        <p class="prose">Hai tham số, một giá trị trả về:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Thứ</th>
+                <th>Là gì</th>
+                <th>Bạn làm gì với nó</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>context</code></td>
+                <td>
+                  <code>ExecutionContext</code> — cùng loại context và cùng HTTP
+                  request với guard, không đảm bảo cùng instance (<a
+                    href="02-reflector-execution-context-and-discovery.html#3-executioncontext--cửa-sổ-nhìn-vào-request-đang-chạy"
+                    >chương 2 §3</a
+                  >)
+                </td>
+                <td>
+                  <code>getHandler()</code> để đọc metadata,
+                  <code>switchToHttp()</code> để lấy <code>req</code> /
+                  <code>res</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>next</code></td>
+                <td>
+                  <code>CallHandler</code> — một object có đúng một method
+                  <code>handle()</code>
+                </td>
+                <td>
+                  <strong>Gọi</strong> để phần còn lại của dây chuyền chạy;
+                  <strong>không gọi</strong> thì handler không chạy
+                </td>
+              </tr>
+              <tr>
+                <td>giá trị trả về</td>
+                <td>
+                  <code>Observable</code> hoặc
+                  <code>Promise&lt;Observable&gt;</code> — luồng kết quả sẽ đi
+                  ra client
+                </td>
+                <td>
+                  Trả nguyên <code>next.handle()</code>, hoặc
+                  <code>.pipe(...)</code> để biến đổi
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">Hai điều rút ra ngay từ hợp đồng:</p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong
+                ><code>next.handle()</code> là ranh giới giữa &quot;trước&quot;
+                và &quot;sau&quot;.</strong
+              >
+              Code viết <em>trước</em> dòng đó chạy trước handler. Code trong
+              <code>.pipe(map(...))</code> <em>sau</em> dòng đó chạy khi handler
+              đã trả về.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                >Không gọi <code>next.handle()</code> là một quyết định.</strong
+              >
+              Interceptor có thể trả về một <code>Observable</code> khác — ví dụ
+              <code>of(cachedValue)</code> — và handler không bao giờ chạy. Đây
+              là cách viết cache interceptor.
+            </p>
+          </li>
+        </ol>
+        <hr />
+        <h2
+          id="3-vì-sao-là-observable-và-bạn-cần-biết-bao-nhiêu-rxjs"
+          class="sec-head"
+        >
+          3. Vì sao là <code>Observable</code>, và bạn cần biết bao nhiêu RxJS
+        </h2>
+        <p class="prose">
+          Guard trả
+          <code
+            >boolean | Promise&lt;boolean&gt; | Observable&lt;boolean&gt;</code
+          >; interceptor trả
+          <code>Observable&lt;T&gt; | Promise&lt;Observable&lt;T&gt;&gt;</code>.
+          Ví dụ multer dùng <code>async intercept()</code> rồi trả
+          <code>next.handle()</code>. Promise có cả nhánh thành công lẫn lỗi;
+          Observable bổ sung luồng nhiều giá trị, subscription và các operator.
+          Nest chuẩn hoá kết quả handler để interceptor xử lý Observable.
+        </p>
+        <p class="prose">
+          Bạn không cần học RxJS để viết interceptor. Bốn operator đủ cho 95%
+          trường hợp:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Operator</th>
+                <th>Chạy khi</th>
+                <th>Dùng để</th>
+                <th>Ví dụ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>map(fn)</code></td>
+                <td>handler trả về thành công</td>
+                <td>
+                  <strong>thay</strong> giá trị bằng <code>fn(giá trị)</code>
+                </td>
+                <td>
+                  <code>map((data) =&gt; ({ data }))</code> — bọc envelope
+                </td>
+              </tr>
+              <tr>
+                <td><code>tap(fn)</code></td>
+                <td>handler trả về thành công</td>
+                <td><strong>nhìn</strong> giá trị, không đổi</td>
+                <td>
+                  <code>tap(() =&gt; log(Date.now() - start))</code> — đo thời
+                  gian
+                </td>
+              </tr>
+              <tr>
+                <td><code>catchError(fn)</code></td>
+                <td>handler (hoặc interceptor sau) ném</td>
+                <td>đổi lỗi thành lỗi khác, hoặc thành giá trị</td>
+                <td>
+                  <code
+                    >catchError((e) =&gt; throwError(() =&gt; new
+                    XException()))</code
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td><code>timeout(ms)</code></td>
+                <td>quá <code>ms</code> mà chưa có giá trị</td>
+                <td>huỷ và ném <code>TimeoutError</code></td>
+                <td><code>timeout(5000)</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">Ba mẫu viết, đủ dùng cả sự nghiệp:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// (a) chỉ làm việc TRƯỚC handler — không cần RxJS
+intercept(context, next) {
+  doSomethingWith(context.switchToHttp().getRequest());
+  return next.handle();
+}
+
+// (b) biến đổi kết quả — map
+intercept(context, next) {
+  return next.handle().pipe(map((result) =&gt; transform(result)));
+}
+
+// (c) làm việc cả hai chiều — tap
+intercept(context, next) {
+  const start = Date.now();
+  return next.handle().pipe(tap(() =&gt; this.logger.log(`${Date.now() - start}ms`)));
+}</code></pre>
+        </div>
+        <p class="prose">
+          Hai điều về <code>Observable</code> cần nhớ, vì chúng gây bug thật:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Lười.</strong> <code>next.handle()</code> trả về ngay một
+              <code>Observable</code>, nhưng handler
+              <strong>chưa chạy</strong> cho tới khi có ai <em>subscribe</em> —
+              và người subscribe là Nest, sau khi
+              <code>intercept()</code> return. Nên
+              <code
+                >const r = next.handle(); console.log(&quot;đã chạy
+                handler&quot;)</code
+              >
+              in ra <strong>trước</strong> khi handler chạy. Đừng suy luận thứ
+              tự từ vị trí dòng code; suy từ operator.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Nest lấy giá trị cuối.</strong> Sau khi mọi interceptor
+              xong, Nest gọi <code>lastValueFrom(observable)</code> — xem
+              <a
+                href="../../node_modules/@nestjs/core/router/router-response-controller.js"
+                ><code>router-response-controller.js</code></a
+              >
+              hàm <code>transformToResult</code>. Với handler HTTP thường, luồng
+              chỉ có một giá trị, nên &quot;cuối&quot; = &quot;duy nhất&quot;.
+            </p>
+          </li>
+        </ul>
+        <hr />
+        <h2
+          id="4-đọc-mã-nguồn-nest-xếp-các-interceptor-lồng-nhau-thế-nào"
+          class="sec-head"
+        >
+          4. Đọc mã nguồn: Nest xếp các interceptor lồng nhau thế nào
+        </h2>
+        <p class="prose">
+          Toàn bộ cơ chế nằm trong 20 dòng của
+          <a
+            href="../../node_modules/@nestjs/core/interceptors/interceptors-consumer.js"
+            ><code>interceptors-consumer.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>async intercept(interceptors, args, instance, callback, next, type) {
+  if (isEmpty(interceptors)) return next();            // không có interceptor → gọi handler thẳng
+
+  const context = this.createContext(args, instance, callback);
+  context.setType(type);
+
+  const nextFn = async (i = 0) =&gt; {
+    if (i &gt;= interceptors.length) {                    // hết interceptor → tới handler
+      return defer(AsyncResource.bind(() =&gt; this.transformDeferred(next)));
+    }
+    const handler = {
+      handle: () =&gt; defer(AsyncResource.bind(() =&gt; nextFn(i + 1))).pipe(mergeAll()),
+    };
+    return interceptors[i].intercept(context, handler); // interceptor i nhận &quot;next&quot; = interceptor i+1
+  };
+
+  return defer(() =&gt; nextFn()).pipe(mergeAll());
+}</code></pre>
+        </div>
+        <p class="prose">Đọc ra ba điều:</p>
+        <p class="prose">
+          <strong
+            >(1) <code>CallHandler</code> chỉ là một object có
+            <code>handle</code>.</strong
+          >
+          Dòng <code>const handler = { handle: () =&gt; ... }</code> — không
+          class, không DI. Đó là lý do test interceptor dễ (<a
+            href="#12-test-một-interceptor"
+            >mục 12</a
+          >): tự dựng <code>{ handle: () =&gt; of(x) }</code> là đủ.
+        </p>
+        <p class="prose">
+          <strong
+            >(2) <code>handle()</code> của interceptor <code>i</code> gọi
+            <code>intercept()</code> của interceptor <code>i+1</code>.</strong
+          >
+          Với ba interceptor A, B, C và handler H, cấu trúc chạy là:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>A.intercept(ctx, { handle: () =&gt;
+  B.intercept(ctx, { handle: () =&gt;
+    C.intercept(ctx, { handle: () =&gt;
+      H()
+    })
+  })
+})</code></pre>
+        </div>
+        <p class="prose">
+          Nên <strong>chiều đi</strong> là A → B → C → H, và
+          <strong>chiều về</strong> (khi H trả về, giá trị đi qua các
+          <code>.pipe(map)</code>) là C → B → A. Interceptor đăng ký
+          <strong>đầu tiên</strong> là lớp <strong>ngoài cùng</strong>: nó nhìn
+          thấy request sớm nhất và response muộn nhất.
+        </p>
+        <p class="prose">
+          <strong>(3) <code>defer</code> là lý do handler lười.</strong>
+          <code>defer(() =&gt; nextFn(i + 1))</code> không chạy gì cho tới khi
+          được subscribe. Ba lần <code>defer</code> lồng nhau → toàn bộ chuỗi
+          chỉ &quot;nổ&quot; khi Nest subscribe ở cuối.
+        </p>
+        <p class="prose">
+          Còn <code>transformDeferred(next)</code>: handler có thể trả về giá
+          trị thường, <code>Promise</code>, hoặc <code>Observable</code>. Hàm
+          này bọc cả ba thành <code>Observable</code> — đó là chỗ &quot;Nest tự
+          bọc kết quả handler vào Observable cho bạn&quot; ở
+          <a href="#3-vì-sao-là-observable-và-bạn-cần-biết-bao-nhiêu-rxjs"
+            >mục 3</a
+          >.
+        </p>
+        <p class="prose">
+          Và cái tên <code>args</code> / <code>instance</code> /
+          <code>callback</code> ở tham số đầu: <code>args</code> là
+          <code>[req, res, next]</code> của Express, <code>instance</code> là
+          controller singleton (<a href="08-request-and-provider-instances.html"
+            >chương 8</a
+          >), <code>callback</code> là hàm handler — đúng bộ ba
+          <code>ExecutionContextHost</code> cần để <code>getHandler()</code> trả
+          về hàm có metadata (<a
+            href="02-reflector-execution-context-and-discovery.html#4-mắt-xích-khép-kín-decorator-dán-lên-đúng-cái-gethandler-trả-về"
+            >chương 2 §4</a
+          >).
+        </p>
+        <hr />
+        <h2 id="5-ba-cách-đăng-ký-và-thứ-tự-chạy" class="sec-head">
+          5. Ba cách đăng ký, và thứ tự chạy
+        </h2>
+        <p class="prose">
+          Y hệt guard (<a
+            href="03-guards.html#6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard"
+            >chương 3 §4</a
+          >):
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cách</th>
+                <th>Phạm vi</th>
+                <th>Có DI không</th>
+                <th>Dự án dùng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>@UseInterceptors(I)</code> trên method</td>
+                <td>một route</td>
+                <td>Có (truyền class) / Không (truyền instance)</td>
+                <td>
+                  <a href="../../src/routes/media/media.controller.ts#L74"
+                    >media.controller.ts:74</a
+                  >
+                  — multer
+                </td>
+              </tr>
+              <tr>
+                <td><code>@UseInterceptors(I)</code> trên class</td>
+                <td>mọi route của controller</td>
+                <td>như trên</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>app.useGlobalInterceptors(new I())</code></td>
+                <td>toàn app</td>
+                <td><strong>Không</strong></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>
+                  <code
+                    >{ provide: APP_INTERCEPTOR, useClass / useFactory }</code
+                  >
+                </td>
+                <td>toàn app</td>
+                <td><strong>Có</strong></td>
+                <td>
+                  <a href="../../src/shared/modules/base.module.ts#L57-L65"
+                    >base.module.ts:57-65</a
+                  >
+                  — serializer
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          <code>@UseInterceptors</code> nhận
+          <strong>class hoặc instance</strong>. Truyền class
+          (<code>@UseInterceptors(LoggingInterceptor)</code>) → Nest tạo qua
+          container, có DI. Truyền instance (<code
+            >@UseInterceptors(new LoggingInterceptor())</code
+          >) → không DI, nhưng truyền được tham số.
+          <code>FileInterceptor(&quot;image&quot;)</code> thuộc trường hợp thứ
+          ba: nó <strong>trả về một class</strong> được sinh động (<a
+            href="#7-interceptor-thứ-hai-fileinterceptor--chạy-multer-rồi-mới-handle"
+            >mục 7</a
+          >).
+        </p>
+        <p class="prose">
+          Bên dưới, <code>@UseInterceptors</code> chỉ là metadata — key
+          <code>__interceptors__</code> dán lên hàm hoặc class bằng
+          <code>extendArrayMetadata</code> (<a
+            href="../../node_modules/@nestjs/common/decorators/core/use-interceptors.decorator.js"
+            ><code>use-interceptors.decorator.js</code></a
+          >). Gọi hai lần trên cùng method thì <strong>nối mảng</strong>, không
+          đè. Cùng cơ chế
+          <a href="01-decorators-and-metadata.html">chương 1</a>.
+        </p>
+        <p class="prose">
+          <strong>Thứ tự</strong> (<a
+            href="../../node_modules/@nestjs/core/helpers/context-creator.js"
+            ><code>context-creator.js</code></a
+          >, hàm <code>createContext</code>):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>return [
+  ...globalMetadata, // APP_INTERCEPTOR, theo thứ tự đăng ký
+  ...classMetadata, // @UseInterceptors trên controller
+  ...methodMetadata, // @UseInterceptors trên method
+];</code></pre>
+        </div>
+        <p class="prose">
+          Ghép với
+          <a href="#4-đọc-mã-nguồn-nest-xếp-các-interceptor-lồng-nhau-thế-nào"
+            >mục 4</a
+          >: <strong>global là lớp ngoài cùng</strong>. Với dự án, trên route
+          upload:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>chiều đi:   ClassSerializerInterceptor (global)  →  FileInterceptor (method)  →  pipe  →  handler
+chiều về:   handler  →  FileInterceptor (không làm gì)  →  ClassSerializerInterceptor (serialize)</code></pre>
+        </div>
+        <p class="prose">
+          Đúng ý: multer phải đọc xong multipart <strong>trước</strong> pipe và
+          handler; serialize phải là việc <strong>cuối cùng</strong> trước khi
+          ra client.
+        </p>
+        <blockquote>
+          <p class="prose">
+            <strong>Vì sao interceptor chạy trước pipe?</strong> Nhìn
+            <a
+              href="../../node_modules/@nestjs/core/router/router-execution-context.js"
+              ><code>router-execution-context.js</code></a
+            >:
+          </p>
+          <div class="code-file">
+            <div class="code-file__header">js</div>
+            <pre
+              class="code-file__body"
+            ><code>const handler = (args, req, res, next) =&gt; async () =&gt; {
+  fnApplyPipes &amp;&amp; (await fnApplyPipes(args, req, res, next));   // pipe nằm TRONG handler
+  return callback.apply(instance, args);
+};
+return async (req, res, next) =&gt; {
+  fnCanActivate &amp;&amp; (await fnCanActivate([req, res, next]));      // guard trước hết
+  const result = await this.interceptorsConsumer.intercept(interceptors, ..., handler(...));
+  await fnHandleResponse(result, res, req);
+};</code></pre>
+          </div>
+          <p class="prose">
+            Guard chạy trần. Pipe được <strong>gói vào trong</strong> cái
+            <code>handler</code> mà interceptor bọc. Nên từ góc nhìn
+            interceptor, &quot;handler&quot; = pipe + param decorator + method
+            controller — cả cụm. Đây là lý do
+            <code>@UploadedFile()</code> (param decorator, chạy trong cụm đó)
+            đọc được <code>req.file</code> mà multer interceptor vừa gắn.
+          </p>
+        </blockquote>
+        <hr />
+        <h2
+          id="6-interceptor-thứ-nhất-của-dự-án-classserializerinterceptor"
+          class="sec-head"
+        >
+          6. Interceptor thứ nhất của dự án:
+          <code>ClassSerializerInterceptor</code>
+        </h2>
+        <p class="prose">
+          <a href="../../src/shared/modules/base.module.ts#L57-L65"
+            >base.module.ts:57-65</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const serializerInterceptor: Provider = {
+  provide: APP_INTERCEPTOR,
+  useFactory: (reflector: Reflector) =&gt; {
+    return new ClassSerializerInterceptor(reflector, {
+      excludeExtraneousValues: true,
+    });
+  },
+  inject: [Reflector],
+};</code></pre>
+        </div>
+        <p class="prose">
+          <a
+            href="07-dto-validation-transformation-serialization.html#6-serialization-chiều-ra"
+            >Chương 7 §6</a
+          >
+          đã nói kỹ nó <em>làm gì</em> và cái bẫy lộ dữ liệu khi trả object thô.
+          Ở đây chỉ nhìn nó <strong>như một interceptor</strong>, theo mã nguồn
+          <a
+            href="../../node_modules/@nestjs/common/serializer/class-serializer.interceptor.js"
+            ><code>class-serializer.interceptor.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>intercept(context, next) {
+  const contextOptions = this.getContextOptions(context);    // (a) đọc metadata — TRƯỚC handler
+  const options = { ...this.defaultOptions, ...contextOptions };
+  return next
+    .handle()
+    .pipe(map((res) =&gt; this.serialize(res, options)));        // (b) biến đổi kết quả — SAU handler
+}
+getContextOptions(context) {
+  return this.reflector.getAllAndOverride(CLASS_SERIALIZER_OPTIONS, [
+    context.getHandler(),
+    context.getClass(),
+  ]);
+}</code></pre>
+        </div>
+        <p class="prose">
+          Đây là mẫu (b) ở
+          <a href="#3-vì-sao-là-observable-và-bạn-cần-biết-bao-nhiêu-rxjs"
+            >mục 3</a
+          >, cộng một bước đọc metadata bằng <code>Reflector</code> — chính xác
+          thứ interceptor có mà middleware không có.
+          <code>@SerializeOptions({...})</code> trên một handler là
+          <code>SetMetadata</code> với key
+          <code>CLASS_SERIALIZER_OPTIONS</code>;
+          <code>getAllAndOverride</code> với thứ tự
+          <code>[handler, class]</code> nghĩa là
+          <strong>method đè class</strong> (<a
+            href="02-reflector-execution-context-and-discovery.html#2-thứ-tự-targets-là-một-hợp-đồng"
+            >chương 2 §2</a
+          >). Dự án chưa dùng <code>@SerializeOptions</code> ở đâu, nhưng cửa đã
+          mở: một route muốn <code>groups</code> riêng chỉ cần dán nhãn.
+        </p>
+        <p class="prose">
+          Vì sao phải <code>useFactory</code> thay vì <code>useClass</code>:
+          constructor cần <strong>hai</strong> tham số,
+          <code>Reflector</code> (container có) và một object options (container
+          không có). <code>useFactory</code> +
+          <code>inject: [Reflector]</code> là cách nói &quot;tiêm cái thứ nhất,
+          tôi tự đưa cái thứ hai&quot; —
+          <a
+            href="06-modules-and-dependency-injection.html#23-usefactory--tính-ra-rồi-mới-đưa"
+            >chương 6 §2.3</a
+          >.
+        </p>
+        <p class="prose">
+          Ba chi tiết nhỏ trong <code>serialize()</code> đáng biết vì chúng
+          quyết định hành vi ở biên:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              <code>!isObject(response)</code> → trả nguyên. Handler trả
+              <code>string</code>, <code>number</code>, <code>null</code> thì
+              interceptor <strong>không chạm</strong>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <code>response instanceof StreamableFile</code> → trả nguyên.
+              Stream file không bị serialize.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Mảng → <code>map</code> từng phần tử. Nên
+              <code>PageDto.data</code> là mảng instance DTO thì từng phần tử
+              được serialize đúng; là mảng object thô thì từng phần tử
+              <strong>lộ nguyên</strong> — kết quả 4 trong bảng thực nghiệm của
+              chương 7.
+            </p>
+          </li>
+        </ul>
+        <hr />
+        <h2
+          id="7-interceptor-thứ-hai-fileinterceptor--chạy-multer-rồi-mới-handle"
+          class="sec-head"
+        >
+          7. Interceptor thứ hai: <code>FileInterceptor</code> — chạy multer rồi
+          mới <code>handle()</code>
+        </h2>
+        <p class="prose">
+          <a href="../../src/routes/media/media.controller.ts#L72-L82"
+            >media.controller.ts:72-82</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>@RequirePermission(&quot;media:upload:own&quot;)
+@Post(&quot;upload/image&quot;)
+@UseInterceptors(createSingleImageDiskInterceptor(&quot;image&quot;))
+async uploadLargeImageFromDisk(@UploadedFile() image: Express.Multer.File) {
+  const result = await this.mediaService.uploadLargeImageFromDisk(image);
+  return new UploadFileResponseDto(result);
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>createSingleImageDiskInterceptor</code> (<a
+            href="../../src/shared/utils/files/single-image-interceptor.util.ts#L164-L179"
+            >single-image-interceptor.util.ts:164-179</a
+          >) chỉ là <code>FileInterceptor(fieldName, multerOptions)</code> với
+          options của dự án (giới hạn 5 MB, <code>fileFilter</code> kiểm mime và
+          đuôi file, <code>diskStorage</code> vào thư mục tạm). Còn
+          <code>FileInterceptor</code> của
+          <code>@nestjs/platform-express</code> là mẫu (a) ở
+          <a href="#3-vì-sao-là-observable-và-bạn-cần-biết-bao-nhiêu-rxjs"
+            >mục 3</a
+          >
+          —
+          <strong>toàn bộ việc nằm trước <code>next.handle()</code></strong> (<a
+            href="../../node_modules/@nestjs/platform-express/multer/interceptors/file.interceptor.js"
+            ><code>file.interceptor.js</code></a
+          >):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>function FileInterceptor(fieldName, localOptions) {
+  let MixinInterceptor = class MixinInterceptor {
+    constructor(options = {}) {
+      this.multer = multer({ ...options, ...localOptions });
+    }
+    async intercept(context, next) {
+      const ctx = context.switchToHttp();
+      await new Promise((resolve, reject) =&gt;
+        this.multer.single(fieldName)(
+          ctx.getRequest(),
+          ctx.getResponse(),
+          (err) =&gt; {
+            if (err) return reject(transformException(err));
+            resolve();
+          },
+        ),
+      );
+      return next.handle(); // multer xong mới cho handler chạy
+    }
+  };
+  return mixin(MixinInterceptor);
+}</code></pre>
+        </div>
+        <p class="prose">Bốn điều đáng nhìn:</p>
+        <p class="prose">
+          <strong
+            >Nó là một middleware Express được bọc thành interceptor.</strong
+          >
+          <code>this.multer.single(fieldName)</code> trả về đúng một hàm
+          <code>(req, res, next)</code> của Express (<a
+            href="04-middleware.html#1-middleware-là-hàm-req-res-next-của-express"
+            >chương 4 §1</a
+          >). <code>FileInterceptor</code> gọi hàm đó bằng tay, đợi callback,
+          rồi mới <code>next.handle()</code>. Multer ghi kết quả vào
+          <code>req.file</code> — và <code>@UploadedFile()</code> chỉ là param
+          decorator đọc <code>req.file</code> ra.
+        </p>
+        <p class="prose">
+          <strong>Vì sao là interceptor chứ không phải middleware thật?</strong>
+          Vì cần biết <strong>route nào</strong> cần multer, với
+          <strong>field nào</strong>, <strong>giới hạn nào</strong>. Middleware
+          không biết handler (<a
+            href="04-middleware.html#2-chạy-lúc-nào--và-vì-sao-điều-đó-quyết-định-mọi-thứ"
+            >chương 4 §2</a
+          >); interceptor đọc được <code>@UseInterceptors</code> trên đúng
+          method. Cùng lý do &quot;auth là guard, không phải middleware&quot;,
+          chỉ khác đối tượng.
+        </p>
+        <p class="prose">
+          <strong><code>mixin()</code> sinh class mới mỗi lần gọi.</strong>
+          <code>FileInterceptor(&quot;image&quot;)</code> và
+          <code>FileInterceptor(&quot;avatar&quot;)</code> là
+          <strong>hai class khác nhau</strong>, mỗi class có
+          <code>localOptions</code> riêng đóng trong closure. Nest vẫn tạo
+          instance qua container (nên
+          <code>@Inject(MULTER_MODULE_OPTIONS)</code> với
+          <code>@Optional()</code> hoạt động), nhưng bạn không thể tiêm gì
+          <em>thêm</em> vào — options phải đi qua tham số, đúng như
+          <a
+            href="../../src/shared/utils/files/single-image-interceptor.util.ts"
+            >single-image-interceptor.util.ts</a
+          >
+          làm.
+        </p>
+        <p class="prose">
+          <strong
+            >Lỗi của multer thành <code>HttpException</code> ở
+            <code>transformException</code>.</strong
+          >
+          Quá <code>limits.fileSize</code> →
+          <code>PayloadTooLargeException</code> (413); sai field →
+          <code>BadRequestException</code>; lỗi trong
+          <code>fileFilter</code> của dự án đã là
+          <code>BadRequestException</code> nên đi nguyên.
+          <code>reject(...)</code> → <code>Observable</code> lỗi →
+          <strong>không</strong> gọi <code>next.handle()</code> → handler không
+          chạy → filter viết envelope. Đây là ví dụ đầu tiên trong chương về
+          &quot;interceptor quyết định handler không chạy&quot;.
+        </p>
+        <p class="prose">
+          Và hệ quả về thứ tự đã nêu ở
+          <a
+            href="07-dto-validation-transformation-serialization.html#8-pipe-tự-viết-và-luồng-upload-file"
+            >chương 7 §8</a
+          >: pipe trên <code>@UploadedFile(...)</code> chạy
+          <strong>sau</strong> multer, nên không ngăn được file lớn được ghi ra
+          đĩa. Giới hạn kích thước phải đặt ở interceptor
+          (<code>limits.fileSize</code>), vì đó là tầng duy nhất chạy
+          <em>trong lúc</em> multer đọc stream.
+        </p>
+        <hr />
+        <h2
+          id="8-interceptor-viết-tay-đang-nằm-không-transforminterceptor"
+          class="sec-head"
+        >
+          8. Interceptor viết tay đang nằm không:
+          <code>TransformInterceptor</code>
+        </h2>
+        <p class="prose">
+          <a href="../../src/shared/interceptors/transform.interceptor.ts"
+            >transform.interceptor.ts</a
+          >
+          là interceptor duy nhất dự án tự viết:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class TransformInterceptor&lt;T&gt;
+  implements NestInterceptor&lt;T, Response&lt;T&gt;&gt;
+{
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Observable&lt;Response&lt;T&gt;&gt; {
+    const response = context.switchToHttp().getResponse&lt;T&gt;() as ServerResponse;
+    return next
+      .handle()
+      .pipe(map((data: T) =&gt; ({ data, statusCode: response.statusCode })));
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Mẫu (b): bọc mọi kết quả thành <code>{ data, statusCode }</code>.
+          Nhưng <strong>nó không được đăng ký ở đâu cả</strong> — không có trong
+          <code>APP_INTERCEPTOR</code>, không có
+          <code>@UseInterceptors</code> nào trỏ tới. Dấu vết duy nhất là một
+          dòng comment ở
+          <a href="../../src/routes/auth/auth.controller.ts#L92"
+            >auth.controller.ts:92</a
+          >. Response thành công của API hiện <strong>không</strong> có lớp
+          <code>{ data, ... }</code> bọc ngoài; <code>PageDto</code> tự có
+          <code>data</code> + <code>pagination</code> là chuyện khác.
+        </p>
+        <p class="prose">Giữ nó trong chương vì ba lý do:</p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              Nó là ví dụ <strong>ngắn nhất</strong> về <code>map</code> trên
+              <code>next.handle()</code> — đọc 5 dòng là hiểu mẫu (b).
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Nó có spec đầy đủ (<a
+                href="../../src/shared/interceptors/__tests__/transform.interceptor.spec.ts"
+                >transform.interceptor.spec.ts</a
+              >) và một harness tái dùng được —
+              <a href="#12-test-một-interceptor">mục 12</a>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Nó minh hoạ một câu hỏi thiết kế thật:
+              <strong
+                >nếu bật nó lên, đặt trước hay sau
+                <code>ClassSerializerInterceptor</code>?</strong
+              >
+              Nếu <code>TransformInterceptor</code> là global thứ hai (lớp
+              trong), chiều về nó chạy <strong>trước</strong> serializer: bọc
+              DTO vào <code>{ data: dto }</code> — object thô — rồi serializer
+              nhận object thô, <code>excludeExtraneousValues</code> không có
+              <code>@Expose()</code> để áp... nhưng
+              <code>class-transformer</code> vẫn đi sâu vào <code>data</code> vì
+              nó là instance DTO, nên vẫn lọc đúng. Ngược lại, nếu nó là lớp
+              ngoài, serializer chạy trước, <code>data</code> đã là plain
+              object, <code>TransformInterceptor</code> chỉ bọc thêm. Cả hai đều
+              ra đúng JSON, nhưng chỉ cách thứ hai là
+              <em>hiển nhiên đúng</em> mà không cần suy luận về
+              <code>class-transformer</code>. Bài học: khi thêm interceptor
+              global,
+              <strong
+                >đặt nó đâu trong mảng <code>providers</code> là quyết định có
+                nghĩa</strong
+              >, không có quy tắc serializer luôn phải ngoài cùng. Với
+              envelope/cache cần kết quả đã lọc, đặt chúng ngoài serializer.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Nếu một ngày bạn cần nó: đổi mọi <code>*ResponseDto</code> phía
+          client, cập nhật Swagger (<code>@ApiOkResponse</code> sẽ sai hình), và
+          cân nhắc <code>PageDto</code> sẽ thành
+          <code>{ data: { data, pagination } }</code>. Không phải việc bật một
+          dòng.
+        </p>
+        <hr />
+        <h2 id="9-interceptor-nhìn-thấy-gì--và-không-thấy-gì" class="sec-head">
+          9. Interceptor nhìn thấy gì — và không thấy gì
+        </h2>
+        <p class="prose">
+          Đứng <strong>sau guard, bọc quanh pipe + handler</strong>, interceptor
+          có góc nhìn riêng:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Thấy</th>
+                <th>Không thấy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>req</code> sau guard: <code>req.user</code>,
+                  <code>req.granted_permissions</code> đã có
+                </td>
+                <td>
+                  body <strong>đã validate</strong> ở chiều đi — pipe nằm
+                  <em>trong</em> <code>next.handle()</code>, chưa chạy khi code
+                  trước <code>handle()</code> chạy
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  metadata handler qua
+                  <code>Reflector</code> (<code>getHandler()</code>,
+                  <code>getClass()</code>)
+                </td>
+                <td>
+                  <strong>tham số</strong> handler nhận — pipe và param
+                  decorator tính ra chúng, nhưng interceptor không có đường lấy
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>giá trị handler trả về</strong> (chiều về, qua
+                  <code>map</code>/<code>tap</code>)
+                </td>
+                <td>
+                  những gì handler ghi trực tiếp vào <code>res</code> bằng
+                  <code>@Res()</code> —
+                  <a href="#11-res-bỏ-qua-kết-quả-trả-về-interceptor-vẫn-chạy"
+                    >mục 11</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>lỗi handler ném (qua <code>catchError</code>)</td>
+                <td>
+                  lỗi <strong>guard</strong> ném — guard đứng ngoài, chưa tới
+                  interceptor
+                </td>
+              </tr>
+              <tr>
+                <td><code>res</code> — ghi header được, đặt status được</td>
+                <td>
+                  lỗi từ <strong>interceptor ngoài</strong> nó (A không thấy lỗi
+                  của chính A; B thấy lỗi của C, không thấy của A)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">Hai hệ quả thực hành:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong
+                >Muốn log body đã validate → không phải interceptor.</strong
+              >
+              Đọc <code>req.body</code> trong interceptor chiều đi là đọc body
+              thô như guard. Nếu cần DTO đã sạch, đọc trong handler hoặc
+              service.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                >Đo thời gian bằng interceptor là đo &quot;pipe + handler +
+                interceptor trong&quot;</strong
+              >, không tính guard. Muốn tính cả guard, đo ở middleware bằng
+              <code>res.on(&quot;finish&quot;)</code> như pino-http (<a
+                href="04-middleware.html#10-nâng-cao"
+                >chương 4 §9</a
+              >).
+            </p>
+          </li>
+        </ul>
+        <hr />
+        <h2
+          id="10-lỗi-và-interceptor-catcherror-không-thay-được-filter"
+          class="sec-head"
+        >
+          10. Lỗi và interceptor: <code>catchError</code> không thay được filter
+        </h2>
+        <p class="prose">
+          Khi handler ném, <code>Observable</code> chuyển sang nhánh lỗi.
+          Interceptor có thể chặn bằng <code>catchError</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// ví dụ minh hoạ — dự án không có
+intercept(context, next) {
+  return next.handle().pipe(
+    catchError((error) =&gt; {
+      if (error instanceof PrismaClientKnownRequestError &amp;&amp; error.code === &quot;P2002&quot;) {
+        return throwError(() =&gt; new ConflictException(&quot;Already exists.&quot;));
+      }
+      return throwError(() =&gt; error); // không hiểu → cho đi
+    }),
+  );
+}</code></pre>
+        </div>
+        <p class="prose">
+          Câu hỏi hay gặp:
+          <em
+            >&quot;vậy sao dự án không map lỗi Prisma ở interceptor mà lại ở
+            filter?&quot;</em
+          >
+          Vì ba giới hạn:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong>Interceptor không thấy lỗi của guard</strong> (<a
+                href="#9-interceptor-nhìn-thấy-gì--và-không-thấy-gì"
+                >mục 9</a
+              >). Lỗi 401/403/429 không bao giờ qua <code>catchError</code>.
+              Filter thì thấy <strong>tất cả</strong>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                >Interceptor không quyết định được hình dạng response
+                lỗi.</strong
+              >
+              <code>catchError</code> chỉ đổi <em>exception</em> này thành
+              <em>exception</em> khác; ai đó vẫn phải biến exception thành JSON
+              — và đó là filter. Nếu đã có filter map Prisma (<a
+                href="../../src/shared/filters/prisma-error.mapper.ts"
+                >prisma-error.mapper.ts</a
+              >), interceptor làm lại là thừa và là hai chỗ để lệch nhau.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                ><code>catchError</code> trả về giá trị thường là bẫy.</strong
+              >
+              <code>catchError(() =&gt; of(null))</code> biến lỗi thành response
+              200 rỗng — client không biết có lỗi. Đúng cho cache-miss, sai cho
+              hầu hết mọi thứ khác.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Quy tắc dự án: <strong>interceptor không bắt lỗi</strong>. Lỗi chảy
+          xuống <code>GlobalExceptionFilter</code>, nơi viết duy nhất (<a
+            href="10-exception-filters.html"
+            >chương 10</a
+          >). <code>catchError</code> chỉ hợp lý khi bạn muốn <em>dịch</em> một
+          lỗi ngay tại route đó thành một <code>HttpException</code> cụ thể mà
+          filter không thể tự suy ra — và ngay cả khi đó, dự án chọn làm ở
+          service bằng <code>throwHttpException</code> để lỗi mang
+          <code>code</code> nghiệp vụ.
+        </p>
+        <hr />
+        <h2
+          id="11-res-bỏ-qua-kết-quả-trả-về-interceptor-vẫn-chạy"
+          class="sec-head"
+        >
+          11. <code>@Res()</code> bỏ qua kết quả trả về, interceptor vẫn chạy
+        </h2>
+        <p class="prose">
+          <a href="../../src/routes/auth/auth.controller.ts#L190-L198"
+            >auth.controller.ts:190-198</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Get(&quot;google/callback&quot;)
+@IsPublicApi()
+async googleCallback(
+  @Query(&quot;code&quot;) code: string,
+  @Query(&quot;state&quot;) state: string,
+  @Res() res: Response,
+) {
+  // ...
+  return res.redirect(`${googleClientRedirectUri}?${queryParams}`);
+}</code></pre>
+        </div>
+        <p class="prose">
+          Có <code>@Res()</code> trong tham số, Nest chuyển route sang
+          <strong>library-specific mode</strong>: nó coi bạn tự chịu trách nhiệm
+          ghi response, nên <code>fnHandleResponse</code> bỏ qua giá trị trả về
+          (<a
+            href="../../node_modules/@nestjs/core/router/router-execution-context.js"
+            ><code>router-execution-context.js</code></a
+          >, cờ <code>isResponseHandled</code>). Hệ quả với interceptor:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              Chiều đi và chiều về vẫn chạy; <code>map</code>, <code>tap</code>,
+              <code>finalize</code> còn có thể thực hiện công việc hữu ích.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Kết quả đã biến đổi bị Nest bỏ qua khi ghi HTTP body. Trong
+              Express, <code>res.redirect()</code> trả <code>undefined</code>,
+              không trả chính <code>res</code>; interceptor sẽ xử lý giá trị
+              handler trả, thường là <code>undefined</code> ở ví dụ này.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Route OAuth chủ động gửi redirect nên serializer không quyết định body
+          trên đường truyền. Filter vẫn xử lý lỗi trước khi gửi header; sau khi
+          response đã gửi, filter không thể thay bằng envelope mới.
+        </p>
+        <p class="prose">
+          Nếu chỉ cần đặt header hay status mà vẫn muốn Nest ghi body, dùng
+          <code>@Res({ passthrough: true })</code>, hoặc
+          <code>@Header()</code> / <code>@HttpCode()</code> là metadata.
+        </p>
+        <hr />
+        <h2 id="12-test-một-interceptor" class="sec-head">
+          12. Test một interceptor
+        </h2>
+        <p class="prose">
+          Từ
+          <a href="#4-đọc-mã-nguồn-nest-xếp-các-interceptor-lồng-nhau-thế-nào"
+            >mục 4</a
+          >: <code>CallHandler</code> chỉ là <code>{ handle }</code>, và
+          <code>ExecutionContext</code> chỉ là object có vài method. Không cần
+          boot Nest. Dự án có harness sẵn —
+          <a
+            href="../../src/shared/interceptors/__tests__/interceptor-test-harness.ts"
+            >interceptor-test-harness.ts</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>export const makeCallHandler = (responseData: unknown) =&gt; {
+  const handleObservable = new Observable((subscriber) =&gt; {
+    subscriber.next(responseData);
+    subscriber.complete();
+  });
+  const handle = jest.fn().mockReturnValue(handleObservable);
+  return { handler: { handle }, handle, handleObservable };
+};
+
+export const makeInterceptorExecutionContext = (
+  statusCode = 200,
+): ExecutionContext =&gt;
+  ({
+    switchToHttp: jest.fn(() =&gt; ({
+      getResponse: jest.fn(() =&gt; ({ statusCode })),
+    })),
+  }) as unknown as ExecutionContext;</code></pre>
+        </div>
+        <p class="prose">
+          Và cách dùng trong
+          <a
+            href="../../src/shared/interceptors/__tests__/transform.interceptor.spec.ts#L18-L35"
+            >transform.interceptor.spec.ts:18-35</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const result$ = interceptor.intercept(context, handler);
+const result = await firstValueFrom(result$);
+expect(result).toEqual({ data: responseData, statusCode: 200 });
+expect(handle).toHaveBeenCalledTimes(1);</code></pre>
+        </div>
+        <p class="prose">Ba điều cần có trong mọi spec interceptor:</p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong
+                ><code>firstValueFrom</code> (hoặc
+                <code>lastValueFrom</code>)</strong
+              >
+              để subscribe — không subscribe thì <code>map</code> không chạy,
+              assert gì cũng qua vì chưa có gì chạy.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Assert <code>handle</code> được gọi đúng một lần</strong>
+              — kiểm số lần lấy Observable; để chứng minh handler effect chỉ
+              chạy một lần, đếm cả subscription/effect. Không suy ra từ mock
+              handle nếu có retry hoặc subscribe lại. Hai lần subscribe vào
+              luồng lạnh có thể thực hiện lại thao tác ghi DB.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Một test cho nhánh lỗi</strong>, nếu interceptor có
+              <code>catchError</code>: <code>handle</code> trả
+              <code>throwError(() =&gt; new Error())</code>, assert
+              <code>rejects</code>.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Muốn test có cả Nest thật (metadata, thứ tự với pipe) thì dùng e2e —
+          <a href="../e2e-testing.md">e2e-testing.md</a> — vì thứ tự
+          interceptor/pipe là việc của <code>router-execution-context</code>,
+          không mô phỏng được bằng harness.
+        </p>
+        <hr />
+        <h2 id="13-nâng-cao" class="sec-head">13. Nâng cao</h2>
+        <p class="prose">
+          <strong
+            ><code>ExecutionContext</code> là chung, nhưng
+            <code>next.handle()</code> không phải.</strong
+          >
+          Guard và interceptor nhận cùng kiểu <code>context</code>, nhưng mỗi
+          interceptor nhận <code>CallHandler</code> <strong>riêng</strong> —
+          closure trỏ tới interceptor kế tiếp (<a
+            href="#4-đọc-mã-nguồn-nest-xếp-các-interceptor-lồng-nhau-thế-nào"
+            >mục 4</a
+          >). Không lưu <code>next</code> ra ngoài để gọi sau.
+        </p>
+        <p class="prose">
+          <strong>Interceptor + metadata = cache theo route.</strong> Cache hit
+          có thể <code>return of(cached)</code> và không gọi handler. Nếu muốn
+          cache <strong>kết quả đã serialize</strong>, cache phải đứng
+          <strong>ngoài</strong> serializer (đăng ký trước):
+          <code>Cache → Serializer → Handler</code>, chiều về
+          <code>Handler → Serializer → Cache</code>. Đăng ký sau serializer sẽ
+          khiến cache nhìn thấy kết quả chưa lọc, có thể chứa mật khẩu.
+        </p>
+        <p class="prose">
+          Chỉ dùng cache key chung theo route cho dữ liệu public giống nhau với
+          mọi người. Response phụ thuộc user, tenant, quyền, ngôn ngữ hoặc query
+          cần key chứa đầy đủ các yếu tố đó, hoặc không cache.
+          <code>tap(async data =&gt; redis.set(...))</code> không chờ Promise:
+          nếu cần chờ lưu cache và xử lý lỗi, dùng
+          <code
+            >mergeMap(data =&gt; from(redis.set(key, data)).pipe(map(() =&gt;
+            data)))</code
+          >
+          với chính sách lỗi rõ ràng.
+        </p>
+        <p class="prose">
+          <strong><code>AsyncResource.bind</code> trong mã nguồn.</strong> Mỗi
+          <code>defer</code> được bọc <code>AsyncResource.bind(...)</code> để
+          <code>AsyncLocalStorage</code> (cái <code>nestjs-i18n</code> dùng —
+          <a href="08-request-and-provider-instances.html#92-asynclocalstorage"
+            >chương 8 §9.2</a
+          >) không mất context khi qua ranh giới RxJS. Nếu tự viết thứ gì đó
+          &quot;lưu context theo request&quot; và thấy nó mất trong interceptor,
+          đó là chỗ để nhìn.
+        </p>
+        <p class="prose">
+          <strong>Interceptor cho ngữ cảnh không HTTP.</strong>
+          <code>context.getType()</code> và <code>switchToRpc()</code> /
+          <code>switchToWs()</code> như guard.
+          <code>ClassSerializerInterceptor</code> chạy được cho cả microservice
+          vì nó chỉ dùng <code>getHandler()</code> / <code>getClass()</code>.
+        </p>
+        <p class="prose">
+          <strong>Handler trả <code>Observable</code> nhiều giá trị.</strong>
+          Với <code>@Sse()</code>, Nest không <code>lastValueFrom</code> mà
+          stream từng giá trị. <code>map</code> trong interceptor khi đó chạy
+          <strong>mỗi giá trị</strong>. Dự án không có SSE; biết để không ngạc
+          nhiên.
+        </p>
+        <p class="prose">
+          <strong
+            ><code>timeout()</code> là interceptor, nhưng không phải cách dừng
+            handler.</strong
+          >
+          <code>timeout(5000)</code> làm client nhận 408/500 sau 5 giây, nhưng
+          handler <strong>vẫn chạy tiếp</strong> đến hết trong nền — RxJS huỷ
+          subscription, không huỷ được <code>await prisma.…</code>. Muốn dừng
+          thật thì phải truyền <code>AbortSignal</code> xuống tận query.
+        </p>
+        <hr />
+        <h2 id="14-trong-dự-án-này" class="sec-head">14. Trong dự án này</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Interceptor</th>
+                <th>Ở đâu</th>
+                <th>Đăng ký</th>
+                <th>Việc trước <code>handle()</code></th>
+                <th>Việc sau <code>handle()</code></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ClassSerializerInterceptor</code></td>
+                <td>
+                  <a href="../../src/shared/modules/base.module.ts#L57-L65"
+                    >base.module.ts:57-65</a
+                  >
+                </td>
+                <td><code>APP_INTERCEPTOR</code> + <code>useFactory</code></td>
+                <td>
+                  đọc <code>@SerializeOptions</code> (chưa route nào dùng)
+                </td>
+                <td>
+                  <code>instanceToPlain</code>, chỉ giữ <code>@Expose()</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>FileInterceptor(&quot;image&quot;)</code></td>
+                <td>
+                  <a href="../../src/routes/media/media.controller.ts#L74"
+                    >media.controller.ts:74</a
+                  >
+                </td>
+                <td><code>@UseInterceptors</code> trên method</td>
+                <td>
+                  chạy multer, ghi đĩa, gắn <code>req.file</code>; 413 nếu quá 5
+                  MB
+                </td>
+                <td>không</td>
+              </tr>
+              <tr>
+                <td><code>FilesInterceptor(&quot;files&quot;, 10)</code></td>
+                <td>
+                  <a href="../../src/routes/media/media.controller.ts#L104"
+                    >media.controller.ts:104</a
+                  >
+                </td>
+                <td><code>@UseInterceptors</code> trên method</td>
+                <td>multer mảng, bộ nhớ, gắn <code>req.files</code></td>
+                <td>không</td>
+              </tr>
+              <tr>
+                <td><code>FileFieldsInterceptor([...])</code></td>
+                <td>
+                  <a href="../../src/routes/media/media.controller.ts#L141-L151"
+                    >media.controller.ts:141-151</a
+                  >
+                </td>
+                <td><code>@UseInterceptors</code> trên method</td>
+                <td>
+                  multer nhiều field, gắn <code>req.files</code> dạng object
+                </td>
+                <td>không</td>
+              </tr>
+              <tr>
+                <td><code>TransformInterceptor</code></td>
+                <td>
+                  <a
+                    href="../../src/shared/interceptors/transform.interceptor.ts"
+                    >transform.interceptor.ts</a
+                  >
+                </td>
+                <td><strong>không đăng ký</strong></td>
+                <td>—</td>
+                <td>bọc <code>{ data, statusCode }</code> (nếu bật)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <hr />
+        <h2 id="15-tự-kiểm-chứng" class="sec-head">15. Tự kiểm chứng</h2>
+        <p class="prose">
+          <strong>1. Chứng minh interceptor bọc pipe.</strong> Thêm tạm một
+          interceptor global in log ở cả hai chiều:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// ví dụ minh hoạ — thêm vào providers của base.module.ts, xoá sau khi xem
+{
+  provide: APP_INTERCEPTOR,
+  useValue: {
+    intercept: (ctx, next) =&gt; {
+      console.log(&quot;[I] trước handler, body =&quot;, ctx.switchToHttp().getRequest().body);
+      return next.handle().pipe(tap((r) =&gt; console.log(&quot;[I] sau handler, kết quả =&quot;, r?.constructor?.name)));
+    },
+  },
+},</code></pre>
+        </div>
+        <p class="prose">
+          Gọi <code>POST /roles</code> với token admin và body
+          <strong>sai kiểu</strong>. Kỳ vọng: thấy dòng
+          <code>[I] trước handler</code> với body thô, rồi
+          <strong>400</strong> — và <strong>không</strong> thấy dòng
+          <code>[I] sau handler</code>. Pipe ném bên trong
+          <code>next.handle()</code>, nên <code>tap</code> không chạy. Gọi lại
+          với body đúng: thấy cả hai dòng, dòng sau in tên DTO class.
+        </p>
+        <p class="prose">
+          <strong>2. Chứng minh thứ tự global → method.</strong> Trên route
+          <code>POST /media/upload/image</code>, đổi interceptor thí nghiệm ở
+          trên để in <code>[I] trước</code> và thêm
+          <code>console.log(&quot;[multer] xong&quot;)</code> tạm vào
+          <code>fileFilter</code> của
+          <code>single-image-interceptor.util.ts</code>. Kỳ vọng thứ tự:
+          <code>[I] trước</code> → <code>[multer] xong</code> → handler. Global
+          là lớp ngoài.
+        </p>
+        <p class="prose">
+          <strong>3. Chứng minh <code>@Res()</code> tắt chiều về.</strong> Với
+          interceptor thí nghiệm còn đó, gọi
+          <code>GET /auth/google/callback?code=x&amp;state=y</code>. Kỳ vọng:
+          <code>[I] trước</code> có, <code>[I] sau</code> có nhưng
+          <code>kết quả</code> là <code>ServerResponse</code> — không phải DTO —
+          và client nhận redirect, không phải JSON.
+        </p>
+        <p class="prose"><strong>4. Chạy spec:</strong></p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>npx jest src/shared/interceptors</code></pre>
+        </div>
+        <p class="prose">
+          Mở <code>transform.interceptor.spec.ts</code>, đổi
+          <code>firstValueFrom(result$)</code> thành chỉ
+          <code>interceptor.intercept(context, handler)</code> không await: test
+          &quot;calls next.handle()&quot; vẫn qua (vì <code>handle</code> được
+          gọi lúc <code>intercept()</code> chạy), nhưng test về
+          <code>data</code> sẽ không có gì để assert — <code>map</code> chưa
+          chạy vì chưa ai subscribe. Đó là &quot;lười&quot; ở
+          <a href="#3-vì-sao-là-observable-và-bạn-cần-biết-bao-nhiêu-rxjs"
+            >mục 3</a
+          >.
+        </p>
+        <p class="prose">Nhớ xoá interceptor thí nghiệm và dòng log tạm.</p>
+        <hr />
+        <p class="prose">
+          <strong>Tiếp theo:</strong>
+          <a href="10-exception-filters.html">Chương 10 — Exception Filter</a>:
+          tầng duy nhất chạy khi <em>có lỗi</em>, thấy được cả lỗi mà
+          interceptor không thấy, và là người viết response lỗi duy nhất trong
+          dự án.
+        </p>
+        <footer class="source-footer">
+          <a href="09-interceptors.md">Nguồn Markdown</a> · Sinh bằng
+          scripts/build-nestjs-fundamentals.cjs
+        </footer>
+      </main>
+    </div>
+    <script type="module">
+      // Shared behavior for the Markdown-generated foundation pages.
+      const themeToggle = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+      }
+      let initialTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      try {
+        initialTheme =
+          localStorage.getItem("fundamentals-theme") ?? initialTheme;
+      } catch {
+        // Storage can be unavailable when opening a local HTML file.
+      }
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        try {
+          localStorage.setItem("fundamentals-theme", theme);
+        } catch {
+          // Storage can be unavailable when opening a local HTML file.
+        }
+        applyTheme(theme);
+      });
+
+      let mermaid;
+      try {
+        ({ default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+        ));
+      } catch {
+        document.querySelectorAll(".diagram-shell").forEach((shell) => {
+          shell.querySelector(".mermaid-wrap").hidden = true;
+          shell.querySelector(".diagram-code").open = true;
+        });
+      }
+      if (mermaid) {
+        const config = {
+          fitPadding: 28,
+          minHeight: 320,
+          maxHeightPx: 960,
+          maxHeightVh: 0.84,
+          maxInitialZoom: 1.8,
+          minZoom: 0.08,
+          maxZoom: 6.5,
+          zoomStep: 0.14,
+          readabilityFloor: 0.58,
+        };
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+        let activeDrag = null;
+        addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+        addEventListener("mouseup", () => {
+          activeDrag?.onEnd();
+          activeDrag = null;
+        });
+        const attr = document.documentElement.getAttribute("data-theme");
+        const isDark =
+          attr === "dark" ||
+          (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "classic",
+          themeVariables: {
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontSize: "15px",
+            primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+            primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+            primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+            secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+            secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+            tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+            tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            lineColor: isDark ? "#a89e90" : "#7c756a",
+            noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+            noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+            actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+            actorBorder: isDark ? "#f0743f" : "#c2410c",
+            actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            signalColor: isDark ? "#a89e90" : "#7c756a",
+            signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          },
+        });
+        function initDiagram(shell) {
+          const wrap = shell.querySelector(".mermaid-wrap"),
+            viewport = shell.querySelector(".mermaid-viewport"),
+            canvas = shell.querySelector(".mermaid-canvas"),
+            source = shell.querySelector(".diagram-source"),
+            label = shell.querySelector(".zoom-label");
+          if (!wrap || !viewport || !canvas || !source || !label) return;
+          let zoom = 1,
+            fitMode = "contain",
+            panX = 0,
+            panY = 0,
+            svgW = 0,
+            svgH = 0,
+            sx = 0,
+            sy = 0,
+            spx = 0,
+            spy = 0,
+            touchDist = 0,
+            touchCx = 0,
+            touchCy = 0;
+          function constrainPan() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              rW = svgW * zoom,
+              rH = svgH * zoom,
+              pad = config.fitPadding;
+            panX =
+              rW + pad * 2 <= vpW
+                ? (vpW - rW) / 2
+                : clamp(panX, vpW - rW - pad, pad);
+            panY =
+              rH + pad * 2 <= vpH
+                ? (vpH - rH) / 2
+                : clamp(panY, vpH - rH - pad, pad);
+          }
+          function applyTransform() {
+            const svg = canvas.querySelector("svg");
+            if (!svg || !svgW) return;
+            constrainPan();
+            svg.style.width = svgW * zoom + "px";
+            svg.style.height = svgH * zoom + "px";
+            canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+            label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+          }
+          function canPan() {
+            return (
+              svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+              svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+            );
+          }
+          function computeSmartFit() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              aW = Math.max(80, vpW - config.fitPadding * 2),
+              aH = Math.max(80, vpH - config.fitPadding * 2),
+              contain = Math.min(aW / svgW, aH / svgH);
+            let z = contain,
+              mode = "contain";
+            if (contain < config.readabilityFloor) {
+              const chartR = svgH / svgW,
+                vpR = vpH / Math.max(vpW, 1);
+              if (chartR >= vpR) {
+                z = aW / svgW;
+                mode = "width-priority";
+              } else {
+                z = aH / svgH;
+                mode = "height-priority";
+              }
+            }
+            return {
+              zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+              mode,
+            };
+          }
+          function fitDiagram() {
+            if (!svgW) return;
+            const fit = computeSmartFit();
+            zoom = fit.zoom;
+            fitMode = fit.mode;
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function setOneToOne() {
+            zoom = clamp(1, config.minZoom, config.maxZoom);
+            fitMode = "1:1";
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function zoomAround(factor, cx, cy) {
+            const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+              ratio = next / zoom;
+            panX = cx - ratio * (cx - panX);
+            panY = cy - ratio * (cy - panY);
+            zoom = next;
+            fitMode = "custom";
+            applyTransform();
+          }
+          function readSvgNaturalSize(svg) {
+            let w = 0,
+              h = 0;
+            if (svg.viewBox?.baseVal?.width > 0) {
+              w = svg.viewBox.baseVal.width;
+              h = svg.viewBox.baseVal.height;
+            }
+            if (!w) {
+              w = parseFloat(svg.getAttribute("width")) || 0;
+              h = parseFloat(svg.getAttribute("height")) || 0;
+            }
+            if (!w) {
+              const b = svg.getBBox();
+              w = b.width;
+              h = b.height;
+            }
+            if (!w) {
+              const r = svg.getBoundingClientRect();
+              w = r.width || 1000;
+              h = r.height || 700;
+            }
+            if (!svg.getAttribute("viewBox"))
+              svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            return { w, h };
+          }
+          function setAdaptiveHeight() {
+            if (!svgW) return;
+            const usableW = Math.max(
+                280,
+                wrap.getBoundingClientRect().width - 2,
+              ),
+              idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+              maxVp = Math.floor(innerHeight * config.maxHeightVh),
+              hardMax = Math.min(
+                config.maxHeightPx,
+                Math.max(config.minHeight + 40, maxVp),
+              );
+            wrap.style.height =
+              Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+          }
+          function openInNewTab() {
+            const svg = canvas.querySelector("svg");
+            if (!svg) return;
+            const clone = svg.cloneNode(true);
+            clone.style.width = "";
+            clone.style.height = "";
+            const bg = isDark ? "#1c1916" : "#faf6f0";
+            const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+            open(
+              URL.createObjectURL(new Blob([html], { type: "text/html" })),
+              "_blank",
+            );
+          }
+          async function render() {
+            try {
+              const code = source.textContent.trim();
+              if (!code) {
+                label.textContent = "Lỗi: nguồn rỗng";
+                return;
+              }
+              const id =
+                "diagram-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).slice(2, 8);
+              const { svg } = await mermaid.render(id, code);
+              canvas.innerHTML = svg;
+              const svgNode = canvas.querySelector("svg");
+              if (!svgNode) {
+                label.textContent = "Lỗi: không có SVG";
+                return;
+              }
+              const size = readSvgNaturalSize(svgNode);
+              svgW = size.w;
+              svgH = size.h;
+              svgNode.removeAttribute("width");
+              svgNode.removeAttribute("height");
+              svgNode.style.maxWidth = "none";
+              svgNode.style.display = "block";
+              setAdaptiveHeight();
+              fitDiagram();
+            } catch (err) {
+              console.error("Mermaid render failed:", err);
+              label.textContent = "Lỗi: " + (err.message || "render thất bại");
+            }
+          }
+          const actions = {
+            "zoom-in": () =>
+              zoomAround(
+                1 + config.zoomStep,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-out": () =>
+              zoomAround(
+                1 / (1 + config.zoomStep),
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-fit": fitDiagram,
+            "zoom-one": setOneToOne,
+            "zoom-expand": openInNewTab,
+          };
+          Object.entries(actions).forEach(([action, handler]) => {
+            wrap
+              .querySelector(`[data-action="${action}"]`)
+              ?.addEventListener("click", handler);
+          });
+          viewport.addEventListener("dblclick", fitDiagram);
+          viewport.addEventListener(
+            "wheel",
+            (e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                zoomAround(
+                  e.deltaY < 0
+                    ? 1 + config.zoomStep
+                    : 1 / (1 + config.zoomStep),
+                  e.clientX - rect.left,
+                  e.clientY - rect.top,
+                );
+                return;
+              }
+              if (canPan()) {
+                e.preventDefault();
+                panX -= e.deltaX;
+                panY -= e.deltaY;
+                applyTransform();
+              }
+            },
+            { passive: false },
+          );
+          viewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest(".zoom-controls") || !canPan()) return;
+            wrap.classList.add("is-panning");
+            sx = e.clientX;
+            sy = e.clientY;
+            spx = panX;
+            spy = panY;
+            e.preventDefault();
+            activeDrag = {
+              onMove: (ev) => {
+                panX = spx + (ev.clientX - sx);
+                panY = spy + (ev.clientY - sy);
+                applyTransform();
+              },
+              onEnd: () => wrap.classList.remove("is-panning"),
+            };
+          });
+          viewport.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length === 1) {
+                sx = e.touches[0].clientX;
+                sy = e.touches[0].clientY;
+                spx = panX;
+                spy = panY;
+              } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchDist = Math.sqrt(dx * dx + dy * dy);
+                const r = viewport.getBoundingClientRect();
+                touchCx =
+                  (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+                touchCy =
+                  (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+              }
+            },
+            { passive: true },
+          );
+          viewport.addEventListener(
+            "touchmove",
+            (e) => {
+              if (e.touches.length === 1 && canPan()) {
+                if (touchDist > 0) {
+                  sx = e.touches[0].clientX;
+                  sy = e.touches[0].clientY;
+                  spx = panX;
+                  spy = panY;
+                  touchDist = 0;
+                }
+                e.preventDefault();
+                panX = spx + (e.touches[0].clientX - sx);
+                panY = spy + (e.touches[0].clientY - sy);
+                applyTransform();
+              } else if (e.touches.length === 2 && touchDist > 0) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY,
+                  d = Math.sqrt(dx * dx + dy * dy);
+                zoomAround(d / touchDist, touchCx, touchCy);
+                touchDist = d;
+              }
+            },
+            { passive: false },
+          );
+          new ResizeObserver(() => {
+            if (svgW) {
+              setAdaptiveHeight();
+              fitDiagram();
+            }
+          }).observe(wrap);
+          render();
+        }
+        document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+      }
+    </script>
+  </body>
+</html>

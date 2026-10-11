@@ -1,0 +1,3189 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chương 10 — Exception Filter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Azeret+Mono:wght@400;500;600&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ── Paper/Ink · light default ── */
+      :root {
+        --font-body: "Plus Jakarta Sans", system-ui, sans-serif;
+        --font-mono: "Azeret Mono", "SF Mono", Consolas, monospace;
+
+        --bg: #faf6f0;
+        --surface: #ffffff;
+        --surface2: #f3ece2;
+        --surface-elevated: #fffdf7;
+        --border: rgba(60, 40, 20, 0.09);
+        --border-bright: rgba(60, 40, 20, 0.2);
+        --text: #2c2a25;
+        --text-dim: #7c756a;
+        --text-bright: #1a1814;
+        --accent: #c2410c;
+        --accent-dim: rgba(194, 65, 12, 0.08);
+
+        --node-a: #c2410c;
+        --node-a-dim: rgba(194, 65, 12, 0.08);
+        --node-b: #4d7c0f;
+        --node-b-dim: rgba(77, 124, 15, 0.09);
+        --node-c: #0f766e;
+        --node-c-dim: rgba(15, 118, 110, 0.09);
+
+        --green: #3f6212;
+        --green-dim: rgba(63, 98, 18, 0.1);
+        --red: #b3261e;
+        --red-dim: rgba(179, 38, 30, 0.09);
+        --amber: #b45309;
+        --amber-dim: rgba(180, 83, 9, 0.1);
+        --sage: #65a30d;
+        --sage-dim: rgba(101, 163, 13, 0.09);
+        --teal: #0f766e;
+        --teal-dim: rgba(15, 118, 110, 0.09);
+        --plum: #9f1239;
+        --plum-dim: rgba(159, 18, 57, 0.09);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #1c1916;
+          --surface: #262220;
+          --surface2: #302a26;
+          --surface-elevated: #342e29;
+          --border: rgba(200, 180, 160, 0.09);
+          --border-bright: rgba(200, 180, 160, 0.2);
+          --text: #f0e8dc;
+          --text-dim: #a89e90;
+          --text-bright: #fbf6ee;
+          --accent: #f0743f;
+          --accent-dim: rgba(240, 116, 63, 0.13);
+          --node-a: #f0743f;
+          --node-a-dim: rgba(240, 116, 63, 0.13);
+          --node-b: #a3e635;
+          --node-b-dim: rgba(163, 230, 53, 0.11);
+          --node-c: #5eead4;
+          --node-c-dim: rgba(94, 234, 212, 0.11);
+          --green: #a3e635;
+          --green-dim: rgba(163, 230, 53, 0.12);
+          --red: #fca5a5;
+          --red-dim: rgba(252, 165, 165, 0.12);
+          --amber: #fbbf24;
+          --amber-dim: rgba(251, 191, 36, 0.12);
+          --sage: #bef264;
+          --sage-dim: rgba(190, 242, 100, 0.12);
+          --teal: #5eead4;
+          --teal-dim: rgba(94, 234, 212, 0.12);
+          --plum: #fda4af;
+          --plum-dim: rgba(253, 164, 175, 0.12);
+        }
+      }
+      [data-theme="dark"] {
+        --bg: #1c1916;
+        --surface: #262220;
+        --surface2: #302a26;
+        --surface-elevated: #342e29;
+        --border: rgba(200, 180, 160, 0.09);
+        --border-bright: rgba(200, 180, 160, 0.2);
+        --text: #f0e8dc;
+        --text-dim: #a89e90;
+        --text-bright: #fbf6ee;
+        --accent: #f0743f;
+        --accent-dim: rgba(240, 116, 63, 0.13);
+        --node-a: #f0743f;
+        --node-a-dim: rgba(240, 116, 63, 0.13);
+        --node-b: #a3e635;
+        --node-b-dim: rgba(163, 230, 53, 0.11);
+        --node-c: #5eead4;
+        --node-c-dim: rgba(94, 234, 212, 0.11);
+        --green: #a3e635;
+        --green-dim: rgba(163, 230, 53, 0.12);
+        --red: #fca5a5;
+        --red-dim: rgba(252, 165, 165, 0.12);
+        --amber: #fbbf24;
+        --amber-dim: rgba(251, 191, 36, 0.12);
+        --sage: #bef264;
+        --sage-dim: rgba(190, 242, 100, 0.12);
+        --teal: #5eead4;
+        --teal-dim: rgba(94, 234, 212, 0.12);
+        --plum: #fda4af;
+        --plum-dim: rgba(253, 164, 175, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 28px 40px 80px;
+        font-family: var(--font-body);
+        color: var(--text);
+        background-color: var(--bg);
+        background-image: repeating-linear-gradient(
+          -45deg,
+          transparent,
+          transparent 40px,
+          var(--border) 40px,
+          var(--border) 41px
+        );
+        overflow-wrap: break-word;
+        line-height: 1.65;
+        font-size: 15.5px;
+      }
+      .grid > *,
+      .flex > * {
+        min-width: 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 300;
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text-dim);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+      }
+      .theme-toggle:hover {
+        background: var(--surface2);
+        color: var(--text);
+      }
+
+      .wrap {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 0 40px;
+      }
+      .main {
+        min-width: 0;
+      }
+      .toc {
+        position: sticky;
+        top: 24px;
+        align-self: start;
+        padding: 14px 0;
+        grid-row: 1 / -1;
+        max-height: calc(100dvh - 48px);
+        overflow-y: auto;
+      }
+      .toc::-webkit-scrollbar {
+        width: 3px;
+      }
+      .toc::-webkit-scrollbar-thumb {
+        background: var(--surface-elevated);
+        border-radius: 2px;
+      }
+      .toc-title {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--text-dim);
+        padding: 0 0 10px;
+        margin-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .toc a {
+        display: block;
+        font-size: 12px;
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 5px 8px;
+        border-radius: 5px;
+        border-left: 2px solid transparent;
+        transition: all 0.15s;
+        line-height: 1.4;
+        margin-bottom: 1px;
+      }
+      .toc a:hover {
+        color: var(--text);
+        background: var(--surface2);
+      }
+      .toc a.active {
+        color: var(--text);
+        border-left-color: var(--accent);
+        background: var(--accent-dim);
+      }
+      .toc-series {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+      .toc-series a {
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+
+      .series-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-bottom: 18px;
+      }
+      .series-bar a {
+        color: var(--text-dim);
+        text-decoration: none;
+        padding: 4px 9px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+      .series-bar a:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .series-bar .sep {
+        opacity: 0.5;
+      }
+
+      .masthead {
+        border-bottom: 2px solid var(--border-bright);
+        padding-bottom: 22px;
+        margin-bottom: 30px;
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2.4px;
+        color: var(--accent);
+        margin-bottom: 12px;
+      }
+      h1 {
+        font-size: clamp(28px, 3.4vw, 42px);
+        line-height: 1.12;
+        margin: 0 0 12px;
+        letter-spacing: -0.8px;
+        color: var(--text-bright);
+        font-weight: 800;
+      }
+      .subtitle {
+        font-size: 17px;
+        color: var(--text-dim);
+        margin: 0;
+        max-width: 70ch;
+      }
+      .masthead-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 18px;
+      }
+
+      .sec-head {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        margin: 50px 0 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        scroll-margin-top: 20px;
+      }
+      .sec-head__num {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--accent);
+        background: var(--accent-dim);
+        padding: 3px 9px;
+        border-radius: 5px;
+        flex-shrink: 0;
+      }
+      .sec-head__text {
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        color: var(--text-bright);
+      }
+      h3.sub {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 26px 0 10px;
+        color: var(--text-bright);
+      }
+      p.lead {
+        font-size: 16.5px;
+        color: var(--text);
+        max-width: 72ch;
+      }
+      p.dim {
+        color: var(--text-dim);
+      }
+      .prose {
+        max-width: 74ch;
+      }
+
+      .ve-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 22px;
+        position: relative;
+      }
+      .ve-card--elevated {
+        background: var(--surface-elevated);
+        box-shadow:
+          0 2px 8px rgba(0, 0, 0, 0.07),
+          0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      .ve-card--recessed {
+        background: color-mix(in srgb, var(--bg) 70%, var(--surface) 30%);
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+      .ve-card--hero {
+        background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+        box-shadow:
+          0 4px 20px rgba(0, 0, 0, 0.07),
+          0 1px 3px rgba(0, 0, 0, 0.04);
+        border-color: color-mix(in srgb, var(--border) 50%, var(--accent) 50%);
+      }
+      .ve-card__label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--node-a);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .ve-card__label::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        flex-shrink: 0;
+      }
+      .ve-card__label--b {
+        color: var(--node-b);
+      }
+      .ve-card__label--c {
+        color: var(--node-c);
+      }
+      .ve-card__label--plum {
+        color: var(--plum);
+      }
+      .ve-card__label--amber {
+        color: var(--amber);
+      }
+      .ve-card__label--red {
+        color: var(--red);
+      }
+      .ve-card p {
+        margin: 0 0 10px;
+      }
+      .ve-card p:last-child {
+        margin-bottom: 0;
+      }
+      .ve-card ul,
+      .ve-card ol {
+        padding-left: 1.6em;
+        margin: 6px 0 0;
+      }
+
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 16px;
+      }
+      .card-grid--2 {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+      .stack {
+        display: grid;
+        gap: 16px;
+      }
+
+      .tag {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 9px;
+        border-radius: 5px;
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        display: inline-block;
+      }
+      .tag--b {
+        background: var(--node-b-dim);
+        color: var(--node-b);
+      }
+      .tag--c {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+      }
+      .tag--amber {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .tag--red {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .tag--green {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .tag--plum {
+        background: var(--plum-dim);
+        color: var(--plum);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 6px;
+        white-space: nowrap;
+      }
+      .status--match {
+        background: var(--green-dim);
+        color: var(--green);
+      }
+      .status--gap {
+        background: var(--red-dim);
+        color: var(--red);
+      }
+      .status--warn {
+        background: var(--amber-dim);
+        color: var(--amber);
+      }
+      .status--info {
+        background: var(--accent-dim);
+        color: var(--accent);
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.88em;
+        background: var(--accent-dim);
+        color: var(--accent);
+        padding: 1px 5px;
+        border-radius: 3px;
+      }
+      .code-file {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .code-file__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 9px 15px;
+        background: var(--surface2);
+        border-bottom: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--text-dim);
+      }
+      .code-file__header span:first-child {
+        color: var(--text);
+      }
+      .code-file__body {
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+        line-height: 1.6;
+        padding: 15px;
+        margin: 0;
+        background: var(--surface);
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 480px;
+        overflow: auto;
+        color: var(--text);
+      }
+      .cm {
+        color: var(--text-dim);
+        font-style: italic;
+      }
+      .kw {
+        color: var(--plum);
+      }
+      .st {
+        color: var(--node-b);
+      }
+      .fn {
+        color: var(--node-c);
+      }
+      .out {
+        color: var(--text-dim);
+      }
+
+      .pipeline {
+        display: flex;
+        align-items: stretch;
+        gap: 0;
+        overflow-x: auto;
+        padding-bottom: 10px;
+      }
+      .pipeline__step {
+        min-width: 150px;
+        flex: 1 1 0;
+      }
+      .pipeline__step--hi {
+        border-color: color-mix(in srgb, var(--border) 40%, var(--accent) 60%);
+        background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+      }
+      .pipeline__step--mute {
+        opacity: 0.72;
+      }
+      .pipeline__arrow {
+        display: flex;
+        align-items: center;
+        padding: 0 6px;
+        color: var(--border-bright);
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .node-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 15px;
+        line-height: 1.75;
+      }
+      .node-list li {
+        padding-left: 15px;
+        position: relative;
+      }
+      .node-list li::before {
+        content: "›";
+        color: var(--text-dim);
+        font-weight: 600;
+        position: absolute;
+        left: 0;
+      }
+
+      .table-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .data-table th {
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 11.5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        text-align: left;
+        padding: 11px 15px;
+        border-bottom: 2px solid var(--border-bright);
+        white-space: nowrap;
+      }
+      .data-table td {
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        color: var(--text);
+      }
+      .data-table tbody tr:nth-child(even) {
+        background: var(--accent-dim);
+      }
+      .data-table tbody tr:last-child td {
+        border-bottom: none;
+      }
+      .data-table code {
+        font-size: 12px;
+      }
+      .data-table small {
+        display: block;
+        color: var(--text-dim);
+        font-size: 12px;
+        margin-top: 3px;
+      }
+      .data-table .num {
+        font-family: var(--font-mono);
+        color: var(--text-dim);
+        text-align: right;
+      }
+
+      .callout {
+        padding: 16px 20px;
+        border-radius: 8px;
+        border-left: 4px solid var(--callout-border);
+        background: var(--callout-bg);
+        margin: 18px 0;
+        font-size: 15px;
+      }
+      .callout--info {
+        --callout-border: var(--accent);
+        --callout-bg: color-mix(in srgb, var(--accent) 9%, transparent);
+      }
+      .callout--warning {
+        --callout-border: var(--amber);
+        --callout-bg: color-mix(in srgb, var(--amber) 10%, transparent);
+      }
+      .callout--success {
+        --callout-border: var(--green);
+        --callout-bg: color-mix(in srgb, var(--green) 9%, transparent);
+      }
+      .callout--danger {
+        --callout-border: var(--red);
+        --callout-bg: color-mix(in srgb, var(--red) 9%, transparent);
+      }
+      .callout__title {
+        font-weight: 700;
+        margin-bottom: 7px;
+        color: var(--callout-border);
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .callout ul {
+        padding-left: 1.5em;
+        margin: 8px 0 0;
+      }
+
+      .diff-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 12px 0;
+      }
+      .diff-panels > * {
+        min-width: 0;
+        overflow-wrap: break-word;
+      }
+      .diff-panel__header {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 10px 16px;
+      }
+      .diff-panel__header--a {
+        background: var(--node-a-dim);
+        color: var(--node-a);
+        border-bottom: 2px solid var(--node-a);
+      }
+      .diff-panel__header--b {
+        background: var(--node-c-dim);
+        color: var(--node-c);
+        border-bottom: 2px solid var(--node-c);
+      }
+      .diff-panel__header--bad {
+        background: var(--red-dim);
+        color: var(--red);
+        border-bottom: 2px solid var(--red);
+      }
+      .diff-panel__header--good {
+        background: var(--green-dim);
+        color: var(--green);
+        border-bottom: 2px solid var(--green);
+      }
+      .diff-panel__body {
+        padding: 16px;
+        background: var(--surface);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      .diff-panel__body ul {
+        padding-left: 1.4em;
+        margin: 0;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 28px;
+        margin: 12px 0;
+      }
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 9px;
+        top: 6px;
+        bottom: 6px;
+        width: 2px;
+        background: var(--border-bright);
+      }
+      .timeline__item {
+        position: relative;
+        margin-bottom: 14px;
+      }
+      .timeline__item::before {
+        content: "";
+        position: absolute;
+        left: -24px;
+        top: 8px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 2px solid var(--accent);
+      }
+      .timeline__item--stop::before {
+        border-color: var(--red);
+        background: var(--red-dim);
+      }
+      .timeline__item--ok::before {
+        border-color: var(--green);
+        background: var(--green-dim);
+      }
+      .timeline__item--mute::before {
+        border-color: var(--border-bright);
+      }
+      .timeline__title {
+        font-weight: 700;
+        color: var(--text-bright);
+      }
+      .timeline__title code {
+        font-size: 13px;
+      }
+      .timeline__desc {
+        color: var(--text-dim);
+        font-size: 14.5px;
+        margin-top: 2px;
+      }
+
+      .diagram-shell {
+        position: relative;
+        margin: 8px 0 4px;
+      }
+      .diagram-shell__hint {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--text-dim);
+        margin: 0 0 8px;
+        opacity: 0.75;
+      }
+      .mermaid-wrap {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px 22px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 380px;
+        cursor: grab;
+      }
+      .mermaid-wrap.is-panning {
+        cursor: grabbing;
+        user-select: none;
+      }
+      .zoom-controls {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 2px;
+        z-index: 10;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 2px;
+        align-items: center;
+      }
+      .zoom-controls button {
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        color: var(--text-dim);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .zoom-controls button:hover {
+        background: var(--border);
+        color: var(--text);
+      }
+      .zoom-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        padding: 0 6px;
+        white-space: nowrap;
+      }
+      .mermaid-viewport {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        min-height: 320px;
+      }
+      .mermaid-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+      .mermaid .nodeLabel {
+        color: var(--text) !important;
+        font-family: var(--font-body) !important;
+        font-size: 15px !important;
+      }
+      .mermaid .edgeLabel {
+        color: var(--text-dim) !important;
+        background-color: var(--bg) !important;
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+      .mermaid .edgeLabel rect {
+        fill: var(--bg) !important;
+      }
+      .mermaid .messageText {
+        font-family: var(--font-mono) !important;
+        font-size: 12px !important;
+      }
+
+      details.collapsible {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--surface);
+        margin: 12px 0;
+      }
+      details.collapsible summary {
+        padding: 13px 19px;
+        background: var(--surface2);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text);
+      }
+      details.collapsible summary::-webkit-details-marker {
+        display: none;
+      }
+      details.collapsible summary::before {
+        content: "▸";
+        font-size: 11px;
+        color: var(--text-dim);
+        transition: transform 0.15s ease;
+      }
+      details.collapsible[open] summary::before {
+        transform: rotate(90deg);
+      }
+      .collapsible__body {
+        padding: 16px 19px;
+        border-top: 1px solid var(--border);
+        font-size: 15px;
+      }
+
+      .chapter-card {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .chapter-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      }
+      .chapter-card__num {
+        font-family: var(--font-mono);
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+      .chapter-card__title {
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--text-bright);
+        margin-bottom: 6px;
+      }
+      .chapter-card__q {
+        font-size: 14px;
+        color: var(--text-dim);
+      }
+      .chapter-card__links {
+        margin-top: 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+      }
+      .chapter-card__links a {
+        margin-right: 10px;
+      }
+
+      .footer-nav {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 50px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .footer-nav a {
+        text-decoration: none;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text);
+        max-width: 48%;
+      }
+      .footer-nav a:hover {
+        border-color: var(--accent);
+      }
+      .footer-nav small {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 3px;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .ve-card {
+        animation: fadeUp 0.4s ease-out both;
+        animation-delay: calc(var(--i, 0) * 0.05s);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+      @media (max-width: 1000px) {
+        body {
+          padding: 0 20px 60px;
+        }
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+        .toc {
+          position: sticky;
+          top: 0;
+          z-index: 200;
+          max-height: none;
+          display: flex;
+          gap: 4px;
+          align-items: center;
+          overflow-x: auto;
+          background: var(--bg);
+          border-bottom: 1px solid var(--border);
+          padding: 10px 20px;
+          margin: 0 -20px;
+          grid-row: auto;
+        }
+        .toc::-webkit-scrollbar {
+          display: none;
+        }
+        .toc-title,
+        .toc-series {
+          display: none;
+        }
+        .toc a {
+          white-space: nowrap;
+          flex-shrink: 0;
+          border-left: none;
+          border-bottom: 2px solid transparent;
+          border-radius: 4px 4px 0 0;
+          padding: 6px 10px;
+          font-size: 11px;
+        }
+        .toc a.active {
+          border-left: none;
+          border-bottom-color: var(--accent);
+          background: var(--surface);
+        }
+        .main {
+          padding-top: 22px;
+        }
+        .sec-head {
+          scroll-margin-top: 56px;
+        }
+        .pipeline {
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+        .pipeline__arrow {
+          display: none;
+        }
+        .pipeline__step {
+          min-width: 100%;
+        }
+        .diff-panels {
+          grid-template-columns: 1fr;
+        }
+        .footer-nav {
+          flex-direction: column;
+        }
+        .footer-nav a {
+          max-width: none;
+        }
+      }
+
+      /* Markdown-generated content uses the existing paper/ink theme. */
+      h2.sec-head {
+        display: block;
+        font-size: 1.45rem;
+        line-height: 1.5;
+        scroll-margin-top: 24px;
+      }
+      h3.sub {
+        font-size: 1.15rem;
+        margin-top: 30px;
+        line-height: 1.6;
+      }
+      h4.sub,
+      h5.sub,
+      h6.sub {
+        margin-top: 24px;
+        line-height: 1.6;
+      }
+      blockquote {
+        margin: 20px 0;
+        padding: 12px 22px;
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+      }
+      blockquote .prose:last-child {
+        margin-bottom: 0;
+      }
+      .main > ul,
+      .main > ol {
+        padding-left: 26px;
+        margin: 16px 0 24px;
+      }
+      li {
+        line-height: 1.85;
+      }
+      li > .prose {
+        margin: 6px 0;
+      }
+      pre.code-file__body {
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      pre code {
+        font: inherit;
+        color: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .series-bar {
+        flex-wrap: wrap;
+      }
+      .series-bar a[aria-current="page"] {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .diagram-code {
+        margin: 10px 0 24px;
+      }
+      .diagram-code pre {
+        overflow-x: auto;
+        padding: 16px;
+        background: var(--surface);
+      }
+      .source-footer {
+        margin: 48px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.8rem;
+      }
+      .mermaid-wrap[hidden] {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      class="theme-toggle"
+      id="themeToggle"
+      aria-label="Đổi giao diện sáng tối"
+    >
+      ☾
+    </button>
+    <div class="wrap">
+      <nav class="toc" aria-label="Mục lục chương">
+        <div class="toc-title">Trong chương</div>
+        <a href="#1-filter-chạy-ở-đâu-trong-dây-chuyền"
+          >1. Filter chạy ở đâu trong dây chuyền</a
+        ><a href="#2-hợp-đồng-exceptionfilter-và-catch"
+          >2. Hợp đồng ExceptionFilter và @Catch()</a
+        ><a href="#3-argumentshost--vì-sao-không-phải-executioncontext"
+          >3. ArgumentsHost — vì sao không phải ExecutionContext</a
+        ><a href="#4-đọc-mã-nguồn-từ-throw-tới-catch"
+          >4. Đọc mã nguồn: từ throw tới catch()</a
+        ><a href="#5-nhiều-filter-thì-ai-chạy-chọn-một-không-chạy-dây-chuyền"
+          >5. Nhiều filter thì ai chạy? Chọn một, không chạy dây chuyền</a
+        ><a href="#6-ba-cách-đăng-ký">6. Ba cách đăng ký</a
+        ><a href="#7-không-có-filter-thì-sao-baseexceptionfilter"
+          >7. Không có filter thì sao: BaseExceptionFilter</a
+        ><a href="#8-globalexceptionfilter-của-dự-án-đọc-từng-khối"
+          >8. GlobalExceptionFilter của dự án, đọc từng khối</a
+        ><a href="#9-httpexception-là-một-cái-hộp-getstatus-và-getresponse"
+          >9. HttpException là một cái hộp: getStatus() và getResponse()</a
+        ><a href="#10-lỗi-filter-không-thấy">10. Lỗi filter không thấy</a
+        ><a href="#11-vì-sao-cố-tình-chỉ-một-filter"
+          >11. Vì sao cố tình chỉ một filter</a
+        ><a href="#12-test-một-filter">12. Test một filter</a
+        ><a href="#13-nâng-cao">13. Nâng cao</a
+        ><a href="#14-trong-dự-án-này">14. Trong dự án này</a
+        ><a href="#15-tự-kiểm-chứng">15. Tự kiểm chứng</a>
+        <div class="toc-series">
+          <a href="index.html">↑ Mục lục bộ</a
+          ><a href="10-exception-filters.md">Bản Markdown</a>
+        </div>
+      </nav>
+      <main class="main">
+        <nav class="series-bar" aria-label="Các chương">
+          <a href="index.html">Mục lục</a
+          ><a href="00-prototype-and-this.html">00 Prototype</a
+          ><a href="01-decorators-and-metadata.html">01 Decorator</a
+          ><a href="02-reflector-execution-context-and-discovery.html"
+            >02 Reflector</a
+          ><a href="03-guards.html">03 Guard</a
+          ><a href="04-middleware.html">04 Middleware</a
+          ><a href="05-request-lifecycle-in-this-project.html"
+            >05 Vòng đời request</a
+          ><a href="06-modules-and-dependency-injection.html"
+            >06 Module &amp; DI</a
+          ><a href="07-dto-validation-transformation-serialization.html"
+            >07 DTO</a
+          ><a href="08-request-and-provider-instances.html"
+            >08 Instance &amp; scope</a
+          ><a href="09-interceptors.html">09 Interceptor</a
+          ><a href="10-exception-filters.html" aria-current="page">10 Filter</a
+          ><a href="11-controllers-and-http-routing.html">11 Controller</a
+          ><a href="12-pipes-and-input-contracts.html">12 Pipe</a
+          ><a href="13-testing-fundamentals.html">13 Testing</a
+          ><a href="14-bootstrap-configuration-and-shutdown.html"
+            >14 Bootstrap</a
+          ><a href="appendix-a-reflect-metadata-internals.html"
+            >Phụ lục A — reflect-metadata bên trong</a
+          >
+        </nav>
+        <header class="masthead">
+          <h1 id="chương-10--exception-filter">Chương 10 — Exception Filter</h1>
+        </header>
+        <blockquote>
+          <p class="prose">
+            Filter là tầng duy nhất <strong>chỉ chạy khi có lỗi</strong>. Nó
+            không nằm trên đường đi của request; nó nằm ở chỗ mọi đường đi
+            <em>rơi xuống</em> khi một tầng nào đó ném. Chương này đi từ hợp
+            đồng <code>ExceptionFilter</code>, qua <code>@Catch()</code> (cũng
+            chỉ là metadata), <code>ArgumentsHost</code> (và vì sao nó không
+            phải <code>ExecutionContext</code>), cách Nest chọn filter khi có
+            nhiều filter, đến <code>GlobalExceptionFilter</code> của dự án và lý
+            do nó <strong>cố tình là filter duy nhất</strong>.
+          </p>
+          <p class="prose">
+            <a href="../error-handling.vi.md">error-handling.vi.md</a> (bản
+            tiếng Anh: <a href="../error-handling.md">error-handling.md</a>) mô
+            tả <strong>hợp đồng</strong> lỗi (body trông thế nào, thêm lỗi mới
+            ra sao). Chương này mô tả <strong>cơ chế</strong> Nest bên dưới hợp
+            đồng đó. Đọc chương này trước nếu bạn muốn hiểu <em>vì sao</em> tài
+            liệu kia nói &quot;tuyệt đối không tự <code>res.json()</code> một
+            lỗi&quot;.
+          </p>
+          <p class="prose">
+            <strong>Cần đọc trước:</strong>
+            <a href="02-reflector-execution-context-and-discovery.html"
+              >chương 2</a
+            >
+            (<code>ExecutionContext</code>),
+            <a href="03-guards.html#3-return-false-hay-throw">chương 3 §2</a>
+            (<code>throw</code> trong guard),
+            <a href="09-interceptors.html">chương 9</a> (vì sao
+            <code>catchError</code> không thay được filter).
+          </p>
+        </blockquote>
+        <p class="prose"><strong>Mục lục</strong></p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <a href="#1-filter-chạy-ở-đâu-trong-dây-chuyền"
+                >Filter chạy ở đâu trong dây chuyền</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#2-hợp-đồng-exceptionfilter-và-catch"
+                >Hợp đồng <code>ExceptionFilter</code> và
+                <code>@Catch()</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#3-argumentshost--vì-sao-không-phải-executioncontext"
+                ><code>ArgumentsHost</code> — vì sao không phải
+                <code>ExecutionContext</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#4-đọc-mã-nguồn-từ-throw-tới-catch"
+                >Đọc mã nguồn: từ <code>throw</code> tới <code>catch()</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#5-nhiều-filter-thì-ai-chạy-chọn-một-không-chạy-dây-chuyền"
+                >Nhiều filter thì ai chạy? Chọn một, không chạy dây chuyền</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#6-ba-cách-đăng-ký">Ba cách đăng ký</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#7-không-có-filter-thì-sao-baseexceptionfilter"
+                >Không có filter thì sao: <code>BaseExceptionFilter</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#8-globalexceptionfilter-của-dự-án-đọc-từng-khối"
+                ><code>GlobalExceptionFilter</code> của dự án, đọc từng khối</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#9-httpexception-là-một-cái-hộp-getstatus-và-getresponse"
+                ><code>HttpException</code> là một cái hộp:
+                <code>getStatus()</code> và <code>getResponse()</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#10-lỗi-filter-không-thấy">Lỗi filter không thấy</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#11-vì-sao-cố-tình-chỉ-một-filter"
+                >Vì sao cố tình chỉ một filter</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#12-test-một-filter">Test một filter</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#13-nâng-cao">Nâng cao</a></p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#14-trong-dự-án-này">Trong dự án này</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#15-tự-kiểm-chứng">Tự kiểm chứng</a></p>
+          </li>
+        </ol>
+        <hr />
+        <h2 id="1-filter-chạy-ở-đâu-trong-dây-chuyền" class="sec-head">
+          1. Filter chạy ở đâu trong dây chuyền
+        </h2>
+        <p class="prose">
+          Nhắc lại hình ở
+          <a href="index.html#bức-tranh-lớn-trong-một-hình">README</a>: mọi mũi
+          tên đứt đều trỏ về một ô.
+        </p>
+        <section class="diagram-shell">
+          <p class="diagram-shell__hint">
+            Ctrl/Cmd + lăn để phóng · kéo để di chuyển
+          </p>
+          <div class="mermaid-wrap">
+            <div class="zoom-controls">
+              <button type="button" data-action="zoom-in" aria-label="Phóng to">
+                +</button
+              ><button
+                type="button"
+                data-action="zoom-out"
+                aria-label="Thu nhỏ"
+              >
+                −</button
+              ><button
+                type="button"
+                data-action="zoom-fit"
+                aria-label="Vừa khung"
+              >
+                ↺</button
+              ><button type="button" data-action="zoom-one">1:1</button
+              ><button
+                type="button"
+                data-action="zoom-expand"
+                aria-label="Mở rộng"
+              >
+                ⛶</button
+              ><span class="zoom-label">Đang tải…</span>
+            </div>
+            <div class="mermaid-viewport">
+              <div class="mermaid mermaid-canvas"></div>
+            </div>
+          </div>
+          <script type="text/plain" class="diagram-source">
+            flowchart LR
+                G[Guards] --> I[Interceptors] --> P[Pipes] --> H[Handler] --> Res[Response]
+                G -. throw .-> F[Exception Filter]
+                I -. throw .-> F
+                P -. throw .-> F
+                H -. throw .-> F
+                F --> Res
+          </script>
+          <details class="diagram-code">
+            <summary>Mã sơ đồ (xem khi offline)</summary>
+            <pre><code>flowchart LR
+    G[Guards] --&gt; I[Interceptors] --&gt; P[Pipes] --&gt; H[Handler] --&gt; Res[Response]
+    G -. throw .-&gt; F[Exception Filter]
+    I -. throw .-&gt; F
+    P -. throw .-&gt; F
+    H -. throw .-&gt; F
+    F --&gt; Res</code></pre>
+          </details>
+        </section>
+        <p class="prose">
+          Filter <strong>không</strong> có vị trí &quot;trước&quot; hay
+          &quot;sau&quot; ai. Nó là cái lưới dưới toàn bộ dây chuyền, từ guard
+          tới interceptor chiều về. Bất kỳ tầng nào ném — đồng bộ hay trong
+          <code>await</code> — đều rơi vào cùng một chỗ. Điều này quan trọng vì
+          nó khác hẳn <code>catchError</code> của interceptor, thứ chỉ thấy lỗi
+          từ <strong>bên trong</strong> nó (<a
+            href="09-interceptors.html#10-lỗi-và-interceptor-catcherror-không-thay-được-filter"
+            >chương 9 §10</a
+          >).
+        </p>
+        <p class="prose">
+          Một cách nhìn khác:
+          <strong
+            >mọi tầng trước filter đều có quyền nói &quot;không&quot;</strong
+          >
+          (guard chặn, pipe từ chối, service ném nghiệp vụ), và filter là nơi
+          biến mọi tiếng &quot;không&quot; đó thành <strong>một</strong> câu trả
+          lời có hình dạng thống nhất cho client.
+        </p>
+        <hr />
+        <h2 id="2-hợp-đồng-exceptionfilter-và-catch" class="sec-head">
+          2. Hợp đồng <code>ExceptionFilter</code> và <code>@Catch()</code>
+        </h2>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from &quot;@nestjs/common&quot;;
+
+@Catch(HttpException)
+export class HttpErrorFilter implements ExceptionFilter {
+  catch(exception: HttpException, host: ArgumentsHost): void {
+    const res = host.switchToHttp().getResponse();
+    res.status(exception.getStatus()).json({ ... });
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Một method <code>catch(exception, host)</code>, và một decorator
+          <code>@Catch(...)</code> khai
+          <strong>filter này bắt loại lỗi nào</strong>.
+        </p>
+        <p class="prose">
+          <code>@Catch</code> cũng chỉ là metadata —
+          <a
+            href="../../node_modules/@nestjs/common/decorators/core/catch.decorator.js"
+            ><code>catch.decorator.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>function Catch(...exceptions) {
+  return (target) =&gt; {
+    Reflect.defineMetadata(CATCH_WATERMARK, true, target);
+    Reflect.defineMetadata(FILTER_CATCH_EXCEPTIONS, exceptions, target);
+  };
+}</code></pre>
+        </div>
+        <p class="prose">
+          Hai nhãn dán lên <strong>class</strong> (không phải prototype — vì đây
+          là class decorator,
+          <a
+            href="01-decorators-and-metadata.html#2-bốn-loại-decorator-và-chữ-ký-của-chúng"
+            >chương 1 §2</a
+          >): một cờ &quot;tôi là filter&quot;, và
+          <strong>mảng các class lỗi</strong>. Ba cách gọi:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Viết</th>
+                <th><code>FILTER_CATCH_EXCEPTIONS</code></th>
+                <th>Bắt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>@Catch(HttpException)</code></td>
+                <td><code>[HttpException]</code></td>
+                <td>
+                  <code>HttpException</code> và mọi class con
+                  (<code>NotFoundException</code>, …)
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>@Catch(NotFoundException, ConflictException)</code>
+                </td>
+                <td><code>[NotFound…, Conflict…]</code></td>
+                <td>đúng hai loại đó (và con của chúng)</td>
+              </tr>
+              <tr>
+                <td><code>@Catch()</code></td>
+                <td><code>[]</code></td>
+                <td>
+                  <strong>mọi thứ</strong> — kể cả <code>Error</code> thường, kể
+                  cả <code>throw &quot;string&quot;</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Cách khớp là <code>instanceof</code> (<a
+            href="#5-nhiều-filter-thì-ai-chạy-chọn-một-không-chạy-dây-chuyền"
+            >mục 5</a
+          >), nên kế thừa được tôn trọng — giống guard đọc metadata kế thừa ở
+          <a
+            href="01-decorators-and-metadata.html#67-kế-thừa-con-đọc-được-nhãn-của-cha"
+            >chương 1 §6.7</a
+          >, chỉ là ở tầng class lỗi thay vì tầng metadata.
+        </p>
+        <p class="prose">
+          Dự án dùng dòng cuối bảng:
+          <a href="../../src/shared/filters/global-exception.filter.ts#L28"
+            >global-exception.filter.ts:28</a
+          >
+          là <code>@Catch()</code> trần. Lý do ở
+          <a href="#11-vì-sao-cố-tình-chỉ-một-filter">mục 11</a>.
+        </p>
+        <p class="prose">
+          Filter <strong>không</strong> có giá trị trả về có nghĩa. Nó phải
+          <strong>tự ghi response</strong> qua <code>res</code> — không ai ghi
+          hộ. Quên <code>res.json(...)</code> là request treo cho đến timeout.
+          Đây là điểm khác cơ bản so với guard (trả boolean) và interceptor (trả
+          Observable): trong HTTP, filter phải hoàn tất response khi nhận xử lý
+          lỗi; <code>return</code> object không tự gửi body. RPC/WebSocket có
+          hợp đồng riêng (Observable hoặc emit), không áp dụng quy tắc ghi HTTP
+          <code>res</code> cho mọi transport.
+        </p>
+        <hr />
+        <h2
+          id="3-argumentshost--vì-sao-không-phải-executioncontext"
+          class="sec-head"
+        >
+          3. <code>ArgumentsHost</code> — vì sao không phải
+          <code>ExecutionContext</code>
+        </h2>
+        <p class="prose">
+          Guard và interceptor nhận <code>ExecutionContext</code>. Filter nhận
+          <code>ArgumentsHost</code>. Nhìn quan hệ kế thừa:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>interface ArgumentsHost {
+  getArgs(): unknown[];
+  getArgByIndex(i: number): unknown;
+  switchToHttp(): HttpArgumentsHost; // getRequest(), getResponse(), getNext()
+  switchToRpc(): RpcArgumentsHost;
+  switchToWs(): WsArgumentsHost;
+  getType(): string; // &quot;http&quot; | &quot;rpc&quot; | &quot;ws&quot; | ...
+}
+
+interface ExecutionContext extends ArgumentsHost {
+  getClass(): Type; // controller class
+  getHandler(): Function; // method handler
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>ExecutionContext</code> = <code>ArgumentsHost</code> +
+          <strong>hai method biết handler</strong>. Filter nhận cái
+          <strong>thiếu</strong> hai method đó. Vì sao?
+        </p>
+        <p class="prose">
+          Vì lỗi có thể đến từ chỗ <strong>chưa có handler</strong>. Nhìn
+          <a href="../../node_modules/@nestjs/core/router/router-proxy.js"
+            ><code>router-proxy.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>createProxy(targetCallback, exceptionsHandler) {
+  return async (req, res, next) =&gt; {
+    try {
+      await targetCallback(req, res, next);
+    } catch (e) {
+      const host = new ExecutionContextHost([req, res, next]);   // ← chỉ có args, không có class/handler
+      exceptionsHandler.next(e, host);
+      return res;
+    }
+  };
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>ExecutionContextHost</code> được dựng với <strong>chỉ</strong>
+          <code>[req, res, next]</code> — không truyền
+          <code>instance.constructor</code> và <code>callback</code> như lúc
+          dựng context cho guard (<a
+            href="09-interceptors.html#4-đọc-mã-nguồn-nest-xếp-các-interceptor-lồng-nhau-thế-nào"
+            >chương 9 §4</a
+          >). Cùng một class, nhưng <code>getClass()</code> và
+          <code>getHandler()</code> sẽ trả <code>undefined</code>. Kiểu
+          <code>ArgumentsHost</code> của tham số là cách TypeScript nói thật với
+          bạn: <strong>đừng gọi hai hàm đó ở đây</strong>.
+        </p>
+        <p class="prose">
+          Hệ quả:
+          <strong
+            >filter không đọc được metadata handler một cách chính
+            thống.</strong
+          >
+          Cột &quot;Đọc được metadata của handler?&quot; ở bảng README ghi
+          &quot;Hạn chế&quot; là vì thế. Muốn filter biết &quot;route này có
+          <code>@RequirePermission</code> không&quot; là đi sai tầng — guard mới
+          là chỗ đó.
+        </p>
+        <p class="prose">
+          Trong thực tế, <code>host.getArgs()</code> ở HTTP là
+          <code>[req, res, next]</code>, nên
+          <code>host.getArgByIndex(1)</code> là <code>res</code> — mã nguồn Nest
+          dùng cách này (<a
+            href="#7-không-có-filter-thì-sao-baseexceptionfilter"
+            >mục 7</a
+          >). Code dự án dùng <code>switchToHttp()</code> cho rõ nghĩa.
+        </p>
+        <hr />
+        <h2 id="4-đọc-mã-nguồn-từ-throw-tới-catch" class="sec-head">
+          4. Đọc mã nguồn: từ <code>throw</code> tới <code>catch()</code>
+        </h2>
+        <p class="prose">Ba file, một đường thẳng:</p>
+        <p class="prose">
+          <strong>(1) Bắt.</strong> <code>router-proxy.js</code> ở trên: toàn bộ
+          chuỗi guard → interceptor → pipe → handler → interceptor chiều về là
+          một <code>targetCallback</code> <code>async</code>, bọc trong
+          <strong>một</strong> <code>try/catch</code>. Nên bất kỳ tầng nào ném,
+          kể cả trong <code>await</code>, đều rơi xuống <code>catch (e)</code>.
+          Đây là câu trả lời kỹ thuật cho &quot;vì sao filter thấy cả lỗi guard
+          mà interceptor không thấy&quot;: interceptor nằm <em>trong</em>
+          <code>targetCallback</code>, filter nằm <em>ngoài</em>.
+        </p>
+        <p class="prose">
+          <strong>(2) Chọn filter.</strong>
+          <code>exceptionsHandler.next(e, host)</code> —
+          <a
+            href="../../node_modules/@nestjs/core/exceptions/exceptions-handler.js"
+            ><code>exceptions-handler.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>next(exception, ctx) {
+  if (this.invokeCustomFilters(exception, ctx)) return;   // có filter của bạn khớp → xong
+  super.catch(exception, ctx);                            // không → BaseExceptionFilter mặc định
+}
+invokeCustomFilters(exception, ctx) {
+  if (isEmpty(this.filters)) return false;
+  const filter = selectExceptionFilterMetadata(this.filters, exception);
+  filter &amp;&amp; filter.func(exception, ctx);
+  return !!filter;
+}</code></pre>
+        </div>
+        <p class="prose">
+          <strong>(3) Khớp.</strong>
+          <a
+            href="../../node_modules/@nestjs/common/utils/select-exception-filter-metadata.util.js"
+            ><code>select-exception-filter-metadata.util.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>const selectExceptionFilterMetadata = (filters, exception) =&gt;
+  filters.find(
+    ({ exceptionMetatypes }) =&gt;
+      !exceptionMetatypes.length || // @Catch() trần → khớp tất
+      exceptionMetatypes.some((Type) =&gt; exception instanceof Type),
+  ); // hoặc instanceof một trong các class</code></pre>
+        </div>
+        <p class="prose">
+          Ba dòng này là toàn bộ &quot;thuật toán&quot; chọn filter.
+          <code>find</code> —
+          <strong>cái đầu tiên khớp thắng, và chỉ nó chạy</strong>.
+        </p>
+        <p class="prose">
+          Còn <code>exceptionMetatypes</code> từ đâu ra:
+          <a
+            href="../../node_modules/@nestjs/core/exceptions/base-exception-filter-context.js"
+            ><code>base-exception-filter-context.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>reflectCatchExceptions(instance) {
+  const prototype = Object.getPrototypeOf(instance);
+  return Reflect.getMetadata(FILTER_CATCH_EXCEPTIONS, prototype.constructor) || [];
+}</code></pre>
+        </div>
+        <p class="prose">
+          Đọc nhãn <code>@Catch</code> từ <strong>class của instance</strong> —
+          khép kín với <a href="#2-hợp-đồng-exceptionfilter-và-catch">mục 2</a>.
+          Cùng <code>reflect-metadata</code>, cùng
+          <code>Reflect.getMetadata</code>; chỉ khác là Nest gọi trực tiếp thay
+          vì qua <code>Reflector</code>.
+        </p>
+        <hr />
+        <h2
+          id="5-nhiều-filter-thì-ai-chạy-chọn-một-không-chạy-dây-chuyền"
+          class="sec-head"
+        >
+          5. Nhiều filter thì ai chạy? Chọn một, không chạy dây chuyền
+        </h2>
+        <p class="prose">
+          Đây là điểm filter <strong>khác hẳn</strong> guard và interceptor, và
+          là nguồn của nhiều bug:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tầng</th>
+                <th>Nhiều cái cùng đăng ký thì</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Guard</td>
+                <td>
+                  <strong>tất cả</strong> chạy, theo thứ tự, cái đầu chặn thì
+                  dừng
+                </td>
+              </tr>
+              <tr>
+                <td>Interceptor</td>
+                <td><strong>tất cả</strong> chạy, lồng nhau</td>
+              </tr>
+              <tr>
+                <td>Filter</td>
+                <td>
+                  <strong>đúng một</strong> chạy — cái đầu tiên có
+                  <code>@Catch</code> khớp
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Và thứ tự để &quot;tìm cái đầu tiên&quot; là
+          <strong>ngược</strong> với thứ tự đăng ký.
+          <a
+            href="../../node_modules/@nestjs/core/router/router-exception-filters.js"
+            ><code>router-exception-filters.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>const filters = this.createContext(instance, callback, EXCEPTION_FILTERS_METADATA, ...);
+//   = [...global, ...class, ...method]      ← giống guard/interceptor
+exceptionHandler.setCustomFilters(filters.reverse());
+//                                  ^^^^^^^^  đảo lại: method → class → global</code></pre>
+        </div>
+        <p class="prose">
+          Nên <strong>filter gần handler nhất được hỏi trước</strong>.
+          <code>@UseFilters</code> trên method thắng
+          <code>@UseFilters</code> trên class, thắng <code>APP_FILTER</code>.
+          Trong cùng một cấp, cái đăng ký <strong>sau</strong> được hỏi trước.
+        </p>
+        <p class="prose">
+          Kết hợp với <code>@Catch()</code> trần (khớp mọi thứ), ta có quy tắc
+          thực hành quan trọng nhất chương:
+        </p>
+        <blockquote>
+          <p class="prose">
+            <strong
+              >Một filter <code>@Catch()</code> trần đứng &quot;gần
+              handler&quot; hơn mọi filter khác sẽ nuốt tất cả — các filter còn
+              lại không bao giờ được hỏi.</strong
+            >
+            Và vì thứ tự global là &quot;đăng ký sau, hỏi trước&quot;, chỉ cần
+            <strong>đổi chỗ hai dòng trong mảng <code>providers</code></strong>
+            là filter nào chạy đổi theo — không có lỗi compile, không có log,
+            chỉ có response đổi hình.
+          </p>
+        </blockquote>
+        <p class="prose">
+          Đây chính là cái bẫy mà comment đầu
+          <a href="../../src/shared/filters/global-exception.filter.ts#L20-L27"
+            >global-exception.filter.ts:20-27</a
+          >
+          nói tới, và là lý do dự án chọn một filter duy nhất (<a
+            href="#11-vì-sao-cố-tình-chỉ-một-filter"
+            >mục 11</a
+          >).
+        </p>
+        <p class="prose">Ví dụ minh hoạ cái bẫy (không có trong repo):</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>const providers = [
+  { provide: APP_FILTER, useClass: PrismaErrorFilter }, // @Catch(PrismaClientKnownRequestError)
+  { provide: APP_FILTER, useClass: CatchAllFilter }, // @Catch()
+];
+// reverse → [CatchAll, Prisma] → lỗi Prisma khớp CatchAll trước → PrismaErrorFilter KHÔNG BAO GIỜ chạy.
+// Đổi hai dòng → reverse → [Prisma, CatchAll] → giờ mới đúng. Hai response khác nhau, không dòng code nào khác.</code></pre>
+        </div>
+        <hr />
+        <h2 id="6-ba-cách-đăng-ký" class="sec-head">6. Ba cách đăng ký</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cách</th>
+                <th>Phạm vi</th>
+                <th>Có DI không</th>
+                <th>Dự án</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>@UseFilters(F)</code> trên method / class</td>
+                <td>một route / một controller</td>
+                <td>Có (class) / Không (instance)</td>
+                <td><strong>không dùng ở đâu</strong></td>
+              </tr>
+              <tr>
+                <td><code>app.useGlobalFilters(new F())</code></td>
+                <td>toàn app</td>
+                <td><strong>Không</strong></td>
+                <td>không dùng</td>
+              </tr>
+              <tr>
+                <td><code>{ provide: APP_FILTER, useClass: F }</code></td>
+                <td>toàn app</td>
+                <td><strong>Có</strong></td>
+                <td>
+                  <a href="../../src/shared/modules/base.module.ts#L33-L38"
+                    >base.module.ts:33-38</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>const filters: Provider[] = [
+  {
+    provide: APP_FILTER,
+    useClass: GlobalExceptionFilter,
+  },
+];</code></pre>
+        </div>
+        <p class="prose">
+          <code>GlobalExceptionFilter</code> hiện không tiêm gì (chỉ
+          <code>new Logger(...)</code> nội bộ), nên về mặt kỹ thuật
+          <code>useGlobalFilters(new GlobalExceptionFilter())</code> trong
+          <code>main.ts</code> cũng chạy. Dự án vẫn chọn
+          <code>APP_FILTER</code> vì lý do ở comment
+          <a href="../../src/main.ts#L34-L36">main.ts:34-36</a>:
+          <strong
+            >mọi entry point boot <code>AppModule</code> — server thật và e2e
+            harness — nhận cùng filter mà không cần lặp cấu hình</strong
+          >.
+          <a href="../../test/e2e/support/create-test-app.ts"
+            >create-test-app.ts</a
+          >
+          không đăng ký gì thêm và vẫn có đúng hợp đồng lỗi của production. Đây
+          là lập luận
+          <a
+            href="06-modules-and-dependency-injection.html#6-bốn-token-đặc-biệt-app_guard-và-anh-em"
+            >chương 6 §6</a
+          >
+          áp dụng cho filter.
+        </p>
+        <hr />
+        <h2 id="7-không-có-filter-thì-sao-baseexceptionfilter" class="sec-head">
+          7. Không có filter thì sao: <code>BaseExceptionFilter</code>
+        </h2>
+        <p class="prose">
+          Nếu không filter nào khớp (hoặc app không đăng ký filter nào),
+          <code>super.catch()</code> ở
+          <a href="#4-đọc-mã-nguồn-từ-throw-tới-catch">mục 4</a> chạy
+          <a
+            href="../../node_modules/@nestjs/core/exceptions/base-exception-filter.js"
+            ><code>base-exception-filter.js</code></a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>catch(exception, host) {
+  if (!(exception instanceof HttpException)) {
+    return this.handleUnknownError(exception, host, applicationRef);   // → 500 &quot;Internal server error&quot; + log
+  }
+  const res = exception.getResponse();
+  const message = isObject(res) ? res : { statusCode: exception.getStatus(), message: res };
+  const response = host.getArgByIndex(1);
+  if (!applicationRef.isHeadersSent(response)) {
+    applicationRef.reply(response, message, exception.getStatus());
+  } else {
+    applicationRef.end(response);
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Đọc kỹ vì nó là <strong>tổ tiên</strong> của mọi filter tuỳ chỉnh, và
+          <code>GlobalExceptionFilter</code> lặp lại đúng bộ xương này:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              Không phải <code>HttpException</code> → thường 500, giấu nguyên
+              nhân, log. <code>BaseExceptionFilter</code> còn nhận dạng lỗi kiểu
+              <code>http-errors</code> có <code>statusCode</code> và
+              <code>message</code>, giữ mã đó; mapper của repo có chính sách
+              riêng, không suy ra mọi non-HttpException luôn là 500.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Là <code>HttpException</code> → lấy <code>getResponse()</code>;
+              nếu là object thì trả nguyên, nếu là string thì bọc
+              <code>{ statusCode, message }</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">Kiểm <code>headersSent</code> trước khi ghi.</p>
+          </li>
+        </ol>
+        <p class="prose">
+          Đây cũng là câu trả lời cho &quot;vì sao khi mới tạo project Nest,
+          <code>throw new NotFoundException(&quot;x&quot;)</code> đã ra JSON
+          đẹp&quot;: không phải phép màu, là filter mặc định này. Cái giá: hình
+          dạng body do Nest quyết (<code
+            >{ statusCode, message, error: &quot;Not Found&quot; }</code
+          >), không có <code>requestId</code>, không có <code>details[]</code>,
+          <code>message</code> có thể là <strong>mảng</strong> (từ
+          <code>ValidationPipe</code> mặc định) — đúng những thứ
+          <a href="../error-handling.vi.md#trước-đây-đã-thay-thế-cái-gì"
+            >error-handling.vi.md</a
+          >
+          kể là đã phải thay.
+        </p>
+        <hr />
+        <h2
+          id="8-globalexceptionfilter-của-dự-án-đọc-từng-khối"
+          class="sec-head"
+        >
+          8. <code>GlobalExceptionFilter</code> của dự án, đọc từng khối
+        </h2>
+        <p class="prose">
+          <a href="../../src/shared/filters/global-exception.filter.ts"
+            >global-exception.filter.ts</a
+          >, 119 dòng, năm khối.
+        </p>
+        <p class="prose">
+          <strong>Khối 1 — loại ngữ cảnh</strong> (dòng 36-43):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>if (host.getType() !== &quot;http&quot;) {
+  this.logger.error(...);
+  return;
+}</code></pre>
+        </div>
+        <p class="prose">
+          Vì <code>@Catch()</code> trần bắt cả lỗi từ gateway / microservice nếu
+          một ngày có, và ở đó không có <code>res</code> để
+          <code>.json()</code>. Thay vì để filter <em>tự ném</em> (lỗi trong
+          filter thì <strong>không ai bắt</strong> —
+          <a href="#10-lỗi-filter-không-thấy">mục 10</a>), nó log và thoát. Đây
+          là lý do harness test phải mock <code>getType</code> (<a
+            href="#12-test-một-filter"
+            >mục 12</a
+          >).
+        </p>
+        <p class="prose">
+          <strong>Khối 2 — đổi lỗi thành envelope</strong> (dòng 63-77,
+          <code>toEnvelope</code>):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>if (exception instanceof HttpException) return mapHttpException(exception);
+if (isPrismaError(exception)) return mapPrismaError(exception);
+return new ErrorResponseDto({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR });</code></pre>
+        </div>
+        <p class="prose">
+          Ba nhánh, theo thứ tự &quot;hiểu rõ nhất trước&quot;. Cả hai mapper là
+          <strong>hàm thuần</strong>, không biết Nest, nằm file riêng (<a
+            href="../../src/shared/filters/http-exception.mapper.ts"
+            >http-exception.mapper.ts</a
+          >,
+          <a href="../../src/shared/filters/prisma-error.mapper.ts"
+            >prisma-error.mapper.ts</a
+          >) và có spec riêng. Filter chỉ điều phối. Nhánh cuối là
+          <code>BaseExceptionFilter.handleUnknownError</code> viết lại theo hợp
+          đồng dự án: <strong>500 và không nói gì thêm</strong> — nguyên nhân ở
+          log, không ở body.
+        </p>
+        <p class="prose">
+          <strong>Khối 3 — <code>requestId</code></strong> (dòng 50, 112-119):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>body.requestId = requestIdOf(request); // đọc req.id mà pino-http gắn ở tầng middleware</code></pre>
+        </div>
+        <p class="prose">
+          Đây là chỗ filter &quot;chạm&quot; vào middleware:
+          <code>req.id</code> có từ
+          <a href="04-middleware.html#73-log-request--request-id--nestjs-pino"
+            >chương 4 §7.3</a
+          >, và filter là tầng cuối cùng còn cầm <code>req</code>. Hàm
+          <code>requestIdOf</code> kiểm kiểu vì <code>req.id</code> là
+          <code>unknown</code> với TypeScript.
+        </p>
+        <p class="prose">
+          <strong>Khối 4 — log theo mức</strong> (dòng 79-109):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>if (body.statusCode &lt; 500) {
+  this.logger.warn(line);
+  return;
+} // 4xx: warn, không stack
+this.logger.error(line, exception.stack); // 5xx: error + stack</code></pre>
+        </div>
+        <p class="prose">
+          4xx là &quot;client sai&quot; — traffic bình thường, không phải sự cố.
+          5xx mới lên error stream. Đây là quyết định vận hành nằm trong filter
+          vì filter là <strong>nơi duy nhất mọi lỗi đi qua</strong> — đặt ở đây
+          thì không lỗi nào thoát log, và không tầng nào phải tự log.
+        </p>
+        <p class="prose">
+          <strong>Khối 5 — ghi, nếu còn ghi được</strong> (dòng 54-60):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>if (response.headersSent) return;
+response.status(body.statusCode).json(body);</code></pre>
+        </div>
+        <p class="prose">
+          Nếu handler đã ghi một phần response (stream, hoặc
+          <code>@Res()</code> rồi ném giữa chừng), header đã đi. Ghi tiếp là ném
+          <code>ERR_HTTP_HEADERS_SENT</code> <strong>từ trong filter</strong> —
+          và không ai đứng sau filter để bắt (<a
+            href="#10-lỗi-filter-không-thấy"
+            >mục 10</a
+          >). Nên kiểm rồi bỏ. Cùng logic <code>isHeadersSent</code> của
+          <code>BaseExceptionFilter</code>.
+        </p>
+        <hr />
+        <h2
+          id="9-httpexception-là-một-cái-hộp-getstatus-và-getresponse"
+          class="sec-head"
+        >
+          9. <code>HttpException</code> là một cái hộp:
+          <code>getStatus()</code> và <code>getResponse()</code>
+        </h2>
+        <p class="prose">
+          Filter và mapper xoay quanh hai method này, nên cần biết chúng chứa
+          gì.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>new NotFoundException(&quot;Brand not found.&quot;);
+//   getStatus()   → 404
+//   getResponse() → { statusCode: 404, message: &quot;Brand not found.&quot;, error: &quot;Not Found&quot; }   ← Nest tự bọc string
+//   message       → &quot;Brand not found.&quot;
+
+new NotFoundException({
+  statusCode: 404,
+  error: &quot;BRAND_NOT_FOUND&quot;,
+  message: &quot;…&quot;,
+  details: [],
+});
+//   getStatus()   → 404
+//   getResponse() → đúng object bạn truyền, nguyên vẹn</code></pre>
+        </div>
+        <p class="prose">
+          Quy tắc của Nest: truyền <strong>string</strong> thì Nest bọc thành
+          object và
+          <strong>tự điền <code>error</code> bằng cụm từ người đọc</strong>
+          (&quot;Not Found&quot;); truyền <strong>object</strong> thì giữ
+          nguyên. Từ đó ba nguồn lỗi của dự án chọn ba cách đóng hộp:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nguồn</th>
+                <th>Đóng hộp bằng</th>
+                <th><code>getResponse()</code> chứa</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>ValidationPipe</code></td>
+                <td>
+                  <a href="../../src/shared/exceptions/validate.exception.ts"
+                    ><code>ValidateException</code></a
+                  >
+                  —
+                  <code
+                    >super({ statusCode, error: &quot;VALIDATION_FAILED&quot;,
+                    message, details })</code
+                  >
+                </td>
+                <td><strong>đã là envelope</strong>, mapper trả nguyên</td>
+              </tr>
+              <tr>
+                <td>service / repository</td>
+                <td>
+                  <a href="../../src/shared/utils/throw-http-exception.util.ts"
+                    ><code>throwHttpException</code></a
+                  >
+                  —
+                  <code
+                    >new XException({ statusCode, error: code, message, details
+                    })</code
+                  >
+                </td>
+                <td>
+                  <strong>đã là envelope</strong>, có <code>code</code> nghiệp
+                  vụ
+                </td>
+              </tr>
+              <tr>
+                <td>code cũ / thư viện / multer</td>
+                <td>
+                  <code>new NotFoundException(&quot;…&quot;)</code> với string
+                </td>
+                <td>
+                  object Nest bọc, <code>error: &quot;Not Found&quot;</code> —
+                  <strong>phải chuẩn hoá</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Dòng cuối là việc của <code>mapHttpException</code> (<a
+            href="../../src/shared/filters/http-exception.mapper.ts#L41-L62"
+            >http-exception.mapper.ts:41-62</a
+          >): <code>isMachineCode</code> chỉ nhận <code>SCREAMING_SNAKE</code>,
+          nên <code>&quot;Not Found&quot;</code> bị bỏ và
+          <code>error</code> được suy lại từ status thành
+          <code>&quot;NOT_FOUND&quot;</code> — để hai cái 404 trong cùng app
+          không trả hai <code>error</code> khác nhau. Và
+          <code>normalizeMessage</code> gập <code>message</code> dạng mảng (từ
+          <code>ValidationPipe</code> mặc định của Nest, nếu ai lỡ dùng) thành
+          string + <code>details[]</code>.
+        </p>
+        <p class="prose">
+          Nhìn theo cách này,
+          <strong><code>throwHttpException</code> là nửa kia của filter</strong
+          >: nó đóng hộp đúng hình để filter chỉ cần mở ra.
+          <a href="../error-handling.vi.md#thêm-một-lỗi-mới"
+            >error-handling.vi.md</a
+          >
+          nói cách dùng; ở đây chỉ cần thấy vì sao nó tồn tại.
+        </p>
+        <hr />
+        <h2 id="10-lỗi-filter-không-thấy" class="sec-head">
+          10. Lỗi filter không thấy
+        </h2>
+        <p class="prose">
+          Filter là lưới dưới <strong>dây chuyền Nest</strong>. Ba chỗ nằm ngoài
+          dây chuyền đó:
+        </p>
+        <p class="prose">
+          <strong
+            >(1) Middleware Express thuần — nhưng ít hơn bạn tưởng.</strong
+          >
+          <code>cors</code> và <code>body-parser</code> được gắn thẳng vào
+          Express (<a
+            href="04-middleware.html#7-bốn-middleware-đang-chạy-trong-dự-án"
+            >chương 4 §7</a
+          >), chạy <strong>trước</strong> <code>router-proxy</code>, nên lỗi của
+          chúng không rơi vào <code>catch (e)</code> ở
+          <a href="#4-đọc-mã-nguồn-từ-throw-tới-catch">mục 4</a>. Tuy vậy Nest
+          còn một lưới thứ hai: <code>registerExceptionHandler</code> trong
+          <a href="../../node_modules/@nestjs/core/router/routes-resolver.js"
+            ><code>routes-resolver.js</code></a
+          >
+          gắn một <strong>error-middleware Express</strong>
+          <code>(err, req, res, next)</code> ở cuối app, cũng trỏ về cùng bộ
+          filter, và <code>mapExternalException</code> đổi
+          <code>SyntaxError</code> của body-parser thành
+          <code>BadRequestException</code>. Kết quả (đã kiểm chứng ở
+          <a href="#15-tự-kiểm-chứng">mục 15</a>):
+          <strong>JSON hỏng vẫn ra envelope</strong>
+          <code>400 BAD_REQUEST</code> với <code>message</code> là thông báo
+          parse của Express. Cái nó <strong>thiếu</strong> là
+          <code>requestId</code>: body-parser được gắn trong
+          <code>registerParserMiddleware()</code> <strong>trước</strong>
+          <code>registerModules()</code>, tức trước pino-http, nên lúc ném chưa
+          có <code>req.id</code>. Đó là dấu hiệu
+          <a
+            href="05-request-lifecycle-in-this-project.html#7-đọc-một-mã-lỗi-ngược-về-tầng-sinh-ra-nó"
+            >chương 5 §7</a
+          >
+          dùng để nhận ra lỗi tầng 2. Ở đường này,
+          <code>host.getHandler()</code> trả <code>null</code> — thêm một lý do
+          filter nhận <code>ArgumentsHost</code>.
+        </p>
+        <p class="prose">
+          Thứ thực sự nằm ngoài cả hai lưới là middleware
+          <strong>tự kết thúc response</strong> (<code>res.end()</code> không
+          gọi <code>next</code>), như <code>cors</code> trả lời preflight 204:
+          không có lỗi để bắt, và cũng không có envelope vì không có lỗi.
+        </p>
+        <p class="prose">
+          <strong>(2) Lỗi trong chính filter.</strong> <code>catch()</code> ném
+          → không có <code>try/catch</code> nào nữa → Express nhận một Promise
+          reject từ proxy → Express 5 trả 500 mặc định của nó. Đó là lý do
+          filter của dự án phòng thủ hai lần: kiểm <code>getType()</code> và
+          kiểm <code>headersSent</code>.
+          <strong>Filter phải là code không bao giờ ném.</strong> Không gọi DB,
+          không gọi service có thể fail, không parse gì có thể sai. Hai mapper
+          thuần là cách giữ lời hứa đó.
+        </p>
+        <p class="prose">
+          <strong>(3) Lỗi ngoài request.</strong> <code>onModuleInit</code> ném
+          lúc boot (<a
+            href="06-modules-and-dependency-injection.html#11-vòng-đời-hook-nào-chạy-lúc-nào"
+            >chương 6 §11</a
+          >), <code>setInterval</code> ném, <code>unhandledRejection</code> từ
+          một Promise không ai <code>await</code> — không có request, không có
+          <code>router-proxy</code>, không có filter.
+          <code>PrismaService.$connect()</code> fail làm app không boot là ví
+          dụ: nó không ra 500, nó ra process exit.
+        </p>
+        <p class="prose">
+          Ngoài ra, lỗi từ <strong>route không tồn tại</strong> (404 của Nest,
+          <code>NotFoundException</code> &quot;Cannot GET /x&quot;)
+          <strong>có</strong> qua filter — Nest đăng ký một handler catch-all
+          cho route lạ và handler đó ném qua cùng proxy. Nên 404 route lạ của dự
+          án vẫn có envelope và <code>requestId</code>.
+        </p>
+        <hr />
+        <h2 id="11-vì-sao-cố-tình-chỉ-một-filter" class="sec-head">
+          11. Vì sao cố tình chỉ một filter
+        </h2>
+        <p class="prose">
+          Cách &quot;sách giáo khoa&quot; là nhiều filter hẹp:
+          <code>@Catch(HttpException)</code>,
+          <code>@Catch(PrismaClientKnownRequestError)</code>,
+          <code>@Catch()</code> dự phòng. Dự án đã từng có hai filter và gộp lại
+          (<a href="../error-handling.vi.md#trước-đây-đã-thay-thế-cái-gì"
+            >error-handling.vi.md</a
+          >). Ba lý do, theo thứ tự nặng dần:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong>Thứ tự chọn filter là vô hình</strong> (<a
+                href="#5-nhiều-filter-thì-ai-chạy-chọn-một-không-chạy-dây-chuyền"
+                >mục 5</a
+              >). Hai <code>APP_FILTER</code> trong một mảng
+              <code>providers</code>, hoán vị là đổi hành vi. Không reviewer nào
+              nhìn diff &quot;đổi chỗ hai dòng&quot; mà thấy được response lỗi
+              Prisma vừa đổi hình.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Hợp đồng lỗi là một hình dạng.</strong> Mỗi filter là một
+              chỗ có thể viết <code>res.json</code> với hình khác. Một filter +
+              mapper thuần trả <code>ErrorResponseDto</code> =
+              <strong>một</strong> constructor quyết định mọi body lỗi. Đó là
+              cách đảm bảo &quot;<code>message</code> luôn là string,
+              <code>details</code> luôn là mảng&quot; bằng kiểu, không bằng kỷ
+              luật.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong><code>requestId</code> và log</strong> phải có ở
+              <strong>mọi</strong> lỗi. Nhiều filter = nhiều chỗ phải nhớ gắn
+              <code>requestId</code> và log đúng mức. Quên ở một filter là một
+              loại lỗi không truy vết được.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Cái giá: <code>toEnvelope</code> phải tự rẽ nhánh bằng
+          <code>instanceof</code> thay vì để <code>@Catch</code> rẽ hộ. Nhìn ba
+          dòng ở
+          <a href="#8-globalexceptionfilter-của-dự-án-đọc-từng-khối">mục 8</a> —
+          cái giá đó rẻ.
+        </p>
+        <p class="prose">
+          Quy tắc rút ra, và cũng là quy tắc trong
+          <a href="../error-handling.vi.md#tuyệt-đối-không"
+            >error-handling.vi.md</a
+          >:
+          <strong
+            >không thêm filter thứ hai; muốn lỗi mới có hình mới, thêm nhánh vào
+            mapper.</strong
+          >
+          Và không <code>res.json</code> lỗi từ controller — đó là &quot;filter
+          thứ hai&quot; trá hình.
+        </p>
+        <hr />
+        <h2 id="12-test-một-filter" class="sec-head">12. Test một filter</h2>
+        <p class="prose">
+          Filter cần <code>exception</code> và một <code>ArgumentsHost</code> —
+          và <code>ArgumentsHost</code> là object có vài method, y như
+          <code>ExecutionContext</code>. Dự án có harness —
+          <a href="../../src/shared/filters/__tests__/filters-test-harness.ts"
+            >filters-test-harness.ts</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>export const makeArgumentsHost = (
+  request = {},
+  response = {},
+): ArgumentsHost =&gt; {
+  const mockResponse = {
+    status: jest.fn().mockReturnThis(), // cho phép .status(x).json(y)
+    json: jest.fn().mockReturnThis(),
+    ...response,
+  };
+  return {
+    getType: jest.fn(() =&gt; &quot;http&quot;), // filter kiểm cái này trước — bắt buộc phải mock
+    switchToHttp: jest.fn().mockReturnValue({
+      getRequest: jest.fn(() =&gt; request),
+      getResponse: jest.fn(() =&gt; mockResponse),
+    }),
+  } as unknown as ArgumentsHost;
+};</code></pre>
+        </div>
+        <p class="prose">
+          Và một spec từ
+          <a
+            href="../../src/shared/filters/__tests__/global-exception.filter.spec.ts"
+            >global-exception.filter.spec.ts</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const exception = new NotFoundException(&quot;User not found&quot;);
+const host = makeArgumentsHost();
+
+filter.catch(exception, host);
+
+const response = extractResponseCall(host.switchToHttp().getResponse());
+expect(response.statusCode).toBe(404);
+expect(response.error).toBe(&quot;NOT_FOUND&quot;); // không phải &quot;Not Found&quot; của Nest
+expect(response.message).toBe(&quot;User not found&quot;);
+expect(response.details).toEqual([]);</code></pre>
+        </div>
+        <p class="prose">Ba việc mỗi spec filter nên khẳng định:</p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong
+                ><code>res.status()</code> và <code>res.json()</code> được gọi
+                đúng một lần</strong
+              >, với đúng giá trị. <code>extractResponseCall</code> của harness
+              ném nếu <code>json</code> chưa được gọi — &quot;filter im
+              lặng&quot; là lỗi phải lộ ra, không phải <code>null</code> để
+              assert sai.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Trường hợp <code>headersSent: true</code></strong> →
+              <code>json</code> <strong>không</strong> được gọi.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                >Trường hợp <code>getType()</code> trả
+                <code>&quot;rpc&quot;</code></strong
+              >
+              → không chạm <code>switchToHttp</code>.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Mapper test riêng, không cần host:
+          <code>mapHttpException(new ConflictException({...}))</code> là hàm
+          thuần. Đó là lợi ích trực tiếp của việc tách mapper ra khỏi filter —
+          <a
+            href="../../src/shared/filters/__tests__/prisma-error.mapper.spec.ts"
+            >prisma-error.mapper.spec.ts</a
+          >
+          kiểm bảng mã Prisma mà không cần mock <code>res</code>.
+        </p>
+        <hr />
+        <h2 id="13-nâng-cao" class="sec-head">13. Nâng cao</h2>
+        <p class="prose">
+          <strong
+            >Kế thừa <code>BaseExceptionFilter</code> thay vì viết từ
+            đầu.</strong
+          >
+          <code
+            >@Catch() class F extends BaseExceptionFilter { catch(e, host) { …;
+            super.catch(e, host); } }</code
+          >
+          cho phép &quot;làm thêm rồi giao lại cho mặc định&quot;. Cần
+          <code>HttpAdapterHost</code> tiêm vào (Nest tự tiêm qua
+          <code>@Optional() @Inject()</code>). Dự án không cần vì nó thay
+          <strong>toàn bộ</strong> hình dạng body — kế thừa chỉ có ích khi bạn
+          muốn giữ body mặc định.
+        </p>
+        <p class="prose">
+          <strong>Filter theo scope request.</strong>
+          <code>APP_FILTER</code> với provider <code>Scope.REQUEST</code> được
+          (<a
+            href="../../node_modules/@nestjs/core/router/router-exception-filters.js"
+            >mã nguồn <code>getGlobalRequestFilters</code></a
+          >), nhưng kéo theo mọi cái giá của
+          <a
+            href="08-request-and-provider-instances.html#8-nâng-cao-cái-giá-của-scoperequest"
+            >chương 8 §8</a
+          >. Cần dữ liệu theo request trong filter → đọc từ
+          <code>req</code> (như <code>requestId</code>), không dùng scope.
+        </p>
+        <p class="prose">
+          <strong><code>HttpException</code> có <code>cause</code>.</strong>
+          <code
+            >new BadRequestException(&quot;…&quot;, { cause: originalError
+            })</code
+          >
+          — <code>exception.cause</code> giữ lỗi gốc để log,
+          <code>getResponse()</code> không lộ nó. Hữu ích khi dịch lỗi thư viện
+          thành lỗi HTTP mà vẫn muốn stack gốc trong log.
+          <code>throwHttpException</code> của dự án chưa nhận
+          <code>cause</code>; là chỗ mở rộng hợp lý nếu cần.
+        </p>
+        <p class="prose">
+          <strong><code>@Catch()</code> với nhiều ngữ cảnh.</strong> Một filter
+          có thể rẽ nhánh <code>host.getType()</code> để phục vụ cả HTTP lẫn
+          WebSocket (<code
+            >switchToWs().getClient().emit(&quot;error&quot;, …)</code
+          >). <code>GlobalExceptionFilter</code> chọn cách ngược lại: chỉ HTTP,
+          còn lại log. Nếu thêm gateway, đây là chỗ sửa đầu tiên.
+        </p>
+        <p class="prose">
+          <strong><code>IntrinsicException</code>.</strong> Nest 11 có class
+          này: <code>BaseExceptionFilter</code> <strong>không log</strong> lỗi
+          kế thừa từ nó (nhìn <code>handleUnknownError</code>). Dùng cho lỗi
+          &quot;đã biết, không cần stack&quot; mà vẫn muốn 500. Filter dự án
+          không phân biệt — mọi 5xx đều log stack — và đó là lựa chọn có chủ ý.
+        </p>
+        <p class="prose">
+          <strong>Filter và <code>@Res()</code>.</strong> Handler dùng
+          <code>@Res()</code> rồi ném <strong>sau</strong> khi đã
+          <code>res.write</code> → filter nhận
+          <code>headersSent = true</code> và bỏ qua; client nhận response cụt.
+          Đây là lý do thứ hai (sau
+          <a
+            href="09-interceptors.html#11-res-bỏ-qua-kết-quả-trả-về-interceptor-vẫn-chạy"
+            >chương 9 §11</a
+          >) để không dùng <code>@Res()</code> ngoài trường hợp redirect.
+        </p>
+        <hr />
+        <h2 id="14-trong-dự-án-này" class="sec-head">14. Trong dự án này</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Thành phần</th>
+                <th>File</th>
+                <th>Vai trò</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>GlobalExceptionFilter</code></td>
+                <td>
+                  <a href="../../src/shared/filters/global-exception.filter.ts"
+                    >global-exception.filter.ts</a
+                  >
+                </td>
+                <td>
+                  <code>@Catch()</code> trần, <code>APP_FILTER</code>
+                  <strong>duy nhất</strong>; điều phối mapper, gắn
+                  <code>requestId</code>, log, ghi
+                </td>
+              </tr>
+              <tr>
+                <td><code>mapHttpException</code></td>
+                <td>
+                  <a href="../../src/shared/filters/http-exception.mapper.ts"
+                    >http-exception.mapper.ts</a
+                  >
+                </td>
+                <td>
+                  chuẩn hoá mọi <code>HttpException</code> (string / envelope /
+                  mảng <code>message</code>) về <code>ErrorResponseDto</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>mapPrismaError</code></td>
+                <td>
+                  <a href="../../src/shared/filters/prisma-error.mapper.ts"
+                    >prisma-error.mapper.ts</a
+                  >
+                </td>
+                <td>
+                  bảng mã Prisma → status + message công khai; không lộ tên
+                  bảng/cột
+                </td>
+              </tr>
+              <tr>
+                <td><code>ErrorResponseDto</code></td>
+                <td>
+                  <a href="../../src/dtos/error-response.dto.ts"
+                    >error-response.dto.ts</a
+                  >
+                </td>
+                <td>
+                  <strong>một</strong> constructor cho mọi body lỗi; tự suy
+                  <code>error</code> từ status nếu thiếu
+                </td>
+              </tr>
+              <tr>
+                <td><code>ValidateException</code></td>
+                <td>
+                  <a href="../../src/shared/exceptions/validate.exception.ts"
+                    >validate.exception.ts</a
+                  >
+                </td>
+                <td>
+                  <code>ValidationPipe</code> đóng hộp sẵn envelope
+                  <code>VALIDATION_FAILED</code> + <code>details[]</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>throwHttpException</code></td>
+                <td>
+                  <a href="../../src/shared/utils/throw-http-exception.util.ts"
+                    >throw-http-exception.util.ts</a
+                  >
+                </td>
+                <td>
+                  service/repo đóng hộp envelope có <code>code</code> nghiệp vụ
+                </td>
+              </tr>
+              <tr>
+                <td>Đăng ký</td>
+                <td>
+                  <a href="../../src/shared/modules/base.module.ts#L33-L38"
+                    >base.module.ts:33-38</a
+                  >
+                </td>
+                <td>
+                  <code>APP_FILTER</code> để server và e2e harness dùng chung
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <hr />
+        <h2 id="15-tự-kiểm-chứng" class="sec-head">15. Tự kiểm chứng</h2>
+        <p class="prose">
+          <strong
+            >1. Chứng minh filter thấy lỗi guard mà interceptor không
+            thấy.</strong
+          >
+          Thêm tạm interceptor global có <code>catchError</code> in log:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// ví dụ minh hoạ — thêm vào providers của base.module.ts, xoá sau khi xem
+{
+  provide: APP_INTERCEPTOR,
+  useValue: {
+    intercept: (_ctx, next) =&gt;
+      next.handle().pipe(catchError((e) =&gt; { console.log(&quot;[I] thấy lỗi:&quot;, e.constructor.name); return throwError(() =&gt; e); })),
+  },
+},</code></pre>
+        </div>
+        <p class="prose">
+          Gọi một route với token rác → 401. Kỳ vọng: <strong>không</strong> có
+          dòng <code>[I] thấy lỗi</code> (guard ném ngoài interceptor), nhưng
+          log của <code>GlobalExceptionFilter</code> có dòng
+          <code>-&gt; 401 UNAUTHORIZED</code>. Gọi <code>POST /roles</code> với
+          token admin và body sai → 400: giờ <strong>có</strong>
+          <code>[I] thấy lỗi: ValidateException</code> (pipe nằm trong
+          <code>next.handle()</code>), và filter vẫn log.
+        </p>
+        <p class="prose">
+          <strong
+            >2. Chứng minh &quot;cái đầu tiên khớp thắng&quot; và thứ tự
+            đảo.</strong
+          >
+          Thêm tạm filter thứ hai <strong>sau</strong>
+          <code>GlobalExceptionFilter</code> trong mảng <code>filters</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Catch(NotFoundException)
+class ProbeFilter implements ExceptionFilter {
+  catch(e, host) {
+    console.log(&quot;[probe] chạy&quot;);
+    host.switchToHttp().getResponse().status(404).json({ probe: true });
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Gọi <code>GET /brands/&lt;uuid-không-tồn-tại&gt;</code> với token hợp
+          lệ. Kỳ vọng: body là <code>{ probe: true }</code> — filter đăng ký
+          <strong>sau</strong> được hỏi <strong>trước</strong>. Đổi
+          <code>ProbeFilter</code> lên <strong>trước</strong>
+          <code>GlobalExceptionFilter</code> trong mảng → gọi lại → body là
+          envelope thường, <code>[probe]</code> không in:
+          <code>@Catch()</code> trần của <code>GlobalExceptionFilter</code> giờ
+          được hỏi trước và nuốt. Hai dòng đổi chỗ, hai response. Xoá
+          <code>ProbeFilter</code>.
+        </p>
+        <p class="prose">
+          <strong
+            >3. Chứng minh lỗi tầng 2 vẫn qua filter, nhưng không có
+            <code>requestId</code>.</strong
+          >
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>curl -s -i -X POST localhost:3000/auth/login -H &#39;Content-Type: application/json&#39; -d &#39;{&quot;email&quot;:&#39; | head -20</code></pre>
+        </div>
+        <p class="prose">
+          Kỳ vọng: 400 với envelope <strong>đầy đủ</strong> (<code
+            >error: &quot;BAD_REQUEST&quot;</code
+          >, <code>message</code> là câu &quot;Unexpected end of JSON
+          input&quot; hoặc tương tự của Express, <code>details: []</code>) nhưng
+          <strong>không có <code>requestId</code></strong
+          >, và dòng log của filter mở đầu bằng <code>[*]</code> thay vì một
+          UUID. So với body sai kiểu nhưng JSON hợp lệ: 400
+          <code>VALIDATION_FAILED</code>, có <code>requestId</code>.
+        </p>
+        <p class="prose">
+          Muốn thấy tận mắt mà không cần DB, chạy app tối giản này với
+          <code>node_modules</code> của dự án — nó in tên exception filter nhận
+          được và <code>getHandler()</code> cho từng trường hợp:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>// scratch-filter-probe.js — chạy: NODE_PATH=$PWD/node_modules node scratch-filter-probe.js
+require(&quot;reflect-metadata&quot;);
+const { NestFactory, APP_FILTER } = require(&quot;@nestjs/core&quot;);
+const { Module, Controller, Post, Catch } = require(&quot;@nestjs/common&quot;);
+
+let F = class {
+  catch(e, host) {
+    console.log(
+      &quot;[filter]&quot;,
+      e.constructor.name,
+      &quot;|&quot;,
+      e.message,
+      &quot;| handler:&quot;,
+      host.getHandler(),
+    );
+    host.switchToHttp().getResponse().status(400).json({ envelope: true });
+  }
+};
+F = Reflect.decorate([Catch()], F);
+
+let C = class {
+  post() {
+    return { ok: true };
+  }
+};
+Reflect.decorate(
+  [Post(&quot;x&quot;)],
+  C.prototype,
+  &quot;post&quot;,
+  Object.getOwnPropertyDescriptor(C.prototype, &quot;post&quot;),
+);
+C = Reflect.decorate([Controller(&quot;t&quot;)], C);
+
+let M = class {};
+M = Reflect.decorate(
+  [
+    Module({
+      controllers: [C],
+      providers: [{ provide: APP_FILTER, useClass: F }],
+    }),
+  ],
+  M,
+);
+
+(async () =&gt; {
+  const app = await NestFactory.create(M, { logger: false });
+  await app.listen(3999);
+  for (const body of [&#39;{&quot;a&quot;:&#39;, &#39;{&quot;a&quot;:1}&#39;]) {
+    const r = await fetch(&quot;http://localhost:3999/t/x&quot;, {
+      method: &quot;POST&quot;,
+      headers: { &quot;content-type&quot;: &quot;application/json&quot; },
+      body,
+    });
+    console.log(body, &quot;=&gt;&quot;, r.status, await r.text());
+  }
+  const r2 = await fetch(&quot;http://localhost:3999/nope&quot;);
+  console.log(&quot;GET /nope =&gt;&quot;, r2.status, await r2.text());
+  await app.close();
+})();</code></pre>
+        </div>
+        <p class="prose">Kết quả khi viết chương này (Nest 11.0.1):</p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>[filter] BadRequestException | Unexpected end of JSON input | handler: null
+{&quot;a&quot;: =&gt; 400 {&quot;envelope&quot;:true}
+{&quot;a&quot;:1} =&gt; 201 {&quot;ok&quot;:true}
+[filter] NotFoundException | Cannot GET /nope | handler: null
+GET /nope =&gt; 400 {&quot;envelope&quot;:true}</code></pre>
+        </div>
+        <p class="prose">
+          Cả JSON hỏng lẫn route lạ đều tới filter, và cả hai đều
+          <strong>không có handler</strong>.
+        </p>
+        <p class="prose">
+          <strong>4. Chứng minh <code>headersSent</code>.</strong> Trong spec,
+          <code>makeArgumentsHost({}, { headersSent: true })</code>, gọi
+          <code>filter.catch(...)</code>, assert <code>json</code>
+          <strong>không</strong> được gọi. Hoặc chạy bộ có sẵn:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>npx jest src/shared/filters</code></pre>
+        </div>
+        <p class="prose">Nhớ xoá mọi interceptor / filter thí nghiệm.</p>
+        <hr />
+        <p class="prose">
+          <strong>Đọc tiếp:</strong>
+          <a href="../error-handling.vi.md">error-handling.vi.md</a> cho hợp
+          đồng body lỗi và quy trình thêm lỗi mới ·
+          <a href="05-request-lifecycle-in-this-project.html"
+            >Chương 5 — Vòng đời một request</a
+          >
+          để đặt filter vào đúng chỗ (tầng ∞) trong toàn bộ dây chuyền ·
+          <a href="index.html">Mục lục bộ tài liệu</a>.
+        </p>
+        <footer class="source-footer">
+          <a href="10-exception-filters.md">Nguồn Markdown</a> · Sinh bằng
+          scripts/build-nestjs-fundamentals.cjs
+        </footer>
+      </main>
+    </div>
+    <script type="module">
+      // Shared behavior for the Markdown-generated foundation pages.
+      const themeToggle = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+      }
+      let initialTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      try {
+        initialTheme =
+          localStorage.getItem("fundamentals-theme") ?? initialTheme;
+      } catch {
+        // Storage can be unavailable when opening a local HTML file.
+      }
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        try {
+          localStorage.setItem("fundamentals-theme", theme);
+        } catch {
+          // Storage can be unavailable when opening a local HTML file.
+        }
+        applyTheme(theme);
+      });
+
+      let mermaid;
+      try {
+        ({ default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+        ));
+      } catch {
+        document.querySelectorAll(".diagram-shell").forEach((shell) => {
+          shell.querySelector(".mermaid-wrap").hidden = true;
+          shell.querySelector(".diagram-code").open = true;
+        });
+      }
+      if (mermaid) {
+        const config = {
+          fitPadding: 28,
+          minHeight: 320,
+          maxHeightPx: 960,
+          maxHeightVh: 0.84,
+          maxInitialZoom: 1.8,
+          minZoom: 0.08,
+          maxZoom: 6.5,
+          zoomStep: 0.14,
+          readabilityFloor: 0.58,
+        };
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+        let activeDrag = null;
+        addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+        addEventListener("mouseup", () => {
+          activeDrag?.onEnd();
+          activeDrag = null;
+        });
+        const attr = document.documentElement.getAttribute("data-theme");
+        const isDark =
+          attr === "dark" ||
+          (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "classic",
+          themeVariables: {
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontSize: "15px",
+            primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+            primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+            primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+            secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+            secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+            tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+            tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            lineColor: isDark ? "#a89e90" : "#7c756a",
+            noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+            noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+            actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+            actorBorder: isDark ? "#f0743f" : "#c2410c",
+            actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            signalColor: isDark ? "#a89e90" : "#7c756a",
+            signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          },
+        });
+        function initDiagram(shell) {
+          const wrap = shell.querySelector(".mermaid-wrap"),
+            viewport = shell.querySelector(".mermaid-viewport"),
+            canvas = shell.querySelector(".mermaid-canvas"),
+            source = shell.querySelector(".diagram-source"),
+            label = shell.querySelector(".zoom-label");
+          if (!wrap || !viewport || !canvas || !source || !label) return;
+          let zoom = 1,
+            fitMode = "contain",
+            panX = 0,
+            panY = 0,
+            svgW = 0,
+            svgH = 0,
+            sx = 0,
+            sy = 0,
+            spx = 0,
+            spy = 0,
+            touchDist = 0,
+            touchCx = 0,
+            touchCy = 0;
+          function constrainPan() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              rW = svgW * zoom,
+              rH = svgH * zoom,
+              pad = config.fitPadding;
+            panX =
+              rW + pad * 2 <= vpW
+                ? (vpW - rW) / 2
+                : clamp(panX, vpW - rW - pad, pad);
+            panY =
+              rH + pad * 2 <= vpH
+                ? (vpH - rH) / 2
+                : clamp(panY, vpH - rH - pad, pad);
+          }
+          function applyTransform() {
+            const svg = canvas.querySelector("svg");
+            if (!svg || !svgW) return;
+            constrainPan();
+            svg.style.width = svgW * zoom + "px";
+            svg.style.height = svgH * zoom + "px";
+            canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+            label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+          }
+          function canPan() {
+            return (
+              svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+              svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+            );
+          }
+          function computeSmartFit() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              aW = Math.max(80, vpW - config.fitPadding * 2),
+              aH = Math.max(80, vpH - config.fitPadding * 2),
+              contain = Math.min(aW / svgW, aH / svgH);
+            let z = contain,
+              mode = "contain";
+            if (contain < config.readabilityFloor) {
+              const chartR = svgH / svgW,
+                vpR = vpH / Math.max(vpW, 1);
+              if (chartR >= vpR) {
+                z = aW / svgW;
+                mode = "width-priority";
+              } else {
+                z = aH / svgH;
+                mode = "height-priority";
+              }
+            }
+            return {
+              zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+              mode,
+            };
+          }
+          function fitDiagram() {
+            if (!svgW) return;
+            const fit = computeSmartFit();
+            zoom = fit.zoom;
+            fitMode = fit.mode;
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function setOneToOne() {
+            zoom = clamp(1, config.minZoom, config.maxZoom);
+            fitMode = "1:1";
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function zoomAround(factor, cx, cy) {
+            const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+              ratio = next / zoom;
+            panX = cx - ratio * (cx - panX);
+            panY = cy - ratio * (cy - panY);
+            zoom = next;
+            fitMode = "custom";
+            applyTransform();
+          }
+          function readSvgNaturalSize(svg) {
+            let w = 0,
+              h = 0;
+            if (svg.viewBox?.baseVal?.width > 0) {
+              w = svg.viewBox.baseVal.width;
+              h = svg.viewBox.baseVal.height;
+            }
+            if (!w) {
+              w = parseFloat(svg.getAttribute("width")) || 0;
+              h = parseFloat(svg.getAttribute("height")) || 0;
+            }
+            if (!w) {
+              const b = svg.getBBox();
+              w = b.width;
+              h = b.height;
+            }
+            if (!w) {
+              const r = svg.getBoundingClientRect();
+              w = r.width || 1000;
+              h = r.height || 700;
+            }
+            if (!svg.getAttribute("viewBox"))
+              svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            return { w, h };
+          }
+          function setAdaptiveHeight() {
+            if (!svgW) return;
+            const usableW = Math.max(
+                280,
+                wrap.getBoundingClientRect().width - 2,
+              ),
+              idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+              maxVp = Math.floor(innerHeight * config.maxHeightVh),
+              hardMax = Math.min(
+                config.maxHeightPx,
+                Math.max(config.minHeight + 40, maxVp),
+              );
+            wrap.style.height =
+              Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+          }
+          function openInNewTab() {
+            const svg = canvas.querySelector("svg");
+            if (!svg) return;
+            const clone = svg.cloneNode(true);
+            clone.style.width = "";
+            clone.style.height = "";
+            const bg = isDark ? "#1c1916" : "#faf6f0";
+            const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+            open(
+              URL.createObjectURL(new Blob([html], { type: "text/html" })),
+              "_blank",
+            );
+          }
+          async function render() {
+            try {
+              const code = source.textContent.trim();
+              if (!code) {
+                label.textContent = "Lỗi: nguồn rỗng";
+                return;
+              }
+              const id =
+                "diagram-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).slice(2, 8);
+              const { svg } = await mermaid.render(id, code);
+              canvas.innerHTML = svg;
+              const svgNode = canvas.querySelector("svg");
+              if (!svgNode) {
+                label.textContent = "Lỗi: không có SVG";
+                return;
+              }
+              const size = readSvgNaturalSize(svgNode);
+              svgW = size.w;
+              svgH = size.h;
+              svgNode.removeAttribute("width");
+              svgNode.removeAttribute("height");
+              svgNode.style.maxWidth = "none";
+              svgNode.style.display = "block";
+              setAdaptiveHeight();
+              fitDiagram();
+            } catch (err) {
+              console.error("Mermaid render failed:", err);
+              label.textContent = "Lỗi: " + (err.message || "render thất bại");
+            }
+          }
+          const actions = {
+            "zoom-in": () =>
+              zoomAround(
+                1 + config.zoomStep,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-out": () =>
+              zoomAround(
+                1 / (1 + config.zoomStep),
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-fit": fitDiagram,
+            "zoom-one": setOneToOne,
+            "zoom-expand": openInNewTab,
+          };
+          Object.entries(actions).forEach(([action, handler]) => {
+            wrap
+              .querySelector(`[data-action="${action}"]`)
+              ?.addEventListener("click", handler);
+          });
+          viewport.addEventListener("dblclick", fitDiagram);
+          viewport.addEventListener(
+            "wheel",
+            (e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                zoomAround(
+                  e.deltaY < 0
+                    ? 1 + config.zoomStep
+                    : 1 / (1 + config.zoomStep),
+                  e.clientX - rect.left,
+                  e.clientY - rect.top,
+                );
+                return;
+              }
+              if (canPan()) {
+                e.preventDefault();
+                panX -= e.deltaX;
+                panY -= e.deltaY;
+                applyTransform();
+              }
+            },
+            { passive: false },
+          );
+          viewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest(".zoom-controls") || !canPan()) return;
+            wrap.classList.add("is-panning");
+            sx = e.clientX;
+            sy = e.clientY;
+            spx = panX;
+            spy = panY;
+            e.preventDefault();
+            activeDrag = {
+              onMove: (ev) => {
+                panX = spx + (ev.clientX - sx);
+                panY = spy + (ev.clientY - sy);
+                applyTransform();
+              },
+              onEnd: () => wrap.classList.remove("is-panning"),
+            };
+          });
+          viewport.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length === 1) {
+                sx = e.touches[0].clientX;
+                sy = e.touches[0].clientY;
+                spx = panX;
+                spy = panY;
+              } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchDist = Math.sqrt(dx * dx + dy * dy);
+                const r = viewport.getBoundingClientRect();
+                touchCx =
+                  (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+                touchCy =
+                  (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+              }
+            },
+            { passive: true },
+          );
+          viewport.addEventListener(
+            "touchmove",
+            (e) => {
+              if (e.touches.length === 1 && canPan()) {
+                if (touchDist > 0) {
+                  sx = e.touches[0].clientX;
+                  sy = e.touches[0].clientY;
+                  spx = panX;
+                  spy = panY;
+                  touchDist = 0;
+                }
+                e.preventDefault();
+                panX = spx + (e.touches[0].clientX - sx);
+                panY = spy + (e.touches[0].clientY - sy);
+                applyTransform();
+              } else if (e.touches.length === 2 && touchDist > 0) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY,
+                  d = Math.sqrt(dx * dx + dy * dy);
+                zoomAround(d / touchDist, touchCx, touchCy);
+                touchDist = d;
+              }
+            },
+            { passive: false },
+          );
+          new ResizeObserver(() => {
+            if (svgW) {
+              setAdaptiveHeight();
+              fitDiagram();
+            }
+          }).observe(wrap);
+          render();
+        }
+        document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+      }
+    </script>
+  </body>
+</html>

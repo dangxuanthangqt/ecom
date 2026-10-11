@@ -69,8 +69,7 @@ Nối về [chương 1 §5](01-decorators-and-metadata.md#5-hai-cờ-tsconfig-qu
 mỗi handler có tham số được dán `design:paramtypes`. Nest lấy kiểu của tham số `@Body()` từ đó và truyền cho pipe
 dưới tên **`metatype`**.
 
-`ValidationPipe` mở đầu bằng một câu hỏi: _metatype này có phải class có decorator không?_ Nếu không, **nó không làm
-gì cả** — thực nghiệm 6 ở [mục 12](#12-tự-kiểm-chứng):
+`ValidationPipe` kiểm tra metatype và loại tham số: kiểu dựng sẵn như `Object` không được validate theo DTO; custom decorator bị bỏ qua mặc định. Class DTO được chuyển thành instance để validate, không có bước kiểm tra đơn giản "class có decorator không". Class thiếu validator vẫn được xử lý theo các option của class-validator. Với `Object`, pipe bỏ qua validation DTO — thực nghiệm 6 ở [mục 12](#12-tự-kiểm-chứng):
 
 ```
 6. metatype = Object → bỏ qua, trả nguyên: {"x":1}
@@ -129,8 +128,7 @@ mà không hiểu vì sao. Bật cờ này, họ nhận `property pageSizes shou
 
 ### `transform` — và vì sao query string cần nó
 
-HTTP không có kiểu. `?pageSize=10` đến server là **chuỗi** `"10"`, luôn luôn. Không có transform, `@IsInt()` sẽ
-trượt với mọi request.
+`?pageSize=10` đến server là chuỗi `"10"`. Cần chuyển thành số trước khi `@IsInt()` kiểm tra. `ValidationPipe` dùng `plainToInstance()` cho bước validation DTO **cả khi `transform: false`**; `@Type(() => Number)` vẫn có thể làm validation thành công. Cờ `transform` quyết định trả instance đã chuyển đổi vào handler, không phải bật/tắt toàn bộ chuyển đổi nội bộ.
 
 Lời giải nằm ở `@Type()` của class-transformer —
 [pagination.dto.ts:40-45](../../src/dtos/shared/pagination.dto.ts#L40-L45):
@@ -147,7 +145,7 @@ pageSize?: number;
 Thứ tự thật sự xảy ra: **transform trước, validate sau**. `@Type(() => Number)` đổi `"10"` thành `10`, rồi
 `@IsInt()` mới chạy trên số.
 
-`transform: true` còn có tác dụng thứ hai, quan trọng cho [mục 6](#6-serialization-chiều-ra): giá trị handler nhận được là **instance của DTO
+`transform: true` quyết định thêm một điều, quan trọng cho [mục 6](#6-serialization-chiều-ra): giá trị handler nhận được là **instance của DTO
 class**, không phải object thường. Nhờ vậy các method và default trên DTO hoạt động.
 
 ---
@@ -597,7 +595,7 @@ input (`confirmPassword`) có nguy cơ bị expose ra response. Repo đang tách
 `@Expose({ groups: [...] })`). `ClassSerializerInterceptor` đọc nó bằng `Reflector`
 ([chương 2](02-reflector-execution-context-and-discovery.md)) — lại đúng cơ chế cũ.
 
-**`transform: true` có chi phí.** Mỗi request dựng một instance DTO. Không đáng kể ở quy mô này, nhưng là lý do
+**Validation DTO có chi phí.** Pipe dựng instance để validate ngay cả khi `transform: false`; `transform: true` còn trả instance này cho handler. Không đáng kể ở quy mô này, nhưng là lý do
 không nên đặt DTO khổng lồ lồng nhiều tầng.
 
 **Validate không thay được ràng buộc DB.** Kiểm "email chưa tồn tại" trong pipe vẫn thua race condition. Để unique
