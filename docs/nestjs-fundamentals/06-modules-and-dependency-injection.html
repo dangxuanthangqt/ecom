@@ -1685,6 +1685,173 @@ Nest điều khiển luồng xử lý HTTP:
           >
           Đây cũng là IoC, dù ví dụ không dùng container để lắp ráp dependency.
         </p>
+        <h4 id="ví-dụ-thực-tế-trong-repo-khách-bấm-đặt-hàng" class="sub">
+          Ví dụ thực tế trong repo: khách bấm Đặt hàng
+        </h4>
+        <p class="prose">
+          Khách chọn sản phẩm rồi bấm <strong>Đặt hàng</strong>; frontend gửi
+          <code>POST /orders</code> kèm token và danh sách
+          <code>cartItemIds</code>. Câu hỏi để thấy IoC là:
+          <strong>ai điều phối việc xử lý request này?</strong>
+        </p>
+        <p class="prose">
+          Nếu tự viết phần điều phối HTTP, bạn phải tổ chức luồng như sau — đây
+          là giả mã:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>Nhận request
+→ kiểm tra có phải POST /orders không
+→ kiểm tra token và quyền
+→ kiểm tra body
+→ gọi chức năng đặt hàng
+→ gửi response
+→ nếu lỗi thì gửi response lỗi</code></pre>
+        </div>
+        <p class="prose">
+          Trong cách này, code của bạn giữ quyền quyết định thứ tự xử lý và gọi
+          từng thành phần.
+        </p>
+        <p class="prose">
+          Trong repo, bạn viết phần xử lý đặt hàng và đăng ký nó với Nest. Đây
+          là
+          <a href="../../src/routes/order/order.controller.ts"
+            >OrderController</a
+          >, rút gọn phần Swagger và import:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Controller(&quot;orders&quot;)
+export class OrderController {
+  constructor(private readonly orderService: OrderService) {}
+
+  @RequirePermission(&quot;order:create:own&quot;)
+  @Post()
+  async checkout(
+    @Body() body: CreateOrderRequestDto,
+    @ActiveUser(&quot;userId&quot;) userId: UserSchema[&quot;id&quot;],
+  ): Promise&lt;OrderDetailResponseDto[]&gt; {
+    const result = await this.orderService.checkout({
+      cartItemIds: body.cartItemIds,
+      userId,
+    });
+
+    return result.map((order) =&gt; new OrderDetailResponseDto(order));
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Khi request đến, <strong>Nest giữ phần khung xử lý</strong> theo những
+          gì ứng dụng đã đăng ký:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              Chọn handler <code>checkout()</code> vì request là
+              <code>POST /orders</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Chạy guard để kiểm hạn mức, xác thực và quyền; nếu bị chặn thì
+              không gọi handler.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Chạy interceptor chiều đi, rồi resolve tham số và chạy pipe để
+              kiểm dữ liệu trước khi gọi handler.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Gọi <code>checkout()</code> bạn viết với các tham số đã resolve
+              thành công.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Xử lý kết quả qua interceptor chiều về và gửi response. Khi có
+              lỗi, các lớp xử lý lỗi phù hợp nhận nó; filter có thể gửi envelope
+              nếu response còn ghi được.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Guard, pipe, serializer và filter global của repo được đăng ký trong
+          <a href="../../src/shared/modules/base.module.ts">BaseModule</a>. Để
+          xem cả middleware và các nhánh lỗi, đọc
+          <a href="05-request-lifecycle-in-this-project.html">chương 5</a>.
+        </p>
+        <p class="prose">
+          <strong>Đây là IoC trong luồng HTTP:</strong> bạn cung cấp các phần xử
+          lý và đăng ký chúng; framework giữ luồng thực thi, rồi gọi những phần
+          đó tại thời điểm phù hợp.
+        </p>
+        <p class="prose">
+          Bạn vẫn quyết định nghiệp vụ bên trong
+          <a href="../../src/routes/order/order.service.ts">OrderService</a>,
+          chẳng hạn kiểm tồn kho và tạo đơn. Quyền được chuyển cho Nest ở đây là
+          <strong>điều phối HTTP pipeline</strong>; Nest không tự viết nghiệp vụ
+          đặt hàng thay bạn.
+        </p>
+        <p class="prose">
+          Còn dòng constructor giải quyết một câu hỏi khác:
+          <strong
+            >controller lấy object <code>OrderService</code> ở đâu ra?</strong
+          >
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>constructor(private readonly orderService: OrderService) {}</code></pre>
+        </div>
+        <p class="prose">
+          Container của Nest tìm provider, tạo/lấy service và truyền vào
+          constructor khi dựng controller. Việc
+          <strong>truyền dependency vào</strong> là DI. Với provider static mặc
+          định của repo, việc dựng object diễn ra khi khởi tạo app, không phải
+          mỗi lần khách bấm Đặt hàng; xem
+          <a href="#8-scope-của-provider">mục 8</a>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Câu hỏi thực tế</th>
+                <th>Khái niệm</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  Ai điều phối request và gọi <code>checkout()</code>? Nest
+                </td>
+                <td><strong>IoC trong luồng HTTP</strong></td>
+              </tr>
+              <tr>
+                <td>
+                  Ai tìm/tạo object <code>OrderService</code>? Container của
+                  Nest
+                </td>
+                <td><strong>IoC container</strong></td>
+              </tr>
+              <tr>
+                <td>
+                  Service được cung cấp cho controller bằng cách nào? Truyền qua
+                  constructor
+                </td>
+                <td><strong>DI</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Một việc là <strong>điều phối chạy code</strong>; một việc là
+          <strong>lắp ráp các object để code có thể chạy</strong>. Nest làm cả
+          hai, nên hai khái niệm thường xuất hiện cùng nhau.
+        </p>
         <h4 id="liên-hệ-với-di-ở-mục-trước" class="sub">
           Liên hệ với DI ở mục trước
         </h4>

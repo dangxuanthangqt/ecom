@@ -219,6 +219,88 @@ Bạn đăng ký `handleClick`; trình duyệt nhận sự kiện click rồi g�
 **Trình duyệt giữ luồng xử lý sự kiện; bạn cung cấp phần xử lý cần chạy.** Đây cũng là IoC,
 dù ví dụ không dùng container để lắp ráp dependency.
 
+#### Ví dụ thực tế trong repo: khách bấm Đặt hàng
+
+Khách chọn sản phẩm rồi bấm **Đặt hàng**; frontend gửi `POST /orders` kèm token và danh sách
+`cartItemIds`. Câu hỏi để thấy IoC là: **ai điều phối việc xử lý request này?**
+
+Nếu tự viết phần điều phối HTTP, bạn phải tổ chức luồng như sau — đây là giả mã:
+
+```text
+Nhận request
+→ kiểm tra có phải POST /orders không
+→ kiểm tra token và quyền
+→ kiểm tra body
+→ gọi chức năng đặt hàng
+→ gửi response
+→ nếu lỗi thì gửi response lỗi
+```
+
+Trong cách này, code của bạn giữ quyền quyết định thứ tự xử lý và gọi từng thành phần.
+
+Trong repo, bạn viết phần xử lý đặt hàng và đăng ký nó với Nest.
+Đây là [OrderController](../../src/routes/order/order.controller.ts), rút gọn phần Swagger và import:
+
+```ts
+@Controller("orders")
+export class OrderController {
+  constructor(private readonly orderService: OrderService) {}
+
+  @RequirePermission("order:create:own")
+  @Post()
+  async checkout(
+    @Body() body: CreateOrderRequestDto,
+    @ActiveUser("userId") userId: UserSchema["id"],
+  ): Promise<OrderDetailResponseDto[]> {
+    const result = await this.orderService.checkout({
+      cartItemIds: body.cartItemIds,
+      userId,
+    });
+
+    return result.map((order) => new OrderDetailResponseDto(order));
+  }
+}
+```
+
+Khi request đến, **Nest giữ phần khung xử lý** theo những gì ứng dụng đã đăng ký:
+
+1. Chọn handler `checkout()` vì request là `POST /orders`.
+2. Chạy guard để kiểm hạn mức, xác thực và quyền; nếu bị chặn thì không gọi handler.
+3. Chạy interceptor chiều đi, rồi resolve tham số và chạy pipe để kiểm dữ liệu trước khi gọi handler.
+4. Gọi `checkout()` bạn viết với các tham số đã resolve thành công.
+5. Xử lý kết quả qua interceptor chiều về và gửi response. Khi có lỗi, các lớp xử lý lỗi phù hợp
+   nhận nó; filter có thể gửi envelope nếu response còn ghi được.
+
+Guard, pipe, serializer và filter global của repo được đăng ký trong
+[BaseModule](../../src/shared/modules/base.module.ts). Để xem cả middleware và các nhánh lỗi, đọc
+[chương 5](05-request-lifecycle-in-this-project.md).
+
+**Đây là IoC trong luồng HTTP:** bạn cung cấp các phần xử lý và đăng ký chúng;
+framework giữ luồng thực thi, rồi gọi những phần đó tại thời điểm phù hợp.
+
+Bạn vẫn quyết định nghiệp vụ bên trong [OrderService](../../src/routes/order/order.service.ts),
+chẳng hạn kiểm tồn kho và tạo đơn. Quyền được chuyển cho Nest ở đây là **điều phối HTTP pipeline**;
+Nest không tự viết nghiệp vụ đặt hàng thay bạn.
+
+Còn dòng constructor giải quyết một câu hỏi khác: **controller lấy object `OrderService` ở đâu ra?**
+
+```ts
+constructor(private readonly orderService: OrderService) {}
+```
+
+Container của Nest tìm provider, tạo/lấy service và truyền vào constructor khi dựng controller.
+Việc **truyền dependency vào** là DI. Với provider static mặc định của repo, việc dựng object diễn ra
+khi khởi tạo app, không phải mỗi lần khách bấm Đặt hàng; xem [mục 8](#8-scope-của-provider).
+
+| Câu hỏi thực tế                                                            | Khái niệm                |
+| -------------------------------------------------------------------------- | ------------------------ |
+| Ai điều phối request và gọi `checkout()`? Nest                             | **IoC trong luồng HTTP** |
+| Ai tìm/tạo object `OrderService`? Container của Nest                       | **IoC container**        |
+| Service được cung cấp cho controller bằng cách nào? Truyền qua constructor | **DI**                   |
+
+Một việc là **điều phối chạy code**; một việc là **lắp ráp các object để code có thể chạy**.
+Nest làm cả hai, nên hai khái niệm thường xuất hiện cùng nhau.
+
 #### Liên hệ với DI ở mục trước
 
 IoC cũng áp dụng vào việc **chọn và cung cấp dependency**. Trong ví dụ DI vừa rồi,
