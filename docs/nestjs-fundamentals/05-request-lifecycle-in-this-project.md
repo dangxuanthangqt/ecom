@@ -45,7 +45,7 @@ sequenceDiagram
     K->>K: đọc @RequirePermission, tra tập quyền → req.granted_permissions
     K-->>F: 401 / 403 / 500
     K->>I: qua
-    I->>P: (chưa làm gì ở chiều đi)
+    I->>P: đọc tùy chọn serialization, gọi next.handle()
     P->>P: ValidationPipe(body), ParseUUIDPipe(param), @ActiveUser, @PermissionScope, @CurrentLang
     P-->>F: 400 nếu DTO sai
     P->>H: tham số đã sạch
@@ -65,27 +65,27 @@ Mọi mũi tên đứt về `F` là một điểm có thể kết thúc sớm. H
 
 ## 2. Bảng từng tầng
 
-| #   | Tầng                                    | File                                                                                   | Chạy cho                              | Nhìn thấy                                                    | Gắn thêm lên `request`                       | Từ chối bằng                              |
-| --- | --------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------ | -------------------------------------------- | ----------------------------------------- |
-| 1   | cors                                    | [main.ts:27-32](../../src/main.ts#L27-L32)                                             | mọi request                           | `Origin`                                                     | header CORS                                  | trả lời preflight 204 và **dừng**         |
-| 2   | body-parser                             | Nest mặc định                                                                          | mọi request                           | bytes thô                                                    | `req.body` (object)                          | 400 nếu JSON hỏng (Express)               |
-| 3   | pino-http                               | [setup-logger.util.ts](../../src/shared/utils/setup-logger.util.ts)                    | mọi request                           | request thô (đã redact khi log)                              | `req.id`, `req.log`; header `X-Request-Id`   | không từ chối                             |
-| 4   | I18nMiddleware                          | [i18n.module.ts](../../src/shared/modules/i18n.module.ts)                              | mọi request                           | `Accept-Language`, `x-lang`                                  | `req.i18nContext` + `AsyncLocalStorage`      | không từ chối                             |
-| 5   | `AppThrottlerGuard`                     | [app-throttler.guard.ts](../../src/shared/guards/app-throttler.guard.ts)               | mọi request                           | `req.ip`, `req.body.email`, `@Throttle`                      | —                                            | **429** + `Retry-After`                   |
-| 6   | `AuthorizationHeaderGuard`              | [authorization-header.guard.ts](../../src/shared/guards/authorization-header.guard.ts) | mọi request                           | `@AuthApi`                                                   | —                                            | 401 chung (nhánh OR)                      |
-| 7   | `AccessTokenGuard`                      | [access-token.guard.ts](../../src/shared/guards/access-token.guard.ts)                 | route `Bearer`                        | header `Authorization`, `@RequirePermission`, Redis/Postgres | `req.user`, `req.granted_permissions`        | **401** / **403** / **500**               |
-| 8   | `ClassSerializerInterceptor` (chiều đi) | [base.module.ts:56-64](../../src/shared/modules/base.module.ts#L56-L64)                | mọi request                           | —                                                            | —                                            | không                                     |
-| 9   | `ValidationPipe`                        | [validation-pipe.config.ts](../../src/shared/utils/validation-pipe.config.ts)          | handler có `@Body`/`@Query` DTO       | `design:paramtypes` → DTO class                              | thay body bằng **instance DTO** đã whitelist | **400** `VALIDATION_FAILED` + `details[]` |
-| 10  | Pipe cục bộ (`ParseUUIDPipe`)           | trên tham số                                                                           | route có `@Param(..., ParseUUIDPipe)` | chuỗi param                                                  | —                                            | 400                                       |
-| 11  | Param decorator                         | `src/shared/param-decorators/*`                                                        | tham số có decorator                  | `req.user`, `req.granted_permissions`, `I18nContext`         | —                                            | không (fallback an toàn)                  |
-| 12  | Handler                                 | `src/routes/**/*.controller.ts`                                                        | —                                     | tham số đã sạch                                              | —                                            | hiếm                                      |
-| 13  | Service                                 | `src/routes/**/*.service.ts`                                                           | —                                     | dữ liệu + `scope`                                            | —                                            | 404 / 403 / 409 nghiệp vụ                 |
-| 14  | `ClassSerializerInterceptor` (chiều về) | như #8                                                                                 | —                                     | giá trị handler trả về                                       | —                                            | không                                     |
-| ∞   | `GlobalExceptionFilter`                 | [global-exception.filter.ts](../../src/shared/filters/global-exception.filter.ts)      | bất kỳ tầng 5-14 ném                  | exception + `req.id`                                         | —                                            | viết envelope lỗi, **duy nhất**           |
+| #   | Tầng                                    | File                                                                                   | Chạy cho                              | Nhìn thấy                                                    | Gắn thêm lên `request`                           | Từ chối bằng                              |
+| --- | --------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------ | ----------------------------------------- |
+| 1   | cors                                    | [main.ts:27-32](../../src/main.ts#L27-L32)                                             | mọi request                           | `Origin`                                                     | header CORS                                      | trả lời preflight 204 và **dừng**         |
+| 2   | body-parser                             | Nest mặc định                                                                          | mọi request                           | bytes thô                                                    | `req.body` (object)                              | 400 nếu JSON hỏng (Express)               |
+| 3   | pino-http                               | [setup-logger.util.ts](../../src/shared/utils/setup-logger.util.ts)                    | mọi request                           | request thô (đã redact khi log)                              | `req.id`, `req.log`; header `X-Request-Id`       | không từ chối                             |
+| 4   | I18nMiddleware                          | [i18n.module.ts](../../src/shared/modules/i18n.module.ts)                              | mọi request                           | `Accept-Language`, `x-lang`                                  | `req.i18nContext` + `AsyncLocalStorage`          | không từ chối                             |
+| 5   | `AppThrottlerGuard`                     | [app-throttler.guard.ts](../../src/shared/guards/app-throttler.guard.ts)               | mọi request                           | `req.ip`, `req.body.email`, `@Throttle`                      | —                                                | **429** + `Retry-After`                   |
+| 6   | `AuthorizationHeaderGuard`              | [authorization-header.guard.ts](../../src/shared/guards/authorization-header.guard.ts) | mọi request                           | `@AuthApi`                                                   | —                                                | 401 chung (nhánh OR)                      |
+| 7   | `AccessTokenGuard`                      | [access-token.guard.ts](../../src/shared/guards/access-token.guard.ts)                 | route `Bearer`                        | header `Authorization`, `@RequirePermission`, Redis/Postgres | `req.user`, `req.granted_permissions`            | **401** / **403** / **500**               |
+| 8   | `ClassSerializerInterceptor` (chiều đi) | [base.module.ts:56-64](../../src/shared/modules/base.module.ts#L56-L64)                | mọi request                           | metadata serialization                                       | —                                                | không                                     |
+| 9   | `ValidationPipe`                        | [validation-pipe.config.ts](../../src/shared/utils/validation-pipe.config.ts)          | handler có `@Body`/`@Query` DTO       | `design:paramtypes` → DTO class                              | tham số handler là **instance DTO** đã whitelist | **400** `VALIDATION_FAILED` + `details[]` |
+| 10  | Pipe cục bộ (`ParseUUIDPipe`)           | trên tham số                                                                           | route có `@Param(..., ParseUUIDPipe)` | chuỗi param                                                  | —                                                | 400                                       |
+| 11  | Param decorator                         | `src/shared/param-decorators/*`                                                        | tham số có decorator                  | `req.user`, `req.granted_permissions`, `I18nContext`         | —                                                | đọc field user khi thiếu user có thể ném  |
+| 12  | Handler                                 | `src/routes/**/*.controller.ts`                                                        | —                                     | tham số đã sạch                                              | —                                                | hiếm                                      |
+| 13  | Service                                 | `src/routes/**/*.service.ts`                                                           | —                                     | dữ liệu + `scope`                                            | —                                                | 404 / 403 / 409 nghiệp vụ                 |
+| 14  | `ClassSerializerInterceptor` (chiều về) | như #8                                                                                 | —                                     | giá trị handler trả về                                       | —                                                | không                                     |
+| ∞   | `GlobalExceptionFilter`                 | [global-exception.filter.ts](../../src/shared/filters/global-exception.filter.ts)      | bất kỳ tầng 5-14 ném                  | exception + `req.id`                                         | —                                                | viết envelope lỗi, **duy nhất**           |
 
 Ba điều bảng này làm lộ ra:
 
-- **`req.body` có mặt từ tầng 2 nhưng chỉ "sạch" từ tầng 9.** Tầng 5-7 đọc body thô. Đây là lý do `AppThrottlerGuard`
+- **`req.body` có mặt từ tầng 2; tham số DTO đưa vào handler được kiểm ở tầng 9.** `req.body` không được thay bằng DTO. Tầng 5-7 đọc body thô. Đây là lý do `AppThrottlerGuard`
   phải tự phòng thủ khi lấy `email` làm khoá — kiểm `typeof body === "object"` rồi mới kiểm `typeof email === "string"`
   ([throttler-options.factory.ts:67-85](../../src/shared/utils/throttler-options.factory.ts#L67-L85)).
 - **`req.id` có từ tầng 3**, nên mọi lỗi từ tầng 5 trở đi đều mang `requestId` trong envelope — kể cả 429 và 401.
@@ -96,7 +96,7 @@ Ba điều bảng này làm lộ ra:
 > `.use()`**, mà hai cái này được gọi ở hai thời điểm khác nhau:
 >
 > - `app.enableCors(...)` ([main.ts:27](../../src/main.ts#L27)) gọi thẳng `express.use(cors(...))` **ngay lúc đó**.
-> - body-parser thì Nest tự gắn bên trong `app.init()`, và `init()` chỉ chạy khi `app.listen()` ([main.ts:47](../../src/main.ts#L47))
+> - body-parser thì Nest tự gắn bên trong `app.init()`, và trong `main.ts` này, `init()` được gọi tự động khi `app.listen()` ([main.ts:47](../../src/main.ts#L47))
 >   được gọi — tức **sau** dòng 27.
 >
 > Gọi trước thì nằm trước. Tự kiểm: dựng một app rỗng, `enableCors()` rồi `init()`, in ra stack của Express —
@@ -135,7 +135,7 @@ Ba điều bảng này làm lộ ra:
 | 7b   |                            | `Reflector` đọc `@RequirePermission` = `product:update:own` ([controller:128](../../src/routes/product/manage-product/manage-product.controller.ts#L128)) |
 | 7c   |                            | `PermissionResolverService.forRoles([seller])` → Redis hit → `Set { product:update:own, … }` → `req.granted_permissions`                                  |
 | 7d   |                            | `satisfies(Set, "product:update:own")` → có đúng key → qua                                                                                                |
-| 8    | Interceptor (đi)           | Không làm gì                                                                                                                                              |
+| 8    | Interceptor (đi)           | Serializer đọc tùy chọn, rồi gọi `next.handle()`                                                                                                          |
 | 9    | `ValidationPipe`           | `design:paramtypes` nói tham số `@Body()` là `UpdateProductRequestDto` → validate, whitelist, transform → instance DTO                                    |
 | 10   | `ParseUUIDPipe`            | `"3f2c…"` là UUID hợp lệ → giữ                                                                                                                            |
 | 11   | Param decorators           | `@ActiveUser("userId")` → `minh`; `@PermissionScope(["product","update"])` → `scopeOf(Set)` → `"own"`                                                     |
@@ -143,6 +143,8 @@ Ba điều bảng này làm lộ ra:
 | 13   | Service                    | Tìm product → `createdById === minh`? Có → cập nhật ([service:164-190](../../src/routes/product/manage-product/manage-product.service.ts#L164-L190))      |
 | 14   | Interceptor (về)           | `new ProductDetailResponseDto(result)` → `excludeExtraneousValues` bỏ field không `@Expose()`                                                             |
 | 15   | Response                   | `200`, header `X-Request-Id: 9b1e…`, body JSON; pino log dòng "completed … ms"                                                                            |
+
+**Các hàng 9–11 không phải ba pha nối tiếp.** Nest tách giá trị từng tham số bằng decorator rồi chạy pipe của tham số đó; các tham số được resolve bằng `Promise.all`. `@ActiveUser()` và `@PermissionScope()` có thể được gọi trước khi pipe của tham số khác hoàn tất. Handler chỉ chạy khi mọi tham số thành công. DTO là giá trị đưa vào handler; pipe không thay `req.body` bằng instance DTO.
 
 Nếu ở bước 13 product thuộc seller khác: service ném 403 → tầng ∞ → envelope `{ statusCode: 403, error, message,
 requestId: "9b1e…" }`. Cùng `requestId` với dòng log — tra được từ client về server.
@@ -201,9 +203,11 @@ Hỏng ở đây là hỏng theo hướng **lộ dữ liệu**, không phải tr
 4. Log theo mức (5xx = error kèm stack).
 5. Nếu `headersSent` (response đã đi một phần) → **không** viết nữa.
 
-Lỗi từ tầng 1-4 (middleware) đi khác: middleware đăng ký qua module (pino, i18n) được Nest bọc nên vẫn về filter;
-`body-parser` và `cors` là Express thuần nên JSON hỏng trả body lỗi của Express, không phải envelope. Hiếm gặp,
-nhưng nếu thấy một lỗi 400 **không** có `requestId`, đó là dấu hiệu nó sinh ra ở tầng 2.
+Lỗi từ tầng 1-4 (middleware) đi đường khác nhưng **vẫn tới cùng filter**: Nest gắn thêm một error-middleware
+Express ở cuối app trỏ về bộ filter, và đổi `SyntaxError` của body-parser thành `BadRequestException`
+([chương 10 §10](10-exception-filters.md#10-lỗi-filter-không-thấy)). Nên JSON hỏng vẫn ra envelope `400 BAD_REQUEST`.
+Khác biệt là body-parser chạy **trước** pino-http, nên lúc đó chưa có `req.id`: một lỗi 400 **không** có `requestId`
+là dấu hiệu nó sinh ra ở tầng 2.
 
 ---
 
@@ -233,21 +237,21 @@ Cần body sạch → không sớm hơn pipe. Cần bản ghi trong DB → servi
 
 ## 7. Đọc một mã lỗi ngược về tầng sinh ra nó
 
-| Client nhận                                    | Có `requestId`? | Sinh ở                                     | Kiểm gì                                                           |
-| ---------------------------------------------- | --------------- | ------------------------------------------ | ----------------------------------------------------------------- |
-| 400, body **không** phải envelope              | Không           | Tầng 2 body-parser                         | JSON gửi lên có hợp lệ không                                      |
-| 400 `VALIDATION_FAILED` có `details[]`         | Có              | Tầng 9 `ValidationPipe`                    | DTO + `whitelist`/`forbidNonWhitelisted`                          |
-| 400 không `details`                            | Có              | Tầng 10 pipe cục bộ (`ParseUUIDPipe`)      | param có đúng dạng                                                |
-| 401 "Access token is required/invalid/expired" | Có              | Tầng 7 `AccessTokenGuard`                  | header, hạn token                                                 |
-| 401 "Authorization failed for all conditions"  | Có              | Tầng 6 nhánh OR                            | route dùng `@AuthApi([...], OR)` — guard con nào fail bị nuốt     |
-| 403 "You do not have permission…"              | Có              | Tầng 7 `satisfies()`                       | tập quyền của role vs `@RequirePermission`                        |
-| 403 khác (nghiệp vụ)                           | Có              | Tầng 13 service                            | ownership, trạng thái                                             |
-| 404                                            | Có              | Tầng 13 service (hoặc route không tồn tại) | `where` có `createdById`/`userId` không                           |
-| 409                                            | Có              | Tầng 13 qua Prisma P2002                   | unique constraint                                                 |
-| 429 + `Retry-After`                            | Có              | Tầng 5                                     | `@Throttle` của route, khoá ip/email                              |
-| 500 "Route has no permission declaration"      | Có              | Tầng 7                                     | route thiếu `@RequirePermission` mà lọt boot-check (module lazy?) |
-| 500 khác                                       | Có              | Bất kỳ; xem log theo `requestId`           | hạ tầng (DB/Redis), bug                                           |
-| 204 cho `OPTIONS`                              | Không           | Tầng 1 cors                                | bình thường — preflight                                           |
+| Client nhận                                           | Có `requestId`? | Sinh ở                                     | Kiểm gì                                                           |
+| ----------------------------------------------------- | --------------- | ------------------------------------------ | ----------------------------------------------------------------- |
+| 400 `BAD_REQUEST`, `message` kiểu "Unexpected token…" | **Không**       | Tầng 2 body-parser                         | JSON gửi lên có hợp lệ không                                      |
+| 400 `VALIDATION_FAILED` có `details[]`                | Có              | Tầng 9 `ValidationPipe`                    | DTO + `whitelist`/`forbidNonWhitelisted`                          |
+| 400 không `details`                                   | Có              | Tầng 10 pipe cục bộ (`ParseUUIDPipe`)      | param có đúng dạng                                                |
+| 401 "Access token is required/invalid/expired"        | Có              | Tầng 7 `AccessTokenGuard`                  | header, hạn token                                                 |
+| 401 "Authorization failed for all conditions"         | Có              | Tầng 6 nhánh OR                            | route dùng `@AuthApi([...], OR)` — guard con nào fail bị nuốt     |
+| 403 "You do not have permission…"                     | Có              | Tầng 7 `satisfies()`                       | tập quyền của role vs `@RequirePermission`                        |
+| 403 khác (nghiệp vụ)                                  | Có              | Tầng 13 service                            | ownership, trạng thái                                             |
+| 404                                                   | Có              | Tầng 13 service (hoặc route không tồn tại) | `where` có `createdById`/`userId` không                           |
+| 409                                                   | Có              | Tầng 13 qua Prisma P2002                   | unique constraint                                                 |
+| 429 + `Retry-After`                                   | Có              | Tầng 5                                     | `@Throttle` của route, khoá ip/email                              |
+| 500 "Route has no permission declaration"             | Có              | Tầng 7                                     | route thiếu `@RequirePermission` mà lọt boot-check (module lazy?) |
+| 500 khác                                              | Có              | Bất kỳ; xem log theo `requestId`           | hạ tầng (DB/Redis), bug                                           |
+| 204 cho `OPTIONS`                                     | Không           | Tầng 1 cors                                | bình thường — preflight                                           |
 
 ---
 

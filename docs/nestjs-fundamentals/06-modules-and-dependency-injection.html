@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chương 6 — Module và Dependency Injection</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Azeret+Mono:wght@400;500;600&amp;display=swap"
       rel="stylesheet"
     />
     <style>
@@ -1092,1244 +1092,2159 @@
           max-width: none;
         }
       }
+
+      /* Markdown-generated content uses the existing paper/ink theme. */
+      h2.sec-head {
+        display: block;
+        font-size: 1.45rem;
+        line-height: 1.5;
+        scroll-margin-top: 24px;
+      }
+      h3.sub {
+        font-size: 1.15rem;
+        margin-top: 30px;
+        line-height: 1.6;
+      }
+      h4.sub,
+      h5.sub,
+      h6.sub {
+        margin-top: 24px;
+        line-height: 1.6;
+      }
+      blockquote {
+        margin: 20px 0;
+        padding: 12px 22px;
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+      }
+      blockquote .prose:last-child {
+        margin-bottom: 0;
+      }
+      .main > ul,
+      .main > ol {
+        padding-left: 26px;
+        margin: 16px 0 24px;
+      }
+      li {
+        line-height: 1.85;
+      }
+      li > .prose {
+        margin: 6px 0;
+      }
+      pre.code-file__body {
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      pre code {
+        font: inherit;
+        color: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .series-bar {
+        flex-wrap: wrap;
+      }
+      .series-bar a[aria-current="page"] {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .diagram-code {
+        margin: 10px 0 24px;
+      }
+      .diagram-code pre {
+        overflow-x: auto;
+        padding: 16px;
+        background: var(--surface);
+      }
+      .source-footer {
+        margin: 48px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.8rem;
+      }
+      .mermaid-wrap[hidden] {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <button
       class="theme-toggle"
       id="themeToggle"
-      title="Đổi giao diện sáng/tối"
       aria-label="Đổi giao diện sáng tối"
-    ></button>
+    >
+      ☾
+    </button>
     <div class="wrap">
-      <nav class="toc" id="toc">
-        <div class="toc-title">Chương 6</div>
-        <a href="#s1">Ai tạo object</a>
-        <a href="#s1b">IoC · DI · Service Locator</a>
-        <a href="#s2">Bốn kiểu provider</a>
-        <a href="#s3">Bốn ô của @Module</a>
-        <a href="#s4">Quy tắc phân giải</a>
-        <a href="#s5">@Global · SharedModule</a>
-        <a href="#s6">APP_GUARD và anh em</a>
-        <a href="#s7">Module động</a>
-        <a href="#s8">Scope</a>
-        <a href="#s9">Vòng tròn</a>
-        <a href="#s10">DI trong test</a>
-        <a href="#s11">Lifecycle</a>
-        <a href="#s12">Bản đồ module</a>
-        <a href="#s13">Chỗ dễ vấp</a>
-        <a href="#s14">Tự kiểm chứng</a>
+      <nav class="toc" aria-label="Mục lục chương">
+        <div class="toc-title">Trong chương</div>
+        <a href="#1-vấn-đề-ai-tạo-object-trong-constructor"
+          >1. Vấn đề: ai tạo object trong constructor</a
+        ><a href="#2-provider-bốn-cách-khai-một-công-thức-tạo"
+          >2. Provider: bốn cách khai một &quot;công thức tạo&quot;</a
+        ><a href="#3-module-bốn-ô-của-module">3. Module: bốn ô của @Module</a
+        ><a href="#4-quy-tắc-phân-giải-nest-tìm-provider-ở-đâu"
+          >4. Quy tắc phân giải: Nest tìm provider ở đâu</a
+        ><a href="#5-global-và-sharedmodule">5. @Global() và SharedModule</a
+        ><a href="#6-bốn-token-đặc-biệt-app_guard-và-anh-em"
+          >6. Bốn token đặc biệt: APP_GUARD và anh em</a
+        ><a href="#7-module-động-forroot-forrootasync-register"
+          >7. Module động: forRoot, forRootAsync, register</a
+        ><a href="#8-scope-của-provider">8. Scope của provider</a
+        ><a href="#9-phụ-thuộc-vòng-tròn">9. Phụ thuộc vòng tròn</a
+        ><a href="#10-di-trong-test">10. DI trong test</a
+        ><a href="#11-vòng-đời-hook-nào-chạy-lúc-nào"
+          >11. Vòng đời: hook nào chạy lúc nào</a
+        ><a href="#12-bản-đồ-module-của-dự-án">12. Bản đồ module của dự án</a
+        ><a href="#13-nâng-cao-và-những-chỗ-dễ-vấp"
+          >13. Nâng cao và những chỗ dễ vấp</a
+        ><a href="#14-tự-kiểm-chứng">14. Tự kiểm chứng</a>
         <div class="toc-series">
           <a href="index.html">↑ Mục lục bộ</a
-          ><a href="05-request-lifecycle-in-this-project.html">← Chương 5</a
-          ><a href="07-dto-validation-transformation-serialization.html"
-            >→ Chương 7</a
-          >
+          ><a href="06-modules-and-dependency-injection.md">Bản Markdown</a>
         </div>
       </nav>
-
-      <div class="main">
-        <div class="series-bar">
-          <a href="index.html">Mục lục</a><span class="sep">·</span>
-          <a href="00-prototype-and-this.html">00 Prototype</a>
-          <a href="01-decorators-and-metadata.html">01 Decorator</a>
-          <a href="02-reflector-execution-context-and-discovery.html"
+      <main class="main">
+        <nav class="series-bar" aria-label="Các chương">
+          <a href="index.html">Mục lục</a
+          ><a href="00-prototype-and-this.html">00 Prototype</a
+          ><a href="01-decorators-and-metadata.html">01 Decorator</a
+          ><a href="02-reflector-execution-context-and-discovery.html"
             >02 Reflector</a
-          >
-          <a href="03-guards.html">03 Guard</a>
-          <a href="04-middleware.html">04 Middleware</a>
-          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
-          <span>06 Module &amp; DI</span>
-          <a href="07-dto-validation-transformation-serialization.html"
+          ><a href="03-guards.html">03 Guard</a
+          ><a href="04-middleware.html">04 Middleware</a
+          ><a href="05-request-lifecycle-in-this-project.html"
+            >05 Vòng đời request</a
+          ><a
+            href="06-modules-and-dependency-injection.html"
+            aria-current="page"
+            >06 Module &amp; DI</a
+          ><a href="07-dto-validation-transformation-serialization.html"
             >07 DTO</a
+          ><a href="08-request-and-provider-instances.html"
+            >08 Instance &amp; scope</a
+          ><a href="09-interceptors.html">09 Interceptor</a
+          ><a href="10-exception-filters.html">10 Filter</a
+          ><a href="11-controllers-and-http-routing.html">11 Controller</a
+          ><a href="12-pipes-and-input-contracts.html">12 Pipe</a
+          ><a href="13-testing-fundamentals.html">13 Testing</a
+          ><a href="14-bootstrap-configuration-and-shutdown.html"
+            >14 Bootstrap</a
+          ><a href="appendix-a-reflect-metadata-internals.html"
+            >Phụ lục A — reflect-metadata bên trong</a
           >
-          <a href="appendix-a-reflect-metadata-internals.html"
-            >A reflect-metadata</a
-          >
-          <span class="sep">·</span
-          ><a href="06-modules-and-dependency-injection.md"
-            >bản markdown đầy đủ</a
-          >
-        </div>
-
+        </nav>
         <header class="masthead">
-          <div class="eyebrow">Chương 6</div>
-          <h1>Module và Dependency Injection</h1>
-          <p class="subtitle">
-            Năm chương đầu giải thích <strong>request đi qua đâu</strong>.
-            Chương này giải thích
-            <strong>những object trên đường đi đó từ đâu ra</strong> — và vì sao
-            cùng một class có thể tồn tại <em>hai bản</em> trong cùng một app.
-          </p>
-          <div class="masthead-meta">
-            <span class="tag">3 thí nghiệm chạy thật</span
-            ><span class="tag tag--b">không cần DB</span
-            ><span class="tag tag--amber">1 cái bẫy đang có trong repo</span>
-          </div>
+          <h1 id="chương-6--module-và-dependency-injection">
+            Chương 6 — Module và Dependency Injection
+          </h1>
         </header>
-
-        <div class="sec-head" id="s1">
-          <span class="sec-head__num">01</span
-          ><span class="sec-head__text"
-            >Vấn đề: ai tạo object trong constructor</span
+        <blockquote>
+          <p class="prose">
+            <strong>Mục đích chương này:</strong> hiểu cách một ứng dụng cung
+            cấp các object mà controller/service cần, để code nghiệp vụ tập
+            trung sử dụng dependency, còn việc lắp ráp và quản lý chúng có chỗ
+            chịu trách nhiệm rõ ràng.
+          </p>
+          <p class="prose">
+            Chương đi từ <strong>dependency → DI → IoC → container</strong>, rồi
+            giải thích cách Nest dùng <strong>provider và module</strong> để
+            thực hiện việc đó. Bạn sẽ biết vì sao service nhận được repository
+            qua constructor, cách thay dependency trong test và cách sửa lỗi khi
+            Nest không tìm thấy provider.
+          </p>
+        </blockquote>
+        <p class="prose">
+          Đọc xong phần nền tảng (<a
+            href="#1-vấn-đề-ai-tạo-object-trong-constructor"
+            >mục 1–4</a
+          >), bạn cần làm được ba việc:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              Giải thích DI và IoC bằng một ví dụ, kể cả khi chưa dùng Nest.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Đọc constructor để biết class cần gì, rồi lần ra provider/module
+              cung cấp dependency đó.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Đăng ký một service mới và chọn đúng module để class khác sử dụng
+              được nó.
+            </p>
+          </li>
+        </ul>
+        <p class="prose"><strong>Mục lục</strong></p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <a href="#1-vấn-đề-ai-tạo-object-trong-constructor"
+                >Vấn đề: ai tạo object trong constructor</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#2-provider-bốn-cách-khai-một-công-thức-tạo"
+                >Provider: bốn cách khai một &quot;công thức tạo&quot;</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#3-module-bốn-ô-của-module"
+                >Module: bốn ô của <code>@Module</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#4-quy-tắc-phân-giải-nest-tìm-provider-ở-đâu"
+                >Quy tắc phân giải: Nest tìm provider ở đâu</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#5-global-và-sharedmodule"
+                ><code>@Global()</code> và <code>SharedModule</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#6-bốn-token-đặc-biệt-app_guard-và-anh-em"
+                >Bốn token đặc biệt: <code>APP_GUARD</code> và anh em</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#7-module-động-forroot-forrootasync-register"
+                >Module động: <code>forRoot</code>, <code>forRootAsync</code>,
+                <code>register</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#8-scope-của-provider">Scope của provider</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#9-phụ-thuộc-vòng-tròn">Phụ thuộc vòng tròn</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#10-di-trong-test">DI trong test</a></p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#11-vòng-đời-hook-nào-chạy-lúc-nào"
+                >Vòng đời: hook nào chạy lúc nào</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#12-bản-đồ-module-của-dự-án">Bản đồ module của dự án</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#13-nâng-cao-và-những-chỗ-dễ-vấp"
+                >Nâng cao và những chỗ dễ vấp</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#14-tự-kiểm-chứng">Tự kiểm chứng</a></p>
+          </li>
+        </ol>
+        <blockquote>
+          <p class="prose">
+            <strong>Chương này dài — đừng đọc một mạch.</strong> Bốn đường đi,
+            tuỳ việc bạn đang làm:
+          </p>
+          <ul>
+            <li>
+              <p class="prose">
+                <strong>Chỉ cần hiểu để đọc code người khác (20 phút):</strong>
+                <a href="#1-vấn-đề-ai-tạo-object-trong-constructor">mục 1</a> →
+                2 → 3 → 4. Đến đây bạn đã trả lời được câu &quot;object trong
+                constructor từ đâu ra&quot;.
+              </p>
+            </li>
+            <li>
+              <p class="prose">
+                <strong>Sắp thêm module / provider mới:</strong> thêm
+                <a href="#5-global-và-sharedmodule">mục 5</a>
+                (<code>@Global</code>), 6 (<code>APP_GUARD</code>), 7 (module
+                động).
+              </p>
+            </li>
+            <li>
+              <p class="prose">
+                <strong>Đang gỡ một lỗi DI:</strong> nhảy thẳng tới
+                <a href="#9-phụ-thuộc-vòng-tròn">mục 9</a> (vòng tròn), 13
+                (những chỗ dễ vấp), và
+                <a href="#4-quy-tắc-phân-giải-nest-tìm-provider-ở-đâu">mục 4</a>
+                để hiểu quy tắc tìm.
+              </p>
+            </li>
+            <li>
+              <p class="prose">
+                <strong>Đang viết test:</strong>
+                <a href="#10-di-trong-test">mục 10</a>, rồi
+                <a href="#14-tự-kiểm-chứng">mục 14</a> để chạy thử ba quy tắc
+                bằng một script.
+              </p>
+            </li>
+          </ul>
+          <p class="prose">
+            <a href="#8-scope-của-provider">Mục 8</a> (scope) và 11 (lifecycle
+            hook) là kiến thức tra cứu — đọc khi gặp, không cần thuộc.
+          </p>
+        </blockquote>
+        <hr />
+        <h2 id="1-vấn-đề-ai-tạo-object-trong-constructor" class="sec-head">
+          1. Vấn đề: ai tạo object trong constructor
+        </h2>
+        <p class="prose">
+          Mục này giải thích
+          <strong
+            >vì sao tách việc sử dụng một object khỏi việc tạo và cung cấp
+            object đó</strong
+          >. Ta bắt đầu với hai class TypeScript bình thường, rồi mới thêm Nest.
+          Ví dụ <code>RoleRepository</code> dưới đây chỉ trả mảng cố định để tập
+          trung vào cách hai object làm việc với nhau; nó không truy cập DB như
+          repository thật.
+        </p>
+        <h3 id="11-dependency-là-gì" class="sub">1.1. Dependency là gì?</h3>
+        <p class="prose">
+          <strong
+            >Dependency (phụ thuộc) là thứ một đoạn code cần để thực hiện công
+            việc của nó.</strong
           >
-        </div>
+          Trong ví dụ này, <code>RoleService</code> cần một object có thể đọc
+          danh sách role, nên <code>RoleRepository</code> là dependency của
+          <code>RoleService</code>.
+        </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>src/routes/role/role.service.ts</span><span>dòng 15-20</span>
-          </div>
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>class RoleRepository {
+  findAll(): string[] {
+    return [&quot;admin&quot;, &quot;seller&quot;];
+  }
+}
+
+class RoleService {
+  private readonly roleRepository = new RoleRepository();
+
+  getRoles(): string[] {
+    return this.roleRepository.findAll();
+  }
+}
+
+const service = new RoleService();
+service.getRoles(); // [&quot;admin&quot;, &quot;seller&quot;]</code></pre>
+        </div>
+        <p class="prose">
+          Ở đây <code>RoleService</code> làm <strong>hai việc</strong>: dùng
+          repository để đọc role, và tự quyết định tạo repository bằng
+          <code>new RoleRepository()</code>. Chương này bàn về việc thứ hai:
+          <strong>ai nên chịu trách nhiệm cung cấp dependency?</strong>
+        </p>
+        <p class="prose">
+          Dependency không chỉ là repository. Nó có thể là logger, client Redis,
+          hàm lấy thời gian hoặc giá trị cấu hình. Chúng có điểm chung: code cần
+          chúng để làm việc.
+        </p>
+        <h3
+          id="12-vì-sao-class-tự-tạo-dependency-có-thể-gây-khó-khăn"
+          class="sub"
+        >
+          1.2. Vì sao class tự tạo dependency có thể gây khó khăn?
+        </h3>
+        <p class="prose">
+          Giả sử muốn test <code>getRoles()</code> với danh sách
+          <code>[&quot;test-role&quot;]</code>. Class ở trên luôn tự tạo
+          <code>RoleRepository</code>, nên người gọi không có chỗ để truyền một
+          repository giả vào. Nếu repository thật cần DB, test service sẽ kéo cả
+          việc tạo và kết nối DB vào theo, trừ khi can thiệp bằng cách khác như
+          mock module.
+        </p>
+        <p class="prose">
+          Khi repository có constructor cần <code>PrismaService</code>, service
+          còn phải biết cách cung cấp Prisma. Nếu nhiều service cùng tự tạo các
+          dependency hạ tầng, bạn lại phải quyết định nơi nào tạo mới và nơi nào
+          dùng lại.
+        </p>
+        <p class="prose">Điều cần tách ra là:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Code nghiệp vụ:</strong> dùng repository để đọc role.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Code lắp ráp ứng dụng:</strong> chọn repository nào, tạo
+              nó thế nào và đưa nó cho service.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Việc tạo object vẫn phải diễn ra; ta chuyển trách nhiệm đó ra ngoài
+          class sử dụng nó.
+        </p>
+        <h3 id="13-di-là-gì-truyền-dependency-từ-bên-ngoài-vào" class="sub">
+          1.3. DI là gì? Truyền dependency từ bên ngoài vào
+        </h3>
+        <p class="prose">
+          <strong
+            >Dependency Injection (DI) là kỹ thuật cung cấp dependency từ bên
+            ngoài cho object sử dụng nó, thay vì để object đó tự tạo hoặc tự tìm
+            dependency.</strong
+          >
+          &quot;Injection&quot; ở đây có nghĩa là <strong>truyền vào</strong>.
+        </p>
+        <p class="prose">
+          Thay <code>RoleService</code> ở ví dụ trước bằng phiên bản sau;
+          <code>RoleRepository</code> giữ nguyên:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>class RoleService {
+  private readonly roleRepository: RoleRepository;
+
+  constructor(roleRepository: RoleRepository) {
+    this.roleRepository = roleRepository;
+  }
+
+  getRoles(): string[] {
+    return this.roleRepository.findAll();
+  }
+}
+
+// Code bên ngoài tạo repository rồi cung cấp nó cho service.
+const repository = new RoleRepository();
+const service = new RoleService(repository);
+service.getRoles(); // [&quot;admin&quot;, &quot;seller&quot;]</code></pre>
+        </div>
+        <p class="prose">
+          <code>new RoleService(repository)</code> chính là
+          <strong>constructor injection</strong>: dependency được truyền qua
+          constructor. Đoạn code này <strong>đã dùng DI</strong>, dù không có
+          Nest, decorator hay container. Tự tay lắp ráp object vẫn có thể là DI;
+          điểm quyết định là dependency được cung cấp từ đâu, không phải có dùng
+          <code>new</code> hay không.
+        </p>
+        <p class="prose">
+          Bây giờ test có thể truyền một object khác có cùng phương thức mà
+          service cần:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>const fakeRepository = {
+  findAll: (): string[] =&gt; [&quot;test-role&quot;],
+};
+
+const service = new RoleService(fakeRepository);
+service.getRoles(); // [&quot;test-role&quot;]</code></pre>
+        </div>
+        <p class="prose">
+          Trong ví dụ tối giản này, TypeScript chấp nhận fake vì hình dạng của
+          nó khớp <code>RoleRepository</code>. Service vẫn gọi
+          <code>findAll()</code> như trước;
+          <strong>người lắp ráp chọn dependency thật hoặc giả</strong>. Với
+          repository thật có thêm member, fake và token phải theo hợp đồng tương
+          ứng; xem <a href="#10-di-trong-test">mục 10</a>.
+        </p>
+        <p class="prose">Cú pháp thường thấy trong repo:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
           <pre
             class="code-file__body"
-          ><code>@<span class="fn">Injectable</span>()
-<span class="kw">export class</span> RoleService {
-  <span class="kw">constructor</span>(
-    <span class="kw">private readonly</span> roleRepository: RoleRepository,
-    <span class="kw">private readonly</span> rolePermissionCacheService: RolePermissionCacheService,
-  ) {}
-}</code></pre>
+          ><code>constructor(private readonly roleRepository: RoleRepository) {}</code></pre>
         </div>
         <p class="prose">
-          Không chỗ nào trong <code>src/</code> viết
-          <code>new RoleService(...)</code>. Vậy cái <code>roleService</code> mà
-          controller gọi ở đâu ra?
+          là cách viết ngắn của việc khai field rồi gán tham số constructor vào
+          field như trên. <code>private readonly</code> không tự tìm hoặc tạo
+          repository; nó chỉ khai báo field và hạn chế cách truy cập/gán trong
+          TypeScript.
         </p>
-        <div class="diff-panels">
-          <div>
-            <div class="diff-panel__header diff-panel__header--bad">
-              Không DI — tự ráp tay
-            </div>
-            <div class="diff-panel__body">
-              <pre
-                class="code-file__body"
-                style="
-                  border: 0;
-                  padding: 0;
-                  background: transparent;
-                  font-size: 12.5px;
-                "
-              ><code><span class="kw">const</span> prisma = <span class="kw">new</span> <span class="fn">PrismaService</span>();
-<span class="kw">const</span> redis = <span class="kw">new</span> <span class="fn">RedisService</span>(config);
-<span class="kw">const</span> cache = <span class="kw">new</span> <span class="fn">RolePermissionCacheService</span>(redis);
-<span class="kw">const</span> roleRepo = <span class="kw">new</span> <span class="fn">RoleRepository</span>(prisma);
-<span class="kw">const</span> roleService = <span class="kw">new</span> <span class="fn">RoleService</span>(roleRepo, cache);</code></pre>
-              <p style="margin: 10px 0 0">
-                Sáu dòng cho <strong>một</strong> controller. Repo có 17
-                controller, 25 repository. Và phần khó hơn: phải nhớ
-                <em>dùng lại</em> object đã tạo —
-                <code>new RedisService</code> lần nữa là mở hai kết nối.
-              </p>
-            </div>
-          </div>
-          <div>
-            <div class="diff-panel__header diff-panel__header--good">
-              Có DI — đảo quyền điều khiển
-            </div>
-            <div class="diff-panel__body">
-              <p style="margin: 0 0 10px">
-                Class <strong>khai báo nó cần gì</strong>, không
-                <strong>đi lấy</strong> thứ nó cần. Container giữ sổ sách và ráp
-                hộ.
-              </p>
-              <ul class="node-list">
-                <li>
-                  <strong>Dùng lại instance</strong> — một
-                  <code>PrismaService</code>, một pool, không phải 25
-                </li>
-                <li>
-                  <strong>Thay thế được</strong> — test khai "ai hỏi X thì đưa
-                  mock này"
-                </li>
-                <li><strong>Thứ tự khởi tạo tự lo</strong></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="callout callout--info">
-          <div class="callout__title">
-            Container biết kiểu bằng cách nào — nối về
-            <a href="01-decorators-and-metadata.html">chương 1</a>
-          </div>
-          Vì <code>RoleService</code> có decorator và tsconfig bật
-          <code>emitDecoratorMetadata</code>, compiler dán:
-          <code>Reflect.getMetadata("design:paramtypes", RoleService)</code> →
-          <code>[RoleRepository, RolePermissionCacheService]</code>.
-          <strong><code>@Injectable()</code> không "làm" gì cả</strong> — nó là
-          cái cớ để compiler emit mảng kiểu. Và vì mảng này chỉ ghi được
-          <em>class</em>, bạn không inject được theo interface.
-        </div>
-
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Gọi đúng tên</th>
-                  <th>Tên đầy đủ</th>
-                  <th>Nó là loại gì</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>IoC</strong></td>
-                  <td>Inversion of Control</td>
-                  <td>
-                    Một <strong>nguyên tắc</strong> rộng: framework giữ quyền
-                    điều khiển luồng, code của bạn <em>bị gọi</em> chứ không
-                    <em>đi gọi</em>. Câu tóm kinh điển — Hollywood Principle:
-                    <em>"Don't call us, we'll call you."</em>
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>DI</strong></td>
-                  <td>Dependency Injection</td>
-                  <td>
-                    Một <strong>kỹ thuật</strong> hiện thực IoC, chỉ cho đúng
-                    một chuyện: phụ thuộc được
-                    <strong>truyền vào từ ngoài</strong> thay vì class tự đi
-                    lấy.
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>DIP</strong></td>
-                  <td>Dependency Inversion Principle</td>
-                  <td>
-                    Chữ <strong>D</strong> trong SOLID: module cấp cao đừng phụ
-                    thuộc trực tiếp vào module cấp thấp — cả hai cùng phụ thuộc
-                    vào một <strong>abstraction</strong>.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <h3
+          id="14-ioc-là-gì-quyền-điều-khiển-được-chuyển-ở-chỗ-nào"
+          class="sub"
+        >
+          1.4. IoC là gì? Quyền điều khiển được chuyển ở chỗ nào?
+        </h3>
         <p class="prose">
-          IoC là cái ô lớn → DI là một cách làm IoC → DIP là lý do người ta
-          <em>muốn</em> DI. Chiều ngược lại không đúng:
-          <strong>dùng DI không tự động có DIP</strong>.
-        </p>
-        <div class="callout callout--warning">
-          <div class="callout__title">
-            Repo này có DI, và cố tình không có DIP
-          </div>
-          <code>RoleService</code> inject <code>RoleRepository</code> — một
-          <strong>class cụ thể</strong>, không phải interface. Phụ thuộc vẫn đi
-          từ ngoài vào (DI ✓), nhưng lớp cao vẫn trỏ thẳng vào lớp thấp (DIP ✗).
-          Lý do là ràng buộc kỹ thuật: <code>design:paramtypes</code> chỉ ghi
-          được <em>class</em>, nên DIP thật đòi khai token thủ công
-          (<code>@Inject("ROLE_REPOSITORY")</code>) cho mọi phụ thuộc. Dự án
-          không trả giá đó và <strong>không mất gì trong test</strong> —
-          container phân giải theo <em>token</em>, mà token ở đây chính là
-          class.
-        </div>
-        <p class="prose">
-          <strong>IoC rộng hơn DI.</strong> Ba chương trước cũng toàn IoC mà
-          không hề có injection nào:
-        </p>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Bạn viết</th>
-                  <th>Ai gọi nó</th>
-                  <th>Là gì</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>canActivate()</code> — AccessTokenGuard</td>
-                  <td>Nest gọi, trước khi vào handler</td>
-                  <td>IoC, không DI</td>
-                </tr>
-                <tr>
-                  <td><code>onModuleInit()</code> — PrismaService</td>
-                  <td>Nest gọi, lúc boot</td>
-                  <td>IoC, không DI</td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>useFactory</code> trong <code>forRootAsync</code>
-                  </td>
-                  <td>Container gọi khi cần dựng provider</td>
-                  <td>IoC, không DI</td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>constructor(roleRepository: RoleRepository)</code>
-                  </td>
-                  <td>Container truyền vào lúc dựng object</td>
-                  <td>IoC <strong>và</strong> DI</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <p class="prose">
-          <code>AccessTokenGuard</code> nằm trên
-          <strong>cả hai trục cùng lúc</strong>: constructor của nó nhận 3 phụ
-          thuộc (DI), còn <code>canActivate</code> thì không chỗ nào trong
-          <code>src/</code> gọi — Nest gọi, vì nó được khai dưới token
-          <code>APP_GUARD</code> (<a href="#s6">mục 06</a>).
-        </p>
-
-        <div class="sec-head" id="s1b">
-          <span class="sec-head__num">01b</span
-          ><span class="sec-head__text"
-            >Cách thứ ba mà ai cũng vấp: Service Locator</span
-          >
-        </div>
-        <p class="lead">
-          Giữa "tự <code>new</code>" và DI còn một cách nữa, trông giống DI đến
-          mức hay bị nhầm là DI: class không <code>new</code> gì cả, nhưng nó
-          <strong>tự đi hỏi container</strong>.
-        </p>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            <div class="ve-card__label ve-card__label--red">
-              1 · Tự quản — không IoC
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 13px;
-              "
-            ><code><span class="cm">// KHÔNG có trong repo</span>
-<span class="kw">private readonly</span> roleRepository =
-  <span class="kw">new</span> <span class="fn">RoleRepository</span>(<span class="kw">new</span> <span class="fn">PrismaService</span>());</code></pre>
-            <p style="margin: 10px 0 0">
-              Kết nối DB thứ hai, thứ ba, thứ hai mươi lăm.
-            </p>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 1">
-            <div class="ve-card__label ve-card__label--amber">
-              2 · Service Locator — IoC, không DI
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 13px;
-              "
-            ><code><span class="cm">// KHÔNG có trong repo</span>
-<span class="kw">constructor</span>(<span class="kw">private readonly</span> moduleRef: ModuleRef) {}
-
-<span class="kw">async</span> <span class="fn">getRoles</span>(query) {
-  <span class="kw">const</span> repo = <span class="kw">this</span>.moduleRef.<span class="fn">get</span>(RoleRepository, { strict: <span class="kw">false</span> });
-}</code></pre>
-            <p style="margin: 10px 0 0">
-              Không <code>new</code>, vẫn tái dùng instance — nhưng class
-              <strong>kéo</strong> thay vì được <strong>đẩy</strong>.
-            </p>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>1 · Tự quản</th>
-                  <th>2 · Service Locator</th>
-                  <th>3 · DI (repo)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Nhìn constructor biết class cần gì</td>
-                  <td>Không — rải trong thân class</td>
-                  <td>
-                    <strong>Không</strong> — chỉ thấy <code>ModuleRef</code>
-                  </td>
-                  <td><strong>Có</strong> — đọc 3 giây</td>
-                </tr>
-                <tr>
-                  <td>Thiếu phụ thuộc thì vỡ lúc nào</td>
-                  <td>Lúc compile</td>
-                  <td>
-                    <strong>Lúc chạy</strong>, ngay dòng <code>.get()</code>
-                  </td>
-                  <td><strong>Lúc boot</strong>, trước request đầu tiên</td>
-                </tr>
-                <tr>
-                  <td>Thay thế trong test</td>
-                  <td>Phải <code>jest.mock</code> cả module</td>
-                  <td>Phải giả lập cả container</td>
-                  <td><code>{ provide: X, useValue: mock }</code></td>
-                </tr>
-                <tr>
-                  <td>Class có dính vào Nest không</td>
-                  <td>Không</td>
-                  <td><strong>Có</strong> — import <code>ModuleRef</code></td>
-                  <td>Không — class là POJO</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="callout callout--danger">
-          <div class="callout__title">
-            Dòng đắt nhất là dòng thứ hai — thử xoá
-            <code>RoleRepository</code> khỏi <code>providers</code>
-          </div>
-          <pre
-            class="code-file__body out"
-          ><code>Với DI:              app không boot được
-                     → Nest can't resolve dependencies of the RoleService (?, RolePermissionCacheService)
-
-Với Service Locator: app boot xanh, healthcheck xanh, deploy xong
-                     → request đầu tiên vào GET /roles mới ném lỗi, trên production</code></pre>
-          DI biến một lỗi runtime thành <strong>lỗi lúc boot</strong>. Đó không
-          phải hiệu ứng phụ — đó là cái người ta mua khi chọn DI.
-        </div>
-        <div class="callout callout--success">
-          <div class="callout__title">
-            Khi Service Locator là đúng: composition root
-          </div>
-          Có đúng một chỗ hợp lệ để chạm vào container — điểm chương trình được
-          ráp lại, trước khi có class nghiệp vụ nào chạy. Repo dùng ở ba nơi, cả
-          ba hợp lệ: <code>main.ts:16-18</code> (<code>app.get(Logger)</code>),
-          <code>create-permission.ts:26</code> (script seed), và
-          <code>moduleRef.get(...)</code> trong test harness. Luật thực dụng:
           <strong
-            >càng xa composition root, càng không được chạm vào
-            container</strong
-          >. Một <code>ModuleRef</code> trong
-          <code>src/routes/**/*.service.ts</code> gần như luôn là mùi lỗi.
-        </div>
-
-        <div class="sec-head" id="s2">
-          <span class="sec-head__num">02</span
-          ><span class="sec-head__text"
-            >Provider: bốn cách khai một "công thức tạo"</span
+            >Inversion of Control (IoC, đảo ngược quyền điều khiển) là nguyên
+            tắc chuyển một phần quyền điều phối ra khỏi code đang thực hiện công
+            việc, sang code bên ngoài hoặc framework.</strong
           >
-        </div>
-        <p class="lead">
-          Provider = một mục trong sổ sách:
-          <em>"ai hỏi token X thì đưa thứ tạo theo cách Y"</em>. Token thường
-          chính là class.
+          Muốn hiểu một ví dụ IoC, phải hỏi rõ:
+          <strong
+            >quyền quyết định việc gì đã được chuyển, và chuyển cho ai?</strong
+          >
         </p>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            <div class="ve-card__label">
-              <code>useClass</code> — dạng viết tắt
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 13px;
-              "
-            ><code>providers: [RoleService]
-<span class="cm">// tương đương:</span>
-providers: [{ provide: RoleService, useClass: RoleService }]</code></pre>
-            <p style="margin: 10px 0 0">
-              99% provider trong repo. Dạng đầy đủ có ích khi token ≠ class:
-              <code
-                >{ provide: StorageService, useClass: isProd ? S3Service :
-                LocalDiskService }</code
+        <h4 id="ví-dụ-1-bạn-tự-gọi-hàm" class="sub">Ví dụ 1: bạn tự gọi hàm</h4>
+        <p class="prose">
+          Khi viết chương trình thông thường, bạn tự điều khiển thứ tự gọi:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>function sayHello(): string {
+  return &quot;Xin chào&quot;;
+}
+
+const result = sayHello(); // Code của bạn quyết định gọi hàm ở bước này.
+console.log(result);</code></pre>
+        </div>
+        <p class="prose">
+          Ở đây, code của bạn giữ luồng thực thi: gọi <code>sayHello()</code>,
+          nhận kết quả, rồi in kết quả.
+        </p>
+        <h4 id="ví-dụ-2-nest-gọi-code-bạn-đăng-ký" class="sub">
+          Ví dụ 2: Nest gọi code bạn đăng ký
+        </h4>
+        <p class="prose">Với Nest, bạn cung cấp handler:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>import { Controller, Get } from &quot;@nestjs/common&quot;;
+
+@Controller(&quot;hello&quot;)
+class HelloController {
+  @Get()
+  sayHello(): string {
+    return &quot;Xin chào&quot;;
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Controller này cần được đăng ký trong module của app. Sau đó, khi có
+          <code>GET /hello</code>,
+          <strong
+            >Nest nhận request, tìm route, chạy pipeline rồi gọi
+            <code>sayHello()</code></strong
+          >. Bạn viết nội dung method; Nest giữ quyền điều phối việc gọi method
+          trong quá trình xử lý request.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>Bạn tự điều khiển chương trình:
+  Code của bạn → gọi sayHello() → dùng kết quả.
+
+Nest điều khiển luồng xử lý HTTP:
+  Request → Nest nhận và điều phối → gọi sayHello() bạn đã đăng ký → gửi response.</code></pre>
+        </div>
+        <p class="prose">
+          <strong>Đó là phần quyền điều khiển được đảo ngược:</strong> từ việc
+          code của bạn chủ động điều phối các lời gọi, sang việc framework giữ
+          luồng xử lý và gọi code bạn cung cấp tại điểm phù hợp. Không phải mọi
+          lời gọi hàm đều biến mất: bên trong handler, bạn vẫn có thể gọi
+          service hoặc hàm khác. IoC ở ví dụ này nằm ở
+          <strong>quyền điều phối request và gọi handler</strong>.
+        </p>
+        <h4 id="ví-dụ-3-trình-duyệt-gọi-hàm-khi-có-sự-kiện" class="sub">
+          Ví dụ 3: trình duyệt gọi hàm khi có sự kiện
+        </h4>
+        <div class="code-file">
+          <div class="code-file__header">html</div>
+          <pre
+            class="code-file__body"
+          ><code>&lt;button id=&quot;save&quot;&gt;Lưu&lt;/button&gt;
+
+&lt;script&gt;
+  const button = document.getElementById(&quot;save&quot;);
+  button.addEventListener(&quot;click&quot;, function handleClick() {
+    console.log(&quot;Đã bấm nút Lưu&quot;);
+  });
+&lt;/script&gt;</code></pre>
+        </div>
+        <p class="prose">
+          Bạn đăng ký <code>handleClick</code>; trình duyệt nhận sự kiện click
+          rồi gọi hàm đó.
+          <strong
+            >Trình duyệt giữ luồng xử lý sự kiện; bạn cung cấp phần xử lý cần
+            chạy.</strong
+          >
+          Đây cũng là IoC, dù ví dụ không dùng container để lắp ráp dependency.
+        </p>
+        <h4 id="liên-hệ-với-di-ở-mục-trước" class="sub">
+          Liên hệ với DI ở mục trước
+        </h4>
+        <p class="prose">
+          IoC cũng áp dụng vào việc
+          <strong>chọn và cung cấp dependency</strong>. Trong ví dụ DI vừa rồi,
+          quyền này được chuyển từ <code>RoleService</code> sang code lắp ráp:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>Class tự tạo dependency:
+  RoleService quyết định tạo RoleRepository nào rồi dùng nó.
+
+Constructor injection:
+  Code bên ngoài chọn/tạo repository → truyền vào RoleService → service dùng nó.</code></pre>
+        </div>
+        <p class="prose">
+          Vì vậy DI là một cách áp dụng IoC vào việc cung cấp dependency. Đây là
+          một khía cạnh khác với quyền điều phối request hoặc sự kiện trong các
+          ví dụ trên.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Trong Nest</th>
+                <th>Quyền điều phối nào thuộc framework?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  Tạo <code>RoleService</code> và truyền repository vào
+                  constructor
+                </td>
+                <td>Lắp ráp object và cung cấp dependency — DI</td>
+              </tr>
+              <tr>
+                <td>Gọi controller method khi request khớp route</td>
+                <td>Điều phối request — IoC ở luồng thực thi</td>
+              </tr>
+              <tr>
+                <td>Gọi <code>onModuleInit()</code> lúc khởi tạo app</td>
+                <td>Điều phối lifecycle — IoC ở thời điểm gọi hook</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Ba việc này khác nhau. Đọc &quot;Nest dùng IoC&quot; chưa đủ để biết
+          đang nói về việc nào; trong chương này, ta tập trung vào
+          <strong>lắp ráp và quản lý dependency</strong>.
+        </p>
+        <h3
+          id="15-ioc-container-là-gì-vì-sao-cần-nó-khi-đã-biết-di"
+          class="sub"
+        >
+          1.5. IoC container là gì? Vì sao cần nó khi đã biết DI?
+        </h3>
+        <p class="prose">
+          <strong
+            >IoC/DI container là thành phần giữ các đăng ký dependency, tạo hoặc
+            lấy object theo đăng ký, rồi cung cấp chúng cho object cần
+            dùng.</strong
+          >
+          Nest có container đảm nhiệm công việc này.
+        </p>
+        <p class="prose">
+          <strong
+            >IoC là nguyên tắc tổ chức quyền điều khiển; IoC container là một
+            thành phần phần mềm.</strong
+          >
+          Container áp dụng nguyên tắc đó vào việc lắp ráp và quản lý object:
+          quyền chọn, tạo/lấy và cung cấp dependency được giao cho container
+          theo đăng ký của ứng dụng. Đó là lý do nó mang tên &quot;IoC
+          container&quot;.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Khái niệm</th>
+                <th>Loại khái niệm</th>
+                <th>Trong các ví dụ trên</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>IoC</strong></td>
+                <td>Nguyên tắc về quyền điều phối</td>
+                <td>
+                  Nest điều phối request và gọi handler; trình duyệt điều phối
+                  sự kiện và gọi listener
+                </td>
+              </tr>
+              <tr>
+                <td><strong>DI</strong></td>
+                <td>Kỹ thuật cung cấp dependency</td>
+                <td>
+                  Repository được truyền từ bên ngoài vào constructor của
+                  service
+                </td>
+              </tr>
+              <tr>
+                <td><strong>IoC container</strong></td>
+                <td>Thành phần quản lý object</td>
+                <td>
+                  Container của Nest tìm/tạo repository rồi truyền vào service
+                  theo đăng ký provider
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Ví dụ nút Lưu cho thấy IoC có thể xuất hiện mà không cần IoC
+          container. Trong Nest, việc framework gọi handler và việc container
+          cung cấp dependency đều áp dụng IoC, nhưng chúng là hai công việc khác
+          nhau.
+        </p>
+        <p class="prose">Ở ví dụ DI thủ công, chính bạn viết:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const repository = new RoleRepository();
+const service = new RoleService(repository);</code></pre>
+        </div>
+        <p class="prose">
+          Với ứng dụng lớn hơn, repository có dependency riêng; dependency đó
+          lại cần cấu hình hoặc client khác. DI giúp class không phải tự lắp ráp
+          các object này. Container giúp
+          <strong>tự động hoá việc lắp ráp</strong> theo những gì bạn đã đăng
+          ký, thay vì để bạn viết và duy trì mọi dòng <code>new</code> trong
+          entry point.
+        </p>
+        <p class="prose">
+          Container cũng quản lý việc tạo mới hay dùng lại instance theo
+          registration và scope. DI tự nó không có nghĩa &quot;mọi class là
+          singleton&quot;; đó là chính sách của container, sẽ học ở
+          <a href="#8-scope-của-provider">mục 8</a>.
+        </p>
+        <h3 id="16-nest-áp-dụng-điều-đó-như-thế-nào" class="sub">
+          1.6. Nest áp dụng điều đó như thế nào?
+        </h3>
+        <p class="prose">Chuyển ví dụ tối giản sang Nest:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>import { Injectable, Module } from &quot;@nestjs/common&quot;;
+
+@Injectable()
+class RoleRepository {
+  findAll(): string[] {
+    return [&quot;admin&quot;, &quot;seller&quot;];
+  }
+}
+
+@Injectable()
+class RoleService {
+  constructor(private readonly roleRepository: RoleRepository) {}
+
+  getRoles(): string[] {
+    return this.roleRepository.findAll();
+  }
+}
+
+@Module({ providers: [RoleRepository, RoleService] })
+class RoleModule {}</code></pre>
+        </div>
+        <p class="prose">
+          Module này cần được import vào cây module của app. Các class và method
+          ở đây là ví dụ học, không phải bản sao đầy đủ của code repo. Với cấu
+          hình TypeScript hiện tại, khi Nest dựng provider
+          <code>RoleService</code>:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <code>providers</code> cho container biết có đăng ký
+              <code>RoleService</code> và <code>RoleRepository</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Metadata constructor cho biết <code>RoleService</code> cần token
+              <code>RoleRepository</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Container tìm đăng ký token đó trong phạm vi module, tạo hoặc lấy
+              repository theo scope.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Container truyền repository vào constructor để tạo
+              <code>RoleService</code>.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Có thể hình dung bước cuối là
+          <code>new RoleService(repository)</code>, giống DI thủ công; chỉ khác
+          <strong>Nest thực hiện bước lắp ráp này theo đăng ký của bạn</strong>.
+        </p>
+        <p class="prose">Ba khái niệm sẽ dùng ở phần còn lại của chương:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Khái niệm</th>
+                <th>Ý nghĩa trong ví dụ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Token</strong></td>
+                <td>
+                  Khoá để hỏi container lấy dependency; ở đây là class
+                  <code>RoleRepository</code>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Provider</strong></td>
+                <td>
+                  Đăng ký cho biết container cung cấp giá trị nào khi có người
+                  yêu cầu token
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Module</strong></td>
+                <td>
+                  Nơi nhóm controller/provider và xác định dependency nào được
+                  chia sẻ với module khác
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          <code>@Injectable()</code> không tự đăng ký class vào container; vẫn
+          cần provider registration. Nó ghi metadata/options của Nest và, với
+          các compiler flag của repo, kích hoạt metadata kiểu constructor.
+          <code
+            >Reflect.getMetadata(&quot;design:paramtypes&quot;,
+            RoleService)</code
+          >
+          khi đó chứa <code>[RoleRepository]</code>. Cơ chế này được giải thích
+          ở
+          <a
+            href="01-decorators-and-metadata.html#5-hai-cờ-tsconfig-quyết-định-mọi-thứ"
+            >chương 1 §5</a
+          >.
+        </p>
+        <p class="prose">
+          Nếu thiếu metadata constructor, Nest có thể dựng class mà dependency
+          nhận <code>undefined</code>. Nếu metadata có token nhưng container
+          không tìm được provider, việc resolve dependency thường ném
+          <code>can&#39;t resolve dependencies</code>. Hai lỗi này khác nhau;
+          xem <a href="#13-nâng-cao-và-những-chỗ-dễ-vấp">mục 13</a>.
+        </p>
+        <p class="prose">
+          <strong>Quay lại code thật:</strong>
+          <a href="../../src/routes/role/role.service.ts">RoleService</a> nhận
+          <code>RoleRepository</code> và
+          <code>RolePermissionCacheService</code> qua constructor.
+          <a href="../../src/routes/role/role.module.ts">RoleModule</a> đăng ký
+          service/repository; cache được export từ
+          <a href="../../src/shared/modules/shared.module.ts">SharedModule</a>
+          global. Nest tìm các dependency trong phạm vi đó rồi cung cấp chúng
+          cho service. Vì vậy bạn không thấy code ứng dụng phải viết
+          <code>new RoleService(...)</code> ở từng nơi sử dụng.
+        </p>
+        <h3 id="17-service-locator-class-tự-hỏi-container" class="sub">
+          1.7. Service Locator: class tự hỏi container
+        </h3>
+        <p class="prose">
+          Có container chưa chắc dependency nghiệp vụ đã được inject qua
+          constructor. Class còn có thể tự hỏi container:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// Fragment minh hoạ; ModuleRef import từ @nestjs/core.
+@Injectable()
+class RoleService {
+  constructor(private readonly moduleRef: ModuleRef) {}
+
+  getRoles(): string[] {
+    const repository = this.moduleRef.get(RoleRepository);
+    return repository.findAll();
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Đây là <strong>Service Locator</strong> đối với repository: service tự
+          tìm dependency qua một đối tượng tra cứu. <code>ModuleRef</code> được
+          inject vào service, nhưng <code>RoleRepository</code> được service lấy
+          bằng <code>.get()</code>, khác với việc nhận trực tiếp repository qua
+          constructor.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cách cung cấp repository</th>
+                <th>Ai quyết định lấy nó?</th>
+                <th>Constructor cho thấy gì?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>new RoleRepository()</code> trong service</td>
+                <td>Service tự tạo</td>
+                <td>Không thấy repository là tham số</td>
+              </tr>
+              <tr>
+                <td><code>moduleRef.get(RoleRepository)</code> trong method</td>
+                <td>Service tự tra container</td>
+                <td>Chỉ thấy ModuleRef, chưa thấy dependency repository</td>
+              </tr>
+              <tr>
+                <td><code>constructor(repository: RoleRepository)</code></td>
+                <td>Code bên ngoài cung cấp</td>
+                <td>Thấy trực tiếp dependency repository</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Constructor injection giúp người đọc nhìn ra dependency cần thiết và
+          test dễ truyền object thay thế. Service Locator vẫn có trường hợp
+          dùng, ví dụ resolve provider động; vấn đề là dependency bị giấu trong
+          thân method, không còn thể hiện đầy đủ trong constructor.
+        </p>
+        <p class="prose">
+          Trong bootstrap hoặc test, code bên ngoài thường gọi
+          <code>app.get()</code>/<code>moduleRef.get()</code> để lấy object đầu
+          vào. Phần code lắp ráp và khởi động cây object này được gọi là
+          <strong>composition root</strong>. Lấy service ở entry point không có
+          cùng tác động như để mọi service nghiệp vụ tự tra container.
+        </p>
+        <h3 id="18-đến-đây-cần-phân-biệt-được-điều-gì" class="sub">
+          1.8. Đến đây cần phân biệt được điều gì?
+        </h3>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Dependency:</strong> thứ class cần để làm việc, ví dụ
+              repository.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>DI:</strong> cung cấp thứ đó từ bên ngoài; truyền thủ công
+              qua constructor cũng là DI.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>IoC:</strong> chuyển quyền điều phối ra ngoài; DI áp dụng
+              nó vào việc cung cấp dependency.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Container:</strong> công cụ tự động tìm, tạo/lấy và cung
+              cấp dependency theo đăng ký.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Module của Nest:</strong> xác định những đăng ký nào thuộc
+              một nhóm và được nhìn thấy từ nhóm khác.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Nếu đọc được
+          <code>constructor(private readonly repo: RoleRepository)</code> và
+          giải thích được &quot;service nhận repository; code bên ngoài cung cấp
+          nó; với Nest, container làm việc đó dựa trên provider/module&quot;,
+          bạn đã nắm mục đích của mục này.
+          <a href="#2-provider-bốn-cách-khai-một-công-thức-tạo">Mục 2</a> đi
+          tiếp vào cách khai đăng ký để container biết phải cung cấp cái gì.
+        </p>
+        <p class="prose">
+          Đọc thêm:
+          <a href="https://martinfowler.com/articles/injection.html"
+            >Martin Fowler — Dependency Injection và Service Locator</a
+          >, <a href="https://docs.nestjs.com/providers">Nest — Providers</a>.
+        </p>
+        <hr />
+        <h2 id="2-provider-bốn-cách-khai-một-công-thức-tạo" class="sec-head">
+          2. Provider: bốn cách khai một &quot;công thức tạo&quot;
+        </h2>
+        <p class="prose">
+          <strong>Provider</strong> = một mục trong sổ sách của container:
+          <em
+            >&quot;khi có ai hỏi token X, hãy đưa ra thứ được tạo theo cách
+            Y&quot;</em
+          >.
+        </p>
+        <p class="prose">
+          Token thường chính là <strong>class</strong>. Nhưng token có thể là
+          chuỗi hay symbol khi thứ cần inject không phải class.
+        </p>
+        <h3 id="21-useclass--dạng-viết-tắt" class="sub">
+          2.1 <code>useClass</code> — dạng viết tắt
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>providers: [RoleService];
+// tương đương:
+providers: [{ provide: RoleService, useClass: RoleService }];</code></pre>
+        </div>
+        <p class="prose">
+          99% provider trong dự án là dạng này (<a
+            href="../../src/routes/role/role.module.ts#L10"
+            >role.module.ts:10</a
+          >). Container <code>new</code> class đó, tự giải quyết constructor của
+          nó.
+        </p>
+        <p class="prose">
+          Dạng đầy đủ có ích khi token và class khác nhau — đổi cài đặt mà không
+          đổi chỗ gọi:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// ví dụ minh hoạ
+providers: [
+  { provide: StorageService, useClass: isProd ? S3Service : LocalDiskService },
+];</code></pre>
+        </div>
+        <h3 id="22-usevalue--đưa-sẵn-object" class="sub">
+          2.2 <code>useValue</code> — đưa sẵn object
+        </h3>
+        <p class="prose">
+          Không tạo gì, dùng luôn giá trị cho sẵn. Đây là cách
+          <strong>test thay thật bằng giả</strong> —
+          <a
+            href="../../src/routes/role/__tests__/role-service-test-harness.ts#L33-L38"
+            >role-service-test-harness.ts:33-38</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const moduleRef = await Test.createTestingModule({
+  providers: [
+    RoleService,
+    { provide: RoleRepository, useValue: mocks.roleRepository },
+    {
+      provide: RolePermissionCacheService,
+      useValue: mocks.rolePermissionCacheService,
+    },
+  ],
+}).compile();</code></pre>
+        </div>
+        <p class="prose">
+          <code>RoleService</code> vẫn khai <code>RoleRepository</code> trong
+          constructor, không sửa một dòng. Container đưa cho nó object jest
+          mock.
+        </p>
+        <h3 id="23-usefactory--tính-ra-rồi-mới-đưa" class="sub">
+          2.3 <code>useFactory</code> — tính ra rồi mới đưa
+        </h3>
+        <p class="prose">
+          Dùng khi việc tạo cần logic, hoặc cần <strong>đợi</strong> một
+          provider khác. <code>inject: [...]</code> liệt kê những gì factory
+          cần, và chúng được truyền vào theo đúng thứ tự —
+          <a href="../../src/shared/modules/base.module.ts#L56-L64"
+            >base.module.ts:56-64</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const serializerInterceptor: Provider = {
+  provide: APP_INTERCEPTOR,
+  useFactory: (reflector: Reflector) =&gt; {
+    return new ClassSerializerInterceptor(reflector, {
+      excludeExtraneousValues: true,
+    });
+  },
+  inject: [Reflector],
+};</code></pre>
+        </div>
+        <p class="prose">
+          <code>ClassSerializerInterceptor</code> cần <strong>hai</strong> tham
+          số: một <code>Reflector</code> (container có) và một object tuỳ chọn
+          (container không biết). <code>useClass</code> không diễn đạt được
+          chuyện đó; factory thì được.
+        </p>
+        <p class="prose">
+          Factory có thể <code>async</code> — container <code>await</code> trước
+          khi coi là xong. Đây là cách một provider chờ kết nối mở xong rồi mới
+          sẵn sàng.
+        </p>
+        <h3 id="24-useexisting--bí-danh" class="sub">
+          2.4 <code>useExisting</code> — bí danh
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// ví dụ minh hoạ
+providers: [
+  AppConfigService,
+  { provide: &quot;CONFIG&quot;, useExisting: AppConfigService },
+];</code></pre>
+        </div>
+        <p class="prose">
+          Hai token, <strong>một</strong> instance. Khác <code>useClass</code> —
+          <code>useClass</code> sẽ tạo instance thứ hai.
+        </p>
+        <h3 id="25-token-không-phải-class" class="sub">
+          2.5 Token không phải class
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// ví dụ minh hoạ
+providers: [{ provide: &quot;S3_BUCKET&quot;, useValue: process.env.S3_BUCKET }];
+
+@Injectable()
+export class MediaService {
+  constructor(@Inject(&quot;S3_BUCKET&quot;) private readonly bucket: string) {}
+}</code></pre>
+        </div>
+        <p class="prose">
+          Vì <code>string</code> không mang thông tin ở
+          <code>design:paramtypes</code>, bạn <strong>phải</strong> chỉ tay bằng
+          <code>@Inject(token)</code>. Dự án không dùng cách này — nó chọn gói
+          toàn bộ cấu hình vào một class có kiểu là
+          <code>AppConfigService</code> (<a
+            href="../../src/shared/services/app-config.service.ts"
+            >app-config.service.ts</a
+          >), rồi inject class đó. Gọn hơn và có autocomplete; chương 9 của
+          series sẽ nói kỹ.
+        </p>
+        <hr />
+        <h2 id="3-module-bốn-ô-của-module" class="sec-head">
+          3. Module: bốn ô của <code>@Module</code>
+        </h2>
+        <p class="prose">
+          Module là <strong>đơn vị gom nhóm và ranh giới hiển thị</strong>. Nó
+          có đúng bốn ô:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Module({
+  imports:     [],  // module khác mà tôi muốn dùng provider ĐÃ EXPORT của họ
+  controllers: [],  // controller thuộc module này
+  providers:   [],  // thứ container tạo, dùng được BÊN TRONG module này
+  exports:     [],  // trong số providers, cái nào cho module khác thấy
+})</code></pre>
+        </div>
+        <p class="prose">
+          Ví dụ nhỏ nhất trong dự án —
+          <a href="../../src/routes/role/role.module.ts">role.module.ts</a>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Module({
+  controllers: [RoleController],
+  providers: [RoleRepository, RoleService],
+})
+export class RoleModule {}</code></pre>
+        </div>
+        <p class="prose">
+          Không <code>imports</code> (mọi thứ nó cần đã toàn cục —
+          <a href="#5-global-và-sharedmodule">mục 5</a>), không
+          <code>exports</code> (không ai cần <code>RoleService</code>).
+        </p>
+        <h3 id="đóng-gói-là-thật" class="sub">Đóng gói là thật</h3>
+        <p class="prose">
+          Đây là điểm người mới hay nghĩ sai:
+          <strong
+            ><code>imports</code> một module không cho bạn thấy
+            <code>providers</code> của module đó</strong
+          >
+          — chỉ thấy những gì nằm trong <code>exports</code>.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>ModuleA: providers [Stateful]           ← không export
+ModuleB: imports [ModuleA], providers [Outsider]   ← Outsider cần Stateful</code></pre>
+        </div>
+        <p class="prose">
+          Kết quả (thực nghiệm 3 ở <a href="#14-tự-kiểm-chứng">mục 14</a>, chạy
+          thật):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>Nest can&#39;t resolve dependencies of the Outsider (?). Please make sure that the argument Stateful at index [0]...</code></pre>
+        </div>
+        <p class="prose">
+          Không export thì không tồn tại, dưới góc nhìn của module khác. Đây là
+          cơ chế giữ cho ranh giới module có nghĩa.
+        </p>
+        <h3 id="ba-cây-một-gốc" class="sub">Ba cây, một gốc</h3>
+        <p class="prose">
+          <a href="../../src/app.module.ts">app.module.ts</a> gom ba nhánh:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Module({
+  imports: [SharedModule, BaseModule, RouteModule],
+})
+export class AppModule {}</code></pre>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>Vai trò</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <a href="../../src/shared/modules/shared.module.ts"
+                    ><code>SharedModule</code></a
+                  >
+                </td>
+                <td>
+                  12 service dùng chung, <code>@Global()</code> — Prisma, Redis,
+                  token, hashing, email, S3…
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="../../src/shared/modules/base.module.ts"
+                    ><code>BaseModule</code></a
+                  >
+                </td>
+                <td>
+                  Hạ tầng: guard/pipe/filter/interceptor toàn cục, config,
+                  logger, throttler, i18n, discovery
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <a href="../../src/routes/route.module.ts"
+                    ><code>RouteModule</code></a
+                  >
+                </td>
+                <td>Gom 16 module tính năng, không có gì khác</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Chia như vậy khiến <code>AppModule</code> đọc được trong bốn dòng, và
+          mỗi nhánh có một lý do tồn tại rõ ràng.
+        </p>
+        <hr />
+        <h2 id="4-quy-tắc-phân-giải-nest-tìm-provider-ở-đâu" class="sec-head">
+          4. Quy tắc phân giải: Nest tìm provider ở đâu
+        </h2>
+        <p class="prose">
+          Khi container dựng <code>RoleService</code> và thấy nó cần
+          <code>RoleRepository</code>, nó tìm theo thứ tự:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              Trong <code>providers</code> của
+              <strong>chính module</strong> đang chứa <code>RoleService</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Trong <code>exports</code> của các module mà module đó
+              <strong><code>imports</code></strong
               >.
             </p>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              <code>useValue</code> — đưa sẵn object
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 13px;
-              "
-            ><code>{ provide: RoleRepository, useValue: mocks.roleRepository }</code></pre>
-            <p style="margin: 10px 0 0">
-              Cách test thay thật bằng giả. <code>RoleService</code> vẫn khai
-              <code>RoleRepository</code> trong constructor,
-              <strong>không sửa một dòng</strong>.
+          </li>
+          <li>
+            <p class="prose">
+              Module <strong><code>@Global()</code></strong> được Nest đưa vào
+              imports của module tiêu thụ; provider export của chúng được tìm
+              qua cùng cơ chế imports, không phải một vòng tìm thứ ba độc lập
+              luôn chạy sau mọi import thường.
             </p>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              <code>useFactory</code> — tính rồi mới đưa
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 13px;
-              "
-            ><code>{
-  provide: APP_INTERCEPTOR,
-  useFactory: (reflector: Reflector) =&gt;
-    <span class="kw">new</span> <span class="fn">ClassSerializerInterceptor</span>(reflector, {
-      excludeExtraneousValues: <span class="kw">true</span>,
-    }),
-  inject: [Reflector],
-}</code></pre>
-            <p style="margin: 10px 0 0">
-              <code>ClassSerializerInterceptor</code> cần
-              <strong>hai</strong> tham số: một cái container có, một cái không.
-              <code>useClass</code> không diễn đạt được; factory thì được.
-              Factory có thể <code>async</code>.
+          </li>
+          <li>
+            <p class="prose">
+              Có dependency token nhưng không thấy provider → thường ném lỗi khi
+              dựng container; provider theo-request có thể lỗi lúc resolve
+              request.
             </p>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 3">
-            <div class="ve-card__label ve-card__label--plum">
-              <code>useExisting</code> — bí danh
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 13px;
-              "
-            ><code>{ provide: <span class="st">"CONFIG"</span>, useExisting: AppConfigService }</code></pre>
-            <p style="margin: 10px 0 0">
-              Hai token, <strong>một</strong> instance. Khác
-              <code>useClass</code> — cái đó tạo instance thứ hai.
-            </p>
-          </div>
-        </div>
-        <details class="collapsible">
-          <summary>
-            Token không phải class — khi nào cần <code>@Inject()</code>
-          </summary>
-          <div class="collapsible__body">
-            <pre
-              class="code-file__body"
-              style="border: 1px solid var(--border); border-radius: 8px"
-            ><code>providers: [{ provide: <span class="st">"S3_BUCKET"</span>, useValue: process.env.S3_BUCKET }]
-
-<span class="kw">constructor</span>(@<span class="fn">Inject</span>(<span class="st">"S3_BUCKET"</span>) <span class="kw">private readonly</span> bucket: string) {}</code></pre>
-            <p style="margin: 10px 0 0">
-              Vì <code>string</code> không mang thông tin ở
-              <code>design:paramtypes</code>, phải chỉ tay bằng
-              <code>@Inject(token)</code>. Dự án không dùng cách này — nó gói
-              toàn bộ cấu hình vào <code>AppConfigService</code> rồi inject
-              class đó. Gọn hơn và có autocomplete.
-            </p>
-          </div>
-        </details>
-
-        <div class="sec-head" id="s3">
-          <span class="sec-head__num">03</span
-          ><span class="sec-head__text"
-            >Module: bốn ô của <code>@Module</code></span
-          >
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Ô</th>
-                  <th>Nghĩa</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>imports</code></td>
-                  <td>
-                    module khác mà tôi muốn dùng provider
-                    <strong>đã export</strong> của họ
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>controllers</code></td>
-                  <td>controller thuộc module này</td>
-                </tr>
-                <tr>
-                  <td><code>providers</code></td>
-                  <td>
-                    thứ container tạo, dùng được
-                    <strong>bên trong</strong> module này
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>exports</code></td>
-                  <td>trong số providers, cái nào cho module khác thấy</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="callout callout--danger">
-          <div class="callout__title">
-            Đóng gói là thật — không export thì không tồn tại
-          </div>
-          <code>imports</code> một module <strong>không</strong> cho bạn thấy
-          <code>providers</code> của nó, chỉ thấy <code>exports</code>. Thực
-          nghiệm 3 (<a href="#s14">mục 14</a>) chứng minh:
-          <pre
-            class="code-file__body out"
-            style="
-              border: 1px solid var(--border);
-              border-radius: 8px;
-              margin-top: 10px;
-            "
-          >
-Nest can't resolve dependencies of the Outsider (?). Please make sure
-that the argument Stateful at index [0]...</pre
-          >
-        </div>
-        <div class="card-grid card-grid--3">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label"><code>SharedModule</code></div>
-            <p>
-              12 service dùng chung, <code>@Global()</code> — Prisma, Redis,
-              token, hashing, email, S3…
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              <code>BaseModule</code>
-            </div>
-            <p>
-              Hạ tầng: guard/pipe/filter/interceptor toàn cục, config, logger,
-              throttler, i18n, discovery
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              <code>RouteModule</code>
-            </div>
-            <p>Gom 16 module tính năng, không có gì khác</p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s4">
-          <span class="sec-head__num">04</span
-          ><span class="sec-head__text"
-            >Quy tắc phân giải: Nest tìm provider ở đâu</span
-          >
-        </div>
-        <div class="timeline">
-          <div class="timeline__item">
-            <div class="timeline__title">
-              1 · Trong <code>providers</code> của chính module đang chứa class
-              đó
-            </div>
-          </div>
-          <div class="timeline__item">
-            <div class="timeline__title">
-              2 · Trong <code>exports</code> của các module mà nó
-              <code>imports</code>
-            </div>
-          </div>
-          <div class="timeline__item">
-            <div class="timeline__title">
-              3 · Trong các module <code>@Global()</code>
-            </div>
-          </div>
-          <div class="timeline__item timeline__item--stop">
-            <div class="timeline__title">
-              4 · Không thấy → ném lỗi <strong>lúc boot</strong>, không phải lúc
-              chạy
-            </div>
-          </div>
-        </div>
-        <div class="callout callout--warning">
-          <div class="callout__title">Hệ quả mà rất nhiều người không biết</div>
-          <strong>Instance gắn với module, không gắn với class.</strong> Cùng
-          một class khai trong hai module là
-          <strong>hai instance khác nhau</strong>. Container dedupe theo
-          <strong>(module, token)</strong>, không theo class.
-          <pre
-            class="code-file__body out"
-            style="
-              border: 1px solid var(--border);
-              border-radius: 8px;
-              margin-top: 10px;
-            "
-          >
-AService.s.id = 2 | BService.s.id = 3 | giống nhau? false</pre
-          >
-        </div>
-
-        <h3 class="sub">Chuyện này đang xảy ra trong repo</h3>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Provider</th>
-                  <th>Khai ở</th>
-                  <th>Số instance</th>
-                  <th>Có hại?</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>SharedUserRepository</code></td>
-                  <td>Auth, Profile, User</td>
-                  <td class="num">3</td>
-                  <td>
-                    <span class="status status--match"
-                      >không — vô trạng thái</span
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>RoleRepository</code></td>
-                  <td>Role, Profile, User</td>
-                  <td class="num">3</td>
-                  <td>
-                    <span class="status status--match"
-                      >không — vô trạng thái</span
-                    >
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>SharedRoleRepository</code></td>
-                  <td>Auth, User</td>
-                  <td class="num">2</td>
-                  <td>
-                    <span class="status status--warn">có cache riêng</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+          </li>
+        </ol>
+        <p class="prose">
+          Điểm mấu chốt nằm ở bước 1, và nó dẫn tới một hệ quả mà
+          <strong>rất nhiều người không biết</strong>:
+        </p>
+        <blockquote>
+          <p class="prose">
+            <strong>Instance gắn với module, không gắn với class.</strong> Cùng
+            một class khai trong hai module là
+            <strong>hai instance khác nhau</strong>.
+          </p>
+        </blockquote>
+        <h3 id="chứng-minh" class="sub">Chứng minh</h3>
+        <p class="prose">
+          Thực nghiệm 1 (<a href="#14-tự-kiểm-chứng">mục 14</a>) khai
+          <code>Stateful</code> trong cả <code>AModule</code> lẫn
+          <code>BModule</code>:
+        </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>src/repositories/role/shared-role.repository.ts</span
-            ><span>dòng 11-15</span>
-          </div>
+          <div class="code-file__header">text</div>
           <pre
             class="code-file__body"
-          ><code>@<span class="fn">Injectable</span>()
-<span class="kw">export class</span> SharedRoleRepository {
-  <span class="kw">private</span> clientRoleId: RoleId | <span class="kw">null</span> = <span class="kw">null</span>;   <span class="cm">// ← cache</span>
-  <span class="kw">private</span> adminRoleId: RoleId | <span class="kw">null</span> = <span class="kw">null</span>;    <span class="cm">// ← cache</span>
-
-  <span class="kw">constructor</span>(<span class="kw">private</span> prismaService: PrismaService) {}</code></pre>
+          ><code>AService.s.id = 2 | BService.s.id = 3 | giống nhau? false</code></pre>
         </div>
         <p class="prose">
-          Hai module khai nó → <strong>hai cache</strong>, mỗi cái tự làm nóng
-          riêng. Hôm nay <strong>không phải bug</strong> — hai cache rồi cũng
-          chứa cùng giá trị, cái giá là một query dư. Nhưng cơ chế đã sẵn: ngày
-          nào có cache <strong>kèm invalidate</strong> kiểu này, gọi
-          <code>invalidate()</code> sẽ chỉ xoá <em>một</em> trong hai, và bug
-          sinh ra cực khó tìm vì code trông hoàn toàn đúng.
+          Hai object, hai <code>id</code>. Container không &quot;dedupe theo
+          class&quot; — nó dedupe theo <strong>(module, token)</strong>.
         </p>
-        <div class="callout callout--success">
-          <div class="callout__title">Cách sửa khi muốn đúng một instance</div>
-          Khai ở một module → <code>exports</code> → module khác
-          <code>imports</code>. Hoặc, như dự án làm với 12 service dùng chung:
-          đưa vào <code>SharedModule</code> global.
+        <h3 id="chuyện-này-đang-xảy-ra-trong-repo" class="sub">
+          Chuyện này đang xảy ra trong repo
+        </h3>
+        <p class="prose">Ba provider đang được khai ở nhiều module cùng lúc:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Provider</th>
+                <th>Khai ở</th>
+                <th>Số instance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>SharedUserRepository</code></td>
+                <td>
+                  <code>AuthModule</code>, <code>ProfileModule</code>,
+                  <code>UserModule</code>
+                </td>
+                <td><strong>3</strong></td>
+              </tr>
+              <tr>
+                <td><code>RoleRepository</code></td>
+                <td>
+                  <code>RoleModule</code>, <code>ProfileModule</code>,
+                  <code>UserModule</code>
+                </td>
+                <td><strong>3</strong></td>
+              </tr>
+              <tr>
+                <td><code>SharedRoleRepository</code></td>
+                <td><code>AuthModule</code>, <code>UserModule</code></td>
+                <td><strong>2</strong></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        <div class="sec-head" id="s5">
-          <span class="sec-head__num">05</span
-          ><span class="sec-head__text"
-            ><code>@Global()</code> và <code>SharedModule</code></span
-          >
-        </div>
+        <p class="prose">
+          Hai cái đầu <strong>vô hại</strong>: chúng không giữ trạng thái gì,
+          chỉ gọi <code>prismaService</code> (mà <code>PrismaService</code> là
+          global nên vẫn dùng chung một kết nối). Ba instance của một class rỗng
+          tốn vài byte.
+        </p>
+        <p class="prose">
+          Cái thứ ba thì đáng nhìn kỹ —
+          <a
+            href="../../src/repositories/role/shared-role.repository.ts#L11-L15"
+            >shared-role.repository.ts:11-15</a
+          >:
+        </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>src/shared/modules/shared.module.ts</span
-            ><span>dòng 16-35</span>
-          </div>
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class SharedRoleRepository {
+  private clientRoleId: RoleId | null = null;   // ← cache
+  private adminRoleId: RoleId | null = null;    // ← cache
+
+  constructor(private prismaService: PrismaService) {}</code></pre>
+        </div>
+        <p class="prose">
+          Nó <strong>có</strong> trạng thái: cache id của role
+          <code>client</code> và <code>admin</code>, để khỏi query lại. Nhưng vì
+          được khai ở hai module, có <strong>hai cache</strong>, mỗi cái tự làm
+          nóng riêng.
+        </p>
+        <p class="prose">
+          Hôm nay đây <strong>không phải bug</strong> — hai cache rồi cũng chứa
+          đúng cùng một giá trị, cái giá chỉ là một query dư lúc khởi động.
+          Nhưng cơ chế thì đã sẵn ở đó: ngày nào ai đó thêm cache
+          <strong>có invalidate</strong> vào một repository kiểu này, gọi
+          <code>invalidate()</code> sẽ chỉ xoá <strong>một</strong> trong hai,
+          và bug sinh ra sẽ cực khó tìm — vì code trông hoàn toàn đúng.
+        </p>
+        <p class="prose">
+          <strong>Cách sửa đúng</strong> khi muốn đúng một instance: khai
+          provider ở một module, <code>exports</code> nó, rồi module khác
+          <code>imports</code>. Hoặc — như dự án làm với 12 service dùng chung —
+          đưa vào <code>SharedModule</code> global.
+        </p>
+        <hr />
+        <h2 id="5-global-và-sharedmodule" class="sec-head">
+          5. <code>@Global()</code> và <code>SharedModule</code>
+        </h2>
+        <p class="prose">
+          <a href="../../src/shared/modules/shared.module.ts#L16-L35"
+            >shared.module.ts:16-35</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
           <pre
             class="code-file__body"
-          ><code><span class="kw">const</span> sharedProviders: Provider[] = [
-  AppConfigService, PrismaService, HashingService, TokenService, EmailService,
-  TwoFactorAuthenticationService, S3Service, RedisService,
-  RolePermissionCacheService, PermissionResolverService, ThrottlerRedisStorage,
+          ><code>const sharedProviders: Provider[] = [
+  AppConfigService,
+  PrismaService,
+  HashingService,
+  TokenService,
+  EmailService,
+  TwoFactorAuthenticationService,
+  S3Service,
+  RedisService,
+  RolePermissionCacheService,
+  PermissionResolverService,
+  ThrottlerRedisStorage,
 ];
 
-@<span class="fn">Global</span>()
-@<span class="fn">Module</span>({
+@Global()
+@Module({
   imports: [JwtModule],
   providers: sharedProviders,
-  exports: sharedProviders, <span class="cm">// Exporting providers to be used in other modules</span>
+  exports: sharedProviders, // Exporting providers to be used in other modules
 })
-<span class="kw">export class</span> SharedModule {}</code></pre>
-        </div>
-        <div class="diff-panels">
-          <div>
-            <div class="diff-panel__header diff-panel__header--good">
-              Vì sao 12 service này xứng đáng global
-            </div>
-            <div class="diff-panel__body">
-              <ol style="margin: 0; padding-left: 1.4em">
-                <li>
-                  <strong>Gần như module nào cũng cần</strong> —
-                  <code>PrismaService</code> có trong cả 25 repository
-                </li>
-                <li>
-                  <strong>Bắt buộc một instance</strong> — nhiều
-                  <code>PrismaService</code> làm cạn connection limit của
-                  Postgres
-                </li>
-                <li>
-                  <strong>Không thuộc tính năng nào</strong> — hashing, token,
-                  email là hạ tầng
-                </li>
-              </ol>
-              <p style="margin: 10px 0 0">
-                Không global thì 16 module phải lặp
-                <code>imports: [SharedModule]</code> — một dòng không mang thông
-                tin.
-              </p>
-            </div>
-          </div>
-          <div>
-            <div class="diff-panel__header diff-panel__header--bad">
-              Cái giá của global
-            </div>
-            <div class="diff-panel__body">
-              <p style="margin: 0 0 10px">
-                <code>@Global()</code> <strong>giấu phụ thuộc</strong>. Nhìn
-                <code>role.module.ts</code> không thể biết
-                <code>RoleService</code> cần
-                <code>RolePermissionCacheService</code> — phải mở file service.
-              </p>
-              <p style="margin: 0">
-                <strong>Global:</strong> hạ tầng, khắp nơi, bắt buộc singleton.
-                Ít, hiếm khi thêm.<br /><strong>Không global:</strong> mọi thứ
-                khác.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="callout callout--info">
-          <div class="callout__title">Chi tiết nhỏ mà hay</div>
-          <code>SharedModule</code> <code>imports: [JwtModule]</code> nhưng
-          <strong>không export lại</strong>. Nên <code>JwtService</code> chỉ
-          dùng được bên trong <code>SharedModule</code> (bởi
-          <code>TokenService</code>). Module tính năng không chạm được JWT thô —
-          chúng phải đi qua <code>TokenService</code>. Đóng gói làm đúng việc
-          của nó.
-        </div>
-
-        <div class="sec-head" id="s6">
-          <span class="sec-head__num">06</span
-          ><span class="sec-head__text"
-            >Bốn token đặc biệt: <code>APP_GUARD</code> và anh em</span
-          >
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Token</th>
-                  <th>Đăng ký cái gì</th>
-                  <th>Trong dự án</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>APP_GUARD</code></td>
-                  <td>guard toàn cục</td>
-                  <td>
-                    <code>AppThrottlerGuard</code>,
-                    <code>AuthorizationHeaderGuard</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>APP_PIPE</code></td>
-                  <td>pipe toàn cục</td>
-                  <td><code>ValidationPipe</code></td>
-                </tr>
-                <tr>
-                  <td><code>APP_FILTER</code></td>
-                  <td>exception filter toàn cục</td>
-                  <td><code>GlobalExceptionFilter</code></td>
-                </tr>
-                <tr>
-                  <td><code>APP_INTERCEPTOR</code></td>
-                  <td>interceptor toàn cục</td>
-                  <td><code>ClassSerializerInterceptor</code></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+export class SharedModule {}</code></pre>
         </div>
         <p class="prose">
-          Chúng là <strong>multi-provider</strong>: khai nhiều provider cùng một
-          token thì Nest gom lại chứ không ghi đè.
+          <code>@Global()</code> nghĩa là: những gì module này
+          <code>exports</code> <strong>có mặt ở mọi nơi</strong>, không module
+          nào cần <code>imports</code> nó nữa.
+        </p>
+        <p class="prose">
+          Thực nghiệm 2 xác nhận cùng một instance được chia sẻ:
         </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>src/shared/modules/base.module.ts</span
-            ><span>dòng 43-54</span>
-          </div>
+          <div class="code-file__header">text</div>
           <pre
             class="code-file__body"
-          ><code><span class="kw">const</span> guards: Provider[] = [
-  AccessTokenGuard,   <span class="cm">// provider thường — có trong container để được TIÊM</span>
-  ApiKeyGuard,        <span class="cm">// provider thường</span>
+          ><code>AService.g.id = 1 | BService.g.id = 1 | giống nhau? true</code></pre>
+        </div>
+        <h3 id="vì-sao-12-service-này-xứng-đáng-global" class="sub">
+          Vì sao 12 service này xứng đáng global
+        </h3>
+        <p class="prose">Ba tiêu chí, cả ba đều đúng với nhóm này:</p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong>Gần như module nào cũng cần.</strong>
+              <code>PrismaService</code> xuất hiện trong cả 25 repository.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Bắt buộc phải là một instance duy nhất.</strong>
+              <code>RedisService</code> giữ một kết nối;
+              <code>PrismaService</code> giữ một pool. Nhiều instance không chỉ
+              lãng phí — nó làm cạn connection limit của Postgres.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Không thuộc về một tính năng nào.</strong> Hashing, token,
+              email là hạ tầng, không phải nghiệp vụ.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Nếu không global, mỗi module trong 16 module tính năng phải
+          <code>imports: [SharedModule]</code> — một dòng lặp 16 lần không mang
+          thông tin gì.
+        </p>
+        <h3 id="cái-giá-của-global" class="sub">Cái giá của global</h3>
+        <p class="prose">
+          <code>@Global()</code> <strong>giấu phụ thuộc</strong>. Nhìn
+          <code>role.module.ts</code> bạn không thể biết
+          <code>RoleService</code> cần <code>RolePermissionCacheService</code> —
+          phải mở file service ra mới thấy. Với một module tính năng thì đó là
+          mất mát thật: mất luôn khả năng đọc <code>@Module</code> để hiểu
+          module này dựa vào những gì.
+        </p>
+        <p class="prose">Quy tắc thực dụng:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Global:</strong> hạ tầng, dùng khắp nơi, bắt buộc
+              singleton. Ít, và hiếm khi thêm.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Không global:</strong> mọi thứ khác.
+              <code>imports</code> + <code>exports</code> tường minh, dài hơn
+              nhưng đọc là thấy.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Một chi tiết nhỏ mà hay: <code>SharedModule</code>
+          <code>imports: [JwtModule]</code> nhưng <strong>không</strong> export
+          lại. Vậy <code>JwtService</code> chỉ dùng được
+          <strong>bên trong</strong> <code>SharedModule</code> (bởi
+          <code>TokenService</code>). Module tính năng không chạm được vào JWT
+          thô — chúng phải đi qua <code>TokenService</code>. Đóng gói làm đúng
+          việc của nó.
+        </p>
+        <hr />
+        <h2 id="6-bốn-token-đặc-biệt-app_guard-và-anh-em" class="sec-head">
+          6. Bốn token đặc biệt: <code>APP_GUARD</code> và anh em
+        </h2>
+        <p class="prose">
+          <a
+            href="03-guards.html#6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard"
+            >Chương 3 §4</a
+          >
+          đã nói vì sao guard toàn cục phải đăng ký qua <code>APP_GUARD</code>.
+          Giờ nhìn cơ chế cho đủ bốn.
+        </p>
+        <p class="prose">
+          Nest định nghĩa bốn token trong <code>@nestjs/core</code>:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Đăng ký cái gì</th>
+                <th>Trong dự án</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>APP_GUARD</code></td>
+                <td>guard toàn cục</td>
+                <td>
+                  <code>AppThrottlerGuard</code>,
+                  <code>AuthorizationHeaderGuard</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>APP_PIPE</code></td>
+                <td>pipe toàn cục</td>
+                <td><code>ValidationPipe</code></td>
+              </tr>
+              <tr>
+                <td><code>APP_FILTER</code></td>
+                <td>exception filter toàn cục</td>
+                <td><code>GlobalExceptionFilter</code></td>
+              </tr>
+              <tr>
+                <td><code>APP_INTERCEPTOR</code></td>
+                <td>interceptor toàn cục</td>
+                <td><code>ClassSerializerInterceptor</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Chúng là <strong>multi-provider</strong>: khai nhiều provider
+          <strong>cùng một token</strong> thì Nest gom tất cả lại chứ không ghi
+          đè.
+          <a href="../../src/shared/modules/base.module.ts#L43-L54"
+            >base.module.ts:43-54</a
+          >
+          khai <code>APP_GUARD</code> hai lần và cả hai đều chạy.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>const guards: Provider[] = [
+  AccessTokenGuard, // provider thường — có trong container để được TIÊM
+  ApiKeyGuard, // provider thường
   { provide: APP_GUARD, useClass: AppThrottlerGuard },
   { provide: APP_GUARD, useClass: AuthorizationHeaderGuard },
 ];</code></pre>
         </div>
-        <ul class="node-list">
+        <p class="prose">Ba điều cần rút ra:</p>
+        <ol start="1">
           <li>
-            <strong
-              >Chỉ mục có <code>provide: APP_GUARD</code> mới tự chạy.</strong
-            >
-            Nhầm chỗ này là tưởng app có bốn guard toàn cục; thực ra hai.
+            <p class="prose">
+              <strong
+                >Chỉ mục có <code>provide: APP_GUARD</code> mới tự chạy.</strong
+              >
+              Hai dòng đầu là provider thường — chúng ở đó để
+              <code>AuthorizationHeaderGuard</code> inject vào. Nhầm chỗ này là
+              tưởng app có bốn guard toàn cục; thực ra là hai.
+            </p>
           </li>
           <li>
-            <strong>Thứ tự khai = thứ tự chạy</strong>, và ở đây nó là quyết
-            định bảo mật (<a href="03-guards.html">chương 3</a> §5).
+            <p class="prose">
+              <strong>Thứ tự khai = thứ tự chạy</strong>, và ở đây nó là quyết
+              định bảo mật (<a
+                href="03-guards.html#7-thứ-tự-chạy-và-short-circuit"
+                >chương 3 §5</a
+              >).
+            </p>
           </li>
           <li>
-            <strong>Vì sao không <code>useGlobalGuards(new ...)</code>:</strong>
-            phải tự <code>new</code> cả cây phụ thuộc — không làm được.
+            <p class="prose">
+              <strong
+                >Vì sao không dùng
+                <code>app.useGlobalGuards(new ...)</code> trong
+                <code>main.ts</code>:</strong
+              >
+              cách đó bạn phải tự <code>new</code>, mà
+              <code>AuthorizationHeaderGuard</code> cần <code>Reflector</code> +
+              hai guard con, mỗi guard con lại cần service riêng.
+              <code>APP_GUARD</code> để container ráp cả cây.
+            </p>
           </li>
-        </ul>
-        <div class="callout callout--success">
-          <div class="callout__title">Lợi ích kéo sang test</div>
-          <code>APP_PIPE</code> + <code>useFactory</code> nghĩa là e2e chỉ cần
-          <code>imports: [AppModule]</code> là có <strong>đúng</strong> pipe của
-          production — không có bản sao cấu hình thứ hai để lệch nhau.
-        </div>
-
-        <div class="sec-head" id="s7">
-          <span class="sec-head__num">07</span
-          ><span class="sec-head__text"
-            >Module động: <code>forRoot</code>, <code>forRootAsync</code>,
-            <code>register</code></span
-          >
-        </div>
+        </ol>
+        <p class="prose">
+          Cùng lý do đó cho <code>APP_PIPE</code>:
+          <code>createValidationPipe</code> được gọi qua
+          <code>useFactory</code> (<a
+            href="../../src/shared/modules/base.module.ts#L66-L69"
+            >base.module.ts:66-69</a
+          >), nên e2e chỉ cần <code>imports: [AppModule]</code> là có
+          <strong>đúng</strong> pipe của production — không có bản sao cấu hình
+          thứ hai để lệch nhau (<a
+            href="../../test/e2e/support/create-test-app.ts#L23-L27"
+            >create-test-app.ts:23-27</a
+          >).
+        </p>
+        <hr />
+        <h2 id="7-module-động-forroot-forrootasync-register" class="sec-head">
+          7. Module động: <code>forRoot</code>, <code>forRootAsync</code>,
+          <code>register</code>
+        </h2>
+        <p class="prose">
+          Module thường là một class tĩnh. Nhưng module thư viện cần
+          <strong>nhận cấu hình</strong> — và cấu hình đó thường chỉ biết lúc
+          chạy. Giải pháp: một static method trả về mô tả module.
+        </p>
+        <p class="prose">Ba quy ước tên:</p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Tên</th>
-                  <th>Nghĩa</th>
-                  <th>Gọi ở</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>forRoot()</code> / <code>forRootAsync()</code></td>
-                  <td>cấu hình <strong>một lần</strong> cho cả app</td>
-                  <td>module gốc</td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>register()</code> / <code>registerAsync()</code>
-                  </td>
-                  <td>cấu hình <strong>mỗi lần dùng</strong></td>
-                  <td>từng module cần</td>
-                </tr>
-                <tr>
-                  <td><code>forFeature()</code></td>
-                  <td>khai thêm phần cục bộ lên cấu hình gốc</td>
-                  <td>module tính năng</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tên</th>
+                <th>Nghĩa</th>
+                <th>Gọi ở</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>forRoot()</code> / <code>forRootAsync()</code></td>
+                <td>cấu hình <strong>một lần</strong> cho cả app</td>
+                <td>module gốc</td>
+              </tr>
+              <tr>
+                <td><code>register()</code> / <code>registerAsync()</code></td>
+                <td>cấu hình <strong>mỗi lần dùng</strong></td>
+                <td>từng module cần</td>
+              </tr>
+              <tr>
+                <td><code>forFeature()</code></td>
+                <td>khai thêm phần cục bộ lên cấu hình gốc</td>
+                <td>module tính năng</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+        <p class="prose">
+          Dự án dùng ba <code>forRootAsync</code> — cả ba đều cần đợi
+          <code>AppConfigService</code>.
+        </p>
+        <p class="prose">
+          Đơn giản nhất —
+          <a href="../../src/shared/modules/i18n.module.ts#L16-L32"
+            >i18n.module.ts:16-32</a
+          >:
+        </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>src/shared/modules/i18n.module.ts</span
-            ><span>dòng 16-32</span>
-          </div>
-          <pre
-            class="code-file__body"
-          ><code>NestI18nModule.<span class="fn">forRootAsync</span>({
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>NestI18nModule.forRootAsync({
   useFactory: (_appConfigService: AppConfigService) =&gt; ({
     fallbackLanguage: ALL_LANGUAGES,
     loaderOptions: {
       path: _appConfigService.isDevelopment
-        ? path.<span class="fn">resolve</span>(<span class="st">"src"</span>, <span class="st">"i18n"</span>)
-        : path.<span class="fn">resolve</span>(<span class="st">"dist"</span>, <span class="st">"i18n"</span>),
-      watch: <span class="kw">true</span>,
+        ? path.resolve(&quot;src&quot;, &quot;i18n&quot;)
+        : path.resolve(&quot;dist&quot;, &quot;i18n&quot;),
+      watch: true,
     },
   }),
-  resolvers: [AcceptLanguageResolver, <span class="kw">new</span> <span class="fn">HeaderResolver</span>([<span class="st">"x-lang"</span>])],
-  inject: [AppConfigService],   <span class="cm">// ← nói CẦN GÌ; useFactory nhận đúng thứ đó, đúng thứ tự</span>
-})</code></pre>
-        </div>
-        <p class="dim">
-          Hai chỗ còn lại:
-          <code>LoggerModule.forRootAsync</code> (base.module.ts:86-89) và
-          <code>ThrottlerModule.forRootAsync</code> (:90-100) — cái sau inject
-          <strong>hai</strong> thứ, cho thấy factory nhận bao nhiêu tham số cũng
-          được.
-        </p>
-
-        <div class="sec-head" id="s8">
-          <span class="sec-head__num">08</span
-          ><span class="sec-head__text">Scope của provider</span>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Scope</th>
-                  <th>Tạo khi nào</th>
-                  <th>Chi phí</th>
-                  <th>Trong repo</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>Scope.DEFAULT</code></td>
-                  <td>một lần, lúc boot</td>
-                  <td>không</td>
-                  <td><strong>100%</strong></td>
-                </tr>
-                <tr>
-                  <td><code>Scope.REQUEST</code></td>
-                  <td>mỗi request một instance</td>
-                  <td>cao — lây lên trên</td>
-                  <td>0</td>
-                </tr>
-                <tr>
-                  <td><code>Scope.TRANSIENT</code></td>
-                  <td>mỗi chỗ inject một instance</td>
-                  <td>trung bình</td>
-                  <td>0</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="callout callout--warning">
-          <div class="callout__title">
-            Vì sao <code>Scope.REQUEST</code> đắt hơn người ta tưởng
-          </div>
-          Scope <strong>lây lên trên</strong>. <code>RoleRepository</code> thành
-          REQUEST → <code>RoleService</code> cũng thành REQUEST →
-          <code>RoleController</code> cũng vậy. Cả nhánh cây phải dựng lại cho
-          từng request. Một provider đổi scope có thể kéo theo nửa app.
-          <p style="margin-top: 8px">
-            Dự án không cần nó vì đã làm đúng cách khác: giữ provider
-            <strong>không trạng thái</strong>, để dữ liệu theo-request nằm trên
-            object <code>request</code> (<a href="03-guards.html">chương 3</a>
-            §9). Cần context xuyên tầng thì <code>AsyncLocalStorage</code> —
-            đúng thứ <code>nestjs-i18n</code> dùng — thường rẻ hơn.
-          </p>
-        </div>
-
-        <div class="sec-head" id="s9">
-          <span class="sec-head__num">09</span
-          ><span class="sec-head__text">Phụ thuộc vòng tròn</span>
+  resolvers: [AcceptLanguageResolver, new HeaderResolver([&quot;x-lang&quot;])],
+  inject: [AppConfigService],
+});</code></pre>
         </div>
         <p class="prose">
-          Repo hiện <strong>không có</strong> vòng tròn nào. Nhưng nó sẽ xuất
+          Hai tham số làm việc cùng nhau: <code>inject</code> nói
+          <em>cần gì</em>, <code>useFactory</code> nhận đúng thứ đó theo thứ tự.
+          Đây chính là <code>useFactory</code> của
+          <a href="#23-usefactory--tính-ra-rồi-mới-đưa">mục 2.3</a>, chỉ khác là
+          kết quả trở thành <strong>cấu hình module</strong> thay vì một
+          provider.
+        </p>
+        <p class="prose">
+          Hai chỗ còn lại: <code>LoggerModule.forRootAsync</code> (<a
+            href="../../src/shared/modules/base.module.ts#L86-L89"
+            >base.module.ts:86-89</a
+          >) và <code>ThrottlerModule.forRootAsync</code> (<a
+            href="../../src/shared/modules/base.module.ts#L90-L100"
+            >base.module.ts:90-100</a
+          >) — cái sau inject <strong>hai</strong> thứ (<code
+            >AppConfigService</code
+          >
+          + <code>ThrottlerRedisStorage</code>), cho thấy factory nhận bao nhiêu
+          tham số cũng được.
+        </p>
+        <h3 id="khi-nào-tự-viết-module-động" class="sub">
+          Khi nào tự viết module động
+        </h3>
+        <p class="prose">
+          Khi bạn tách một phần của dự án thành package dùng lại được, và nó cần
+          cấu hình từ bên ngoài. Hình dạng:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// ví dụ minh hoạ — dự án chưa có
+@Module({})
+export class StorageModule {
+  static forRootAsync(options: {
+    useFactory: (...args: any[]) =&gt; StorageOptions | Promise&lt;StorageOptions&gt;;
+    inject?: any[];
+  }): DynamicModule {
+    return {
+      module: StorageModule,
+      providers: [
+        {
+          provide: &quot;STORAGE_OPTIONS&quot;,
+          useFactory: options.useFactory,
+          inject: options.inject ?? [],
+        },
+        StorageService,
+      ],
+      exports: [StorageService],
+    };
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Trong một app đơn như dự án này thì chưa cần:
+          <code>SharedModule</code> + <code>AppConfigService</code> đã giải
+          quyết cùng vấn đề với ít máy móc hơn.
+        </p>
+        <hr />
+        <h2 id="8-scope-của-provider" class="sec-head">
+          8. Scope của provider
+        </h2>
+        <p class="prose">
+          Mặc định, <strong>mọi provider là singleton</strong>: tạo một lần lúc
+          boot, dùng cho mọi request đến khi app tắt. Toàn bộ dự án chạy như vậy
+          — không có một khai báo <code>scope</code> nào.
+        </p>
+        <p class="prose">Nest có ba scope:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Scope</th>
+                <th>Tạo khi nào</th>
+                <th>Chi phí</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Scope.DEFAULT</code></td>
+                <td>một lần, lúc boot</td>
+                <td>không</td>
+              </tr>
+              <tr>
+                <td><code>Scope.REQUEST</code></td>
+                <td><strong>mỗi request một instance</strong></td>
+                <td>cao — xem dưới</td>
+              </tr>
+              <tr>
+                <td><code>Scope.TRANSIENT</code></td>
+                <td>mỗi chỗ inject một instance riêng</td>
+                <td>trung bình</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="vì-sao-scoperequest-đắt-hơn-người-ta-tưởng" class="sub">
+          Vì sao <code>Scope.REQUEST</code> đắt hơn người ta tưởng
+        </h3>
+        <p class="prose">
+          Scope <strong>lây lên trên</strong>. Nếu
+          <code>RoleRepository</code> thành <code>REQUEST</code>, thì
+          <code>RoleService</code> (dùng nó) cũng thành <code>REQUEST</code>,
+          rồi <code>RoleController</code> cũng vậy. Cả nhánh cây phải được
+          <strong>dựng lại cho từng request</strong>, và Nest phải giữ một
+          context riêng cho mỗi request. Một provider đổi scope có thể kéo theo
+          nửa app.
+        </p>
+        <p class="prose">
+          Với dự án này còn một lý do nữa: hai guard toàn cục và
+          <code>AccessTokenGuard</code> là singleton, và chúng truyền dữ liệu
+          theo-request qua <strong>object <code>request</code></strong> (<a
+            href="03-guards.html#11-truyền-dữ-liệu-từ-guard-xuống-handler"
+            >chương 3 §9</a
+          >) chứ không qua trạng thái của provider. Đó là cách đúng: giữ
+          provider <strong>không trạng thái</strong>, để dữ liệu theo-request
+          nằm trên <code>request</code>. Làm đúng thế rồi thì
+          <code>Scope.REQUEST</code> gần như không bao giờ cần.
+        </p>
+        <p class="prose">
+          Khi nào thật sự cần: khi bạn muốn inject chính
+          <code>REQUEST</code> vào tầng sâu (ví dụ ghi <code>createdBy</code> tự
+          động ở tầng ORM) và không muốn truyền tay qua nhiều lớp. Ngay cả khi
+          đó, <code>AsyncLocalStorage</code> — đúng thứ
+          <code>nestjs-i18n</code> dùng (<a
+            href="04-middleware.html#74-phát-hiện-ngôn-ngữ--nestjs-i18n"
+            >chương 4 §7.4</a
+          >) — thường là lời giải rẻ hơn.
+        </p>
+        <hr />
+        <h2 id="9-phụ-thuộc-vòng-tròn" class="sec-head">
+          9. Phụ thuộc vòng tròn
+        </h2>
+        <p class="prose">
+          Hiện repo <strong>không có</strong> vòng tròn nào. Nhưng nó sẽ xuất
           hiện, và thông điệp lỗi không nói thẳng nguyên nhân.
         </p>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label ve-card__label--red">
-              Triệu chứng &amp; nguyên nhân
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 12.5px;
-              "
-            ><code>Nest can't resolve dependencies of the AService (?).</code></pre>
-            <p style="margin: 10px 0 0">
-              A import B, B import A. Lúc A nạp, B đang nạp dở nên còn
-              <code>undefined</code> → mảng <code>design:paramtypes</code> của A
-              có một lỗ hổng.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--amber">
-              Chữa tạm: <code>forwardRef</code>
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 12.5px;
-              "
-            ><code><span class="kw">constructor</span>(@<span class="fn">Inject</span>(<span class="fn">forwardRef</span>(() =&gt; BService))
-  <span class="kw">private</span> b: BService) {}
-
-<span class="cm">// và ở cấp module:</span>
-imports: [<span class="fn">forwardRef</span>(() =&gt; BModule)]</code></pre>
-            <p style="margin: 10px 0 0">
-              Chạy được, nhưng là <strong>băng dán</strong>.
-            </p>
-          </div>
-        </div>
-        <div class="callout callout--success">
-          <div class="callout__title">
-            Cách chữa đúng — vòng tròn là dấu hiệu ranh giới vẽ sai
-          </div>
-          <ol style="margin: 0; padding-left: 1.4em">
-            <li>
-              <strong>Tách phần chung ra module thứ ba.</strong> Đây chính là lý
-              do repo có <code>SharedUserRepository</code> /
-              <code>SharedRoleRepository</code> tách khỏi
-              <code>UserRepository</code> / <code>RoleRepository</code>.
-            </li>
-            <li>
-              <strong>Đảo chiều:</strong> thay vì A gọi B, để B nghe sự kiện A
-              phát ra.
-            </li>
-            <li>
-              <strong>Gộp lại</strong> nếu hai thứ thực ra là một trách nhiệm bị
-              chẻ nhầm.
-            </li>
-          </ol>
-        </div>
-
-        <div class="sec-head" id="s10">
-          <span class="sec-head__num">10</span
-          ><span class="sec-head__text"
-            >DI trong test — nơi DI trả lại công sức</span
-          >
-        </div>
+        <h3 id="triệu-chứng" class="sub">Triệu chứng</h3>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>src/routes/role/__tests__/role-service-test-harness.ts</span
-            ><span>rút gọn</span>
-          </div>
+          <div class="code-file__header">text</div>
           <pre
             class="code-file__body"
-          ><code><span class="cm">// 1. Mock: chỉ khai method service thật sự gọi</span>
-<span class="kw">export const</span> createRoleServiceMocks = () =&gt; ({
-  roleRepository: { findManyRoles: jest.<span class="fn">fn</span>(), findUniqueRole: jest.<span class="fn">fn</span>(), <span class="cm">/* … */</span> },
-  rolePermissionCacheService: { invalidateRole: jest.<span class="fn">fn</span>() },
+          ><code>Nest can&#39;t resolve dependencies of the AService (?). Please make sure that the argument BService at index [0]
+is available in the AModule context.</code></pre>
+        </div>
+        <p class="prose">
+          hoặc tệ hơn, một phụ thuộc lặng lẽ thành <code>undefined</code> và nổ
+          lúc chạy.
+        </p>
+        <h3 id="nguyên-nhân" class="sub">Nguyên nhân</h3>
+        <p class="prose">
+          <code>a.service.ts</code> import <code>b.service.ts</code>,
+          <code>b.service.ts</code> import <code>a.service.ts</code>. Lúc module
+          A được nạp, nó cần B; B đang nạp dở nên <code>BService</code> còn
+          <code>undefined</code>; mảng <code>design:paramtypes</code> của A có
+          một lỗ hổng (<code>undefined</code> ở vị trí đó).
+        </p>
+        <h3 id="cách-chữa-tạm" class="sub">Cách chữa tạm</h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// ví dụ minh hoạ
+@Injectable()
+export class AService {
+  constructor(@Inject(forwardRef(() =&gt; BService)) private b: BService) {}
+}
+// và ở cấp module:
+@Module({ imports: [forwardRef(() =&gt; BModule)] })</code></pre>
+        </div>
+        <p class="prose">
+          <code>forwardRef</code> bảo Nest &quot;hoãn việc phân giải token này
+          lại&quot;. Nó chạy được, nhưng là <strong>băng dán</strong>.
+        </p>
+        <h3 id="cách-chữa-đúng" class="sub">Cách chữa đúng</h3>
+        <p class="prose">
+          Vòng tròn gần như luôn là dấu hiệu ranh giới bị vẽ sai. Ba lối ra,
+          theo thứ tự ưu tiên:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong>Tách phần chung ra module thứ ba</strong> mà cả hai cùng
+              <code>imports</code>. Đây là lý do repo có
+              <code>SharedUserRepository</code> /
+              <code>SharedRoleRepository</code> tách khỏi
+              <code>UserRepository</code> / <code>RoleRepository</code> — phần
+              nhiều module cần được kéo ra riêng, thay vì để
+              <code>AuthModule</code> và <code>UserModule</code> gọi nhau.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Đảo chiều phụ thuộc:</strong> thay vì A gọi B, để B nghe
+              một sự kiện A phát ra.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Gộp lại</strong> nếu hai thứ thực ra là một trách nhiệm bị
+              chẻ nhầm.
+            </p>
+          </li>
+        </ol>
+        <hr />
+        <h2 id="10-di-trong-test" class="sec-head">10. DI trong test</h2>
+        <p class="prose">
+          Đây là chỗ DI trả lại toàn bộ công sức.
+          <code>Test.createTestingModule</code> dựng một container thật với sổ
+          sách bạn tự viết.
+        </p>
+        <p class="prose">
+          Dự án dùng một <strong>harness</strong> cho mỗi service —
+          <a href="../../src/routes/role/__tests__/role-service-test-harness.ts"
+            >role-service-test-harness.ts</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// 1. Mock: chỉ khai những method service thật sự gọi
+export const createRoleServiceMocks = () =&gt; ({
+  roleRepository: {
+    findManyRoles: jest.fn(),
+    findUniqueRole: jest.fn(),
+    createRole: jest.fn(),
+    updateRole: jest.fn(),
+    deleteRole: jest.fn(),
+  },
+  rolePermissionCacheService: { invalidateRole: jest.fn() },
 });
 
-<span class="cm">// 2. Dựng service qua container THẬT, thay phụ thuộc bằng useValue</span>
-<span class="kw">const</span> moduleRef = <span class="kw">await</span> Test.<span class="fn">createTestingModule</span>({
-  providers: [
-    RoleService,
-    { provide: RoleRepository, useValue: mocks.roleRepository },
-    { provide: RolePermissionCacheService, useValue: mocks.rolePermissionCacheService },
-  ],
-}).<span class="fn">compile</span>();</code></pre>
+// 2. Dựng service qua container thật, thay phụ thuộc bằng useValue
+export const buildRoleService = async (
+  mocks: RoleServiceMocks,
+): Promise&lt;RoleService&gt; =&gt; {
+  const moduleRef = await Test.createTestingModule({
+    providers: [
+      RoleService,
+      { provide: RoleRepository, useValue: mocks.roleRepository },
+      {
+        provide: RolePermissionCacheService,
+        useValue: mocks.rolePermissionCacheService,
+      },
+    ],
+  }).compile();
+
+  return moduleRef.get&lt;RoleService&gt;(RoleService);
+};</code></pre>
         </div>
         <p class="prose">
           Vì sao đi qua container thay vì
           <code>new RoleService(mockA, mockB)</code>? Vì container
-          <strong>kiểm tra hợp đồng</strong>: thêm phụ thuộc vào
+          <strong>kiểm tra hợp đồng</strong>: thêm một phụ thuộc vào
           <code>RoleService</code> mà quên khai trong harness thì test đỏ ngay
-          với thông điệp rõ ràng.
+          với thông điệp rõ ràng. Gọi <code>new</code> thẳng thì TypeScript báo
+          lỗi lúc compile, nhưng bạn mất luôn khả năng dùng
+          <code>overrideProvider</code> bên dưới.
         </p>
-        <div class="callout callout--info">
-          <div class="callout__title">
-            <code>overrideProvider</code> — khi module đã cố định
-          </div>
-          E2E dựng <strong>cả</strong> <code>AppModule</code> nên không liệt kê
-          provider được. Comment ở <code>create-test-app.ts:29-37</code> nêu lý
-          do cần override: <code>ConfigModule.forRoot()</code> chụp
+        <h3 id="overrideprovider--khi-module-đã-cố-định" class="sub">
+          <code>overrideProvider</code> — khi module đã cố định
+        </h3>
+        <p class="prose">
+          E2E dựng <strong>cả</strong> <code>AppModule</code>, nên không thể
+          liệt kê provider. Lúc đó dùng override —
+          <a href="../../test/e2e/support/create-test-app.ts#L28-L46"
+            >create-test-app.ts:28-46</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const builder = Test.createTestingModule({ imports: [AppModule] });
+const moduleFixture = await (
+  configure ? configure(builder) : builder
+).compile();</code></pre>
+        </div>
+        <p class="prose">
+          <code>configure</code> cho spec chèn
+          <code>.overrideProvider(X).useValue(...)</code> trước khi compile.
+          Comment ở
+          <a href="../../test/e2e/support/create-test-app.ts#L29-L37"
+            >dòng 29-37</a
+          >
+          nêu đúng lý do cần nó: <code>ConfigModule.forRoot()</code> chụp
           <code>process.env</code>
           <strong>lúc <code>base.module.ts</code> được import lần đầu</strong> —
           trước mọi <code>beforeAll</code>. Gán <code>process.env</code> trong
-          test là vô nghĩa.
+          test là không đảm bảo thay cấu hình đã load; harness hiện dùng
+          override provider. Cách khác là thiết lập env trước import module
+          trong môi trường test cô lập.
+        </p>
+        <p class="prose">Ba cách override:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
           <pre
             class="code-file__body"
-            style="
-              border: 1px solid var(--border);
-              border-radius: 8px;
-              margin-top: 10px;
-              font-size: 12.5px;
-            "
-          ><code>.<span class="fn">overrideProvider</span>(TokenService).<span class="fn">useValue</span>(fake)
-.<span class="fn">overrideProvider</span>(TokenService).<span class="fn">useClass</span>(FakeTokenService)
-.<span class="fn">overrideProvider</span>(TokenService).<span class="fn">useFactory</span>({ factory: () =&gt; fake, inject: [] })
-<span class="cm">// và .overrideGuard / .overridePipe / .overrideInterceptor / .overrideFilter</span></code></pre>
+          ><code>.overrideProvider(TokenService).useValue(fake)   // đưa object có sẵn
+.overrideProvider(TokenService).useClass(FakeTokenService)
+.overrideProvider(TokenService).useFactory({ factory: () =&gt; fake, inject: [] })</code></pre>
         </div>
-
-        <div class="sec-head" id="s11">
-          <span class="sec-head__num">11</span
-          ><span class="sec-head__text">Vòng đời: hook nào chạy lúc nào</span>
-        </div>
+        <p class="prose">
+          Các hàm <code>.overrideGuard(X)</code>, <code>.overridePipe(X)</code>,
+          <code>.overrideInterceptor(X)</code>,
+          <code>.overrideFilter(X)</code> dùng cho enhancer đăng ký theo class.
+          Với <code>APP_*</code> + <code>useClass</code>, Nest tạo token nội bộ
+          riêng, nên override class không tự thay global enhancer. Để test thay
+          được, đăng ký class làm provider rồi <code>APP_*</code> +
+          <code>useExisting</code>, dùng <code>.overrideProvider(X)</code>. Xem
+          <a href="13-testing-fundamentals.html">chương 13</a>.
+        </p>
+        <hr />
+        <h2 id="11-vòng-đời-hook-nào-chạy-lúc-nào" class="sec-head">
+          11. Vòng đời: hook nào chạy lúc nào
+        </h2>
+        <p class="prose">
+          <a
+            href="02-reflector-execution-context-and-discovery.html#6-chạy-lúc-nào-lifecycle-hooks"
+            >Chương 2 §6</a
+          >
+          đã dùng <code>onApplicationBootstrap</code>. Đây là danh sách đầy đủ,
+          theo thứ tự.
+        </p>
+        <p class="prose">
+          <strong>Khởi động</strong> (<code>app.init()</code>):
+        </p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Hook</th>
-                  <th>Chạy khi</th>
-                  <th>Trong dự án</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>onModuleInit()</code></td>
-                  <td>module <strong>đó</strong> resolve xong phụ thuộc</td>
-                  <td>
-                    <code>PrismaService</code> — <code>$connect()</code>, và
-                    <strong>ném lại lỗi</strong> nên DB chết là app không boot
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>onApplicationBootstrap()</code></td>
-                  <td><strong>mọi</strong> module đã init</td>
-                  <td>
-                    <code>PermissionCoverageService</code> — quét toàn bộ route
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>onModuleDestroy()</code></td>
-                  <td>app đóng</td>
-                  <td>
-                    <code>RedisService</code> — <code>client.quit()</code>;
-                    <code>PrismaService</code> — <code>$disconnect()</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>beforeApplicationShutdown()</code> /
-                    <code>onApplicationShutdown()</code>
-                  </td>
-                  <td>app đóng</td>
-                  <td>—</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Hook</th>
+                <th>Chạy khi</th>
+                <th>Trong dự án</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>onModuleInit()</code></td>
+                <td>module <strong>đó</strong> đã resolve xong phụ thuộc</td>
+                <td>
+                  <a href="../../src/shared/services/prisma.service.ts#L8-L16"
+                    ><code>PrismaService</code></a
+                  >
+                  — <code>$connect()</code>, và <strong>ném lại lỗi</strong> nên
+                  DB chết là app không boot
+                </td>
+              </tr>
+              <tr>
+                <td><code>onApplicationBootstrap()</code></td>
+                <td><strong>mọi</strong> module đã init</td>
+                <td>
+                  <a
+                    href="../../src/shared/services/permission-coverage.service.ts"
+                    ><code>PermissionCoverageService</code></a
+                  >
+                  — quét toàn bộ route
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          <strong>Tắt</strong> (<code>app.close()</code>, hoặc tín hiệu hệ thống
+          nếu bật <code>enableShutdownHooks()</code>):
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Hook</th>
+                <th>Trong dự án</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>onModuleDestroy()</code></td>
+                <td>
+                  <a href="../../src/shared/services/redis.service.ts"
+                    ><code>RedisService</code></a
+                  >
+                  — <code>client.quit()</code>;
+                  <a href="../../src/shared/services/prisma.service.ts#L18-L21"
+                    ><code>PrismaService</code></a
+                  >
+                  — <code>$disconnect()</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>beforeApplicationShutdown(signal?)</code></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><code>onApplicationShutdown(signal?)</code></td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <p class="prose">
           Chọn hook nào, theo một câu hỏi:
-          <em>"việc này chỉ cần module của tôi sẵn sàng, hay cần cả app?"</em>
-          Mở kết nối DB → <code>onModuleInit</code>. Quét mọi controller →
-          <code>onApplicationBootstrap</code>.
+          <em
+            >&quot;việc này chỉ cần module của tôi sẵn sàng, hay cần cả
+            app?&quot;</em
+          >
+          Mở kết nối DB → chỉ cần module mình → <code>onModuleInit</code>.
+          Discovery đã thấy controller ở <code>onModuleInit</code>; dùng
+          <code>onApplicationBootstrap</code> để đợi các init hook hoàn tất
+          trước boot-check.
         </p>
-        <div class="callout callout--warning">
-          <div class="callout__title">Lưu ý vận hành</div>
-          <code>main.ts</code> hiện <strong>không</strong> gọi
-          <code>app.enableShutdownHooks()</code>. Nghĩa là
-          <code>onModuleDestroy</code> chạy trong test (<code>app.close()</code>
-          tường minh) nhưng <strong>không</strong> chạy khi process nhận
-          <code>SIGTERM</code> lúc deploy. Hôm nay hậu quả nhẹ — OS đóng socket
-          hộ — nhưng nếu sau này có job nền cần dừng êm, đây là dòng phải thêm.
-        </div>
-
-        <div class="sec-head" id="s12">
-          <span class="sec-head__num">12</span
-          ><span class="sec-head__text">Bản đồ module của dự án</span>
-        </div>
+        <blockquote>
+          <p class="prose">
+            <strong>Lưu ý vận hành:</strong>
+            <a href="../../src/main.ts"><code>main.ts</code></a> hiện
+            <strong>không</strong> gọi <code>app.enableShutdownHooks()</code>.
+            Nghĩa là <code>onModuleDestroy</code> của
+            <code>RedisService</code> và <code>PrismaService</code> chạy trong
+            test (nơi <code>app.close()</code> được gọi tường minh) nhưng
+            <strong>không</strong> chạy khi process nhận
+            <code>SIGTERM</code> lúc deploy. Hôm nay hậu quả nhẹ — OS đóng
+            socket hộ — nhưng nếu sau này có job nền cần dừng êm, hoặc cần flush
+            gì đó trước khi chết, đây là dòng phải thêm.
+          </p>
+        </blockquote>
+        <hr />
+        <h2 id="12-bản-đồ-module-của-dự-án" class="sec-head">
+          12. Bản đồ module của dự án
+        </h2>
         <section class="diagram-shell">
           <p class="diagram-shell__hint">
-            Ctrl/Cmd + lăn để phóng · kéo để di chuyển · ⛶ mở tab mới
+            Ctrl/Cmd + lăn để phóng · kéo để di chuyển
           </p>
-          <div class="mermaid-wrap" style="min-height: 440px">
+          <div class="mermaid-wrap">
             <div class="zoom-controls">
-              <button type="button" data-action="zoom-in">+</button
-              ><button type="button" data-action="zoom-out">&minus;</button
-              ><button type="button" data-action="zoom-fit">&#8634;</button
+              <button type="button" data-action="zoom-in" aria-label="Phóng to">
+                +</button
+              ><button
+                type="button"
+                data-action="zoom-out"
+                aria-label="Thu nhỏ"
+              >
+                −</button
+              ><button
+                type="button"
+                data-action="zoom-fit"
+                aria-label="Vừa khung"
+              >
+                ↺</button
               ><button type="button" data-action="zoom-one">1:1</button
-              ><button type="button" data-action="zoom-expand">&#x26F6;</button
-              ><span class="zoom-label">Đang tải...</span>
+              ><button
+                type="button"
+                data-action="zoom-expand"
+                aria-label="Mở rộng"
+              >
+                ⛶</button
+              ><span class="zoom-label">Đang tải…</span>
             </div>
             <div class="mermaid-viewport">
               <div class="mermaid mermaid-canvas"></div>
@@ -2340,20 +3255,38 @@ imports: [<span class="fn">forwardRef</span>(() =&gt; BModule)]</code></pre>
                 App["AppModule"] --> Shared["SharedModule<br/>@Global · 12 service dùng chung"]
                 App --> Base["BaseModule"]
                 App --> Route["RouteModule"]
+
                 Shared --> Jwt["JwtModule<br/>imports, KHÔNG export lại"]
+
                 Base --> Cfg["ConfigModule.forRoot<br/>isGlobal, validate env"]
                 Base --> Log["LoggerModule.forRootAsync"]
                 Base --> Thr["ThrottlerModule.forRootAsync"]
                 Base --> I18n["I18nModule"]
                 Base --> Disc["DiscoveryModule"]
                 Base --> Tokens["APP_GUARD x2 · APP_PIPE<br/>APP_FILTER · APP_INTERCEPTOR"]
+
                 Route --> F["16 module tính năng<br/>Auth · Role · User · Product · Order · Cart…"]
-                F --> P["mỗi module:<br/>controller + service + repository"]
-                classDef g fill:#c2410c22,stroke:#c2410c,stroke-width:2px
-                classDef b fill:#4d7c0f22,stroke:#4d7c0f,stroke-width:2px
-                class Shared g
-                class Tokens b
+                F --> P["mỗi module: controller + service + repository"]
           </script>
+          <details class="diagram-code">
+            <summary>Mã sơ đồ (xem khi offline)</summary>
+            <pre><code>flowchart TD
+    App[&quot;AppModule&quot;] --&gt; Shared[&quot;SharedModule&lt;br/&gt;@Global · 12 service dùng chung&quot;]
+    App --&gt; Base[&quot;BaseModule&quot;]
+    App --&gt; Route[&quot;RouteModule&quot;]
+
+    Shared --&gt; Jwt[&quot;JwtModule&lt;br/&gt;imports, KHÔNG export lại&quot;]
+
+    Base --&gt; Cfg[&quot;ConfigModule.forRoot&lt;br/&gt;isGlobal, validate env&quot;]
+    Base --&gt; Log[&quot;LoggerModule.forRootAsync&quot;]
+    Base --&gt; Thr[&quot;ThrottlerModule.forRootAsync&quot;]
+    Base --&gt; I18n[&quot;I18nModule&quot;]
+    Base --&gt; Disc[&quot;DiscoveryModule&quot;]
+    Base --&gt; Tokens[&quot;APP_GUARD x2 · APP_PIPE&lt;br/&gt;APP_FILTER · APP_INTERCEPTOR&quot;]
+
+    Route --&gt; F[&quot;16 module tính năng&lt;br/&gt;Auth · Role · User · Product · Order · Cart…&quot;]
+    F --&gt; P[&quot;mỗi module: controller + service + repository&quot;]</code></pre>
+          </details>
         </section>
         <p class="prose">
           Đặc điểm: <strong>cây rất nông</strong>. Không module tính năng nào
@@ -2361,571 +3294,683 @@ imports: [<span class="fn">forwardRef</span>(() =&gt; BModule)]</code></pre>
           provider global, không qua nhau. Đổi lại: không bao giờ có vòng tròn,
           và xoá một module tính năng không làm gãy module khác.
         </p>
-
-        <div class="sec-head" id="s13">
-          <span class="sec-head__num">13</span
-          ><span class="sec-head__text">Nâng cao và những chỗ dễ vấp</span>
-        </div>
-        <div class="card-grid">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label ve-card__label--red">
-              Quên <code>@Injectable()</code> mà vẫn chạy
-            </div>
-            <p>
-              Class không có phụ thuộc thì không cần
-              <code>design:paramtypes</code> → chạy được. Thêm tham số
-              constructor đầu tiên vào là vỡ.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--amber">
-              Khai cùng class ở hai module
-            </div>
-            <p>
-              <a href="#s4">Mục 4</a>. Đang xảy ra với ba provider trong repo.
-              Vô hại hôm nay; nhớ cơ chế.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--amber">
-              <code>@Global()</code> cho service nghiệp vụ
-            </div>
-            <p>Tiện lúc viết, đau lúc đọc. Giữ global cho hạ tầng.</p>
-          </div>
-          <div class="ve-card" style="--i: 3">
-            <div class="ve-card__label ve-card__label--b">
-              Import chỉ để lấy kiểu
-            </div>
-            <p>
-              Dùng <code>import type { X }</code> — TypeScript xoá hẳn khỏi code
-              biên dịch, nên không tạo phụ thuộc runtime, không tạo vòng tròn.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 4">
-            <div class="ve-card__label ve-card__label--b">
-              <code>moduleRef.get()</code> giữa chừng
-            </div>
-            <p>
-              Lấy provider lúc chạy thay vì qua constructor. Hữu ích cho factory
-              động; lạm dụng là quay lại service locator. Repo dùng đúng một
-              lần, trong script seed.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 5">
-            <div class="ve-card__label ve-card__label--plum">
-              Đọc lỗi "can't resolve dependencies"
-            </div>
-            <p>
-              Dấu <code>?</code> chỉ đúng vị trí tham số thiếu. Ba nguyên nhân
-              theo thứ tự hay gặp: quên khai <code>providers</code>; module quên
-              <code>exports</code>; vòng tròn import.
-            </p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s14">
-          <span class="sec-head__num">14</span
-          ><span class="sec-head__text"
-            >Tự kiểm chứng — đã chạy thật khi viết</span
-          >
-        </div>
-        <div class="ve-card ve-card--hero" style="--i: 0; margin-bottom: 16px">
-          <div class="ve-card__label">
-            Thí nghiệm gộp: ba quy tắc DI · không cần database
-          </div>
-          <p>
-            Code đầy đủ trong
-            <a href="06-modules-and-dependency-injection.md#14-tự-kiểm-chứng"
-              >bản markdown</a
-            >. Chạy <code>npx ts-node --transpile-only scratch-di.ts</code>:
-          </p>
+        <hr />
+        <h2 id="13-nâng-cao-và-những-chỗ-dễ-vấp" class="sec-head">
+          13. Nâng cao và những chỗ dễ vấp
+        </h2>
+        <p class="prose">
+          <strong>DI khác DIP thế nào?</strong> DI nói về cách cung cấp
+          dependency; DIP (Dependency Inversion Principle, chữ D của SOLID) nói
+          về hướng phụ thuộc: nghiệp vụ cấp cao và chi tiết cấp thấp cùng dựa
+          vào abstraction. Nhận một class cụ thể qua constructor đã là DI, nhưng
+          chưa đủ để kết luận thiết kế tuân theo DIP. Với TypeScript, interface
+          mất ở runtime nên cần token tường minh khi dùng làm hợp đồng
+          injection; abstract class có giá trị runtime nên cũng có thể làm
+          token. Xem <a href="#25-token-không-phải-class">mục 2.5</a>.
+        </p>
+        <p class="prose">
+          <strong>Quên <code>@Injectable()</code> mà vẫn chạy.</strong> Không có
+          metadata constructor, class có thể được dựng với dependency
+          <code>undefined</code> rồi lỗi muộn. Giữ decorator cho provider có
+          constructor injection và kiểm chứng trong test.
+        </p>
+        <p class="prose">
+          <strong>Khai cùng class ở hai module.</strong>
+          <a href="#4-quy-tắc-phân-giải-nest-tìm-provider-ở-đâu">Mục 4</a>. Đang
+          xảy ra trong repo với ba provider. Vô hại hôm nay; nhớ cơ chế.
+        </p>
+        <p class="prose">
+          <strong><code>@Global()</code> cho một service nghiệp vụ.</strong>
+          Tiện lúc viết, đau lúc đọc. Giữ global cho hạ tầng.
+        </p>
+        <p class="prose">
+          <strong>Import class chỉ để lấy kiểu, vô tình tạo vòng tròn.</strong>
+          Dùng <code>import type { X }</code> — TypeScript xoá hẳn khỏi code
+          biên dịch, nên không tạo phụ thuộc runtime. Nhưng không dùng
+          <code>import type</code> cho class làm token constructor DI hoặc DTO
+          metatype: Nest cần giá trị runtime đó. Với interface/type-only
+          dependency, khai token bằng <code>@Inject(TOKEN)</code>.
+        </p>
+        <p class="prose">
+          <strong>Re-export module đã import.</strong> Không export thẳng một
+          token chỉ nằm trong module khác:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
           <pre
-            class="code-file__body out"
-            style="border: 1px solid var(--border); border-radius: 8px"
+            class="code-file__body"
+          ><code>@Module({ imports: [StorageModule], exports: [StorageModule] })
+export class SharedStorageModule {}</code></pre>
+        </div>
+        <p class="prose">
+          <code>StorageModule</code> phải export provider cần chia sẻ. Viết
+          <code>exports: [StorageService]</code> ở module chỉ import
+          <code>StorageModule</code> có thể ném
+          <code>UnknownExportException</code>; khai provider cục bộ hoặc
+          re-export module đúng nguồn.
+        </p>
+        <p class="prose">
+          <strong
+            ><code>moduleRef.get()</code> để lấy provider giữa chừng.</strong
           >
-1. Cùng class khai ở 2 module:
+          <code>ModuleRef</code> cho phép lấy provider theo token lúc chạy thay
+          vì inject qua constructor. Hữu ích cho factory động; nhưng lạm dụng là
+          quay lại <strong>service locator</strong>, và bạn mất luôn cái lợi
+          &quot;nhìn constructor là biết class này cần gì&quot; — so sánh đầy đủ
+          ba cách ở
+          <a href="#17-service-locator-class-tự-hỏi-container">mục 1</a>. Trong
+          repo, container chỉ bị chạm ở <strong>composition root</strong>:
+          <a href="../../src/main.ts#L16-L18">main.ts:16-18</a>
+          (<code>app.get(Logger)</code>,
+          <code>app.select(SharedModule).get(...)</code>),
+          <a href="../../initial-scripts/create-permission.ts#L26"
+            >create-permission.ts:26</a
+          >
+          trong script seed, và <code>moduleRef.get(...)</code> trong các test
+          harness. Không class nghiệp vụ nào dưới <code>src/routes/</code> giữ
+          tham chiếu tới container — giữ nguyên như vậy.
+        </p>
+        <p class="prose">
+          <strong
+            >Test dựng cả <code>AppModule</code> cho một unit test.</strong
+          >
+          Chậm và cần DB. Chỉ liệt kê đúng những gì service cần, như harness của
+          dự án.
+        </p>
+        <p class="prose">
+          <strong
+            >Lỗi &quot;can&#39;t resolve dependencies&quot; đọc thế nào.</strong
+          >
+          Thông điệp có dạng
+          <code>can&#39;t resolve dependencies of the X (?, Y, Z)</code> — dấu
+          <code>?</code> chỉ đúng vị trí tham số bị thiếu. Ba nguyên nhân, theo
+          thứ tự hay gặp: (1) quên khai provider trong <code>providers</code>;
+          (2) module chứa nó quên <code>exports</code>; (3) vòng tròn import.
+        </p>
+        <hr />
+        <h2 id="14-tự-kiểm-chứng" class="sec-head">14. Tự kiểm chứng</h2>
+        <p class="prose">
+          Cả ba thí nghiệm dưới đây <strong>không cần database</strong>, chạy
+          vài giây, và đã được chạy thật khi viết tài liệu này — output bên dưới
+          là output thật.
+        </p>
+        <p class="prose">
+          <strong>Thí nghiệm gộp: ba quy tắc DI.</strong> Tạo
+          <code>scratch-di.ts</code> ở gốc repo:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>import &quot;reflect-metadata&quot;;
+import { Injectable, Module, Global } from &quot;@nestjs/common&quot;;
+import { Test } from &quot;@nestjs/testing&quot;;
+
+let counter = 0;
+@Injectable()
+class Stateful {
+  readonly id = ++counter;
+}
+@Injectable()
+class GlobalDep {
+  readonly id = ++counter;
+}
+
+@Global()
+@Module({ providers: [GlobalDep], exports: [GlobalDep] })
+class GlobalModule {}
+
+@Injectable()
+class AService {
+  constructor(
+    public s: Stateful,
+    public g: GlobalDep,
+  ) {}
+}
+@Injectable()
+class BService {
+  constructor(
+    public s: Stateful,
+    public g: GlobalDep,
+  ) {}
+}
+
+// Stateful khai ở CẢ HAI module — đúng như SharedRoleRepository trong repo
+@Module({ providers: [Stateful, AService], exports: [AService] })
+class AModule {}
+@Module({ providers: [Stateful, BService], exports: [BService] })
+class BModule {}
+@Module({ imports: [GlobalModule, AModule, BModule] })
+class RootModule {}
+
+// Module KHÔNG export provider của mình
+@Module({ providers: [Stateful] })
+class SealedModule {}
+@Injectable()
+class Outsider {
+  constructor(public s: Stateful) {}
+}
+@Module({ imports: [SealedModule], providers: [Outsider] })
+class LeakTestModule {}
+
+(async () =&gt; {
+  const app = await Test.createTestingModule({
+    imports: [RootModule],
+  }).compile();
+  const a = app.get(AService),
+    b = app.get(BService);
+
+  console.log(&quot;1. Cùng class khai ở 2 module:&quot;);
+  console.log(
+    &quot;   AService.s.id =&quot;,
+    a.s.id,
+    &quot;| BService.s.id =&quot;,
+    b.s.id,
+    &quot;| giống nhau?&quot;,
+    a.s === b.s,
+  );
+  console.log(&quot;2. Provider từ @Global module:&quot;);
+  console.log(
+    &quot;   AService.g.id =&quot;,
+    a.g.id,
+    &quot;| BService.g.id =&quot;,
+    b.g.id,
+    &quot;| giống nhau?&quot;,
+    a.g === b.g,
+  );
+
+  console.log(&quot;3. Module không export → module khác thấy được không?&quot;);
+  try {
+    await Test.createTestingModule({ imports: [LeakTestModule] }).compile();
+    console.log(&quot;   compile OK  ← không nên xảy ra&quot;);
+  } catch (e) {
+    console.log(
+      &quot;   compile THẤT BẠI:&quot;,
+      String((e as Error).message)
+        .split(&quot;\n&quot;)[0]
+        .slice(0, 110),
+    );
+  }
+  process.exit(0);
+})();</code></pre>
+        </div>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>npx ts-node --transpile-only scratch-di.ts</code></pre>
+        </div>
+        <blockquote>
+          <p class="prose">
+            <strong>Phải đặt file ở gốc repo</strong>, đừng copy ra
+            <code>/tmp</code>. Hai lý do: <code>ts-node</code> cần đọc
+            <code>tsconfig.json</code> của dự án để có
+            <code>experimentalDecorators</code> +
+            <code>emitDecoratorMetadata</code> (thiếu là decorator không chạy,
+            DI không biết kiểu — xem
+            <a
+              href="01-decorators-and-metadata.html#5-hai-cờ-tsconfig-quyết-định-mọi-thứ"
+              >chương 1 §5</a
+            >), và Node cần tìm thấy <code>node_modules</code> của repo để
+            <code>import &quot;@nestjs/common&quot;</code>.
+          </p>
+        </blockquote>
+        <p class="prose">Kết quả:</p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>1. Cùng class khai ở 2 module:
    AService.s.id = 2 | BService.s.id = 3 | giống nhau? false
 2. Provider từ @Global module:
    AService.g.id = 1 | BService.g.id = 1 | giống nhau? true
 3. Module không export → module khác thấy được không?
-   compile THẤT BẠI: Nest can't resolve dependencies of the Outsider (?)...</pre
-          >
-          <p style="margin-top: 10px">
-            Ba dòng, ba bài học: <strong>instance gắn với module</strong> ·
-            <strong>global chia sẻ một instance</strong> ·
-            <strong>không export thì vô hình</strong>.
-          </p>
+   compile THẤT BẠI: Nest can&#39;t resolve dependencies of the Outsider (?). Please make sure that the argument Stateful at index [0]</code></pre>
         </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              Thí nghiệm 4 · làm vỡ DI có chủ đích
-            </div>
-            <p>
-              Tạm xoá <code>@Injectable()</code> khỏi
-              <code>role.service.ts</code>. <code>pnpm types-check</code> vẫn
-              xanh (lỗi runtime, không phải lỗi kiểu). Chạy app →
-              <code
-                >Nest can't resolve dependencies of the RoleService (?,
-                ...)</code
-              >.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              Thí nghiệm 5 · đếm instance thật
-            </div>
-            <p>
-              Thêm <code>console.log</code> vào constructor của
-              <code>SharedRoleRepository</code>, chạy app: bạn thấy
-              <strong>hai</strong> dòng — một cho <code>AuthModule</code>, một
-              cho <code>UserModule</code>, đúng như <a href="#s4">mục 4</a> mô
-              tả.
-            </p>
-          </div>
+        <p class="prose">
+          Ba dòng, ba bài học: <strong>instance gắn với module</strong>,
+          <strong>global chia sẻ một instance</strong>,
+          <strong>không export thì vô hình</strong>. Nhớ xoá file sau khi xem.
+        </p>
+        <p class="prose">
+          <strong>Thí nghiệm 4: làm vỡ DI có chủ đích.</strong> Tạm xoá
+          <code>@Injectable()</code> khỏi
+          <a href="../../src/routes/role/role.service.ts">role.service.ts</a>,
+          chạy <code>pnpm types-check</code> — vẫn xanh (đây là lỗi runtime,
+          không phải lỗi kiểu). Nếu không còn metadata từ decorator khác, app có
+          thể boot nhưng dependency là <code>undefined</code>; gọi phương thức
+          sử dụng nó mới lỗi. Để thấy lỗi phân giải lúc boot, giữ metadata và bỏ
+          provider tương ứng khỏi module. Khôi phục sau thử nghiệm.
+        </p>
+        <p class="prose">
+          <strong>Thí nghiệm 5: đếm instance thật trong app.</strong> Thêm tạm
+          vào constructor của
+          <a href="../../src/repositories/role/shared-role.repository.ts"
+            >shared-role.repository.ts</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>constructor(private prismaService: PrismaService) {
+  console.log(&quot;SharedRoleRepository được tạo lần thứ&quot;, ++(globalThis as any).__n || 1);
+}</code></pre>
         </div>
-
-        <div class="footer-nav">
-          <a href="05-request-lifecycle-in-this-project.html"
-            ><small>Chương trước</small>← 05 — Vòng đời một request</a
-          >
+        <p class="prose">
+          Chạy app: bạn sẽ thấy <strong>hai</strong> dòng — một cho
+          <code>AuthModule</code>, một cho <code>UserModule</code>, đúng như
+          <a href="#4-quy-tắc-phân-giải-nest-tìm-provider-ở-đâu">mục 4</a> mô
+          tả. Khôi phục sau khi xem.
+        </p>
+        <hr />
+        <p class="prose">
+          <strong>Tiếp theo:</strong>
           <a href="07-dto-validation-transformation-serialization.html"
-            ><small>Chương tiếp</small>07 — DTO: validation, transformation,
-            serialization →</a
+            >Chương 7 — DTO: validation, transformation, serialization</a
           >
-        </div>
-      </div>
-      <!-- /main -->
+          — ba việc khác nhau do hai thư viện làm, và cái bẫy khiến dữ liệu nhạy
+          cảm lọt ra ngoài.
+        </p>
+        <footer class="source-footer">
+          <a href="06-modules-and-dependency-injection.md">Nguồn Markdown</a> ·
+          Sinh bằng scripts/build-nestjs-fundamentals.cjs
+        </footer>
+      </main>
     </div>
-    <!-- /wrap -->
-
-    <script>
-      (function () {
-        var toggle = document.getElementById("themeToggle");
-        var saved = null;
-        try {
-          saved = localStorage.getItem("theme");
-        } catch (e) {}
-        var initial =
-          saved ||
-          (matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        if (saved) document.documentElement.setAttribute("data-theme", initial);
-        toggle.textContent = initial === "dark" ? "☀" : "☾";
-        toggle.addEventListener("click", function () {
-          var current =
-            document.documentElement.getAttribute("data-theme") ||
-            (matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light");
-          var next = current === "light" ? "dark" : "light";
-          document.documentElement.setAttribute("data-theme", next);
-          try {
-            localStorage.setItem("theme", next);
-          } catch (e) {}
-          toggle.textContent = next === "dark" ? "☀" : "☾";
-        });
-      })();
-    </script>
-
     <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      const config = {
-        fitPadding: 28,
-        minHeight: 320,
-        maxHeightPx: 960,
-        maxHeightVh: 0.84,
-        maxInitialZoom: 1.8,
-        minZoom: 0.08,
-        maxZoom: 6.5,
-        zoomStep: 0.14,
-        readabilityFloor: 0.58,
-      };
-      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-      let activeDrag = null;
-      addEventListener("mousemove", (e) => activeDrag?.onMove(e));
-      addEventListener("mouseup", () => {
-        activeDrag?.onEnd();
-        activeDrag = null;
+      // Shared behavior for the Markdown-generated foundation pages.
+      const themeToggle = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+      }
+      let initialTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      try {
+        initialTheme =
+          localStorage.getItem("fundamentals-theme") ?? initialTheme;
+      } catch {
+        // Storage can be unavailable when opening a local HTML file.
+      }
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        try {
+          localStorage.setItem("fundamentals-theme", theme);
+        } catch {
+          // Storage can be unavailable when opening a local HTML file.
+        }
+        applyTheme(theme);
       });
-      const attr = document.documentElement.getAttribute("data-theme");
-      const isDark =
-        attr === "dark" ||
-        (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "base",
-        look: "classic",
-        themeVariables: {
-          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-          fontSize: "15px",
-          primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
-          primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
-          primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
-          secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
-          secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
-          tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
-          tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          lineColor: isDark ? "#a89e90" : "#7c756a",
-          noteBkgColor: isDark ? "#342e29" : "#fffdf7",
-          noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          noteBorderColor: isDark ? "#fbbf24" : "#b45309",
-          actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
-          actorBorder: isDark ? "#f0743f" : "#c2410c",
-          actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          signalColor: isDark ? "#a89e90" : "#7c756a",
-          signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-        },
-      });
-      function initDiagram(shell) {
-        const wrap = shell.querySelector(".mermaid-wrap"),
-          viewport = shell.querySelector(".mermaid-viewport"),
-          canvas = shell.querySelector(".mermaid-canvas"),
-          source = shell.querySelector(".diagram-source"),
-          label = shell.querySelector(".zoom-label");
-        if (!wrap || !viewport || !canvas || !source || !label) return;
-        let zoom = 1,
-          fitMode = "contain",
-          panX = 0,
-          panY = 0,
-          svgW = 0,
-          svgH = 0,
-          sx = 0,
-          sy = 0,
-          spx = 0,
-          spy = 0,
-          touchDist = 0,
-          touchCx = 0,
-          touchCy = 0;
-        function constrainPan() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            rW = svgW * zoom,
-            rH = svgH * zoom,
-            pad = config.fitPadding;
-          panX =
-            rW + pad * 2 <= vpW
-              ? (vpW - rW) / 2
-              : clamp(panX, vpW - rW - pad, pad);
-          panY =
-            rH + pad * 2 <= vpH
-              ? (vpH - rH) / 2
-              : clamp(panY, vpH - rH - pad, pad);
-        }
-        function applyTransform() {
-          const svg = canvas.querySelector("svg");
-          if (!svg || !svgW) return;
-          constrainPan();
-          svg.style.width = svgW * zoom + "px";
-          svg.style.height = svgH * zoom + "px";
-          canvas.style.transform = `translate(${panX}px, ${panY}px)`;
-          label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
-        }
-        function canPan() {
-          return (
-            svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
-            svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
-          );
-        }
-        function computeSmartFit() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            aW = Math.max(80, vpW - config.fitPadding * 2),
-            aH = Math.max(80, vpH - config.fitPadding * 2),
-            contain = Math.min(aW / svgW, aH / svgH);
-          let z = contain,
-            mode = "contain";
-          if (contain < config.readabilityFloor) {
-            const chartR = svgH / svgW,
-              vpR = vpH / Math.max(vpW, 1);
-            if (chartR >= vpR) {
-              z = aW / svgW;
-              mode = "width-priority";
-            } else {
-              z = aH / svgH;
-              mode = "height-priority";
-            }
-          }
-          return {
-            zoom: clamp(z, config.minZoom, config.maxInitialZoom),
-            mode,
-          };
-        }
-        function fitDiagram() {
-          if (!svgW) return;
-          const fit = computeSmartFit();
-          zoom = fit.zoom;
-          fitMode = fit.mode;
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function setOneToOne() {
-          zoom = clamp(1, config.minZoom, config.maxZoom);
-          fitMode = "1:1";
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function zoomAround(factor, cx, cy) {
-          const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
-            ratio = next / zoom;
-          panX = cx - ratio * (cx - panX);
-          panY = cy - ratio * (cy - panY);
-          zoom = next;
-          fitMode = "custom";
-          applyTransform();
-        }
-        function readSvgNaturalSize(svg) {
-          let w = 0,
-            h = 0;
-          if (svg.viewBox?.baseVal?.width > 0) {
-            w = svg.viewBox.baseVal.width;
-            h = svg.viewBox.baseVal.height;
-          }
-          if (!w) {
-            w = parseFloat(svg.getAttribute("width")) || 0;
-            h = parseFloat(svg.getAttribute("height")) || 0;
-          }
-          if (!w) {
-            const b = svg.getBBox();
-            w = b.width;
-            h = b.height;
-          }
-          if (!w) {
-            const r = svg.getBoundingClientRect();
-            w = r.width || 1000;
-            h = r.height || 700;
-          }
-          if (!svg.getAttribute("viewBox"))
-            svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-          return { w, h };
-        }
-        function setAdaptiveHeight() {
-          if (!svgW) return;
-          const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2),
-            idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
-            maxVp = Math.floor(innerHeight * config.maxHeightVh),
-            hardMax = Math.min(
-              config.maxHeightPx,
-              Math.max(config.minHeight + 40, maxVp),
-            );
-          wrap.style.height =
-            Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
-        }
-        function openInNewTab() {
-          const svg = canvas.querySelector("svg");
-          if (!svg) return;
-          const clone = svg.cloneNode(true);
-          clone.style.width = "";
-          clone.style.height = "";
-          const bg = isDark ? "#1c1916" : "#faf6f0";
-          const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
-          open(
-            URL.createObjectURL(new Blob([html], { type: "text/html" })),
-            "_blank",
-          );
-        }
-        async function render() {
-          try {
-            const code = source.textContent.trim();
-            if (!code) {
-              label.textContent = "Lỗi: nguồn rỗng";
-              return;
-            }
-            const id =
-              "diagram-" +
-              Date.now() +
-              "-" +
-              Math.random().toString(36).slice(2, 8);
-            const { svg } = await mermaid.render(id, code);
-            canvas.innerHTML = svg;
-            const svgNode = canvas.querySelector("svg");
-            if (!svgNode) {
-              label.textContent = "Lỗi: không có SVG";
-              return;
-            }
-            const size = readSvgNaturalSize(svgNode);
-            svgW = size.w;
-            svgH = size.h;
-            svgNode.removeAttribute("width");
-            svgNode.removeAttribute("height");
-            svgNode.style.maxWidth = "none";
-            svgNode.style.display = "block";
-            setAdaptiveHeight();
-            fitDiagram();
-          } catch (err) {
-            console.error("Mermaid render failed:", err);
-            label.textContent = "Lỗi: " + (err.message || "render thất bại");
-          }
-        }
-        const actions = {
-          "zoom-in": () =>
-            zoomAround(
-              1 + config.zoomStep,
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-out": () =>
-            zoomAround(
-              1 / (1 + config.zoomStep),
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-fit": fitDiagram,
-          "zoom-one": setOneToOne,
-          "zoom-expand": openInNewTab,
+
+      let mermaid;
+      try {
+        ({ default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+        ));
+      } catch {
+        document.querySelectorAll(".diagram-shell").forEach((shell) => {
+          shell.querySelector(".mermaid-wrap").hidden = true;
+          shell.querySelector(".diagram-code").open = true;
+        });
+      }
+      if (mermaid) {
+        const config = {
+          fitPadding: 28,
+          minHeight: 320,
+          maxHeightPx: 960,
+          maxHeightVh: 0.84,
+          maxInitialZoom: 1.8,
+          minZoom: 0.08,
+          maxZoom: 6.5,
+          zoomStep: 0.14,
+          readabilityFloor: 0.58,
         };
-        Object.entries(actions).forEach(([action, handler]) => {
-          wrap
-            .querySelector(`[data-action="${action}"]`)
-            ?.addEventListener("click", handler);
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+        let activeDrag = null;
+        addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+        addEventListener("mouseup", () => {
+          activeDrag?.onEnd();
+          activeDrag = null;
         });
-        viewport.addEventListener("dblclick", fitDiagram);
-        viewport.addEventListener(
-          "wheel",
-          (e) => {
-            if (e.ctrlKey || e.metaKey) {
-              e.preventDefault();
-              const rect = viewport.getBoundingClientRect();
-              zoomAround(
-                e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep),
-                e.clientX - rect.left,
-                e.clientY - rect.top,
+        const attr = document.documentElement.getAttribute("data-theme");
+        const isDark =
+          attr === "dark" ||
+          (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "classic",
+          themeVariables: {
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontSize: "15px",
+            primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+            primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+            primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+            secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+            secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+            tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+            tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            lineColor: isDark ? "#a89e90" : "#7c756a",
+            noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+            noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+            actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+            actorBorder: isDark ? "#f0743f" : "#c2410c",
+            actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            signalColor: isDark ? "#a89e90" : "#7c756a",
+            signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          },
+        });
+        function initDiagram(shell) {
+          const wrap = shell.querySelector(".mermaid-wrap"),
+            viewport = shell.querySelector(".mermaid-viewport"),
+            canvas = shell.querySelector(".mermaid-canvas"),
+            source = shell.querySelector(".diagram-source"),
+            label = shell.querySelector(".zoom-label");
+          if (!wrap || !viewport || !canvas || !source || !label) return;
+          let zoom = 1,
+            fitMode = "contain",
+            panX = 0,
+            panY = 0,
+            svgW = 0,
+            svgH = 0,
+            sx = 0,
+            sy = 0,
+            spx = 0,
+            spy = 0,
+            touchDist = 0,
+            touchCx = 0,
+            touchCy = 0;
+          function constrainPan() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              rW = svgW * zoom,
+              rH = svgH * zoom,
+              pad = config.fitPadding;
+            panX =
+              rW + pad * 2 <= vpW
+                ? (vpW - rW) / 2
+                : clamp(panX, vpW - rW - pad, pad);
+            panY =
+              rH + pad * 2 <= vpH
+                ? (vpH - rH) / 2
+                : clamp(panY, vpH - rH - pad, pad);
+          }
+          function applyTransform() {
+            const svg = canvas.querySelector("svg");
+            if (!svg || !svgW) return;
+            constrainPan();
+            svg.style.width = svgW * zoom + "px";
+            svg.style.height = svgH * zoom + "px";
+            canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+            label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+          }
+          function canPan() {
+            return (
+              svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+              svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+            );
+          }
+          function computeSmartFit() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              aW = Math.max(80, vpW - config.fitPadding * 2),
+              aH = Math.max(80, vpH - config.fitPadding * 2),
+              contain = Math.min(aW / svgW, aH / svgH);
+            let z = contain,
+              mode = "contain";
+            if (contain < config.readabilityFloor) {
+              const chartR = svgH / svgW,
+                vpR = vpH / Math.max(vpW, 1);
+              if (chartR >= vpR) {
+                z = aW / svgW;
+                mode = "width-priority";
+              } else {
+                z = aH / svgH;
+                mode = "height-priority";
+              }
+            }
+            return {
+              zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+              mode,
+            };
+          }
+          function fitDiagram() {
+            if (!svgW) return;
+            const fit = computeSmartFit();
+            zoom = fit.zoom;
+            fitMode = fit.mode;
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function setOneToOne() {
+            zoom = clamp(1, config.minZoom, config.maxZoom);
+            fitMode = "1:1";
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function zoomAround(factor, cx, cy) {
+            const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+              ratio = next / zoom;
+            panX = cx - ratio * (cx - panX);
+            panY = cy - ratio * (cy - panY);
+            zoom = next;
+            fitMode = "custom";
+            applyTransform();
+          }
+          function readSvgNaturalSize(svg) {
+            let w = 0,
+              h = 0;
+            if (svg.viewBox?.baseVal?.width > 0) {
+              w = svg.viewBox.baseVal.width;
+              h = svg.viewBox.baseVal.height;
+            }
+            if (!w) {
+              w = parseFloat(svg.getAttribute("width")) || 0;
+              h = parseFloat(svg.getAttribute("height")) || 0;
+            }
+            if (!w) {
+              const b = svg.getBBox();
+              w = b.width;
+              h = b.height;
+            }
+            if (!w) {
+              const r = svg.getBoundingClientRect();
+              w = r.width || 1000;
+              h = r.height || 700;
+            }
+            if (!svg.getAttribute("viewBox"))
+              svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            return { w, h };
+          }
+          function setAdaptiveHeight() {
+            if (!svgW) return;
+            const usableW = Math.max(
+                280,
+                wrap.getBoundingClientRect().width - 2,
+              ),
+              idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+              maxVp = Math.floor(innerHeight * config.maxHeightVh),
+              hardMax = Math.min(
+                config.maxHeightPx,
+                Math.max(config.minHeight + 40, maxVp),
               );
-              return;
+            wrap.style.height =
+              Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+          }
+          function openInNewTab() {
+            const svg = canvas.querySelector("svg");
+            if (!svg) return;
+            const clone = svg.cloneNode(true);
+            clone.style.width = "";
+            clone.style.height = "";
+            const bg = isDark ? "#1c1916" : "#faf6f0";
+            const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+            open(
+              URL.createObjectURL(new Blob([html], { type: "text/html" })),
+              "_blank",
+            );
+          }
+          async function render() {
+            try {
+              const code = source.textContent.trim();
+              if (!code) {
+                label.textContent = "Lỗi: nguồn rỗng";
+                return;
+              }
+              const id =
+                "diagram-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).slice(2, 8);
+              const { svg } = await mermaid.render(id, code);
+              canvas.innerHTML = svg;
+              const svgNode = canvas.querySelector("svg");
+              if (!svgNode) {
+                label.textContent = "Lỗi: không có SVG";
+                return;
+              }
+              const size = readSvgNaturalSize(svgNode);
+              svgW = size.w;
+              svgH = size.h;
+              svgNode.removeAttribute("width");
+              svgNode.removeAttribute("height");
+              svgNode.style.maxWidth = "none";
+              svgNode.style.display = "block";
+              setAdaptiveHeight();
+              fitDiagram();
+            } catch (err) {
+              console.error("Mermaid render failed:", err);
+              label.textContent = "Lỗi: " + (err.message || "render thất bại");
             }
-            if (canPan()) {
-              e.preventDefault();
-              panX -= e.deltaX;
-              panY -= e.deltaY;
-              applyTransform();
-            }
-          },
-          { passive: false },
-        );
-        viewport.addEventListener("mousedown", (e) => {
-          if (e.target.closest(".zoom-controls") || !canPan()) return;
-          wrap.classList.add("is-panning");
-          sx = e.clientX;
-          sy = e.clientY;
-          spx = panX;
-          spy = panY;
-          e.preventDefault();
-          activeDrag = {
-            onMove: (ev) => {
-              panX = spx + (ev.clientX - sx);
-              panY = spy + (ev.clientY - sy);
-              applyTransform();
-            },
-            onEnd: () => wrap.classList.remove("is-panning"),
+          }
+          const actions = {
+            "zoom-in": () =>
+              zoomAround(
+                1 + config.zoomStep,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-out": () =>
+              zoomAround(
+                1 / (1 + config.zoomStep),
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-fit": fitDiagram,
+            "zoom-one": setOneToOne,
+            "zoom-expand": openInNewTab,
           };
-        });
-        viewport.addEventListener(
-          "touchstart",
-          (e) => {
-            if (e.touches.length === 1) {
-              sx = e.touches[0].clientX;
-              sy = e.touches[0].clientY;
-              spx = panX;
-              spy = panY;
-            } else if (e.touches.length === 2) {
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY;
-              touchDist = Math.sqrt(dx * dx + dy * dy);
-              const r = viewport.getBoundingClientRect();
-              touchCx =
-                (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
-              touchCy =
-                (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
-            }
-          },
-          { passive: true },
-        );
-        viewport.addEventListener(
-          "touchmove",
-          (e) => {
-            if (e.touches.length === 1 && canPan()) {
-              if (touchDist > 0) {
+          Object.entries(actions).forEach(([action, handler]) => {
+            wrap
+              .querySelector(`[data-action="${action}"]`)
+              ?.addEventListener("click", handler);
+          });
+          viewport.addEventListener("dblclick", fitDiagram);
+          viewport.addEventListener(
+            "wheel",
+            (e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                zoomAround(
+                  e.deltaY < 0
+                    ? 1 + config.zoomStep
+                    : 1 / (1 + config.zoomStep),
+                  e.clientX - rect.left,
+                  e.clientY - rect.top,
+                );
+                return;
+              }
+              if (canPan()) {
+                e.preventDefault();
+                panX -= e.deltaX;
+                panY -= e.deltaY;
+                applyTransform();
+              }
+            },
+            { passive: false },
+          );
+          viewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest(".zoom-controls") || !canPan()) return;
+            wrap.classList.add("is-panning");
+            sx = e.clientX;
+            sy = e.clientY;
+            spx = panX;
+            spy = panY;
+            e.preventDefault();
+            activeDrag = {
+              onMove: (ev) => {
+                panX = spx + (ev.clientX - sx);
+                panY = spy + (ev.clientY - sy);
+                applyTransform();
+              },
+              onEnd: () => wrap.classList.remove("is-panning"),
+            };
+          });
+          viewport.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length === 1) {
                 sx = e.touches[0].clientX;
                 sy = e.touches[0].clientY;
                 spx = panX;
                 spy = panY;
-                touchDist = 0;
+              } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchDist = Math.sqrt(dx * dx + dy * dy);
+                const r = viewport.getBoundingClientRect();
+                touchCx =
+                  (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+                touchCy =
+                  (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
               }
-              e.preventDefault();
-              panX = spx + (e.touches[0].clientX - sx);
-              panY = spy + (e.touches[0].clientY - sy);
-              applyTransform();
-            } else if (e.touches.length === 2 && touchDist > 0) {
-              e.preventDefault();
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY,
-                d = Math.sqrt(dx * dx + dy * dy);
-              zoomAround(d / touchDist, touchCx, touchCy);
-              touchDist = d;
-            }
-          },
-          { passive: false },
-        );
-        new ResizeObserver(() => {
-          if (svgW) {
-            setAdaptiveHeight();
-            fitDiagram();
-          }
-        }).observe(wrap);
-        render();
-      }
-      document.querySelectorAll(".diagram-shell").forEach(initDiagram);
-    </script>
-
-    <script>
-      (function () {
-        const toc = document.getElementById("toc");
-        if (!toc) return;
-        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
-        const sections = [];
-        links.forEach((link) => {
-          const id = link.getAttribute("href").slice(1);
-          const el = document.getElementById(id);
-          if (el) sections.push({ id, el, link });
-        });
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                links.forEach((l) => l.classList.remove("active"));
-                const match = sections.find((s) => s.el === entry.target);
-                if (match) {
-                  match.link.classList.add("active");
-                  if (window.innerWidth <= 1000)
-                    match.link.scrollIntoView({
-                      behavior: "smooth",
-                      block: "nearest",
-                      inline: "center",
-                    });
+            },
+            { passive: true },
+          );
+          viewport.addEventListener(
+            "touchmove",
+            (e) => {
+              if (e.touches.length === 1 && canPan()) {
+                if (touchDist > 0) {
+                  sx = e.touches[0].clientX;
+                  sy = e.touches[0].clientY;
+                  spx = panX;
+                  spy = panY;
+                  touchDist = 0;
                 }
+                e.preventDefault();
+                panX = spx + (e.touches[0].clientX - sx);
+                panY = spy + (e.touches[0].clientY - sy);
+                applyTransform();
+              } else if (e.touches.length === 2 && touchDist > 0) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY,
+                  d = Math.sqrt(dx * dx + dy * dy);
+                zoomAround(d / touchDist, touchCx, touchCy);
+                touchDist = d;
               }
-            });
-          },
-          { rootMargin: "-10% 0px -80% 0px" },
-        );
-        sections.forEach((s) => observer.observe(s.el));
-        links.forEach((link) => {
-          link.addEventListener("click", (e) => {
-            e.preventDefault();
-            const id = link.getAttribute("href").slice(1);
-            const el = document.getElementById(id);
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth", block: "start" });
-              history.replaceState(null, "", "#" + id);
+            },
+            { passive: false },
+          );
+          new ResizeObserver(() => {
+            if (svgW) {
+              setAdaptiveHeight();
+              fitDiagram();
             }
-          });
-        });
-      })();
+          }).observe(wrap);
+          render();
+        }
+        document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+      }
     </script>
   </body>
 </html>

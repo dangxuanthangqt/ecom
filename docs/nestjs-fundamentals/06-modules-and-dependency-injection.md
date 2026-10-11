@@ -1,12 +1,17 @@
 # Chương 6 — Module và Dependency Injection
 
-> Năm chương đầu giải thích **request đi qua đâu**. Chương này giải thích **những object trên đường đi đó từ đâu ra**.
+> **Mục đích chương này:** hiểu cách một ứng dụng cung cấp các object mà controller/service cần,
+> để code nghiệp vụ tập trung sử dụng dependency, còn việc lắp ráp và quản lý chúng có chỗ chịu trách nhiệm rõ ràng.
 >
-> Người mới nhìn `constructor(private readonly roleRepository: RoleRepository)` và câu hỏi đầu tiên luôn là: _ai
-> truyền cái đó vào?_ Không có chỗ nào trong code gọi `new RoleService(...)`. Chương này trả lời câu đó, tách bạch
-> ba khái niệm hay bị gộp làm một — **IoC**, **DI** và **Service Locator** — rồi đi tiếp tới những thứ ít người
-> biết: vì sao cùng một class có thể tồn tại **hai bản** trong cùng một app, và vì sao `@Global()` vừa tiện vừa
-> nguy hiểm.
+> Chương đi từ **dependency → DI → IoC → container**, rồi giải thích cách Nest dùng **provider và module**
+> để thực hiện việc đó. Bạn sẽ biết vì sao service nhận được repository qua constructor,
+> cách thay dependency trong test và cách sửa lỗi khi Nest không tìm thấy provider.
+
+Đọc xong phần nền tảng ([mục 1–4](#1-vấn-đề-ai-tạo-object-trong-constructor)), bạn cần làm được ba việc:
+
+- Giải thích DI và IoC bằng một ví dụ, kể cả khi chưa dùng Nest.
+- Đọc constructor để biết class cần gì, rồi lần ra provider/module cung cấp dependency đó.
+- Đăng ký một service mới và chọn đúng module để class khác sử dụng được nó.
 
 **Mục lục**
 
@@ -39,249 +44,351 @@
 
 ## 1. Vấn đề: ai tạo object trong constructor
 
-Đây là `RoleService` trong dự án, rút gọn —
-[role.service.ts:15-20](../../src/routes/role/role.service.ts#L15-L20):
+Mục này giải thích **vì sao tách việc sử dụng một object khỏi việc tạo và cung cấp object đó**.
+Ta bắt đầu với hai class TypeScript bình thường, rồi mới thêm Nest. Ví dụ `RoleRepository` dưới đây chỉ trả
+mảng cố định để tập trung vào cách hai object làm việc với nhau; nó không truy cập DB như repository thật.
+
+### 1.1. Dependency là gì?
+
+**Dependency (phụ thuộc) là thứ một đoạn code cần để thực hiện công việc của nó.** Trong ví dụ này,
+`RoleService` cần một object có thể đọc danh sách role, nên `RoleRepository` là dependency của `RoleService`.
 
 ```ts
-@Injectable()
-export class RoleService {
-  constructor(
-    private readonly roleRepository: RoleRepository,
-    private readonly rolePermissionCacheService: RolePermissionCacheService,
-  ) {}
-}
-```
-
-Không có chỗ nào trong toàn bộ `src/` viết `new RoleService(...)`. Vậy khi `RoleController` gọi
-`this.roleService.getRoles(...)`, cái `roleService` đó ở đâu ra?
-
-### Nếu không có DI
-
-Tự tay ráp thì trông thế này:
-
-```ts
-// ví dụ minh hoạ — KHÔNG có trong repo
-const prisma = new PrismaService();
-const redis = new RedisService(config);
-const cache = new RolePermissionCacheService(redis);
-const roleRepo = new RoleRepository(prisma);
-const roleService = new RoleService(roleRepo, cache);
-const roleController = new RoleController(roleService);
-```
-
-Sáu dòng cho **một** controller. Dự án có 17 controller, 25 repository, 12 service dùng chung. Và đây mới là phần
-dễ: phần khó là khi `PermissionResolverService` cần cả `PrismaService` lẫn `RolePermissionCacheService`, bạn phải
-nhớ **dùng lại** hai object đã tạo chứ không `new` thêm lần nữa — nếu `new` lại, `RedisService` sẽ mở hai kết nối.
-
-### Đảo ngược quyền điều khiển
-
-DI đảo chuyện đó lại: class **khai báo nó cần gì**, không **đi lấy** thứ nó cần. Một "container" giữ sổ sách và ráp
-hộ.
-
-```
-Không DI:  RoleService tự đi tìm/tạo RoleRepository   →  nó phải biết cách tạo, và biết cả cây phụ thuộc bên dưới
-Có DI:     RoleService nói "tôi cần một RoleRepository" →  container tìm, tạo (nếu chưa có), truyền vào
-```
-
-Đổi lại ba thứ:
-
-| Lợi                       | Vì sao                                                                                                                                                               |
-| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Dùng lại instance**     | Container tạo `PrismaService` **một lần**, mọi repository dùng chung. Một pool kết nối, không phải 25.                                                               |
-| **Thay thế được**         | Trong test, khai "khi ai hỏi `RoleRepository`, đưa object giả này" — `RoleService` không biết và không cần biết. Đó là toàn bộ nội dung [mục 10](#10-di-trong-test). |
-| **Thứ tự khởi tạo tự lo** | Container tự tính ai phải có trước ai. Bạn không sắp xếp tay.                                                                                                        |
-
-### Gọi đúng tên: IoC, DI, DIP
-
-Ba chữ này hay bị dùng thay nhau, và chúng không phải một thứ.
-
-| Viết tắt | Tên đầy đủ                     | Nó là loại gì                                                                                                                       |
-| -------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| **IoC**  | Inversion of Control           | Một **nguyên tắc** rộng: framework giữ quyền điều khiển luồng, code của bạn _bị gọi_ chứ không _đi gọi_.                            |
-| **DI**   | Dependency Injection           | Một **kỹ thuật** hiện thực IoC, chỉ áp cho đúng một chuyện: phụ thuộc được **truyền vào từ ngoài** thay vì class tự đi lấy.         |
-| **DIP**  | Dependency Inversion Principle | Chữ **D** trong SOLID: module cấp cao đừng phụ thuộc trực tiếp vào module cấp thấp — cả hai cùng phụ thuộc vào một **abstraction**. |
-
-Quan hệ giữa chúng: **IoC là cái ô lớn → DI là một cách làm IoC → DIP là lý do người ta _muốn_ DI.** Nhưng chiều
-ngược lại không đúng: **dùng DI không tự động có DIP.**
-
-Câu tóm tắt IoC kinh điển là **Hollywood Principle** — _"Don't call us, we'll call you."_ Bạn không gọi framework;
-bạn đưa cho nó một class, và nó gọi bạn.
-
-> **Repo này có DI, và cố tình không có DIP.** `RoleService` inject `RoleRepository` — một **class cụ thể**, không
-> phải interface. Phụ thuộc vẫn đi từ ngoài vào (DI ✓), nhưng lớp cao vẫn trỏ thẳng vào lớp thấp (DIP ✗). Lý do là
-> ràng buộc kỹ thuật ở mục dưới: `design:paramtypes` chỉ ghi được **class**, nên muốn DIP thật thì mọi phụ thuộc
-> phải khai token thủ công (`@Inject("ROLE_REPOSITORY")`) — xem [mục 2.5](#25-token-không-phải-class). Dự án chọn
-> không trả cái giá đó, và **không mất gì trong test**: container phân giải theo **token**, mà token ở đây chính là
-> class, nên `{ provide: RoleRepository, useValue: mockGiả }` vẫn thay thế được bình thường.
-
-### IoC rộng hơn DI: bốn chỗ trong repo là IoC nhưng không phải DI
-
-Nếu chỉ nhớ "IoC = DI" thì sẽ không nhận ra ba chương trước cũng toàn IoC:
-
-| Bạn viết                                                                                      | Ai gọi nó                            | Là gì         |
-| --------------------------------------------------------------------------------------------- | ------------------------------------ | ------------- |
-| `canActivate()` trong [access-token.guard.ts](../../src/shared/guards/access-token.guard.ts)  | Nest gọi, trước khi vào handler      | IoC, không DI |
-| `onModuleInit()` trong [prisma.service.ts](../../src/shared/services/prisma.service.ts#L8)    | Nest gọi, lúc boot                   | IoC, không DI |
-| Hàm `useFactory` trong `forRootAsync` ([mục 7](#7-module-động-forroot-forrootasync-register)) | Container gọi khi cần dựng provider  | IoC, không DI |
-| `constructor(private readonly roleRepository: RoleRepository)`                                | Container truyền vào lúc dựng object | IoC **và** DI |
-
-Ba dòng đầu không truyền phụ thuộc vào đâu cả — chúng chỉ đảo ngược **quyền gọi**. Đó vẫn là IoC.
-
-`AccessTokenGuard` là ví dụ rõ nhất vì nó nằm trên **cả hai trục cùng lúc**:
-
-```ts
-@Injectable()
-export class AccessTokenGuard implements CanActivate {
-  constructor(
-    private readonly tokenService: TokenService,               // ← DI: ai đó đưa phụ thuộc vào
-    private readonly permissionResolverService: PermissionResolverService,
-    private readonly reflector: Reflector,
-  ) {}
-
-  async canActivate(context: ExecutionContext) {               // ← IoC: bạn không gọi hàm này bao giờ
-    ...
+class RoleRepository {
+  findAll(): string[] {
+    return ["admin", "seller"];
   }
 }
-```
 
-Không chỗ nào trong `src/` viết `guard.canActivate(...)`. Nest gọi, vì `base.module.ts` đã khai nó dưới token
-`APP_GUARD` ([mục 6](#6-bốn-token-đặc-biệt-app_guard-và-anh-em)).
+class RoleService {
+  private readonly roleRepository = new RoleRepository();
 
-### Cách thứ ba mà ai cũng vấp: Service Locator
-
-Giữa "tự `new`" và "DI" còn một cách nữa, và nó **trông giống DI đến mức hay bị nhầm là DI**: class vẫn không
-`new` gì cả, nhưng nó **tự đi hỏi container**. Ba phiên bản của cùng một `RoleService`:
-
-**1 — Tự quản (không IoC).** Class tự tạo thứ nó cần:
-
-```ts
-// ví dụ minh hoạ — KHÔNG có trong repo
-@Injectable()
-export class RoleService {
-  private readonly roleRepository = new RoleRepository(new PrismaService());
-  //                                                   ↑ kết nối DB thứ hai, thứ ba, thứ hai mươi lăm
-}
-```
-
-**2 — Service Locator (có IoC, không có DI).** Class không tạo, nhưng **tự đi lấy**:
-
-```ts
-// ví dụ minh hoạ — KHÔNG có trong repo
-@Injectable()
-export class RoleService {
-  constructor(private readonly moduleRef: ModuleRef) {}
-
-  async getRoles(query: PaginationQueryDto) {
-    const roleRepository = this.moduleRef.get(RoleRepository, {
-      strict: false,
-    });
-    const cache = this.moduleRef.get(RolePermissionCacheService, {
-      strict: false,
-    });
-    // ...
+  getRoles(): string[] {
+    return this.roleRepository.findAll();
   }
 }
+
+const service = new RoleService();
+service.getRoles(); // ["admin", "seller"]
 ```
 
-**3 — DI (cách repo đang làm).** Class chỉ **khai** thứ nó cần:
+Ở đây `RoleService` làm **hai việc**: dùng repository để đọc role, và tự quyết định tạo repository bằng
+`new RoleRepository()`. Chương này bàn về việc thứ hai: **ai nên chịu trách nhiệm cung cấp dependency?**
+
+Dependency không chỉ là repository. Nó có thể là logger, client Redis, hàm lấy thời gian hoặc giá trị cấu hình.
+Chúng có điểm chung: code cần chúng để làm việc.
+
+### 1.2. Vì sao class tự tạo dependency có thể gây khó khăn?
+
+Giả sử muốn test `getRoles()` với danh sách `["test-role"]`. Class ở trên luôn tự tạo `RoleRepository`, nên
+người gọi không có chỗ để truyền một repository giả vào. Nếu repository thật cần DB, test service sẽ kéo cả
+việc tạo và kết nối DB vào theo, trừ khi can thiệp bằng cách khác như mock module.
+
+Khi repository có constructor cần `PrismaService`, service còn phải biết cách cung cấp Prisma. Nếu nhiều
+service cùng tự tạo các dependency hạ tầng, bạn lại phải quyết định nơi nào tạo mới và nơi nào dùng lại.
+
+Điều cần tách ra là:
+
+- **Code nghiệp vụ:** dùng repository để đọc role.
+- **Code lắp ráp ứng dụng:** chọn repository nào, tạo nó thế nào và đưa nó cho service.
+
+Việc tạo object vẫn phải diễn ra; ta chuyển trách nhiệm đó ra ngoài class sử dụng nó.
+
+### 1.3. DI là gì? Truyền dependency từ bên ngoài vào
+
+**Dependency Injection (DI) là kỹ thuật cung cấp dependency từ bên ngoài cho object sử dụng nó,
+thay vì để object đó tự tạo hoặc tự tìm dependency.** "Injection" ở đây có nghĩa là **truyền vào**.
+
+Thay `RoleService` ở ví dụ trước bằng phiên bản sau; `RoleRepository` giữ nguyên:
 
 ```ts
-// role.service.ts:15-20 — code thật
-@Injectable()
-export class RoleService {
-  constructor(
-    private readonly roleRepository: RoleRepository,
-    private readonly rolePermissionCacheService: RolePermissionCacheService,
-  ) {}
+class RoleService {
+  private readonly roleRepository: RoleRepository;
+
+  constructor(roleRepository: RoleRepository) {
+    this.roleRepository = roleRepository;
+  }
+
+  getRoles(): string[] {
+    return this.roleRepository.findAll();
+  }
 }
+
+// Code bên ngoài tạo repository rồi cung cấp nó cho service.
+const repository = new RoleRepository();
+const service = new RoleService(repository);
+service.getRoles(); // ["admin", "seller"]
 ```
 
-Phiên bản 2 và 3 cùng dùng container, cùng được tái sử dụng instance, cùng không `new`. Khác nhau ở **chiều mũi
-tên**: DI thì container **đẩy** vào; Service Locator thì class **kéo** ra. Chiều mũi tên đó đổi bốn thứ:
+`new RoleService(repository)` chính là **constructor injection**: dependency được truyền qua constructor.
+Đoạn code này **đã dùng DI**, dù không có Nest, decorator hay container. Tự tay lắp ráp object vẫn có thể là DI;
+điểm quyết định là dependency được cung cấp từ đâu, không phải có dùng `new` hay không.
 
-|                                    | 1 · Tự quản                               | 2 · Service Locator                                 | 3 · DI                                          |
-| ---------------------------------- | ----------------------------------------- | --------------------------------------------------- | ----------------------------------------------- |
-| Nhìn constructor biết class cần gì | Không — nằm rải trong thân class          | **Không** — chỉ thấy đúng một `ModuleRef`           | **Có** — danh sách đầy đủ, đọc 3 giây           |
-| Thiếu phụ thuộc thì vỡ lúc nào     | Lúc compile                               | **Lúc chạy**, ngay dòng `.get()`                    | **Lúc boot**, trước khi nhận request đầu tiên   |
-| Thay thế trong test                | Không thay được — phải `jest.mock` module | Phải giả lập cả container                           | `{ provide: X, useValue: mock }`                |
-| Class có dính vào Nest không       | Không                                     | **Có** — `import { ModuleRef } from "@nestjs/core"` | Không — class là POJO, không import gì của Nest |
-
-Dòng thứ hai là dòng đắt nhất. Thử xoá `RoleRepository` khỏi `providers` của `RoleModule`:
-
-```
-Với DI:              app không boot được
-                     → Nest can't resolve dependencies of the RoleService (?, RolePermissionCacheService)
-
-Với Service Locator: app boot xanh, healthcheck xanh, deploy xong
-                     → request đầu tiên vào GET /roles mới ném lỗi, trên production
-```
-
-DI biến một lỗi runtime thành **lỗi lúc boot**. Đó không phải hiệu ứng phụ — đó là cái người ta mua khi chọn DI.
-
-Dòng thứ ba cũng cụ thể không kém. Đây là setup thật của
-[permission-resolver.service.spec.ts:12-27](../../src/shared/services/__tests__/permission-resolver.service.spec.ts#L12-L27):
+Bây giờ test có thể truyền một object khác có cùng phương thức mà service cần:
 
 ```ts
-const prisma = { role: { findUnique: jest.fn() } };
-const cache = {
-  getRoleKeys: jest.fn().mockResolvedValue(null),
-  setRoleKeys: jest.fn(),
+const fakeRepository = {
+  findAll: (): string[] => ["test-role"],
 };
 
-const moduleRef = await Test.createTestingModule({
-  providers: [
-    PermissionResolverService,
-    { provide: PrismaService, useValue: prisma }, // ← khai "ai hỏi PrismaService thì đưa object này"
-    { provide: RolePermissionCacheService, useValue: cache },
-  ],
-}).compile();
+const service = new RoleService(fakeRepository);
+service.getRoles(); // ["test-role"]
 ```
 
-Hai object JS thường, không DB, không Redis. Nếu `PermissionResolverService` viết theo kiểu Service Locator, hai
-dòng `provide` kia vô dụng — muốn chặn, phải giả lập chính `ModuleRef`, tức là mock cái framework thay vì mock phụ
-thuộc. Chi tiết ở [mục 10](#10-di-trong-test).
+Trong ví dụ tối giản này, TypeScript chấp nhận fake vì hình dạng của nó khớp `RoleRepository`.
+Service vẫn gọi `findAll()` như trước; **người lắp ráp chọn dependency thật hoặc giả**.
+Với repository thật có thêm member, fake và token phải theo hợp đồng tương ứng; xem [mục 10](#10-di-trong-test).
 
-### Khi Service Locator là đúng: composition root
-
-Không phải cấm tuyệt đối. Có đúng một chỗ hợp lệ để chạm vào container: **composition root**.
-
-> **Composition root là gì:** điểm **duy nhất** trong chương trình nơi cây object được ráp lại **bằng tay** — nơi
-> bạn tự tay lấy đồ ra khỏi container thay vì được container đưa cho. Nó nằm ở ngoài cùng: `main.ts`, một script
-> chạy một lần, hay phần dựng `TestingModule` của một bài test. Bên trong nó thì chưa có ai để inject vào bạn cả,
-> nên "tự đi lấy" là cách duy nhất. Mọi class nghiệp vụ đều nằm **bên trong** cây đó, nên chúng luôn có đường được
-> inject và không có cớ gì đi lấy.
-
-Repo dùng nó ở ba nơi, cả ba đều hợp lệ:
-
-| Nơi                                                                                                                   | Gọi gì                                         | Vì sao hợp lệ                                                               |
-| --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------------------------------- |
-| [main.ts:16-18](../../src/main.ts#L16-L18)                                                                            | `app.get(Logger)` · `app.select(...).get(...)` | Đây **chính là** composition root — không có tầng nào trên nó để inject vào |
-| [create-permission.ts:26](../../initial-scripts/create-permission.ts#L26)                                             | `app.get(RolePermissionCacheService)`          | Script một lần, không phải class nghiệp vụ                                  |
-| [permission-resolver.service.spec.ts:27](../../src/shared/services/__tests__/permission-resolver.service.spec.ts#L27) | `moduleRef.get(PermissionResolverService)`     | Composition root của test — chỗ lôi object ra để kiểm                       |
-
-Luật thực dụng: **càng xa composition root, càng không được chạm vào container.** Một `ModuleRef` xuất hiện trong
-`src/routes/**/*.service.ts` gần như luôn là mùi lỗi — xem thêm ở [mục 13](#13-nâng-cao-và-những-chỗ-dễ-vấp).
-
-### Container biết kiểu bằng cách nào
-
-Đây là chỗ nối thẳng về [chương 1 §5](01-decorators-and-metadata.md#5-hai-cờ-tsconfig-quyết-định-mọi-thứ).
-Vì `RoleService` có decorator (`@Injectable()`) và `tsconfig.json` bật `emitDecoratorMetadata`, compiler dán thêm
-một mẩu metadata lên class:
+Cú pháp thường thấy trong repo:
 
 ```ts
-Reflect.getMetadata("design:paramtypes", RoleService);
-// → [RoleRepository, RolePermissionCacheService]
+constructor(private readonly roleRepository: RoleRepository) {}
 ```
 
-Container đọc đúng mảng đó. **`@Injectable()` không "làm" gì cả** — nó chỉ là cái cớ để compiler emit mảng kiểu.
-Bỏ nó đi, mảng không được dán, và Nest báo:
+là cách viết ngắn của việc khai field rồi gán tham số constructor vào field như trên.
+`private readonly` không tự tìm hoặc tạo repository; nó chỉ khai báo field và hạn chế cách truy cập/gán trong TypeScript.
 
-```
-Nest can't resolve dependencies of the RoleService (?, ...)
+### 1.4. IoC là gì? Quyền điều khiển được chuyển ở chỗ nào?
+
+**Inversion of Control (IoC, đảo ngược quyền điều khiển) là nguyên tắc chuyển một phần quyền điều phối
+ra khỏi code đang thực hiện công việc, sang code bên ngoài hoặc framework.** Muốn hiểu một ví dụ IoC,
+phải hỏi rõ: **quyền quyết định việc gì đã được chuyển, và chuyển cho ai?**
+
+#### Ví dụ 1: bạn tự gọi hàm
+
+Khi viết chương trình thông thường, bạn tự điều khiển thứ tự gọi:
+
+```ts
+function sayHello(): string {
+  return "Xin chào";
+}
+
+const result = sayHello(); // Code của bạn quyết định gọi hàm ở bước này.
+console.log(result);
 ```
 
-> Vì `design:paramtypes` chỉ ghi được **class**, bạn không thể inject theo interface. Muốn inject một thứ không
-> phải class (chuỗi cấu hình, hàm), phải dùng **token tường minh** — xem [mục 2](#2-provider-bốn-cách-khai-một-công-thức-tạo).
+Ở đây, code của bạn giữ luồng thực thi: gọi `sayHello()`, nhận kết quả, rồi in kết quả.
+
+#### Ví dụ 2: Nest gọi code bạn đăng ký
+
+Với Nest, bạn cung cấp handler:
+
+```ts
+import { Controller, Get } from "@nestjs/common";
+
+@Controller("hello")
+class HelloController {
+  @Get()
+  sayHello(): string {
+    return "Xin chào";
+  }
+}
+```
+
+Controller này cần được đăng ký trong module của app. Sau đó, khi có `GET /hello`,
+**Nest nhận request, tìm route, chạy pipeline rồi gọi `sayHello()`**.
+Bạn viết nội dung method; Nest giữ quyền điều phối việc gọi method trong quá trình xử lý request.
+
+```text
+Bạn tự điều khiển chương trình:
+  Code của bạn → gọi sayHello() → dùng kết quả.
+
+Nest điều khiển luồng xử lý HTTP:
+  Request → Nest nhận và điều phối → gọi sayHello() bạn đã đăng ký → gửi response.
+```
+
+**Đó là phần quyền điều khiển được đảo ngược:** từ việc code của bạn chủ động điều phối các lời gọi,
+sang việc framework giữ luồng xử lý và gọi code bạn cung cấp tại điểm phù hợp.
+Không phải mọi lời gọi hàm đều biến mất: bên trong handler, bạn vẫn có thể gọi service hoặc hàm khác.
+IoC ở ví dụ này nằm ở **quyền điều phối request và gọi handler**.
+
+#### Ví dụ 3: trình duyệt gọi hàm khi có sự kiện
+
+```html
+<button id="save">Lưu</button>
+
+<script>
+  const button = document.getElementById("save");
+  button.addEventListener("click", function handleClick() {
+    console.log("Đã bấm nút Lưu");
+  });
+</script>
+```
+
+Bạn đăng ký `handleClick`; trình duyệt nhận sự kiện click rồi gọi hàm đó.
+**Trình duyệt giữ luồng xử lý sự kiện; bạn cung cấp phần xử lý cần chạy.** Đây cũng là IoC,
+dù ví dụ không dùng container để lắp ráp dependency.
+
+#### Liên hệ với DI ở mục trước
+
+IoC cũng áp dụng vào việc **chọn và cung cấp dependency**. Trong ví dụ DI vừa rồi,
+quyền này được chuyển từ `RoleService` sang code lắp ráp:
+
+```text
+Class tự tạo dependency:
+  RoleService quyết định tạo RoleRepository nào rồi dùng nó.
+
+Constructor injection:
+  Code bên ngoài chọn/tạo repository → truyền vào RoleService → service dùng nó.
+```
+
+Vì vậy DI là một cách áp dụng IoC vào việc cung cấp dependency. Đây là một khía cạnh khác với
+quyền điều phối request hoặc sự kiện trong các ví dụ trên.
+
+| Trong Nest                                             | Quyền điều phối nào thuộc framework?           |
+| ------------------------------------------------------ | ---------------------------------------------- |
+| Tạo `RoleService` và truyền repository vào constructor | Lắp ráp object và cung cấp dependency — DI     |
+| Gọi controller method khi request khớp route           | Điều phối request — IoC ở luồng thực thi       |
+| Gọi `onModuleInit()` lúc khởi tạo app                  | Điều phối lifecycle — IoC ở thời điểm gọi hook |
+
+Ba việc này khác nhau. Đọc "Nest dùng IoC" chưa đủ để biết đang nói về việc nào;
+trong chương này, ta tập trung vào **lắp ráp và quản lý dependency**.
+
+### 1.5. IoC container là gì? Vì sao cần nó khi đã biết DI?
+
+**IoC/DI container là thành phần giữ các đăng ký dependency, tạo hoặc lấy object theo đăng ký,
+rồi cung cấp chúng cho object cần dùng.** Nest có container đảm nhiệm công việc này.
+
+**IoC là nguyên tắc tổ chức quyền điều khiển; IoC container là một thành phần phần mềm.**
+Container áp dụng nguyên tắc đó vào việc lắp ráp và quản lý object:
+quyền chọn, tạo/lấy và cung cấp dependency được giao cho container theo đăng ký của ứng dụng.
+Đó là lý do nó mang tên "IoC container".
+
+| Khái niệm         | Loại khái niệm                | Trong các ví dụ trên                                                                 |
+| ----------------- | ----------------------------- | ------------------------------------------------------------------------------------ |
+| **IoC**           | Nguyên tắc về quyền điều phối | Nest điều phối request và gọi handler; trình duyệt điều phối sự kiện và gọi listener |
+| **DI**            | Kỹ thuật cung cấp dependency  | Repository được truyền từ bên ngoài vào constructor của service                      |
+| **IoC container** | Thành phần quản lý object     | Container của Nest tìm/tạo repository rồi truyền vào service theo đăng ký provider   |
+
+Ví dụ nút Lưu cho thấy IoC có thể xuất hiện mà không cần IoC container.
+Trong Nest, việc framework gọi handler và việc container cung cấp dependency đều áp dụng IoC,
+nhưng chúng là hai công việc khác nhau.
+
+Ở ví dụ DI thủ công, chính bạn viết:
+
+```ts
+const repository = new RoleRepository();
+const service = new RoleService(repository);
+```
+
+Với ứng dụng lớn hơn, repository có dependency riêng; dependency đó lại cần cấu hình hoặc client khác.
+DI giúp class không phải tự lắp ráp các object này. Container giúp **tự động hoá việc lắp ráp** theo những gì
+bạn đã đăng ký, thay vì để bạn viết và duy trì mọi dòng `new` trong entry point.
+
+Container cũng quản lý việc tạo mới hay dùng lại instance theo registration và scope. DI tự nó không có
+nghĩa "mọi class là singleton"; đó là chính sách của container, sẽ học ở [mục 8](#8-scope-của-provider).
+
+### 1.6. Nest áp dụng điều đó như thế nào?
+
+Chuyển ví dụ tối giản sang Nest:
+
+```ts
+import { Injectable, Module } from "@nestjs/common";
+
+@Injectable()
+class RoleRepository {
+  findAll(): string[] {
+    return ["admin", "seller"];
+  }
+}
+
+@Injectable()
+class RoleService {
+  constructor(private readonly roleRepository: RoleRepository) {}
+
+  getRoles(): string[] {
+    return this.roleRepository.findAll();
+  }
+}
+
+@Module({ providers: [RoleRepository, RoleService] })
+class RoleModule {}
+```
+
+Module này cần được import vào cây module của app. Các class và method ở đây là ví dụ học,
+không phải bản sao đầy đủ của code repo. Với cấu hình TypeScript hiện tại, khi Nest dựng provider `RoleService`:
+
+1. `providers` cho container biết có đăng ký `RoleService` và `RoleRepository`.
+2. Metadata constructor cho biết `RoleService` cần token `RoleRepository`.
+3. Container tìm đăng ký token đó trong phạm vi module, tạo hoặc lấy repository theo scope.
+4. Container truyền repository vào constructor để tạo `RoleService`.
+
+Có thể hình dung bước cuối là `new RoleService(repository)`, giống DI thủ công;
+chỉ khác **Nest thực hiện bước lắp ráp này theo đăng ký của bạn**.
+
+Ba khái niệm sẽ dùng ở phần còn lại của chương:
+
+| Khái niệm    | Ý nghĩa trong ví dụ                                                                  |
+| ------------ | ------------------------------------------------------------------------------------ |
+| **Token**    | Khoá để hỏi container lấy dependency; ở đây là class `RoleRepository`                |
+| **Provider** | Đăng ký cho biết container cung cấp giá trị nào khi có người yêu cầu token           |
+| **Module**   | Nơi nhóm controller/provider và xác định dependency nào được chia sẻ với module khác |
+
+`@Injectable()` không tự đăng ký class vào container; vẫn cần provider registration.
+Nó ghi metadata/options của Nest và, với các compiler flag của repo, kích hoạt metadata kiểu constructor.
+`Reflect.getMetadata("design:paramtypes", RoleService)` khi đó chứa `[RoleRepository]`.
+Cơ chế này được giải thích ở [chương 1 §5](01-decorators-and-metadata.md#5-hai-cờ-tsconfig-quyết-định-mọi-thứ).
+
+Nếu thiếu metadata constructor, Nest có thể dựng class mà dependency nhận `undefined`.
+Nếu metadata có token nhưng container không tìm được provider, việc resolve dependency thường ném
+`can't resolve dependencies`. Hai lỗi này khác nhau; xem [mục 13](#13-nâng-cao-và-những-chỗ-dễ-vấp).
+
+**Quay lại code thật:** [RoleService](../../src/routes/role/role.service.ts) nhận `RoleRepository` và
+`RolePermissionCacheService` qua constructor. [RoleModule](../../src/routes/role/role.module.ts) đăng ký
+service/repository; cache được export từ [SharedModule](../../src/shared/modules/shared.module.ts) global.
+Nest tìm các dependency trong phạm vi đó rồi cung cấp chúng cho service. Vì vậy bạn không thấy code ứng dụng
+phải viết `new RoleService(...)` ở từng nơi sử dụng.
+
+### 1.7. Service Locator: class tự hỏi container
+
+Có container chưa chắc dependency nghiệp vụ đã được inject qua constructor. Class còn có thể tự hỏi container:
+
+```ts
+// Fragment minh hoạ; ModuleRef import từ @nestjs/core.
+@Injectable()
+class RoleService {
+  constructor(private readonly moduleRef: ModuleRef) {}
+
+  getRoles(): string[] {
+    const repository = this.moduleRef.get(RoleRepository);
+    return repository.findAll();
+  }
+}
+```
+
+Đây là **Service Locator** đối với repository: service tự tìm dependency qua một đối tượng tra cứu.
+`ModuleRef` được inject vào service, nhưng `RoleRepository` được service lấy bằng `.get()`,
+khác với việc nhận trực tiếp repository qua constructor.
+
+| Cách cung cấp repository                     | Ai quyết định lấy nó?    | Constructor cho thấy gì?                            |
+| -------------------------------------------- | ------------------------ | --------------------------------------------------- |
+| `new RoleRepository()` trong service         | Service tự tạo           | Không thấy repository là tham số                    |
+| `moduleRef.get(RoleRepository)` trong method | Service tự tra container | Chỉ thấy ModuleRef, chưa thấy dependency repository |
+| `constructor(repository: RoleRepository)`    | Code bên ngoài cung cấp  | Thấy trực tiếp dependency repository                |
+
+Constructor injection giúp người đọc nhìn ra dependency cần thiết và test dễ truyền object thay thế.
+Service Locator vẫn có trường hợp dùng, ví dụ resolve provider động; vấn đề là dependency bị giấu trong
+thân method, không còn thể hiện đầy đủ trong constructor.
+
+Trong bootstrap hoặc test, code bên ngoài thường gọi `app.get()`/`moduleRef.get()` để lấy object đầu vào.
+Phần code lắp ráp và khởi động cây object này được gọi là **composition root**.
+Lấy service ở entry point không có cùng tác động như để mọi service nghiệp vụ tự tra container.
+
+### 1.8. Đến đây cần phân biệt được điều gì?
+
+- **Dependency:** thứ class cần để làm việc, ví dụ repository.
+- **DI:** cung cấp thứ đó từ bên ngoài; truyền thủ công qua constructor cũng là DI.
+- **IoC:** chuyển quyền điều phối ra ngoài; DI áp dụng nó vào việc cung cấp dependency.
+- **Container:** công cụ tự động tìm, tạo/lấy và cung cấp dependency theo đăng ký.
+- **Module của Nest:** xác định những đăng ký nào thuộc một nhóm và được nhìn thấy từ nhóm khác.
+
+Nếu đọc được `constructor(private readonly repo: RoleRepository)` và giải thích được
+"service nhận repository; code bên ngoài cung cấp nó; với Nest, container làm việc đó dựa trên provider/module",
+bạn đã nắm mục đích của mục này. [Mục 2](#2-provider-bốn-cách-khai-một-công-thức-tạo) đi tiếp vào cách khai
+đăng ký để container biết phải cung cấp cái gì.
+
+Đọc thêm: [Martin Fowler — Dependency Injection và Service Locator](https://martinfowler.com/articles/injection.html),
+[Nest — Providers](https://docs.nestjs.com/providers).
 
 ---
 
@@ -456,8 +563,8 @@ Khi container dựng `RoleService` và thấy nó cần `RoleRepository`, nó t�
 
 1. Trong `providers` của **chính module** đang chứa `RoleService`.
 2. Trong `exports` của các module mà module đó **`imports`**.
-3. Trong các module **`@Global()`**.
-4. Không thấy → ném lỗi lúc boot (không phải lúc chạy).
+3. Module **`@Global()`** được Nest đưa vào imports của module tiêu thụ; provider export của chúng được tìm qua cùng cơ chế imports, không phải một vòng tìm thứ ba độc lập luôn chạy sau mọi import thường.
+4. Có dependency token nhưng không thấy provider → thường ném lỗi khi dựng container; provider theo-request có thể lỗi lúc resolve request.
 
 Điểm mấu chốt nằm ở bước 1, và nó dẫn tới một hệ quả mà **rất nhiều người không biết**:
 
@@ -578,7 +685,7 @@ qua `TokenService`. Đóng gói làm đúng việc của nó.
 
 ## 6. Bốn token đặc biệt: `APP_GUARD` và anh em
 
-[Chương 3 §4](03-guards.md#4-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard) đã nói vì sao guard toàn cục phải đăng
+[Chương 3 §4](03-guards.md#6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard) đã nói vì sao guard toàn cục phải đăng
 ký qua `APP_GUARD`. Giờ nhìn cơ chế cho đủ bốn.
 
 Nest định nghĩa bốn token trong `@nestjs/core`:
@@ -606,7 +713,7 @@ Ba điều cần rút ra:
 
 1. **Chỉ mục có `provide: APP_GUARD` mới tự chạy.** Hai dòng đầu là provider thường — chúng ở đó để
    `AuthorizationHeaderGuard` inject vào. Nhầm chỗ này là tưởng app có bốn guard toàn cục; thực ra là hai.
-2. **Thứ tự khai = thứ tự chạy**, và ở đây nó là quyết định bảo mật ([chương 3 §5](03-guards.md#5-thứ-tự-chạy-và-short-circuit)).
+2. **Thứ tự khai = thứ tự chạy**, và ở đây nó là quyết định bảo mật ([chương 3 §5](03-guards.md#7-thứ-tự-chạy-và-short-circuit)).
 3. **Vì sao không dùng `app.useGlobalGuards(new ...)` trong `main.ts`:** cách đó bạn phải tự `new`, mà
    `AuthorizationHeaderGuard` cần `Reflector` + hai guard con, mỗi guard con lại cần service riêng. `APP_GUARD` để
    container ráp cả cây.
@@ -712,7 +819,7 @@ Scope **lây lên trên**. Nếu `RoleRepository` thành `REQUEST`, thì `RoleSe
 cho mỗi request. Một provider đổi scope có thể kéo theo nửa app.
 
 Với dự án này còn một lý do nữa: hai guard toàn cục và `AccessTokenGuard` là singleton, và chúng truyền dữ liệu
-theo-request qua **object `request`** ([chương 3 §9](03-guards.md#9-truyền-dữ-liệu-từ-guard-xuống-handler)) chứ
+theo-request qua **object `request`** ([chương 3 §9](03-guards.md#11-truyền-dữ-liệu-từ-guard-xuống-handler)) chứ
 không qua trạng thái của provider. Đó là cách đúng: giữ provider **không trạng thái**, để dữ liệu theo-request nằm
 trên `request`. Làm đúng thế rồi thì `Scope.REQUEST` gần như không bao giờ cần.
 
@@ -824,7 +931,7 @@ const moduleFixture = await (
 `configure` cho spec chèn `.overrideProvider(X).useValue(...)` trước khi compile. Comment ở
 [dòng 29-37](../../test/e2e/support/create-test-app.ts#L29-L37) nêu đúng lý do cần nó: `ConfigModule.forRoot()` chụp
 `process.env` **lúc `base.module.ts` được import lần đầu** — trước mọi `beforeAll`. Gán `process.env` trong test là
-vô nghĩa; override provider là lối vào duy nhất.
+không đảm bảo thay cấu hình đã load; harness hiện dùng override provider. Cách khác là thiết lập env trước import module trong môi trường test cô lập.
 
 Ba cách override:
 
@@ -834,7 +941,7 @@ Ba cách override:
 .overrideProvider(TokenService).useFactory({ factory: () => fake, inject: [] })
 ```
 
-Còn `.overrideGuard(X)`, `.overridePipe(X)`, `.overrideInterceptor(X)`, `.overrideFilter(X)` cho các token `APP_*`.
+Các hàm `.overrideGuard(X)`, `.overridePipe(X)`, `.overrideInterceptor(X)`, `.overrideFilter(X)` dùng cho enhancer đăng ký theo class. Với `APP_*` + `useClass`, Nest tạo token nội bộ riêng, nên override class không tự thay global enhancer. Để test thay được, đăng ký class làm provider rồi `APP_*` + `useExisting`, dùng `.overrideProvider(X)`. Xem [chương 13](13-testing-fundamentals.md).
 
 ---
 
@@ -859,7 +966,7 @@ Còn `.overrideGuard(X)`, `.overridePipe(X)`, `.overrideInterceptor(X)`, `.overr
 | `onApplicationShutdown(signal?)`     | —                                                                                                                                                                        |
 
 Chọn hook nào, theo một câu hỏi: _"việc này chỉ cần module của tôi sẵn sàng, hay cần cả app?"_ Mở kết nối DB → chỉ
-cần module mình → `onModuleInit`. Quét mọi controller → cần cả app → `onApplicationBootstrap`.
+cần module mình → `onModuleInit`. Discovery đã thấy controller ở `onModuleInit`; dùng `onApplicationBootstrap` để đợi các init hook hoàn tất trước boot-check.
 
 > **Lưu ý vận hành:** [`main.ts`](../../src/main.ts) hiện **không** gọi `app.enableShutdownHooks()`. Nghĩa là
 > `onModuleDestroy` của `RedisService` và `PrismaService` chạy trong test (nơi `app.close()` được gọi tường minh)
@@ -897,23 +1004,36 @@ module khác.
 
 ## 13. Nâng cao và những chỗ dễ vấp
 
-**Quên `@Injectable()` mà vẫn chạy.** Nếu class không có phụ thuộc nào, không cần `design:paramtypes`, nên nó chạy.
-Thêm tham số constructor đầu tiên vào là vỡ. Luôn để `@Injectable()`.
+**DI khác DIP thế nào?** DI nói về cách cung cấp dependency; DIP (Dependency Inversion Principle,
+chữ D của SOLID) nói về hướng phụ thuộc: nghiệp vụ cấp cao và chi tiết cấp thấp cùng dựa vào abstraction.
+Nhận một class cụ thể qua constructor đã là DI, nhưng chưa đủ để kết luận thiết kế tuân theo DIP.
+Với TypeScript, interface mất ở runtime nên cần token tường minh khi dùng làm hợp đồng injection;
+abstract class có giá trị runtime nên cũng có thể làm token. Xem [mục 2.5](#25-token-không-phải-class).
+
+**Quên `@Injectable()` mà vẫn chạy.** Không có metadata constructor, class có thể được dựng với dependency
+`undefined` rồi lỗi muộn. Giữ decorator cho provider có constructor injection và kiểm chứng trong test.
 
 **Khai cùng class ở hai module.** [Mục 4](#4-quy-tắc-phân-giải-nest-tìm-provider-ở-đâu). Đang xảy ra trong repo với ba provider. Vô hại hôm nay; nhớ cơ chế.
 
 **`@Global()` cho một service nghiệp vụ.** Tiện lúc viết, đau lúc đọc. Giữ global cho hạ tầng.
 
 **Import class chỉ để lấy kiểu, vô tình tạo vòng tròn.** Dùng `import type { X }` — TypeScript xoá hẳn khỏi code
-biên dịch, nên không tạo phụ thuộc runtime.
+biên dịch, nên không tạo phụ thuộc runtime. Nhưng không dùng `import type` cho class làm token constructor DI hoặc DTO metatype: Nest cần giá trị runtime đó. Với interface/type-only dependency, khai token bằng `@Inject(TOKEN)`.
 
-**`exports` một provider mình không `providers`.** Hợp lệ nếu nó đến từ module bạn `imports` — đây là cách "chuyển
-tiếp" một provider. Nhưng làm nhiều tầng thì không ai lần ra nguồn nữa.
+**Re-export module đã import.** Không export thẳng một token chỉ nằm trong module khác:
+
+```ts
+@Module({ imports: [StorageModule], exports: [StorageModule] })
+export class SharedStorageModule {}
+```
+
+`StorageModule` phải export provider cần chia sẻ. Viết `exports: [StorageService]` ở module chỉ import
+`StorageModule` có thể ném `UnknownExportException`; khai provider cục bộ hoặc re-export module đúng nguồn.
 
 **`moduleRef.get()` để lấy provider giữa chừng.** `ModuleRef` cho phép lấy provider theo token lúc chạy thay vì
 inject qua constructor. Hữu ích cho factory động; nhưng lạm dụng là quay lại **service locator**, và bạn mất luôn
 cái lợi "nhìn constructor là biết class này cần gì" — so sánh đầy đủ ba cách ở
-[mục 1](#cách-thứ-ba-mà-ai-cũng-vấp-service-locator). Trong repo, container chỉ bị chạm ở **composition root**:
+[mục 1](#17-service-locator-class-tự-hỏi-container). Trong repo, container chỉ bị chạm ở **composition root**:
 [main.ts:16-18](../../src/main.ts#L16-L18) (`app.get(Logger)`, `app.select(SharedModule).get(...)`),
 [create-permission.ts:26](../../initial-scripts/create-permission.ts#L26) trong script seed, và `moduleRef.get(...)`
 trong các test harness. Không class nghiệp vụ nào dưới `src/routes/` giữ tham chiếu tới container — giữ nguyên như
@@ -1054,7 +1174,7 @@ Nhớ xoá file sau khi xem.
 
 **Thí nghiệm 4: làm vỡ DI có chủ đích.** Tạm xoá `@Injectable()` khỏi
 [role.service.ts](../../src/routes/role/role.service.ts), chạy `pnpm types-check` — vẫn xanh (đây là lỗi runtime,
-không phải lỗi kiểu). Chạy app → `Nest can't resolve dependencies of the RoleService (?, ...)`. Khôi phục.
+không phải lỗi kiểu). Nếu không còn metadata từ decorator khác, app có thể boot nhưng dependency là `undefined`; gọi phương thức sử dụng nó mới lỗi. Để thấy lỗi phân giải lúc boot, giữ metadata và bỏ provider tương ứng khỏi module. Khôi phục sau thử nghiệm.
 
 **Thí nghiệm 5: đếm instance thật trong app.** Thêm tạm vào constructor của
 [shared-role.repository.ts](../../src/repositories/role/shared-role.repository.ts):

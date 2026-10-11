@@ -53,9 +53,9 @@
 Nếu bạn tới đây với đúng một câu hỏi — "class là class, sao lại dính `prototype`?" — thì mục này trả lời gọn trong
 một trang. Mười ba mục sau chỉ là mổ xẻ từng mảnh của câu trả lời này.
 
-**Câu trả lời:** vì `class` trong JavaScript **là một hàm dựng (constructor function) viết cho đẹp**. Mọi hàm đều có
-sẵn một property tên `prototype`, nên class cũng có. JavaScript không có cơ chế kế thừa nào khác ngoài prototype —
-`class` chỉ là lớp áo mới trên đúng cơ chế cũ.
+**Câu trả lời:** `class` dùng cơ chế constructor và prototype của JavaScript, kèm các luật riêng như bắt buộc
+`new`, strict mode và private field. Class thông thường có property `prototype`; **không phải mọi hàm đều có**:
+arrow function, async function và bound function là những ngoại lệ. Phần kế thừa method vẫn dựa vào prototype.
 
 Hai đoạn dưới đây tạo ra **cùng một thứ**:
 
@@ -204,8 +204,9 @@ tên ra, đi sang prototype của nó.** Không có chiều ngược lại: `ani
 1. **Đọc: hỏi chính mình trước, thấy thì dừng ngay.** `dog.speak` có sẵn trên `dog`, nên `animal.speak` không bao giờ
    được ngó tới — nó **bị che**. Đó chính là "override": muốn thay một method của prototype, chỉ cần đặt property
    cùng tên lên object của mình.
-2. **Ghi: luôn ghi vào chính object bạn gán, không đi sang prototype.** `dog.legs = 3` **không** sửa `animal.legs`;
-   nó tạo một dòng `legs` mới trên chính `dog`. Đọc thì đi tiếp sang prototype, ghi thì đứng yên tại chỗ.
+2. **Ghi data property thông thường:** `dog.legs = 3` **không** sửa `animal.legs`; nó tạo `legs` trên `dog`
+   nếu property cho phép ghi. Đây không phải luật cho mọi phép gán: setter kế thừa có thể được gọi, và data property
+   kế thừa có `writable: false` có thể ngăn phép gán. Đọc và ghi đều phải tôn trọng property descriptor.
 3. **Chia sẻ, không copy.** `dog` không chứa bản sao của `legs` — nó chỉ mượn của `animal`. Nên sửa
    `animal.legs = 2` thì `dog.legs` đọc ra `2` ngay, miễn là `dog` chưa tự có `legs` riêng theo điều 2.
 
@@ -583,8 +584,9 @@ class Der extends P {
 ```
 
 Và class con không viết `constructor` thì được cấp một cái ngầm định `constructor(...args) { super(...args); }` —
-đó là lý do `PrismaService extends PrismaClient` ([src/shared/services/prisma.service.ts](../../src/shared/services/prisma.service.ts))
-không viết constructor nào mà vẫn chạy đúng constructor của `PrismaClient`.
+đó là hành vi mặc định khi class con không khai constructor. `PrismaService` của dự án hiện **có** constructor:
+nó inject `AppConfigService`, tạo adapter và gọi `super({ adapter })`
+([src/shared/services/prisma.service.ts](../../src/shared/services/prisma.service.ts)).
 
 **Cái bẫy kinh điển** nằm ở thứ tự "super trước, field của con sau": nếu constructor lớp cha gọi một method đã bị lớp
 con ghi đè, method đó chạy khi field của lớp con **chưa** được gán.
@@ -1111,7 +1113,7 @@ Reflect.defineMetadata(
 ```
 
 Vì vậy cấm lưu dữ liệu theo-request vào metadata: hai request đồng thời sẽ ghi đè lẫn nhau. Dữ liệu theo-request
-thuộc về object `request` ([chương 3 §9](03-guards.md#9-truyền-dữ-liệu-từ-guard-xuống-handler)).
+thuộc về object `request` ([chương 3 §9](03-guards.md#11-truyền-dữ-liệu-từ-guard-xuống-handler)).
 
 ### 10.3 Vì sao property decorator không có descriptor
 
@@ -1130,8 +1132,8 @@ class Dto {
 Object.getOwnPropertyDescriptor(Dto.prototype, "name"); // undefined
 ```
 
-Nên property decorator chỉ làm được đúng một việc: **ghi một nhãn vào cặp toạ độ `(prototype, tên field)`** để sau
-này có người tra. Và đó chính xác là cách `class-validator` cùng `@nestjs/swagger` hoạt động —
+Property decorator dùng cặp toạ độ `(prototype, tên field)` để đăng ký chỉ dẫn, chứ không nhận giá trị field của một
+instance. Swagger lưu thông tin bằng `reflect-metadata`; `class-validator` đăng ký rule vào `MetadataStorage` riêng —
 [role.dto.ts:95-101](../../src/dtos/role/role.dto.ts#L95-L101):
 
 ```ts
@@ -1142,9 +1144,9 @@ export class CreateRoleRequestDto {
 }
 ```
 
-Hai decorator, hai nhãn, cùng ghi vào `(CreateRoleRequestDto.prototype, "name")`. Không cái nào trong hai cái đó đọc được
-giá trị của `name` — lúc chúng chạy chưa có instance nào. Chúng chỉ để lại chỉ dẫn; `ValidationPipe` mới là người
-đọc, mỗi request ([chương 7](07-dto-validation-transformation-serialization.md)).
+Hai decorator nhận cùng field nhưng ghi vào hai kho khác nhau. Lúc chúng chạy chưa có instance nào để đọc giá trị
+`name`. Sau đó Swagger đọc mô tả để sinh API schema, còn `ValidationPipe` gọi class-validator kiểm giá trị ở mỗi
+request ([chương 7](07-dto-validation-transformation-serialization.md)).
 
 ### 10.4 `descriptor.value` và `context.getHandler()` là cùng một hàm
 
@@ -1257,8 +1259,9 @@ nó đọc mảng kiểu này rồi tìm provider tương ứng ([chương 6](06
 - Kiểu `string` bị xoá lúc biên dịch ([mục 5.3](#53-bản-chất-của-syntax-sugar-nhìn-code-sau-khi-biên-dịch), điều 1). Không còn gì để dán.
 - Bảng ẩn của `reflect-metadata` chỉ nhận **giá trị JavaScript**. Thứ duy nhất vừa tồn tại ở runtime vừa "có nghĩa là
   chuỗi" là hàm dựng `String` — cái hàm mà [mục 9](#9-boxing-primitive-không-phải-object-nhưng-vẫn-length-được) gọi là chủ của tủ `String.prototype`.
-- Nên `tsc` nhả ra `__metadata("design:type", String)`, và `class-validator` khi cần biết field là chuỗi thì so
-  `=== String`.
+- Nên `tsc` nhả ra `__metadata("design:type", String)`. Swagger có thể dùng kiểu này để suy schema;
+  class-transformer có thể dùng khi bật implicit conversion. **`@IsString()` không đọc nhãn này**: rule đã được
+  đăng ký riêng và kiểm giá trị bằng `typeof value === "string"` hoặc `value instanceof String`.
 
 Cùng logic cho toàn bảng — mỗi kiểu TypeScript được **ánh xạ về hàm dựng gần nhất**, và thứ gì không có hàm dựng thì
 gộp về `Object`:
@@ -1277,8 +1280,7 @@ gộp về `Object`:
 | `Promise<number>` (return) | `Promise`     | mất tham số bên trong                                         |
 
 Hai dòng cuối bảng là lý do của hai quy tắc trong dự án mà [chương 6](06-modules-and-dependency-injection.md) và 7 sẽ nói kỹ: **không inject qua interface**
-(DI chỉ nhận được `Object`, không biết tìm provider nào) và **`@IsArray()` phải kèm `{ each: true }`** (validator
-chỉ thấy `Array`, không thấy phần tử là gì).
+(DI chỉ nhận được `Object`, không biết tìm provider nào) và **validator phần tử cần `{ each: true }`**, ví dụ `@IsUUID("4", { each: true })`; `@IsArray()` chỉ kiểm giá trị có phải mảng.
 
 Toàn bộ cơ chế ghi/đọc của bảng ẩn — nó là `WeakMap` gì, key `undefined` nghĩa là gì, `getMetadata` đi ngược chain
 thế nào — nằm ở [phụ lục A](appendix-a-reflect-metadata-internals.md).

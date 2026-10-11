@@ -1,13 +1,16 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NestJS căn bản → nâng cao</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      NestJS căn bản → nâng cao: decorator, metadata, Reflector, guard,
+      middleware
+    </title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Azeret+Mono:wght@400;500;600&amp;display=swap"
       rel="stylesheet"
     />
     <style>
@@ -1092,88 +1095,492 @@
           max-width: none;
         }
       }
+
+      /* Markdown-generated content uses the existing paper/ink theme. */
+      h2.sec-head {
+        display: block;
+        font-size: 1.45rem;
+        line-height: 1.5;
+        scroll-margin-top: 24px;
+      }
+      h3.sub {
+        font-size: 1.15rem;
+        margin-top: 30px;
+        line-height: 1.6;
+      }
+      h4.sub,
+      h5.sub,
+      h6.sub {
+        margin-top: 24px;
+        line-height: 1.6;
+      }
+      blockquote {
+        margin: 20px 0;
+        padding: 12px 22px;
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+      }
+      blockquote .prose:last-child {
+        margin-bottom: 0;
+      }
+      .main > ul,
+      .main > ol {
+        padding-left: 26px;
+        margin: 16px 0 24px;
+      }
+      li {
+        line-height: 1.85;
+      }
+      li > .prose {
+        margin: 6px 0;
+      }
+      pre.code-file__body {
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      pre code {
+        font: inherit;
+        color: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .series-bar {
+        flex-wrap: wrap;
+      }
+      .series-bar a[aria-current="page"] {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .diagram-code {
+        margin: 10px 0 24px;
+      }
+      .diagram-code pre {
+        overflow-x: auto;
+        padding: 16px;
+        background: var(--surface);
+      }
+      .source-footer {
+        margin: 48px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.8rem;
+      }
+      .mermaid-wrap[hidden] {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <button
       class="theme-toggle"
       id="themeToggle"
-      title="Đổi giao diện sáng/tối"
       aria-label="Đổi giao diện sáng tối"
-    ></button>
+    >
+      ☾
+    </button>
     <div class="wrap">
-      <nav class="toc" id="toc">
-        <div class="toc-title">Nội dung</div>
-        <a href="#s1">Bức tranh lớn</a>
-        <a href="#s2">Một cơ chế, bốn tên</a>
-        <a href="#s3">Bảy chương</a>
-        <a href="#s4">Khái niệm → dự án</a>
-        <a href="#s5">Quy ước</a>
+      <nav class="toc" aria-label="Mục lục chương">
+        <div class="toc-title">Trong chương</div>
+        <a href="#thứ-tự-đọc">Thứ tự đọc</a
+        ><a href="#bức-tranh-lớn-trong-một-hình">Bức tranh lớn trong một hình</a
+        ><a href="#bốn-khái-niệm-một-cơ-chế">Bốn khái niệm, một cơ chế</a
+        ><a href="#khái-niệm--chỗ-trong-dự-án">Khái niệm → chỗ trong dự án</a
+        ><a href="#quy-ước-trong-bộ-tài-liệu">Quy ước trong bộ tài liệu</a
+        ><a href="#cập-nhật-và-kiểm-tra-tài-liệu"
+          >Cập nhật và kiểm tra tài liệu</a
+        >
+        <div class="toc-series">
+          <a href="index.html">↑ Mục lục bộ</a
+          ><a href="README.md">Bản Markdown</a>
+        </div>
       </nav>
-
-      <div class="main">
-        <div class="series-bar">
-          <span>NestJS căn bản → nâng cao</span><span class="sep">·</span>
-          <a href="01-decorators-and-metadata.html">01 Decorator</a>
-          <a href="02-reflector-execution-context-and-discovery.html"
+      <main class="main">
+        <nav class="series-bar" aria-label="Các chương">
+          <a href="index.html">Mục lục</a
+          ><a href="00-prototype-and-this.html">00 Prototype</a
+          ><a href="01-decorators-and-metadata.html">01 Decorator</a
+          ><a href="02-reflector-execution-context-and-discovery.html"
             >02 Reflector</a
+          ><a href="03-guards.html">03 Guard</a
+          ><a href="04-middleware.html">04 Middleware</a
+          ><a href="05-request-lifecycle-in-this-project.html"
+            >05 Vòng đời request</a
+          ><a href="06-modules-and-dependency-injection.html"
+            >06 Module &amp; DI</a
+          ><a href="07-dto-validation-transformation-serialization.html"
+            >07 DTO</a
+          ><a href="08-request-and-provider-instances.html"
+            >08 Instance &amp; scope</a
+          ><a href="09-interceptors.html">09 Interceptor</a
+          ><a href="10-exception-filters.html">10 Filter</a
+          ><a href="11-controllers-and-http-routing.html">11 Controller</a
+          ><a href="12-pipes-and-input-contracts.html">12 Pipe</a
+          ><a href="13-testing-fundamentals.html">13 Testing</a
+          ><a href="14-bootstrap-configuration-and-shutdown.html"
+            >14 Bootstrap</a
+          ><a href="appendix-a-reflect-metadata-internals.html"
+            >Phụ lục A — reflect-metadata bên trong</a
           >
-          <a href="03-guards.html">03 Guard</a>
-          <a href="04-middleware.html">04 Middleware</a>
-          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
-          <span class="sep">·</span><a href="README.md">bản markdown</a>
-        </div>
-
+        </nav>
         <header class="masthead">
-          <div class="eyebrow">Ecom · Tài liệu nền tảng</div>
-          <h1>Decorator, Reflector, Guard, Middleware</h1>
-          <p class="subtitle">
-            Vì sao viết một dòng
-            <code>@RequirePermission("product:read:own")</code> lên hàm mà hệ
-            thống lại biết chặn request. Từ khái niệm thuần TypeScript → cách
-            NestJS dùng → đúng file, đúng dòng trong dự án này.
-          </p>
-          <div class="masthead-meta">
-            <span class="tag">NestJS 11.0.1</span
-            ><span class="tag tag--b">TypeScript 5.7</span>
-            <span class="tag tag--c">reflect-metadata 0.2</span
-            ><span class="tag tag--amber">7 chương · ~3500 dòng markdown</span>
-          </div>
+          <h1
+            id="nestjs-căn-bản--nâng-cao-decorator-metadata-reflector-guard-middleware"
+          >
+            NestJS căn bản → nâng cao: decorator, metadata, Reflector, guard,
+            middleware
+          </h1>
         </header>
-
-        <div class="sec-head" id="s1">
-          <span class="sec-head__num">01</span
-          ><span class="sec-head__text">Bức tranh lớn trong một hình</span>
+        <blockquote>
+          <p class="prose">
+            <strong>Bộ tài liệu này dành cho ai:</strong> người mới vào dự án,
+            hoặc mới dùng NestJS, muốn hiểu <strong>tại sao</strong> viết một
+            dòng
+            <code>@RequirePermission(&quot;product:read:own&quot;)</code> lên
+            hàm mà hệ thống lại biết chặn request. Không cần biết trước về
+            NestJS; cần biết TypeScript ở mức đọc được class và hàm.
+          </p>
+          <p class="prose">
+            Mỗi chương đi từ khái niệm thuần (không dính dự án) → cách NestJS
+            dùng nó → <strong>đúng chỗ dự án này dùng nó</strong>, có đường dẫn
+            file và số dòng.
+          </p>
+        </blockquote>
+        <h2 id="thứ-tự-đọc" class="sec-head">Thứ tự đọc</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Chương</th>
+                <th>Trả lời câu hỏi</th>
+                <th>Bản HTML</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>0</td>
+                <td>
+                  <a href="00-prototype-and-this.html"
+                    >Prototype, <code>this</code>, và class</a
+                  >
+                </td>
+                <td>
+                  Nền JavaScript: vì sao class lại có <code>prototype</code>, nó
+                  khác <code>__proto__</code> ra sao, <code>class</code> biên
+                  dịch ra gì, boxing là gì
+                </td>
+                <td><a href="00-prototype-and-this.html">html</a></td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>
+                  <a href="01-decorators-and-metadata.html"
+                    >Decorator và metadata</a
+                  >
+                </td>
+                <td>
+                  Decorator là gì, chạy lúc nào, <code>SetMetadata</code> dán gì
+                  vào đâu, param decorator khác gì
+                </td>
+                <td><a href="01-decorators-and-metadata.html">html</a></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>
+                  <a href="02-reflector-execution-context-and-discovery.html"
+                    >Reflector, ExecutionContext, Discovery</a
+                  >
+                </td>
+                <td>
+                  Ai đọc lại metadata, đọc ở đâu, đọc cả app một lượt bằng cách
+                  nào
+                </td>
+                <td>
+                  <a href="02-reflector-execution-context-and-discovery.html"
+                    >html</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td><a href="03-guards.html">Guard</a></td>
+                <td>
+                  Người gác cửa: hợp đồng, Nest gọi guard thế nào, bảy guard
+                  viết tay, cách đăng ký, thứ tự chạy, guard ghép, 401 / 403 /
+                  500, lỗi hay gặp
+                </td>
+                <td><a href="03-guards.html">html</a></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td><a href="04-middleware.html">Middleware</a></td>
+                <td>
+                  Tầng Express dưới Nest: bốn cách viết, mọi biến thể
+                  <code>forRoutes</code>,
+                  <strong>vì sao auth không nằm ở đây</strong>, tám middleware
+                  mẫu kèm test
+                </td>
+                <td><a href="04-middleware.html">html</a></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>
+                  <a href="05-request-lifecycle-in-this-project.html"
+                    >Vòng đời một request trong dự án</a
+                  >
+                </td>
+                <td>
+                  Ráp tất cả lại: từng tầng chạm vào request theo thứ tự nào,
+                  thấy gì, trả lỗi gì
+                </td>
+                <td>
+                  <a href="05-request-lifecycle-in-this-project.html">html</a>
+                </td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>
+                  <a href="06-modules-and-dependency-injection.html"
+                    >Module và Dependency Injection</a
+                  >
+                </td>
+                <td>
+                  Object trong constructor từ đâu ra, IoC vs DI vs Service
+                  Locator, provider, <code>@Global</code>,
+                  <code>APP_GUARD</code>, scope, vòng tròn, DI trong test
+                </td>
+                <td>
+                  <a href="06-modules-and-dependency-injection.html">html</a>
+                </td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>
+                  <a href="07-dto-validation-transformation-serialization.html"
+                    >DTO: validation, transformation, serialization</a
+                  >
+                </td>
+                <td>
+                  Ba việc hai thư viện, <code>ValidationPipe</code>, validator
+                  tự viết, và cái bẫy làm lộ dữ liệu ra response
+                </td>
+                <td>
+                  <a href="07-dto-validation-transformation-serialization.html"
+                    >html</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>8</td>
+                <td>
+                  <a href="08-request-and-provider-instances.html"
+                    >Mỗi request có tạo instance mới không?</a
+                  >
+                </td>
+                <td>
+                  Provider là singleton hay theo-request, cái gì mới mỗi
+                  request, vì sao không lưu trạng thái vào <code>this</code>, ba
+                  scope và cái giá của <code>Scope.REQUEST</code>
+                </td>
+                <td>
+                  <a href="08-request-and-provider-instances.html">html</a>
+                </td>
+              </tr>
+              <tr>
+                <td>9</td>
+                <td><a href="09-interceptors.html">Interceptor</a></td>
+                <td>
+                  Tầng bọc hai chiều: <code>next.handle()</code>, đủ RxJS để
+                  dùng, thứ tự lồng nhau, serializer và multer là interceptor
+                  thế nào, <code>@Res()</code> bỏ qua kết quả nhưng interceptor
+                  vẫn chạy
+                </td>
+                <td><a href="09-interceptors.html">html</a></td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td>
+                  <a href="10-exception-filters.html">Exception Filter</a>
+                </td>
+                <td>
+                  Lưới dưới dây chuyền: <code>@Catch()</code>,
+                  <code>ArgumentsHost</code> vs <code>ExecutionContext</code>,
+                  &quot;một filter khớp thắng&quot; và thứ tự đảo, vì sao dự án
+                  cố tình chỉ có một filter
+                </td>
+                <td><a href="10-exception-filters.html">html</a></td>
+              </tr>
+              <tr>
+                <td>11</td>
+                <td>
+                  <a href="11-controllers-and-http-routing.html"
+                    >Controller và HTTP routing</a
+                  >
+                </td>
+                <td>
+                  Ghép route, bind tham số, status code, return và response
+                  Express
+                </td>
+                <td><a href="11-controllers-and-http-routing.html">html</a></td>
+              </tr>
+              <tr>
+                <td>12</td>
+                <td>
+                  <a href="12-pipes-and-input-contracts.html"
+                    >Pipe và hợp đồng đầu vào</a
+                  >
+                </td>
+                <td>
+                  Parse/default, thứ tự pipe, custom decorator, DTO khác
+                  req.body, boolean và nested array
+                </td>
+                <td><a href="12-pipes-and-input-contracts.html">html</a></td>
+              </tr>
+              <tr>
+                <td>13</td>
+                <td>
+                  <a href="13-testing-fundamentals.html">Testing nền tảng</a>
+                </td>
+                <td>
+                  Unit, DI và HTTP test không DB; override global enhancer đúng
+                  token; lifecycle trong test
+                </td>
+                <td><a href="13-testing-fundamentals.html">html</a></td>
+              </tr>
+              <tr>
+                <td>14</td>
+                <td>
+                  <a href="14-bootstrap-configuration-and-shutdown.html"
+                    >Bootstrap, cấu hình và shutdown</a
+                  >
+                </td>
+                <td>
+                  create/init/listen, env validation, lifecycle hooks, cleanup
+                  và adapter
+                </td>
+                <td>
+                  <a href="14-bootstrap-configuration-and-shutdown.html"
+                    >html</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>A</td>
+                <td>
+                  <a href="appendix-a-reflect-metadata-internals.html"
+                    >Phụ lục A — <code>reflect-metadata</code> bên trong</a
+                  >
+                </td>
+                <td>
+                  Bảng ẩn là <code>WeakMap</code> gì,
+                  <code>getMetadata</code> đi ngược chain thế nào, TypeScript tự
+                  dán <code>design:*</code> theo quy tắc gì
+                </td>
+                <td>
+                  <a href="appendix-a-reflect-metadata-internals.html">html</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <p class="lead">
-          Một request đi qua NestJS theo dây chuyền <strong>cố định</strong>.
-          Ghim hình này vào đầu — năm chương sau chỉ là đi sâu vào từng ô.
+        <p class="prose">
+          Trang tổng quan dạng web: <a href="index.html">index.html</a>.
         </p>
-
+        <p class="prose">
+          <strong>Mới bắt đầu NestJS?</strong> Đọc
+          <a
+            href="14-bootstrap-configuration-and-shutdown.html#1-chuẩn-bị-để-đọc-và-chạy-repo"
+            >14 §1–3</a
+          >
+          → <a href="11-controllers-and-http-routing.html">11</a> →
+          <a href="06-modules-and-dependency-injection.html">6</a> →
+          <a href="07-dto-validation-transformation-serialization.html">7</a> →
+          <a href="12-pipes-and-input-contracts.html">12</a> →
+          <a href="13-testing-fundamentals.html">13</a>, rồi đi sâu vào
+          decorators và request pipeline. Giữ số chương cũ để liên kết đã có ổn
+          định.
+        </p>
+        <p class="prose">
+          <strong>Chưa vững JavaScript?</strong> Bắt đầu ở
+          <a href="00-prototype-and-this.html">chương 0</a> — nó là phần nền cho
+          mọi chỗ <a href="01-decorators-and-metadata.html">chương 1</a> viết
+          <code>X.prototype</code>. Ai đã quen prototype chain thì bỏ qua, vào
+          thẳng chương 1.
+        </p>
+        <p class="prose">
+          <strong>Đọc nhanh (30 phút):</strong>
+          <a href="01-decorators-and-metadata.html">chương 1</a> → mục
+          &quot;Guard là gì&quot; của <a href="03-guards.html">chương 3</a> →
+          <a href="05-request-lifecycle-in-this-project.html">chương 5</a>.
+          <strong>Đọc kỹ (nhiều buổi):</strong> theo thứ tự 0 → 14, làm các thí
+          nghiệm ở cuối mỗi chương.
+          <a href="appendix-a-reflect-metadata-internals.html">Phụ lục A</a> đọc
+          sau chương 1 nếu muốn biết bảng metadata thật ra là gì.
+          <strong>Nếu bạn sắp sửa code ngay hôm nay:</strong>
+          <a href="06-modules-and-dependency-injection.html">chương 6</a> (DI —
+          gặp ở mọi file) và
+          <a href="07-dto-validation-transformation-serialization.html"
+            >chương 7</a
+          >
+          (DTO — sửa mỗi lần thêm endpoint).
+        </p>
+        <p class="prose">
+          Đọc xong bộ này thì sang
+          <a href="../authorization-mechanics-and-code-walkthrough.md"
+            >authorization-mechanics-and-code-walkthrough.md</a
+          >
+          và <a href="../authorization-guide.md">authorization-guide.md</a> sẽ
+          thấy trơn — hai tài liệu đó giả định bạn đã nắm những gì viết ở đây.
+        </p>
+        <hr />
+        <h2 id="bức-tranh-lớn-trong-một-hình" class="sec-head">
+          Bức tranh lớn trong một hình
+        </h2>
+        <p class="prose">
+          Một request HTTP đi qua NestJS theo dây chuyền
+          <strong>cố định</strong>. Ghim hình này vào đầu; các chương sau chỉ là
+          đi sâu vào từng ô — mỗi ô có một chương: Middleware (<a
+            href="04-middleware.html"
+            >4</a
+          >), Guard (<a href="03-guards.html">3</a>), Interceptor (<a
+            href="09-interceptors.html"
+            >9</a
+          >), Pipe (<a
+            href="07-dto-validation-transformation-serialization.html"
+            >7</a
+          >), Filter (<a href="10-exception-filters.html">10</a>).
+        </p>
         <section class="diagram-shell">
           <p class="diagram-shell__hint">
-            Ctrl/Cmd + lăn để phóng · kéo để di chuyển · double-click để vừa
-            khung
+            Ctrl/Cmd + lăn để phóng · kéo để di chuyển
           </p>
-          <div class="mermaid-wrap" style="min-height: 300px">
+          <div class="mermaid-wrap">
             <div class="zoom-controls">
-              <button type="button" data-action="zoom-in" title="Phóng to">
+              <button type="button" data-action="zoom-in" aria-label="Phóng to">
                 +</button
-              ><button type="button" data-action="zoom-out" title="Thu nhỏ">
-                &minus;
-              </button>
-              <button type="button" data-action="zoom-fit" title="Vừa khung">
-                &#8634;</button
-              ><button type="button" data-action="zoom-one" title="1:1">
-                1:1
-              </button>
-              <button
+              ><button
+                type="button"
+                data-action="zoom-out"
+                aria-label="Thu nhỏ"
+              >
+                −</button
+              ><button
+                type="button"
+                data-action="zoom-fit"
+                aria-label="Vừa khung"
+              >
+                ↺</button
+              ><button type="button" data-action="zoom-one">1:1</button
+              ><button
                 type="button"
                 data-action="zoom-expand"
-                title="Mở tab mới"
+                aria-label="Mở rộng"
               >
-                &#x26F6;</button
-              ><span class="zoom-label">Đang tải...</span>
+                ⛶</button
+              ><span class="zoom-label">Đang tải…</span>
             </div>
             <div class="mermaid-viewport">
               <div class="mermaid mermaid-canvas"></div>
@@ -1181,909 +1588,811 @@
           </div>
           <script type="text/plain" class="diagram-source">
             flowchart LR
-                R["Request"] --> MW["Middleware<br/>tầng Express"]
-                MW --> G["Guards"]
-                G --> I1["Interceptors<br/>chiều đi"]
-                I1 --> P["Pipes"]
-                P --> H["Handler"]
-                H --> I2["Interceptors<br/>chiều về"]
-                I2 --> Res["Response"]
-                G -. "throw" .-> F["Exception Filter"]
-                P -. "throw" .-> F
-                H -. "throw" .-> F
+                R[Request] --> MW[Middleware<br/>tầng Express]
+                MW --> G[Guards]
+                G --> I1[Interceptors<br/>trước]
+                I1 --> P[Pipes]
+                P --> H[Handler<br/>controller method]
+                H --> I2[Interceptors<br/>sau]
+                I2 --> Res[Response]
+                G -. throw .-> F[Exception Filter]
+                P -. throw .-> F
+                H -. throw .-> F
                 F --> Res
-                classDef ex fill:#7c756a22,stroke:#7c756a,stroke-width:1.5px
-                classDef core fill:#c2410c22,stroke:#c2410c,stroke-width:2px
-                class MW ex
-                class G core
           </script>
+          <details class="diagram-code">
+            <summary>Mã sơ đồ (xem khi offline)</summary>
+            <pre><code>flowchart LR
+    R[Request] --&gt; MW[Middleware&lt;br/&gt;tầng Express]
+    MW --&gt; G[Guards]
+    G --&gt; I1[Interceptors&lt;br/&gt;trước]
+    I1 --&gt; P[Pipes]
+    P --&gt; H[Handler&lt;br/&gt;controller method]
+    H --&gt; I2[Interceptors&lt;br/&gt;sau]
+    I2 --&gt; Res[Response]
+    G -. throw .-&gt; F[Exception Filter]
+    P -. throw .-&gt; F
+    H -. throw .-&gt; F
+    F --&gt; Res</code></pre>
+          </details>
         </section>
-
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Tầng</th>
-                  <th>Biết handler nào sắp chạy?</th>
-                  <th>Đọc metadata handler?</th>
-                  <th>Dự án dùng để</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Middleware</strong></td>
-                  <td><span class="status status--gap">Không</span></td>
-                  <td><span class="status status--gap">Không</span></td>
-                  <td>
-                    CORS, log + <code>X-Request-Id</code>, detect ngôn ngữ
-                  </td>
-                </tr>
-                <tr>
-                  <td><strong>Guard</strong></td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td>Rate limit, xác thực, <strong>phân quyền</strong></td>
-                </tr>
-                <tr>
-                  <td>Interceptor</td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td>Serialize response</td>
-                </tr>
-                <tr>
-                  <td>Pipe</td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td>Validate + transform DTO</td>
-                </tr>
-                <tr>
-                  <td>Filter</td>
-                  <td>Qua <code>ArgumentsHost</code></td>
-                  <td>Hạn chế</td>
-                  <td>Một envelope lỗi duy nhất</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tầng</th>
+                <th>Biết handler nào sắp chạy?</th>
+                <th>Đọc được metadata của handler?</th>
+                <th>Dự án dùng để làm gì</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Middleware</td>
+                <td>Không</td>
+                <td>Không</td>
+                <td>
+                  CORS, log request + <code>X-Request-Id</code>, detect ngôn ngữ
+                </td>
+              </tr>
+              <tr>
+                <td>Guard</td>
+                <td><strong>Có</strong></td>
+                <td><strong>Có</strong></td>
+                <td>Rate limit, xác thực token, <strong>phân quyền</strong></td>
+              </tr>
+              <tr>
+                <td>Interceptor</td>
+                <td>Có</td>
+                <td>Có</td>
+                <td>
+                  Serialize response (<code>excludeExtraneousValues</code>)
+                </td>
+              </tr>
+              <tr>
+                <td>Pipe</td>
+                <td>Không (chỉ ArgumentMetadata)</td>
+                <td>Không</td>
+                <td>Validate + transform DTO, parse UUID</td>
+              </tr>
+              <tr>
+                <td>Handler</td>
+                <td>—</td>
+                <td>—</td>
+                <td>Gọi service</td>
+              </tr>
+              <tr>
+                <td>Filter</td>
+                <td>Không (ArgumentsHost không có getHandler)</td>
+                <td>Không trực tiếp</td>
+                <td>Một envelope lỗi duy nhất cho toàn app</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        <div class="callout callout--info">
-          <div class="callout__title">Ranh giới quan trọng nhất của cả bộ</div>
+        <p class="prose">
+          Cột &quot;biết handler nào&quot; là ranh giới quan trọng nhất trong cả
+          bộ này.
           <strong
             >Middleware chạy trước khi Nest biết request sẽ rơi vào handler
             nào</strong
           >, nên không đọc được <code>@RequirePermission</code>. Guard chạy sau
           khi đã biết. Đó là toàn bộ lý do phân quyền là guard, không phải
-          middleware.
-        </div>
-
-        <div class="sec-head" id="s2">
-          <span class="sec-head__num">02</span
-          ><span class="sec-head__text">Bốn khái niệm, một cơ chế</span>
-        </div>
-
-        <div class="pipeline" style="margin-bottom: 16px">
-          <div class="pipeline__step ve-card" style="--i: 0">
-            <div class="ve-card__label">Decorator</div>
-            <p style="font-size: 14px">
-              Hàm chạy <strong>một lần</strong> lúc file được load. Dán một mẩu
-              dữ liệu lên class/method.
-            </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">Metadata</div>
-            <p style="font-size: 14px">
-              Mẩu dữ liệu đó, nằm trong bảng ẩn của
-              <code>reflect-metadata</code>.
-            </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">Reflector</div>
-            <p style="font-size: 14px">
-              Đọc lại bảng ẩn, <strong>mỗi request</strong>.
-            </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card" style="--i: 3">
-            <div class="ve-card__label ve-card__label--plum">Guard</div>
-            <p style="font-size: 14px">
-              Dùng kết quả để quyết cho qua hay chặn.
-            </p>
-          </div>
-        </div>
-        <p class="dim">
-          Middleware đứng ngoài trục này — nó thuộc tầng Express, không thấy
-          metadata. Vì thế nó có chương riêng.
+          middleware — <a href="04-middleware.html">chương 4</a> giải thích kỹ.
         </p>
-
-        <div class="sec-head" id="s3">
-          <span class="sec-head__num">03</span
-          ><span class="sec-head__text"
-            >Tám chương và một phụ lục, đọc theo thứ tự</span
-          >
+        <hr />
+        <h2 id="bốn-khái-niệm-một-cơ-chế" class="sec-head">
+          Bốn khái niệm, một cơ chế
+        </h2>
+        <p class="prose">Bốn thứ trong tiêu đề thực ra xoay quanh một trục:</p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>Decorator  ──dán──▶  Metadata  ◀──đọc──  Reflector  ◀──dùng──  Guard
+   (lúc định nghĩa class)                   (lúc có request)</code></pre>
         </div>
-
-        <div class="card-grid card-grid--2">
-          <a
-            class="ve-card ve-card--elevated chapter-card"
-            href="00-prototype-and-this.html"
-            style="--i: 0"
-          >
-            <div class="chapter-card__num">00</div>
-            <div class="chapter-card__title">
-              Prototype, <code>this</code>, và class
-            </div>
-            <div class="chapter-card__q">
-              Phần nền JavaScript: <code>prototype</code> là gì, khác
-              <code>__proto__</code> ra sao, <code>class</code> biên dịch ra gì,
-              boxing là gì. Đọc nếu vấp ở <code>X.prototype</code> của chương 1.
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> ·
-              <a href="00-prototype-and-this.md">markdown</a>
-            </div>
-          </a>
-          <a
-            class="ve-card ve-card--elevated chapter-card"
-            href="01-decorators-and-metadata.html"
-            style="--i: 0"
-          >
-            <div class="chapter-card__num">01</div>
-            <div class="chapter-card__title">Decorator và metadata</div>
-            <div class="chapter-card__q">
-              Decorator là gì, chạy lúc nào, <code>SetMetadata</code> dán gì vào
-              đâu, param decorator khác gì decorator metadata.
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> ·
-              <a href="01-decorators-and-metadata.md">markdown</a>
-            </div>
-          </a>
-          <a
-            class="ve-card ve-card--elevated chapter-card"
-            href="02-reflector-execution-context-and-discovery.html"
-            style="--i: 1"
-          >
-            <div class="chapter-card__num">02</div>
-            <div class="chapter-card__title">
-              Reflector, ExecutionContext, Discovery
-            </div>
-            <div class="chapter-card__q">
-              Ai đọc lại metadata, đọc ở đâu, vì sao thứ tự
-              <code>[handler, class]</code> là hợp đồng, quét cả app lúc boot.
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> ·
-              <a href="02-reflector-execution-context-and-discovery.md"
-                >markdown</a
-              >
-            </div>
-          </a>
-          <a
-            class="ve-card ve-card--elevated chapter-card"
-            href="03-guards.html"
-            style="--i: 2"
-          >
-            <div class="chapter-card__num">03</div>
-            <div class="chapter-card__title">Guard</div>
-            <div class="chapter-card__q">
-              Hợp đồng <code>CanActivate</code>, <code>false</code> hay
-              <code>throw</code>, đăng ký có DI, thứ tự, guard ghép, khi nào 401
-              / 403 / 500.
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> · <a href="03-guards.md">markdown</a>
-            </div>
-          </a>
-          <a
-            class="ve-card ve-card--elevated chapter-card"
-            href="04-middleware.html"
-            style="--i: 3"
-          >
-            <div class="chapter-card__num">04</div>
-            <div class="chapter-card__title">Middleware</div>
-            <div class="chapter-card__q">
-              Tầng Express dưới Nest: viết, đăng ký, bốn middleware đang chạy
-              trong dự án, và <strong>vì sao auth không ở đây</strong>.
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> · <a href="04-middleware.md">markdown</a>
-            </div>
-          </a>
-          <a
-            class="ve-card ve-card--elevated chapter-card"
-            href="05-request-lifecycle-in-this-project.html"
-            style="--i: 4"
-          >
-            <div class="chapter-card__num">05</div>
-            <div class="chapter-card__title">
-              Vòng đời một request trong dự án
-            </div>
-            <div class="chapter-card__q">
-              Ráp tất cả lại: 14 tầng theo thứ tự, mỗi tầng thấy gì, gắn gì, từ
-              chối bằng mã gì. Bảng tra "mã lỗi này sinh ở tầng nào".
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> ·
-              <a href="05-request-lifecycle-in-this-project.md">markdown</a>
-            </div>
-          </a>
-          <a
-            class="ve-card ve-card--elevated chapter-card"
-            href="06-modules-and-dependency-injection.html"
-            style="--i: 5"
-          >
-            <div class="chapter-card__num">06</div>
-            <div class="chapter-card__title">
-              Module và Dependency Injection
-            </div>
-            <div class="chapter-card__q">
-              Object trong constructor từ đâu ra. IoC vs DI vs Service Locator,
-              bốn kiểu provider,
-              <code>@Global</code>, <code>APP_GUARD</code>, scope, vòng tròn, DI
-              trong test — và vì sao repo đang có class tồn tại
-              <strong>hai bản</strong>.
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> ·
-              <a href="06-modules-and-dependency-injection.md">markdown</a>
-            </div>
-          </a>
-          <a
-            class="ve-card ve-card--hero chapter-card"
-            href="07-dto-validation-transformation-serialization.html"
-            style="--i: 6"
-          >
-            <div class="chapter-card__num">07</div>
-            <div class="chapter-card__title">
-              DTO: validation, transformation, serialization
-            </div>
-            <div class="chapter-card__q">
-              Ba việc, hai thư viện, hai đầu ngược nhau.
-              <code>ValidationPipe</code>, validator liên trường, và
-              <strong
-                >cái bẫy làm lộ dữ liệu ra response mà không lỗi nào báo</strong
-              >.
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> ·
-              <a href="07-dto-validation-transformation-serialization.md"
-                >markdown</a
-              >
-            </div>
-          </a>
-          <a
-            class="ve-card ve-card--elevated chapter-card"
-            href="appendix-a-reflect-metadata-internals.html"
-            style="--i: 8"
-          >
-            <div class="chapter-card__num">A</div>
-            <div class="chapter-card__title">
-              Phụ lục — <code>reflect-metadata</code> bên trong
-            </div>
-            <div class="chapter-card__q">
-              Bảng ẩn thật ra là <code>WeakMap → Map → Map</code>,
-              <code>getMetadata</code> đi ngược chain bằng đoạn code nào,
-              TypeScript tự dán <code>design:*</code> theo quy tắc gì. Đọc sau
-              chương 1.
-            </div>
-            <div class="chapter-card__links">
-              <span>html</span> ·
-              <a href="appendix-a-reflect-metadata-internals.md">markdown</a>
-            </div>
-          </a>
-        </div>
-
-        <div class="card-grid" style="margin-top: 16px">
-          <div class="ve-card ve-card--recessed" style="--i: 5">
-            <div class="ve-card__label ve-card__label--amber">
-              Đọc nhanh · 30 phút
-            </div>
-            <p>
-              <a href="01-decorators-and-metadata.html">Chương 1</a> → mục
-              "Guard là gì" của <a href="03-guards.html">chương 3</a> →
-              <a href="05-request-lifecycle-in-this-project.html">chương 5</a>.
-              Sắp sửa code hôm nay thì thêm
-              <a href="06-modules-and-dependency-injection.html">chương 6</a> và
-              7. Chưa vững prototype thì mở
-              <a href="00-prototype-and-this.html">chương 0</a> trước.
-            </p>
-          </div>
-          <div class="ve-card ve-card--recessed" style="--i: 6">
-            <div class="ve-card__label ve-card__label--b">
-              Đọc kỹ · một ngày
-            </div>
-            <p>
-              0 → 7 theo thứ tự, làm hết các thí nghiệm ở cuối mỗi chương. Mỗi
-              thí nghiệm đã được chạy thật khi viết.
-            </p>
-          </div>
-          <div class="ve-card ve-card--recessed" style="--i: 7">
-            <div class="ve-card__label ve-card__label--c">Sau bộ này</div>
-            <p>
-              <a href="../authorization-mechanics-and-code-walkthrough.html"
-                >Walkthrough phân quyền</a
-              >
-              và
-              <a href="../authorization-guide.md">authorization-guide.md</a> sẽ
-              thấy trơn — chúng giả định bạn đã nắm những gì ở đây.
-            </p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s4">
-          <span class="sec-head__num">04</span
-          ><span class="sec-head__text">Khái niệm → chỗ trong dự án</span>
-        </div>
-
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Khái niệm</th>
-                  <th>File</th>
-                  <th>Dòng</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Decorator metadata một dòng</td>
-                  <td>
-                    <code
-                      >param-decorators/require-permission.decorator.ts</code
-                    >
-                  </td>
-                  <td class="num">12-13</td>
-                </tr>
-                <tr>
-                  <td>Decorator metadata có tham số phức</td>
-                  <td><code>param-decorators/auth-api.decorator.ts</code></td>
-                  <td class="num">10-19</td>
-                </tr>
-                <tr>
-                  <td>Param decorator đọc <code>request</code></td>
-                  <td>
-                    <code>param-decorators/active-user.decorator.ts</code>
-                  </td>
-                  <td class="num">7-14</td>
-                </tr>
-                <tr>
-                  <td>Param decorator gọi util</td>
-                  <td>
-                    <code>param-decorators/permission-scope.decorator.ts</code>
-                  </td>
-                  <td class="num">19-31</td>
-                </tr>
-                <tr>
-                  <td>Composite (<code>applyDecorators</code>)</td>
-                  <td><code>param-decorators/http-decorator.ts</code></td>
-                  <td class="num">22-117</td>
-                </tr>
-                <tr>
-                  <td>Reflector trong guard</td>
-                  <td><code>guards/access-token.guard.ts</code></td>
-                  <td class="num">77-79</td>
-                </tr>
-                <tr>
-                  <td>Reflector đọc policy có mặc định</td>
-                  <td><code>guards/authorization-header.guard.ts</code></td>
-                  <td class="num">40-47</td>
-                </tr>
-                <tr>
-                  <td>DiscoveryService quét toàn app</td>
-                  <td><code>utils/collect-route-permissions.util.ts</code></td>
-                  <td class="num">34-87</td>
-                </tr>
-                <tr>
-                  <td><code>onApplicationBootstrap</code></td>
-                  <td><code>services/permission-coverage.service.ts</code></td>
-                  <td class="num">29-73</td>
-                </tr>
-                <tr>
-                  <td>Guard ghép</td>
-                  <td><code>guards/authorization-header.guard.ts</code></td>
-                  <td class="num">21-82</td>
-                </tr>
-                <tr>
-                  <td>Guard kế thừa thư viện</td>
-                  <td><code>guards/app-throttler.guard.ts</code></td>
-                  <td class="num">18-44</td>
-                </tr>
-                <tr>
-                  <td>Đăng ký guard toàn cục có DI</td>
-                  <td><code>modules/base.module.ts</code></td>
-                  <td class="num">43-54</td>
-                </tr>
-                <tr>
-                  <td>Middleware thư viện: CORS / log / ngôn ngữ</td>
-                  <td>
-                    <code>main.ts</code> ·
-                    <code>utils/setup-logger.util.ts</code> ·
-                    <code>modules/i18n.module.ts</code>
-                  </td>
-                  <td class="num">27-32 · 39-48 · 16-32</td>
-                </tr>
-                <tr>
-                  <td>Pipe / Interceptor / Filter toàn cục</td>
-                  <td>
-                    <code>utils/validation-pipe.config.ts</code> ·
-                    <code>modules/base.module.ts</code> ·
-                    <code>filters/global-exception.filter.ts</code>
-                  </td>
-                  <td class="num">15-25 · 56-64 · 21-60</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <p class="dim" style="font-size: 13.5px">
-          Mọi đường dẫn tương đối với <code>src/shared/</code> trừ
-          <code>main.ts</code>. Bản markdown có link nhảy thẳng tới dòng.
-        </p>
-
-        <div class="sec-head" id="s5">
-          <span class="sec-head__num">05</span
-          ><span class="sec-head__text">Quy ước</span>
-        </div>
-        <ul class="node-list">
+        <ul>
           <li>
-            Đoạn code ghi <code>file:dòng</code> là
-            <strong>trích từ dự án</strong>, đúng tại thời điểm viết. Không ghi
-            nguồn là <strong>ví dụ minh hoạ</strong>, không tồn tại trong repo.
+            <p class="prose">
+              <strong>Decorator</strong> là hàm được áp lúc định nghĩa class; có
+              thể ghi metadata, đăng ký callback hoặc thay hành vi. Custom param
+              decorator đăng ký factory chạy khi resolve tham số request.
+            </p>
           </li>
           <li>
-            Bản HTML là bản trực quan, cô đọng. Bản markdown cùng tên có đầy đủ
-            chi tiết và link tới từng dòng code.
+            <p class="prose">
+              <strong>Metadata</strong> có thể nằm trong
+              <code>reflect-metadata</code> (Nest, design types) hoặc registry
+              riêng (class-validator/class-transformer). Không dùng
+              <code>Reflect.getMetadata()</code> để suy ra mọi validator.
+            </p>
           </li>
           <li>
-            Mỗi chương kết bằng <strong>Tự kiểm chứng</strong> — làm thử trước
-            khi tin. Các thí nghiệm dùng <code>ts-node</code> đã được chạy khi
-            viết tài liệu, output ghi trong bản markdown là output thật.
+            <p class="prose">
+              <strong>Reflector</strong> là cái đọc lại bảng ẩn đó,
+              <strong>mỗi request</strong>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Guard</strong> là nơi dùng kết quả đọc được để quyết định
+              cho qua hay chặn.
+            </p>
           </li>
         </ul>
-
-        <div class="footer-nav">
-          <span></span>
-          <a href="01-decorators-and-metadata.html"
-            ><small>Chương tiếp</small>01 — Decorator và metadata →</a
-          >
+        <p class="prose">
+          Middleware đứng ngoài trục này — nó thuộc tầng Express, không thấy
+          metadata.
+        </p>
+        <hr />
+        <h2 id="khái-niệm--chỗ-trong-dự-án" class="sec-head">
+          Khái niệm → chỗ trong dự án
+        </h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Khái niệm</th>
+                <th>File trong dự án</th>
+                <th>Dòng đáng đọc</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Decorator metadata một dòng</td>
+                <td>
+                  <code
+                    >src/shared/param-decorators/require-permission.decorator.ts</code
+                  >
+                </td>
+                <td>12-13</td>
+              </tr>
+              <tr>
+                <td>Decorator metadata có tham số phức</td>
+                <td>
+                  <code>src/shared/param-decorators/auth-api.decorator.ts</code>
+                </td>
+                <td>10-19</td>
+              </tr>
+              <tr>
+                <td>Param decorator đọc <code>request</code></td>
+                <td>
+                  <code
+                    >src/shared/param-decorators/active-user.decorator.ts</code
+                  >
+                </td>
+                <td>7-14</td>
+              </tr>
+              <tr>
+                <td>Param decorator gọi util</td>
+                <td>
+                  <code
+                    >src/shared/param-decorators/permission-scope.decorator.ts</code
+                  >
+                </td>
+                <td>19-31</td>
+              </tr>
+              <tr>
+                <td>Param decorator đọc context thư viện</td>
+                <td>
+                  <code
+                    >src/shared/param-decorators/current-lang.decorator.ts</code
+                  >
+                </td>
+                <td>4-10</td>
+              </tr>
+              <tr>
+                <td>Composite decorator (<code>applyDecorators</code>)</td>
+                <td>
+                  <code>src/shared/param-decorators/http-decorator.ts</code>
+                </td>
+                <td>22-117</td>
+              </tr>
+              <tr>
+                <td>Reflector trong guard</td>
+                <td><code>src/shared/guards/access-token.guard.ts</code></td>
+                <td>77-79</td>
+              </tr>
+              <tr>
+                <td>Reflector đọc policy xác thực</td>
+                <td>
+                  <code>src/shared/guards/authorization-header.guard.ts</code>
+                </td>
+                <td>40-47</td>
+              </tr>
+              <tr>
+                <td>DiscoveryService quét toàn app</td>
+                <td>
+                  <code
+                    >src/shared/utils/collect-route-permissions.util.ts</code
+                  >
+                </td>
+                <td>34-87</td>
+              </tr>
+              <tr>
+                <td>Lifecycle hook <code>onApplicationBootstrap</code></td>
+                <td>
+                  <code
+                    >src/shared/services/permission-coverage.service.ts</code
+                  >
+                </td>
+                <td>29-73</td>
+              </tr>
+              <tr>
+                <td>Guard đơn</td>
+                <td><code>src/shared/guards/api-key.guard.ts</code></td>
+                <td>13-29</td>
+              </tr>
+              <tr>
+                <td>Guard ghép (điều phối guard con)</td>
+                <td>
+                  <code>src/shared/guards/authorization-header.guard.ts</code>
+                </td>
+                <td>21-82</td>
+              </tr>
+              <tr>
+                <td>Guard kế thừa từ thư viện</td>
+                <td><code>src/shared/guards/app-throttler.guard.ts</code></td>
+                <td>18-44</td>
+              </tr>
+              <tr>
+                <td>Đăng ký guard toàn cục có DI</td>
+                <td><code>src/shared/modules/base.module.ts</code></td>
+                <td>43-54</td>
+              </tr>
+              <tr>
+                <td>Middleware từ thư viện (CORS)</td>
+                <td><code>src/main.ts</code></td>
+                <td>27-32</td>
+              </tr>
+              <tr>
+                <td>Middleware từ thư viện (log, request id)</td>
+                <td><code>src/shared/utils/setup-logger.util.ts</code></td>
+                <td>39-48, 64-82</td>
+              </tr>
+              <tr>
+                <td>Middleware từ thư viện (ngôn ngữ)</td>
+                <td><code>src/shared/modules/i18n.module.ts</code></td>
+                <td>16-32</td>
+              </tr>
+              <tr>
+                <td>Pipe toàn cục</td>
+                <td><code>src/shared/utils/validation-pipe.config.ts</code></td>
+                <td>15-25</td>
+              </tr>
+              <tr>
+                <td>Interceptor toàn cục</td>
+                <td><code>src/shared/modules/base.module.ts</code></td>
+                <td>57-65</td>
+              </tr>
+              <tr>
+                <td>Interceptor cục bộ (multer)</td>
+                <td><code>src/routes/media/media.controller.ts</code></td>
+                <td>72-82</td>
+              </tr>
+              <tr>
+                <td>Interceptor viết tay (chưa đăng ký)</td>
+                <td>
+                  <code>src/shared/interceptors/transform.interceptor.ts</code>
+                </td>
+                <td>16-31</td>
+              </tr>
+              <tr>
+                <td>Filter toàn cục, <code>@Catch()</code> trần</td>
+                <td>
+                  <code>src/shared/filters/global-exception.filter.ts</code>
+                </td>
+                <td>28-61</td>
+              </tr>
+              <tr>
+                <td>Mapper thuần cho filter</td>
+                <td>
+                  <code>src/shared/filters/http-exception.mapper.ts</code>
+                </td>
+                <td>41-62</td>
+              </tr>
+              <tr>
+                <td>Đóng hộp exception đúng hình envelope</td>
+                <td>
+                  <code>src/shared/utils/throw-http-exception.util.ts</code>
+                </td>
+                <td>76-96</td>
+              </tr>
+              <tr>
+                <td>Provider <code>useFactory</code> + <code>inject</code></td>
+                <td><code>src/shared/modules/base.module.ts</code></td>
+                <td>57-65</td>
+              </tr>
+              <tr>
+                <td>Module <code>@Global()</code></td>
+                <td><code>src/shared/modules/shared.module.ts</code></td>
+                <td>16-35</td>
+              </tr>
+              <tr>
+                <td>Cùng class ở 2 module → 2 instance</td>
+                <td>
+                  <code>src/repositories/role/shared-role.repository.ts</code>
+                </td>
+                <td>11-15</td>
+              </tr>
+              <tr>
+                <td>Cấu hình <code>ValidationPipe</code></td>
+                <td><code>src/shared/utils/validation-pipe.config.ts</code></td>
+                <td>15-22</td>
+              </tr>
+              <tr>
+                <td>Validator liên trường tự viết</td>
+                <td>
+                  <code>src/validations/decorators/is-only-one-exists.ts</code>
+                </td>
+                <td>11-31</td>
+              </tr>
+              <tr>
+                <td>Bọc row vào DTO để không lộ field</td>
+                <td>
+                  <code
+                    >src/routes/product/manage-product/manage-product.service.ts</code
+                  >
+                </td>
+                <td>111-114</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-      <!-- /main -->
+        <hr />
+        <h2 id="quy-ước-trong-bộ-tài-liệu" class="sec-head">
+          Quy ước trong bộ tài liệu
+        </h2>
+        <ul>
+          <li>
+            <p class="prose">
+              Đoạn code có ghi <code>file:dòng</code> là
+              <strong>trích từ dự án</strong>, đúng tại thời điểm viết. Đoạn
+              code không ghi nguồn là <strong>ví dụ minh hoạ</strong>, không tồn
+              tại trong repo.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Số phiên bản: NestJS <code>11.0.1</code>, TypeScript
+              <code>5.7.3</code>, <code>reflect-metadata</code>
+              <code>0.2.2</code>. Vài chỗ hành vi khác giữa Nest 10 và 11 (cú
+              pháp wildcard route) được ghi rõ.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Mỗi chương kết bằng mục <strong>Tự kiểm chứng</strong> — làm thử
+              trước khi tin.
+            </p>
+          </li>
+        </ul>
+        <h2 id="cập-nhật-và-kiểm-tra-tài-liệu" class="sec-head">
+          Cập nhật và kiểm tra tài liệu
+        </h2>
+        <p class="prose">
+          Markdown là bản nguồn; HTML được sinh đầy đủ từ cùng nội dung, dùng
+          chung theme và sơ đồ tương tác. Khi sửa chương hoặc thêm mục, chạy từ
+          gốc repo:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>node scripts/build-nestjs-fundamentals.cjs
+node scripts/build-nestjs-fundamentals.cjs --check
+node docs/nestjs-fundamentals/examples/foundation-probes.cjs</code></pre>
+        </div>
+        <p class="prose">
+          Builder dùng Markdown parser của Prettier đã có trong devDependencies,
+          không thêm thư viện. <code>--check</code> báo HTML bị lệch, file liên
+          kết thiếu hoặc anchor nội bộ sai. Probes kiểm hành vi NestJS đã cài,
+          không cần PostgreSQL/Redis và không sửa runtime ứng dụng. Mermaid trên
+          HTML tải từ CDN nên cần mạng để render; nếu tải thất bại, trang vẫn
+          hiển thị mã sơ đồ để đọc.
+        </p>
+        <footer class="source-footer">
+          <a href="README.md">Nguồn Markdown</a> · Sinh bằng
+          scripts/build-nestjs-fundamentals.cjs
+        </footer>
+      </main>
     </div>
-    <!-- /wrap -->
-
-    <script>
-      (function () {
-        var toggle = document.getElementById("themeToggle");
-        var saved = null;
-        try {
-          saved = localStorage.getItem("theme");
-        } catch (e) {}
-        var initial =
-          saved ||
-          (matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        if (saved) document.documentElement.setAttribute("data-theme", initial);
-        toggle.textContent = initial === "dark" ? "☀" : "☾";
-        toggle.addEventListener("click", function () {
-          var current =
-            document.documentElement.getAttribute("data-theme") ||
-            (matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light");
-          var next = current === "light" ? "dark" : "light";
-          document.documentElement.setAttribute("data-theme", next);
-          try {
-            localStorage.setItem("theme", next);
-          } catch (e) {}
-          toggle.textContent = next === "dark" ? "☀" : "☾";
-        });
-      })();
-    </script>
-
     <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      const config = {
-        fitPadding: 28,
-        minHeight: 320,
-        maxHeightPx: 960,
-        maxHeightVh: 0.84,
-        maxInitialZoom: 1.8,
-        minZoom: 0.08,
-        maxZoom: 6.5,
-        zoomStep: 0.14,
-        readabilityFloor: 0.58,
-      };
-      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-      let activeDrag = null;
-      addEventListener("mousemove", (e) => activeDrag?.onMove(e));
-      addEventListener("mouseup", () => {
-        activeDrag?.onEnd();
-        activeDrag = null;
+      // Shared behavior for the Markdown-generated foundation pages.
+      const themeToggle = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+      }
+      let initialTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      try {
+        initialTheme =
+          localStorage.getItem("fundamentals-theme") ?? initialTheme;
+      } catch {
+        // Storage can be unavailable when opening a local HTML file.
+      }
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        try {
+          localStorage.setItem("fundamentals-theme", theme);
+        } catch {
+          // Storage can be unavailable when opening a local HTML file.
+        }
+        applyTheme(theme);
       });
-      const attr = document.documentElement.getAttribute("data-theme");
-      const isDark =
-        attr === "dark" ||
-        (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "base",
-        look: "classic",
-        themeVariables: {
-          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-          fontSize: "15px",
-          primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
-          primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
-          primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
-          secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
-          secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
-          tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
-          tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          lineColor: isDark ? "#a89e90" : "#7c756a",
-          noteBkgColor: isDark ? "#342e29" : "#fffdf7",
-          noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          noteBorderColor: isDark ? "#fbbf24" : "#b45309",
-          actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
-          actorBorder: isDark ? "#f0743f" : "#c2410c",
-          actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          signalColor: isDark ? "#a89e90" : "#7c756a",
-          signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-        },
-      });
-      function initDiagram(shell) {
-        const wrap = shell.querySelector(".mermaid-wrap"),
-          viewport = shell.querySelector(".mermaid-viewport"),
-          canvas = shell.querySelector(".mermaid-canvas"),
-          source = shell.querySelector(".diagram-source"),
-          label = shell.querySelector(".zoom-label");
-        if (!wrap || !viewport || !canvas || !source || !label) return;
-        let zoom = 1,
-          fitMode = "contain",
-          panX = 0,
-          panY = 0,
-          svgW = 0,
-          svgH = 0,
-          sx = 0,
-          sy = 0,
-          spx = 0,
-          spy = 0,
-          touchDist = 0,
-          touchCx = 0,
-          touchCy = 0;
-        function constrainPan() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            rW = svgW * zoom,
-            rH = svgH * zoom,
-            pad = config.fitPadding;
-          panX =
-            rW + pad * 2 <= vpW
-              ? (vpW - rW) / 2
-              : clamp(panX, vpW - rW - pad, pad);
-          panY =
-            rH + pad * 2 <= vpH
-              ? (vpH - rH) / 2
-              : clamp(panY, vpH - rH - pad, pad);
-        }
-        function applyTransform() {
-          const svg = canvas.querySelector("svg");
-          if (!svg || !svgW) return;
-          constrainPan();
-          svg.style.width = svgW * zoom + "px";
-          svg.style.height = svgH * zoom + "px";
-          canvas.style.transform = `translate(${panX}px, ${panY}px)`;
-          label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
-        }
-        function canPan() {
-          return (
-            svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
-            svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
-          );
-        }
-        function computeSmartFit() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            aW = Math.max(80, vpW - config.fitPadding * 2),
-            aH = Math.max(80, vpH - config.fitPadding * 2),
-            contain = Math.min(aW / svgW, aH / svgH);
-          let z = contain,
-            mode = "contain";
-          if (contain < config.readabilityFloor) {
-            const chartR = svgH / svgW,
-              vpR = vpH / Math.max(vpW, 1);
-            if (chartR >= vpR) {
-              z = aW / svgW;
-              mode = "width-priority";
-            } else {
-              z = aH / svgH;
-              mode = "height-priority";
-            }
-          }
-          return {
-            zoom: clamp(z, config.minZoom, config.maxInitialZoom),
-            mode,
-          };
-        }
-        function fitDiagram() {
-          if (!svgW) return;
-          const fit = computeSmartFit();
-          zoom = fit.zoom;
-          fitMode = fit.mode;
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function setOneToOne() {
-          zoom = clamp(1, config.minZoom, config.maxZoom);
-          fitMode = "1:1";
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function zoomAround(factor, cx, cy) {
-          const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
-            ratio = next / zoom;
-          panX = cx - ratio * (cx - panX);
-          panY = cy - ratio * (cy - panY);
-          zoom = next;
-          fitMode = "custom";
-          applyTransform();
-        }
-        function readSvgNaturalSize(svg) {
-          let w = 0,
-            h = 0;
-          if (svg.viewBox?.baseVal?.width > 0) {
-            w = svg.viewBox.baseVal.width;
-            h = svg.viewBox.baseVal.height;
-          }
-          if (!w) {
-            w = parseFloat(svg.getAttribute("width")) || 0;
-            h = parseFloat(svg.getAttribute("height")) || 0;
-          }
-          if (!w) {
-            const b = svg.getBBox();
-            w = b.width;
-            h = b.height;
-          }
-          if (!w) {
-            const r = svg.getBoundingClientRect();
-            w = r.width || 1000;
-            h = r.height || 700;
-          }
-          if (!svg.getAttribute("viewBox"))
-            svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-          return { w, h };
-        }
-        function setAdaptiveHeight() {
-          if (!svgW) return;
-          const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2),
-            idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
-            maxVp = Math.floor(innerHeight * config.maxHeightVh),
-            hardMax = Math.min(
-              config.maxHeightPx,
-              Math.max(config.minHeight + 40, maxVp),
-            );
-          wrap.style.height =
-            Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
-        }
-        function openInNewTab() {
-          const svg = canvas.querySelector("svg");
-          if (!svg) return;
-          const clone = svg.cloneNode(true);
-          clone.style.width = "";
-          clone.style.height = "";
-          const bg = isDark ? "#1c1916" : "#faf6f0";
-          const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
-          open(
-            URL.createObjectURL(new Blob([html], { type: "text/html" })),
-            "_blank",
-          );
-        }
-        async function render() {
-          try {
-            const code = source.textContent.trim();
-            if (!code) {
-              label.textContent = "Lỗi: nguồn rỗng";
-              return;
-            }
-            const id =
-              "diagram-" +
-              Date.now() +
-              "-" +
-              Math.random().toString(36).slice(2, 8);
-            const { svg } = await mermaid.render(id, code);
-            canvas.innerHTML = svg;
-            const svgNode = canvas.querySelector("svg");
-            if (!svgNode) {
-              label.textContent = "Lỗi: không có SVG";
-              return;
-            }
-            const size = readSvgNaturalSize(svgNode);
-            svgW = size.w;
-            svgH = size.h;
-            svgNode.removeAttribute("width");
-            svgNode.removeAttribute("height");
-            svgNode.style.maxWidth = "none";
-            svgNode.style.display = "block";
-            setAdaptiveHeight();
-            fitDiagram();
-          } catch (err) {
-            console.error("Mermaid render failed:", err);
-            label.textContent = "Lỗi: " + (err.message || "render thất bại");
-          }
-        }
-        const actions = {
-          "zoom-in": () =>
-            zoomAround(
-              1 + config.zoomStep,
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-out": () =>
-            zoomAround(
-              1 / (1 + config.zoomStep),
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-fit": fitDiagram,
-          "zoom-one": setOneToOne,
-          "zoom-expand": openInNewTab,
+
+      let mermaid;
+      try {
+        ({ default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+        ));
+      } catch {
+        document.querySelectorAll(".diagram-shell").forEach((shell) => {
+          shell.querySelector(".mermaid-wrap").hidden = true;
+          shell.querySelector(".diagram-code").open = true;
+        });
+      }
+      if (mermaid) {
+        const config = {
+          fitPadding: 28,
+          minHeight: 320,
+          maxHeightPx: 960,
+          maxHeightVh: 0.84,
+          maxInitialZoom: 1.8,
+          minZoom: 0.08,
+          maxZoom: 6.5,
+          zoomStep: 0.14,
+          readabilityFloor: 0.58,
         };
-        Object.entries(actions).forEach(([action, handler]) => {
-          wrap
-            .querySelector(`[data-action="${action}"]`)
-            ?.addEventListener("click", handler);
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+        let activeDrag = null;
+        addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+        addEventListener("mouseup", () => {
+          activeDrag?.onEnd();
+          activeDrag = null;
         });
-        viewport.addEventListener("dblclick", fitDiagram);
-        viewport.addEventListener(
-          "wheel",
-          (e) => {
-            if (e.ctrlKey || e.metaKey) {
-              e.preventDefault();
-              const rect = viewport.getBoundingClientRect();
-              zoomAround(
-                e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep),
-                e.clientX - rect.left,
-                e.clientY - rect.top,
+        const attr = document.documentElement.getAttribute("data-theme");
+        const isDark =
+          attr === "dark" ||
+          (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "classic",
+          themeVariables: {
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontSize: "15px",
+            primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+            primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+            primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+            secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+            secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+            tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+            tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            lineColor: isDark ? "#a89e90" : "#7c756a",
+            noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+            noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+            actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+            actorBorder: isDark ? "#f0743f" : "#c2410c",
+            actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            signalColor: isDark ? "#a89e90" : "#7c756a",
+            signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          },
+        });
+        function initDiagram(shell) {
+          const wrap = shell.querySelector(".mermaid-wrap"),
+            viewport = shell.querySelector(".mermaid-viewport"),
+            canvas = shell.querySelector(".mermaid-canvas"),
+            source = shell.querySelector(".diagram-source"),
+            label = shell.querySelector(".zoom-label");
+          if (!wrap || !viewport || !canvas || !source || !label) return;
+          let zoom = 1,
+            fitMode = "contain",
+            panX = 0,
+            panY = 0,
+            svgW = 0,
+            svgH = 0,
+            sx = 0,
+            sy = 0,
+            spx = 0,
+            spy = 0,
+            touchDist = 0,
+            touchCx = 0,
+            touchCy = 0;
+          function constrainPan() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              rW = svgW * zoom,
+              rH = svgH * zoom,
+              pad = config.fitPadding;
+            panX =
+              rW + pad * 2 <= vpW
+                ? (vpW - rW) / 2
+                : clamp(panX, vpW - rW - pad, pad);
+            panY =
+              rH + pad * 2 <= vpH
+                ? (vpH - rH) / 2
+                : clamp(panY, vpH - rH - pad, pad);
+          }
+          function applyTransform() {
+            const svg = canvas.querySelector("svg");
+            if (!svg || !svgW) return;
+            constrainPan();
+            svg.style.width = svgW * zoom + "px";
+            svg.style.height = svgH * zoom + "px";
+            canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+            label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+          }
+          function canPan() {
+            return (
+              svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+              svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+            );
+          }
+          function computeSmartFit() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              aW = Math.max(80, vpW - config.fitPadding * 2),
+              aH = Math.max(80, vpH - config.fitPadding * 2),
+              contain = Math.min(aW / svgW, aH / svgH);
+            let z = contain,
+              mode = "contain";
+            if (contain < config.readabilityFloor) {
+              const chartR = svgH / svgW,
+                vpR = vpH / Math.max(vpW, 1);
+              if (chartR >= vpR) {
+                z = aW / svgW;
+                mode = "width-priority";
+              } else {
+                z = aH / svgH;
+                mode = "height-priority";
+              }
+            }
+            return {
+              zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+              mode,
+            };
+          }
+          function fitDiagram() {
+            if (!svgW) return;
+            const fit = computeSmartFit();
+            zoom = fit.zoom;
+            fitMode = fit.mode;
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function setOneToOne() {
+            zoom = clamp(1, config.minZoom, config.maxZoom);
+            fitMode = "1:1";
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function zoomAround(factor, cx, cy) {
+            const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+              ratio = next / zoom;
+            panX = cx - ratio * (cx - panX);
+            panY = cy - ratio * (cy - panY);
+            zoom = next;
+            fitMode = "custom";
+            applyTransform();
+          }
+          function readSvgNaturalSize(svg) {
+            let w = 0,
+              h = 0;
+            if (svg.viewBox?.baseVal?.width > 0) {
+              w = svg.viewBox.baseVal.width;
+              h = svg.viewBox.baseVal.height;
+            }
+            if (!w) {
+              w = parseFloat(svg.getAttribute("width")) || 0;
+              h = parseFloat(svg.getAttribute("height")) || 0;
+            }
+            if (!w) {
+              const b = svg.getBBox();
+              w = b.width;
+              h = b.height;
+            }
+            if (!w) {
+              const r = svg.getBoundingClientRect();
+              w = r.width || 1000;
+              h = r.height || 700;
+            }
+            if (!svg.getAttribute("viewBox"))
+              svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            return { w, h };
+          }
+          function setAdaptiveHeight() {
+            if (!svgW) return;
+            const usableW = Math.max(
+                280,
+                wrap.getBoundingClientRect().width - 2,
+              ),
+              idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+              maxVp = Math.floor(innerHeight * config.maxHeightVh),
+              hardMax = Math.min(
+                config.maxHeightPx,
+                Math.max(config.minHeight + 40, maxVp),
               );
-              return;
+            wrap.style.height =
+              Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+          }
+          function openInNewTab() {
+            const svg = canvas.querySelector("svg");
+            if (!svg) return;
+            const clone = svg.cloneNode(true);
+            clone.style.width = "";
+            clone.style.height = "";
+            const bg = isDark ? "#1c1916" : "#faf6f0";
+            const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+            open(
+              URL.createObjectURL(new Blob([html], { type: "text/html" })),
+              "_blank",
+            );
+          }
+          async function render() {
+            try {
+              const code = source.textContent.trim();
+              if (!code) {
+                label.textContent = "Lỗi: nguồn rỗng";
+                return;
+              }
+              const id =
+                "diagram-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).slice(2, 8);
+              const { svg } = await mermaid.render(id, code);
+              canvas.innerHTML = svg;
+              const svgNode = canvas.querySelector("svg");
+              if (!svgNode) {
+                label.textContent = "Lỗi: không có SVG";
+                return;
+              }
+              const size = readSvgNaturalSize(svgNode);
+              svgW = size.w;
+              svgH = size.h;
+              svgNode.removeAttribute("width");
+              svgNode.removeAttribute("height");
+              svgNode.style.maxWidth = "none";
+              svgNode.style.display = "block";
+              setAdaptiveHeight();
+              fitDiagram();
+            } catch (err) {
+              console.error("Mermaid render failed:", err);
+              label.textContent = "Lỗi: " + (err.message || "render thất bại");
             }
-            if (canPan()) {
-              e.preventDefault();
-              panX -= e.deltaX;
-              panY -= e.deltaY;
-              applyTransform();
-            }
-          },
-          { passive: false },
-        );
-        viewport.addEventListener("mousedown", (e) => {
-          if (e.target.closest(".zoom-controls") || !canPan()) return;
-          wrap.classList.add("is-panning");
-          sx = e.clientX;
-          sy = e.clientY;
-          spx = panX;
-          spy = panY;
-          e.preventDefault();
-          activeDrag = {
-            onMove: (ev) => {
-              panX = spx + (ev.clientX - sx);
-              panY = spy + (ev.clientY - sy);
-              applyTransform();
-            },
-            onEnd: () => wrap.classList.remove("is-panning"),
+          }
+          const actions = {
+            "zoom-in": () =>
+              zoomAround(
+                1 + config.zoomStep,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-out": () =>
+              zoomAround(
+                1 / (1 + config.zoomStep),
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-fit": fitDiagram,
+            "zoom-one": setOneToOne,
+            "zoom-expand": openInNewTab,
           };
-        });
-        viewport.addEventListener(
-          "touchstart",
-          (e) => {
-            if (e.touches.length === 1) {
-              sx = e.touches[0].clientX;
-              sy = e.touches[0].clientY;
-              spx = panX;
-              spy = panY;
-            } else if (e.touches.length === 2) {
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY;
-              touchDist = Math.sqrt(dx * dx + dy * dy);
-              const r = viewport.getBoundingClientRect();
-              touchCx =
-                (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
-              touchCy =
-                (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
-            }
-          },
-          { passive: true },
-        );
-        viewport.addEventListener(
-          "touchmove",
-          (e) => {
-            if (e.touches.length === 1 && canPan()) {
-              if (touchDist > 0) {
+          Object.entries(actions).forEach(([action, handler]) => {
+            wrap
+              .querySelector(`[data-action="${action}"]`)
+              ?.addEventListener("click", handler);
+          });
+          viewport.addEventListener("dblclick", fitDiagram);
+          viewport.addEventListener(
+            "wheel",
+            (e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                zoomAround(
+                  e.deltaY < 0
+                    ? 1 + config.zoomStep
+                    : 1 / (1 + config.zoomStep),
+                  e.clientX - rect.left,
+                  e.clientY - rect.top,
+                );
+                return;
+              }
+              if (canPan()) {
+                e.preventDefault();
+                panX -= e.deltaX;
+                panY -= e.deltaY;
+                applyTransform();
+              }
+            },
+            { passive: false },
+          );
+          viewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest(".zoom-controls") || !canPan()) return;
+            wrap.classList.add("is-panning");
+            sx = e.clientX;
+            sy = e.clientY;
+            spx = panX;
+            spy = panY;
+            e.preventDefault();
+            activeDrag = {
+              onMove: (ev) => {
+                panX = spx + (ev.clientX - sx);
+                panY = spy + (ev.clientY - sy);
+                applyTransform();
+              },
+              onEnd: () => wrap.classList.remove("is-panning"),
+            };
+          });
+          viewport.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length === 1) {
                 sx = e.touches[0].clientX;
                 sy = e.touches[0].clientY;
                 spx = panX;
                 spy = panY;
-                touchDist = 0;
+              } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchDist = Math.sqrt(dx * dx + dy * dy);
+                const r = viewport.getBoundingClientRect();
+                touchCx =
+                  (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+                touchCy =
+                  (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
               }
-              e.preventDefault();
-              panX = spx + (e.touches[0].clientX - sx);
-              panY = spy + (e.touches[0].clientY - sy);
-              applyTransform();
-            } else if (e.touches.length === 2 && touchDist > 0) {
-              e.preventDefault();
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY,
-                d = Math.sqrt(dx * dx + dy * dy);
-              zoomAround(d / touchDist, touchCx, touchCy);
-              touchDist = d;
-            }
-          },
-          { passive: false },
-        );
-        new ResizeObserver(() => {
-          if (svgW) {
-            setAdaptiveHeight();
-            fitDiagram();
-          }
-        }).observe(wrap);
-        render();
-      }
-      document.querySelectorAll(".diagram-shell").forEach(initDiagram);
-    </script>
-
-    <script>
-      (function () {
-        const toc = document.getElementById("toc");
-        if (!toc) return;
-        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
-        const sections = [];
-        links.forEach((link) => {
-          const id = link.getAttribute("href").slice(1);
-          const el = document.getElementById(id);
-          if (el) sections.push({ id, el, link });
-        });
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                links.forEach((l) => l.classList.remove("active"));
-                const match = sections.find((s) => s.el === entry.target);
-                if (match) {
-                  match.link.classList.add("active");
-                  if (window.innerWidth <= 1000)
-                    match.link.scrollIntoView({
-                      behavior: "smooth",
-                      block: "nearest",
-                      inline: "center",
-                    });
+            },
+            { passive: true },
+          );
+          viewport.addEventListener(
+            "touchmove",
+            (e) => {
+              if (e.touches.length === 1 && canPan()) {
+                if (touchDist > 0) {
+                  sx = e.touches[0].clientX;
+                  sy = e.touches[0].clientY;
+                  spx = panX;
+                  spy = panY;
+                  touchDist = 0;
                 }
+                e.preventDefault();
+                panX = spx + (e.touches[0].clientX - sx);
+                panY = spy + (e.touches[0].clientY - sy);
+                applyTransform();
+              } else if (e.touches.length === 2 && touchDist > 0) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY,
+                  d = Math.sqrt(dx * dx + dy * dy);
+                zoomAround(d / touchDist, touchCx, touchCy);
+                touchDist = d;
               }
-            });
-          },
-          { rootMargin: "-10% 0px -80% 0px" },
-        );
-        sections.forEach((s) => observer.observe(s.el));
-        links.forEach((link) => {
-          link.addEventListener("click", (e) => {
-            e.preventDefault();
-            const id = link.getAttribute("href").slice(1);
-            const el = document.getElementById(id);
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth", block: "start" });
-              history.replaceState(null, "", "#" + id);
+            },
+            { passive: false },
+          );
+          new ResizeObserver(() => {
+            if (svgW) {
+              setAdaptiveHeight();
+              fitDiagram();
             }
-          });
-        });
-      })();
+          }).observe(wrap);
+          render();
+        }
+        document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+      }
     </script>
   </body>
 </html>

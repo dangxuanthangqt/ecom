@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chương 3 — Guard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Azeret+Mono:wght@400;500;600&amp;display=swap"
       rel="stylesheet"
     />
     <style>
@@ -1092,1307 +1092,3266 @@
           max-width: none;
         }
       }
+
+      /* Markdown-generated content uses the existing paper/ink theme. */
+      h2.sec-head {
+        display: block;
+        font-size: 1.45rem;
+        line-height: 1.5;
+        scroll-margin-top: 24px;
+      }
+      h3.sub {
+        font-size: 1.15rem;
+        margin-top: 30px;
+        line-height: 1.6;
+      }
+      h4.sub,
+      h5.sub,
+      h6.sub {
+        margin-top: 24px;
+        line-height: 1.6;
+      }
+      blockquote {
+        margin: 20px 0;
+        padding: 12px 22px;
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+      }
+      blockquote .prose:last-child {
+        margin-bottom: 0;
+      }
+      .main > ul,
+      .main > ol {
+        padding-left: 26px;
+        margin: 16px 0 24px;
+      }
+      li {
+        line-height: 1.85;
+      }
+      li > .prose {
+        margin: 6px 0;
+      }
+      pre.code-file__body {
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      pre code {
+        font: inherit;
+        color: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .series-bar {
+        flex-wrap: wrap;
+      }
+      .series-bar a[aria-current="page"] {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .diagram-code {
+        margin: 10px 0 24px;
+      }
+      .diagram-code pre {
+        overflow-x: auto;
+        padding: 16px;
+        background: var(--surface);
+      }
+      .source-footer {
+        margin: 48px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.8rem;
+      }
+      .mermaid-wrap[hidden] {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <button
       class="theme-toggle"
       id="themeToggle"
-      title="Đổi giao diện sáng/tối"
       aria-label="Đổi giao diện sáng tối"
-    ></button>
+    >
+      ☾
+    </button>
     <div class="wrap">
-      <nav class="toc" id="toc">
-        <div class="toc-title">Chương 3</div>
-        <a href="#s1">Một câu hỏi</a>
-        <a href="#s2">false hay throw</a>
-        <a href="#s3">Guard tối giản</a>
-        <a href="#s4">Ba cách đăng ký</a>
-        <a href="#s5">Thứ tự, short-circuit</a>
-        <a href="#s6">Thấy gì, không thấy gì</a>
-        <a href="#s7">Guard ghép</a>
-        <a href="#s8">Kế thừa thư viện</a>
-        <a href="#s9">Guard → handler</a>
-        <a href="#s10">Fail-open / closed</a>
-        <a href="#s11">Test guard</a>
-        <a href="#s12">Nâng cao</a>
-        <a href="#s13">Trong dự án</a>
-        <a href="#s14">Tự kiểm chứng</a>
+      <nav class="toc" aria-label="Mục lục chương">
+        <div class="toc-title">Trong chương</div>
+        <a href="#1-guard-trả-lời-đúng-một-câu-hỏi"
+          >1. Guard trả lời đúng một câu hỏi</a
+        ><a href="#2-đọc-mã-nguồn-nest-gọi-guard-thế-nào"
+          >2. Đọc mã nguồn: Nest gọi guard thế nào</a
+        ><a href="#3-return-false-hay-throw">3. return false hay throw?</a
+        ><a href="#4-guard-tối-giản-trong-dự-án"
+          >4. Guard tối giản trong dự án</a
+        ><a href="#5-bảy-guard-viết-tay-từ-dễ-đến-khó"
+          >5. Bảy guard viết tay, từ dễ đến khó</a
+        ><a href="#6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard"
+          >6. Ba cách đăng ký, và vì sao dự án chọn APP_GUARD</a
+        ><a href="#7-thứ-tự-chạy-và-short-circuit"
+          >7. Thứ tự chạy và short-circuit</a
+        ><a href="#8-guard-nhìn-thấy-gì--và-không-thấy-gì"
+          >8. Guard nhìn thấy gì — và không thấy gì</a
+        ><a href="#9-guard-ghép-authorizationheaderguard"
+          >9. Guard ghép: AuthorizationHeaderGuard</a
+        ><a href="#10-guard-kế-thừa-thư-viện-appthrottlerguard"
+          >10. Guard kế thừa thư viện: AppThrottlerGuard</a
+        ><a href="#11-truyền-dữ-liệu-từ-guard-xuống-handler"
+          >11. Truyền dữ liệu từ guard xuống handler</a
+        ><a href="#12-fail-open-hay-fail-closed"
+          >12. Fail-open hay fail-closed</a
+        ><a href="#13-test-một-guard">13. Test một guard</a
+        ><a href="#14-những-lỗi-hay-gặp">14. Những lỗi hay gặp</a
+        ><a href="#15-guard-middleware-interceptor-hay-pipe"
+          >15. Guard, middleware, interceptor hay pipe?</a
+        ><a href="#16-nâng-cao">16. Nâng cao</a
+        ><a href="#17-trong-dự-án-này">17. Trong dự án này</a
+        ><a href="#18-tự-kiểm-chứng">18. Tự kiểm chứng</a>
         <div class="toc-series">
           <a href="index.html">↑ Mục lục bộ</a
-          ><a href="02-reflector-execution-context-and-discovery.html"
-            >← Chương 2</a
-          ><a href="04-middleware.html">→ Chương 4</a>
+          ><a href="03-guards.md">Bản Markdown</a>
         </div>
       </nav>
-
-      <div class="main">
-        <div class="series-bar">
-          <a href="index.html">Mục lục</a><span class="sep">·</span>
-          <a href="00-prototype-and-this.html">00 Prototype</a>
-          <a href="01-decorators-and-metadata.html">01 Decorator</a>
-          <a href="02-reflector-execution-context-and-discovery.html"
+      <main class="main">
+        <nav class="series-bar" aria-label="Các chương">
+          <a href="index.html">Mục lục</a
+          ><a href="00-prototype-and-this.html">00 Prototype</a
+          ><a href="01-decorators-and-metadata.html">01 Decorator</a
+          ><a href="02-reflector-execution-context-and-discovery.html"
             >02 Reflector</a
-          >
-          <span>03 Guard</span>
-          <a href="04-middleware.html">04 Middleware</a>
-          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
-          <a href="06-modules-and-dependency-injection.html"
+          ><a href="03-guards.html" aria-current="page">03 Guard</a
+          ><a href="04-middleware.html">04 Middleware</a
+          ><a href="05-request-lifecycle-in-this-project.html"
+            >05 Vòng đời request</a
+          ><a href="06-modules-and-dependency-injection.html"
             >06 Module &amp; DI</a
-          >
-          <a href="07-dto-validation-transformation-serialization.html"
+          ><a href="07-dto-validation-transformation-serialization.html"
             >07 DTO</a
+          ><a href="08-request-and-provider-instances.html"
+            >08 Instance &amp; scope</a
+          ><a href="09-interceptors.html">09 Interceptor</a
+          ><a href="10-exception-filters.html">10 Filter</a
+          ><a href="11-controllers-and-http-routing.html">11 Controller</a
+          ><a href="12-pipes-and-input-contracts.html">12 Pipe</a
+          ><a href="13-testing-fundamentals.html">13 Testing</a
+          ><a href="14-bootstrap-configuration-and-shutdown.html"
+            >14 Bootstrap</a
+          ><a href="appendix-a-reflect-metadata-internals.html"
+            >Phụ lục A — reflect-metadata bên trong</a
           >
-          <a href="appendix-a-reflect-metadata-internals.html"
-            >A reflect-metadata</a
-          >
-          <span class="sep">·</span
-          ><a href="03-guards.md">bản markdown đầy đủ</a>
-        </div>
-
+        </nav>
         <header class="masthead">
-          <div class="eyebrow">Chương 3</div>
-          <h1>Guard</h1>
-          <p class="subtitle">
-            Nơi kết quả của
-            <a href="01-decorators-and-metadata.html">chương 1</a> và 2 được
-            <strong>dùng để quyết định</strong>. Ba câu hỏi ai viết guard cũng
-            phải trả lời: <code>false</code> hay <code>throw</code>, đăng ký
-            kiểu nào để có DI, và khi hạ tầng hỏng thì mở hay đóng.
-          </p>
+          <h1 id="chương-3--guard">Chương 3 — Guard</h1>
         </header>
-
-        <div class="sec-head" id="s1">
-          <span class="sec-head__num">01</span
-          ><span class="sec-head__text">Guard trả lời đúng một câu hỏi</span>
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card ve-card--hero" style="--i: 0">
-            <div class="ve-card__label">Câu hỏi</div>
-            <p
-              style="
-                font-size: 18px;
-                font-weight: 700;
-                color: var(--text-bright);
-              "
+        <blockquote>
+          <p class="prose">
+            Guard là nơi kết quả của
+            <a href="01-decorators-and-metadata.html">chương 1</a> và 2 được
+            <strong>dùng để quyết định</strong>. Chương này đi từ hợp đồng
+            <code>CanActivate</code>, qua cách Nest gọi guard trong mã nguồn,
+            bảy guard viết tay từ dễ đến khó, đến guard ghép và guard kế thừa
+            thư viện của dự án — và ba câu hỏi ai viết guard cũng phải trả lời:
+            trả <code>false</code> hay <code>throw</code>, đăng ký kiểu nào để
+            có DI, và khi hạ tầng hỏng thì mở hay đóng.
+          </p>
+          <p class="prose">
+            <strong>Cần đọc trước:</strong>
+            <a href="01-decorators-and-metadata.html">chương 1</a>
+            (<code>SetMetadata</code>, <code>createParamDecorator</code>),
+            <a href="02-reflector-execution-context-and-discovery.html"
+              >chương 2</a
             >
-              "Request này có được chạm tới handler không?"
+            (<code>ExecutionContext</code>, <code>Reflector</code>).
+          </p>
+        </blockquote>
+        <p class="prose"><strong>Mục lục</strong></p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <a href="#1-guard-trả-lời-đúng-một-câu-hỏi"
+                >Guard trả lời đúng một câu hỏi</a
+              >
             </p>
-            <p>
-              Có hoặc không. Không sửa request, không sửa response, không gọi
-              service nghiệp vụ.
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#2-đọc-mã-nguồn-nest-gọi-guard-thế-nào"
+                >Đọc mã nguồn: Nest gọi guard thế nào</a
+              >
             </p>
-          </div>
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header"><span>hợp đồng</span></div>
-            <pre
-              class="code-file__body"
-            ><code>@<span class="fn">Injectable</span>()
-<span class="kw">export class</span> MyGuard <span class="kw">implements</span> CanActivate {
-  <span class="fn">canActivate</span>(context: ExecutionContext)
-    : boolean | Promise&lt;boolean&gt; | Observable&lt;boolean&gt; {
-    <span class="kw">return true</span>;
-  }
-}</code></pre>
-          </div>
-        </div>
-        <div class="pipeline" style="margin-top: 16px">
-          <div
-            class="pipeline__step ve-card pipeline__step--mute"
-            style="--i: 0"
-          >
-            <div class="ve-card__label ve-card__label--amber">Middleware</div>
-            <p style="font-size: 13px">đã chạy</p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card pipeline__step--hi" style="--i: 1">
-            <div class="ve-card__label">Guard</div>
-            <p style="font-size: 13px"><strong>ở đây</strong></p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div
-            class="pipeline__step ve-card pipeline__step--mute"
-            style="--i: 2"
-          >
-            <div class="ve-card__label ve-card__label--b">Interceptor</div>
-            <p style="font-size: 13px">chưa</p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div
-            class="pipeline__step ve-card pipeline__step--mute"
-            style="--i: 3"
-          >
-            <div class="ve-card__label ve-card__label--c">Pipe</div>
-            <p style="font-size: 13px">chưa — body còn thô</p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div
-            class="pipeline__step ve-card pipeline__step--mute"
-            style="--i: 4"
-          >
-            <div class="ve-card__label ve-card__label--plum">Handler</div>
-            <p style="font-size: 13px">chỉ khi mọi guard trả true</p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s2">
-          <span class="sec-head__num">02</span
-          ><span class="sec-head__text"
-            ><code>return false</code> hay <code>throw</code>?</span
-          >
-        </div>
-        <div class="diff-panels">
-          <div>
-            <div class="diff-panel__header diff-panel__header--a">
-              return false
-            </div>
-            <div class="diff-panel__body">
-              <ul>
-                <li>
-                  Nest ném
-                  <code>ForbiddenException("Forbidden resource")</code> thay bạn
-                </li>
-                <li>Client nhận 403, thông điệp mặc định</li>
-                <li>Tiện khi chỉ có <strong>một</strong> lý do chặn</li>
-              </ul>
-            </div>
-          </div>
-          <div>
-            <div class="diff-panel__header diff-panel__header--b">
-              throw new XException()
-            </div>
-            <div class="diff-panel__body">
-              <ul>
-                <li>Chuyển thẳng cho exception filter</li>
-                <li>Mã và thông điệp <strong>bạn</strong> chọn</li>
-                <li>Bắt buộc khi có <strong>nhiều</strong> lý do khác nhau</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Tình huống</th>
-                  <th>Mã đúng</th>
-                  <th>Client nên</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Thiếu token / hỏng / hết hạn</td>
-                  <td><span class="status status--warn">401</span></td>
-                  <td>đăng nhập lại hoặc refresh</td>
-                </tr>
-                <tr>
-                  <td>Token hợp lệ nhưng thiếu quyền</td>
-                  <td><span class="status status--gap">403</span></td>
-                  <td>dừng, không thử lại</td>
-                </tr>
-                <tr>
-                  <td>Không tra được quyền vì DB/Redis lỗi</td>
-                  <td><span class="status status--gap">500</span></td>
-                  <td>thử lại sau — sự cố phía server</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="callout callout--info">
-          <div class="callout__title">Quy tắc thực hành</div>
-          Guard chỉ bắt <strong>những lỗi nó hiểu</strong>. Lỗi không hiểu — cho
-          đi. Xem <code>access-token.guard.ts:63-71</code>: lỗi khi
-          <em>resolve</em> quyền được để nguyên cho lan lên thành 500. Guard cũ
-          bọc mọi thứ trong một <code>catch</code> và trả "forbidden" — sự cố hạ
-          tầng bị hoá trang thành chính sách.
-        </div>
-
-        <div class="sec-head" id="s3">
-          <span class="sec-head__num">03</span
-          ><span class="sec-head__text">Guard tối giản trong dự án</span>
-        </div>
-        <div class="code-file">
-          <div class="code-file__header">
-            <span>src/shared/guards/api-key.guard.ts</span
-            ><span>dòng 13-29</span>
-          </div>
-          <pre
-            class="code-file__body"
-          ><code>@<span class="fn">Injectable</span>()
-<span class="kw">export class</span> ApiKeyGuard <span class="kw">implements</span> CanActivate {
-  <span class="kw">constructor</span>(<span class="kw">private readonly</span> appConfigService: AppConfigService) {}
-
-  <span class="fn">canActivate</span>(context: ExecutionContext) {
-    <span class="kw">const</span> request = context.<span class="fn">switchToHttp</span>().<span class="fn">getRequest</span>&lt;Request&gt;();   <span class="cm">// 1. lấy request</span>
-    <span class="kw">const</span> headerApiKey = request.headers[SECRET_API_KEY];
-
-    <span class="kw">if</span> (headerApiKey === <span class="st">"secretApiKey"</span>) {                          <span class="cm">// 2. kiểm</span>
-      <span class="kw">return true</span>;                                                <span class="cm">// 3a. qua</span>
-    }
-    <span class="kw">throw new</span> <span class="fn">UnauthorizedException</span>(<span class="st">"API key is invalid."</span>);         <span class="cm">// 3b. ném</span>
-  }
-}</code></pre>
-        </div>
-        <p class="dim">
-          Có DI (<code>AppConfigService</code>) dù dòng đọc config đang bị
-          comment (dòng 21), và chưa route nào dùng — nó nằm đó làm nhánh
-          <code>ApiKey</code> của guard ghép ở <a href="#s7">mục 7</a>.
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#3-return-false-hay-throw"
+                ><code>return false</code> hay <code>throw</code>?</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#4-guard-tối-giản-trong-dự-án"
+                >Guard tối giản trong dự án</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#5-bảy-guard-viết-tay-từ-dễ-đến-khó"
+                >Bảy guard viết tay, từ dễ đến khó</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard"
+                >Ba cách đăng ký, và vì sao dự án chọn <code>APP_GUARD</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#7-thứ-tự-chạy-và-short-circuit"
+                >Thứ tự chạy và short-circuit</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#8-guard-nhìn-thấy-gì--và-không-thấy-gì"
+                >Guard nhìn thấy gì — và không thấy gì</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#9-guard-ghép-authorizationheaderguard"
+                >Guard ghép: <code>AuthorizationHeaderGuard</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#10-guard-kế-thừa-thư-viện-appthrottlerguard"
+                >Guard kế thừa thư viện: <code>AppThrottlerGuard</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#11-truyền-dữ-liệu-từ-guard-xuống-handler"
+                >Truyền dữ liệu từ guard xuống handler</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#12-fail-open-hay-fail-closed"
+                >Fail-open hay fail-closed</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#13-test-một-guard">Test một guard</a></p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#14-những-lỗi-hay-gặp">Những lỗi hay gặp</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#15-guard-middleware-interceptor-hay-pipe"
+                >Guard, middleware, interceptor hay pipe?</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#16-nâng-cao">Nâng cao</a></p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#17-trong-dự-án-này">Trong dự án này</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#18-tự-kiểm-chứng">Tự kiểm chứng</a></p>
+          </li>
+        </ol>
+        <hr />
+        <h2 id="1-guard-trả-lời-đúng-một-câu-hỏi" class="sec-head">
+          1. Guard trả lời đúng một câu hỏi
+        </h2>
+        <p class="prose">
+          <em>&quot;Request này có được chạm tới handler không?&quot;</em> — có
+          hoặc không. Guard có thể gắn identity/grants vào request hoặc header
+          liên quan quyết định; nhiệm vụ chính là cho qua/chặn, không gọi
+          service nghiệp vụ. Hợp đồng:
         </p>
-
-        <div class="sec-head" id="s4">
-          <span class="sec-head__num">04</span
-          ><span class="sec-head__text"
-            >Ba cách đăng ký — và vì sao dự án chọn <code>APP_GUARD</code></span
-          >
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Cách</th>
-                  <th>Ở đâu</th>
-                  <th>Phạm vi</th>
-                  <th>DI</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>@UseGuards(G)</code> trên method / class</td>
-                  <td>controller</td>
-                  <td>một route / cả controller</td>
-                  <td><span class="status status--match">Có</span></td>
-                </tr>
-                <tr>
-                  <td><code>app.useGlobalGuards(new G())</code></td>
-                  <td><code>main.ts</code></td>
-                  <td>toàn app</td>
-                  <td>
-                    <span class="status status--gap">Không</span> — bạn
-                    <code>new</code> bằng tay
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>{ provide: APP_GUARD, useClass: G }</code></td>
-                  <td>một module</td>
-                  <td>toàn app</td>
-                  <td>
-                    <span class="status status--match">Có</span> — container tạo
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>src/shared/modules/base.module.ts</span
-            ><span>dòng 43-54</span>
-          </div>
+          <div class="code-file__header">ts</div>
           <pre
             class="code-file__body"
-          ><code><span class="kw">const</span> guards: Provider[] = [
-  AccessTokenGuard,   <span class="cm">// provider thường — có trong container để được TIÊM, không tự chạy</span>
-  ApiKeyGuard,        <span class="cm">// provider thường</span>
-  { provide: APP_GUARD, useClass: AppThrottlerGuard },         <span class="cm">// ← tự chạy, thứ 1</span>
-  { provide: APP_GUARD, useClass: AuthorizationHeaderGuard },  <span class="cm">// ← tự chạy, thứ 2</span>
-];</code></pre>
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            <div class="ve-card__label">Vì sao phải <code>APP_GUARD</code></div>
-            <p>
-              <code>AuthorizationHeaderGuard</code> cần <code>Reflector</code> +
-              hai guard con; <code>AccessTokenGuard</code> lại cần
-              <code>TokenService</code>, <code>PermissionResolverService</code>.
-              Với <code>useGlobalGuards(new …)</code> bạn phải tự
-              <code>new</code> cả cây — không làm được.
-            </p>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 1">
-            <div class="ve-card__label ve-card__label--c">
-              Guard là hằng số, chính sách là dữ liệu
-            </div>
-            <p>
-              Dự án
-              <strong>không dùng <code>@UseGuards</code> ở đâu cả</strong>. Mọi
-              route qua cùng hai guard toàn cục; khác biệt nằm ở
-              <strong>metadata</strong> (<code>@RequirePermission</code>,
-              <code>@AuthApi</code>, <code>@Throttle</code>), không ở việc gắn
-              guard nào.
-            </p>
-          </div>
-        </div>
+          ><code>import { CanActivate, ExecutionContext, Injectable } from &quot;@nestjs/common&quot;;
 
-        <div class="sec-head" id="s5">
-          <span class="sec-head__num">05</span
-          ><span class="sec-head__text">Thứ tự chạy và short-circuit</span>
-        </div>
-        <div class="card-grid">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label">Cấp</div>
-            <p>toàn cục → controller → method</p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">Trong một cấp</div>
-            <p>
-              theo thứ tự đăng ký / thứ tự trong <code>@UseGuards(A, B)</code>
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--red">Short-circuit</div>
-            <p>
-              Guard đầu tiên chặn → <strong>dừng ngay</strong>, guard sau không
-              chạy.
-            </p>
-          </div>
-        </div>
-        <div class="callout callout--success">
-          <div class="callout__title">
-            Short-circuit là công cụ thiết kế —
-            <code>base.module.ts:39-42</code>
-          </div>
-          <code>AppThrottlerGuard</code> đứng trước
-          <code>AuthorizationHeaderGuard</code>. Đảo lại: một cơn lũ request
-          không token vẫn phải qua verify JWT (tốn CPU) trước khi bị rate limit
-          chặn — và rate limiter chỉ đếm những request đã qua auth, tức không
-          đếm được đúng thứ nó sinh ra để chặn.
-        </div>
-
-        <div class="sec-head" id="s6">
-          <span class="sec-head__num">06</span
-          ><span class="sec-head__text"
-            >Guard nhìn thấy gì — và không thấy gì</span
-          >
-        </div>
-        <div class="diff-panels">
-          <div>
-            <div class="diff-panel__header diff-panel__header--good">Thấy</div>
-            <div class="diff-panel__body">
-              <ul>
-                <li>
-                  <code>req.body</code> đã qua body-parser → object
-                  <strong>thô</strong>
-                </li>
-                <li>header, query, params (chuỗi thô)</li>
-                <li>
-                  metadata handler qua <code>Reflector</code> —
-                  <strong>siêu năng lực</strong>
-                </li>
-                <li>
-                  những gì middleware gắn: <code>req.id</code>,
-                  <code>req.i18nContext</code>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div>
-            <div class="diff-panel__header diff-panel__header--bad">
-              Không thấy
-            </div>
-            <div class="diff-panel__body">
-              <ul>
-                <li>
-                  body <strong>chưa</strong> qua <code>ValidationPipe</code> —
-                  chưa whitelist, chưa thành DTO
-                </li>
-                <li>
-                  params chưa parse — <code>ParseUUIDPipe</code> chưa chạy
-                </li>
-                <li>kết quả handler (việc của interceptor)</li>
-                <li>giá trị param decorator (chạy sau guard)</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="callout callout--warning">
-          <div class="callout__title">Hệ quả</div>
-          <strong>Không validate DTO trong guard</strong> — body chưa sạch.
-          <code>AppThrottlerGuard</code> đọc <code>req.body.email</code> làm
-          khoá rate-limit (<code>throttler-options.factory.ts:67-85</code>) và
-          vì thế phải tự phòng thủ: cắt độ dài, chuẩn hoá, không tin kiểu.
-        </div>
-
-        <div class="sec-head" id="s7">
-          <span class="sec-head__num">07</span
-          ><span class="sec-head__text"
-            >Guard ghép: <code>AuthorizationHeaderGuard</code></span
-          >
+@Injectable()
+export class MyGuard implements CanActivate {
+  canActivate(
+    context: ExecutionContext,
+  ): boolean | Promise&lt;boolean&gt; | Observable&lt;boolean&gt; {
+    return true;
+  }
+}</code></pre>
         </div>
         <p class="prose">
-          Route có thể cần Bearer, hoặc API key, hoặc không cần gì, hoặc một
-          trong hai. Thay vì mỗi route gắn guard khác nhau:
-          <strong>một guard điều phối</strong> đọc nhãn rồi gọi guard con.
+          Một method, nhận <code>ExecutionContext</code> (<a
+            href="02-reflector-execution-context-and-discovery.html"
+            >chương 2</a
+          >), trả về boolean. Ba dạng trả về đều hợp lệ, và bạn chọn theo việc
+          guard phải làm:
         </p>
-        <section class="diagram-shell">
-          <div class="mermaid-wrap" style="min-height: 360px">
-            <div class="zoom-controls">
-              <button type="button" data-action="zoom-in">+</button
-              ><button type="button" data-action="zoom-out">&minus;</button
-              ><button type="button" data-action="zoom-fit">&#8634;</button
-              ><button type="button" data-action="zoom-one">1:1</button
-              ><button type="button" data-action="zoom-expand">&#x26F6;</button
-              ><span class="zoom-label">Đang tải...</span>
-            </div>
-            <div class="mermaid-viewport">
-              <div class="mermaid mermaid-canvas"></div>
-            </div>
-          </div>
-          <script type="text/plain" class="diagram-source">
-            flowchart TD
-                A["Reflector đọc @AuthApi<br/>mặc định: [Bearer] + AND"] --> B{"combinedCondition?"}
-                B -->|"AND"| C["for mỗi type:<br/>await guardCon.canActivate()"]
-                C -->|"guard con throw"| C1["lỗi lan nguyên vẹn<br/>401 expired / 401 invalid / 403 / 500"]
-                C -->|"tất cả qua"| C2["return true"]
-                B -->|"OR"| D["for mỗi type:<br/>try { canActivate } catch { continue }"]
-                D -->|"một guard qua"| D1["return true"]
-                D -->|"tất cả fail"| D2["401 'Authorization failed<br/>for all conditions'"]
-                M["mapper<br/>Bearer → AccessTokenGuard<br/>ApiKey → ApiKeyGuard<br/>None → { canActivate: () => true }"] -.-> C
-                M -.-> D
-                classDef bad fill:#b3261e22,stroke:#b3261e,stroke-width:2px
-                classDef ok fill:#3f621222,stroke:#3f6212,stroke-width:2px
-                class C1,D2 bad
-                class C2,D1 ok
-          </script>
-        </section>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label ve-card__label--amber">
-              Trông như bug: property initializer dùng
-              <code>this.accessTokenGuard</code>
-            </div>
-            <p>
-              Bảng <code>authorizationTypeMapper</code> (dòng 25-31) tham chiếu
-              tham số constructor <em>trước</em> thân constructor. Không sao:
-              với <code>target: ES2021</code>, TS emit
-              <em>parameter property</em> trước property initializer. Đổi target
-              lên ES2022 + <code>useDefineForClassFields</code> là thứ tự đổi và
-              dòng này thành <code>undefined</code>.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--red">
-              Lỗ hổng thật của nhánh OR + <code>None</code>
-            </div>
-            <p>
-              <code>[Bearer, None]</code> với <code>OR</code>: token hỏng →
-              <code>AccessTokenGuard</code> ném → <strong>bị nuốt</strong> → thử
-              <code>None</code> → <strong>qua luôn, không kiểm quyền</strong>.
-              Boot-check <strong>từ chối khởi động</strong> khi thấy hình dạng
-              này (<code>permission-coverage.service.ts:44, 55-58</code>).
-              <code>None</code> chỉ được đứng một mình.
-            </p>
-          </div>
-        </div>
-        <div class="callout callout--info">
-          <div class="callout__title">Bài học từ guard ghép</div>
-          Khi gộp nhiều guard, phải
-          <strong>quyết định rõ chuyện gì xảy ra khi một guard con fail</strong
-          >: nuốt hay lan? OR nuốt (và đánh mất thông điệp chi tiết 401
-          expired/invalid). AND lan. Câu trả lời ảnh hưởng cả bảo mật lẫn thông
-          điệp lỗi. Đường thường ngày của request: mặc định <code>AND</code> +
-          <code>[Bearer]</code> → gọi <code>AccessTokenGuard</code> đúng một
-          lần.
-        </div>
-
-        <div class="sec-head" id="s8">
-          <span class="sec-head__num">08</span
-          ><span class="sec-head__text"
-            >Guard kế thừa thư viện: <code>AppThrottlerGuard</code></span
-          >
-        </div>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>src/shared/guards/app-throttler.guard.ts</span
-            ><span>dòng 18-44, rút gọn</span>
-          </div>
+          <div class="code-file__header">ts</div>
           <pre
             class="code-file__body"
-          ><code>@<span class="fn">Injectable</span>()
-<span class="kw">export class</span> AppThrottlerGuard <span class="kw">extends</span> ThrottlerGuard {
-  <span class="kw">protected</span> <span class="fn">throwThrottlingException</span>(context: ExecutionContext, detail: ThrottlerLimitDetail): Promise&lt;void&gt; {
-    <span class="kw">const</span> response = context.<span class="fn">switchToHttp</span>().<span class="fn">getResponse</span>&lt;Response&gt;();
-    <span class="kw">if</span> (!response.headersSent) {
-      response.<span class="fn">header</span>(<span class="st">"Retry-After"</span>, <span class="fn">String</span>(detail.timeToBlockExpire));   <span class="cm">// header TRƯỚC khi throw</span>
+          ><code>// (a) Đồng bộ — chỉ đọc header / metadata, không chờ gì
+canActivate(context: ExecutionContext): boolean {
+  const req = context.switchToHttp().getRequest&lt;Request&gt;();
+  return req.headers[&quot;x-internal&quot;] === &quot;1&quot;;
+}
+
+// (b) Promise — phải hỏi DB, Redis, hoặc verify JWT (async)
+async canActivate(context: ExecutionContext): Promise&lt;boolean&gt; {
+  const req = context.switchToHttp().getRequest&lt;Request&gt;();
+  const user = await this.users.findById(req.params.id);
+  return user !== null &amp;&amp; !user.bannedAt;
+}
+
+// (c) Observable — hiếm; hữu ích khi nguồn quyết định đã là stream (RxJS)
+canActivate(context: ExecutionContext): Observable&lt;boolean&gt; {
+  return this.featureFlags.isEnabled$(&quot;new-checkout&quot;).pipe(take(1));
+}</code></pre>
+        </div>
+        <p class="prose">
+          Với (c), Nest lấy <strong>giá trị cuối</strong> của Observable
+          (<code>lastValueFrom</code>) — Observable phải complete, nếu không
+          request treo mãi. Vì thế <code>take(1)</code> hoặc
+          <code>first()</code> gần như luôn đi kèm. Trong thực tế 95% guard là
+          dạng (a) hoặc (b); cả bốn guard của dự án đều thế.
+        </p>
+        <p class="prose">
+          Vị trí trong dây chuyền:
+          <strong>sau middleware, trước interceptor và pipe</strong>. Điều này
+          quyết định guard thấy gì (<a
+            href="#8-guard-nhìn-thấy-gì--và-không-thấy-gì"
+            >mục 8</a
+          >).
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>request ─▶ middleware ─▶ [ GUARD ] ─▶ interceptor(trước) ─▶ pipe ─▶ handler ─▶ interceptor(sau) ─▶ response
+                            │
+                            └── false / throw ──▶ exception filter ──▶ response lỗi</code></pre>
+        </div>
+        <hr />
+        <h2 id="2-đọc-mã-nguồn-nest-gọi-guard-thế-nào" class="sec-head">
+          2. Đọc mã nguồn: Nest gọi guard thế nào
+        </h2>
+        <p class="prose">
+          Toàn bộ cơ chế guard của Nest 11 nằm trong hai hàm ngắn. Đọc chúng một
+          lần, mọi &quot;luật&quot; ở các mục sau trở thành hiển nhiên thay vì
+          phải nhớ.
+        </p>
+        <p class="prose">
+          <strong>Hàm thứ nhất</strong> —
+          <code>GuardsConsumer.tryActivate</code>
+          (<code>node_modules/@nestjs/core/guards/guards-consumer.js</code>):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>async tryActivate(guards, args, instance, callback, type) {
+  if (!guards || isEmpty(guards)) {
+    return true;                                   // (1) không có guard → qua
+  }
+  const context = this.createContext(args, instance, callback);
+  context.setType(type);                           // (2) &quot;http&quot; | &quot;rpc&quot; | &quot;ws&quot;
+  for (const guard of guards) {                    // (3) theo đúng thứ tự mảng
+    const result = guard.canActivate(context);
+    if (await this.pickResult(result)) {           // (4) await cả boolean, Promise, Observable
+      continue;
     }
-    <span class="fn">throwHttpException</span>({ type: <span class="st">"tooManyRequests"</span>, message: <span class="st">"Too many requests. Please try again later."</span> });
+    return false;                                  // (5) guard đầu tiên trả false → dừng ngay
   }
+  return true;
+}
+
+async pickResult(result) {
+  if (result instanceof Observable) {
+    return lastValueFrom(result);                  // Observable → đợi giá trị cuối
+  }
+  return result;                                   // boolean hoặc Promise&lt;boolean&gt; → await xử lý
 }</code></pre>
         </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label">Đổi một method, giữ toàn bộ logic</div>
-            <p>
-              Đếm, lưu Redis, đọc <code>@Throttle()</code> — thư viện làm. Dự án
-              chỉ đổi <strong>cách báo lỗi</strong>: envelope chung của API thay
-              <code>ThrottlerException</code>, và phát lại
-              <code>Retry-After</code> dưới tên chuẩn.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              Metadata của thư viện — cùng cơ chế
-            </div>
-            <p>
-              <code>@Throttle(AuthThrottle.LOGIN)</code> ở
-              <code>auth.controller.ts:89</code> là <code>SetMetadata</code> với
-              key của <code>@nestjs/throttler</code>;
-              <code>ThrottlerGuard</code> đọc bằng <code>Reflector</code>.
-              <a href="01-decorators-and-metadata.html">Chương 1</a>-2, chỉ khác
-              người viết. Thông điệp <strong>cố ý không nói</strong> giới hạn
-              nào bị chạm — oracle miễn phí cho người dò rate limit.
-            </p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s9">
-          <span class="sec-head__num">09</span
-          ><span class="sec-head__text"
-            >Truyền dữ liệu từ guard xuống handler</span
-          >
-        </div>
-        <div class="pipeline">
-          <div class="pipeline__step ve-card" style="--i: 0">
-            <div class="ve-card__label">Guard ghi</div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 0;
-                padding: 0;
-                background: transparent;
-                font-size: 12.5px;
-              "
-            ><code>request[REQUEST_USER_KEY] = payload;
-request[REQUEST_GRANTED_PERMISSIONS_KEY] = granted;</code></pre>
-            <p style="font-size: 12px; color: var(--text-dim)">
-              access-token.guard.ts:123, 99
-            </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card pipeline__step--hi" style="--i: 1">
-            <div class="ve-card__label ve-card__label--amber">
-              Object <code>request</code>
-            </div>
-            <p style="font-size: 14px">
-              Kênh duy nhất. Cả hai cùng cầm một tham chiếu. Key là hằng ở
-              <code>auth.constant.ts:1-4</code>.
-            </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              Param decorator đọc
-            </div>
-            <pre
-              class="code-file__body"
-              style="
-                border: 0;
-                padding: 0;
-                background: transparent;
-                font-size: 12.5px;
-              "
-            ><code>@ActiveUser("userId")
-@PermissionScope(["product","read"])</code></pre>
-            <p style="font-size: 12px; color: var(--text-dim)">
-              chạy sau guard, trước handler
-            </p>
-          </div>
-        </div>
-        <details class="collapsible">
-          <summary>
-            Vì sao <code>request["granted_permissions"]</code> compile được, và
-            cách chặt hơn
-          </summary>
-          <div class="collapsible__body">
-            Chỉ vì
-            <code>noImplicitAny: false</code> (<code>tsconfig.json:19</code>).
-            Cách chặt hơn — ví dụ minh hoạ, dự án chưa có:
-            <pre
-              class="code-file__body"
-              style="
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                margin-top: 10px;
-              "
-            ><code><span class="kw">declare module</span> <span class="st">"express"</span> {
-  <span class="kw">interface</span> Request {
-    user?: AccessTokenPayload;
-    granted_permissions?: ReadonlySet&lt;PermissionKey&gt;;
-  }
-}</code></pre>
-          </div>
-        </details>
-
-        <div class="sec-head" id="s10">
-          <span class="sec-head__num">10</span
-          ><span class="sec-head__text">Fail-open hay fail-closed</span>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Phụ thuộc</th>
-                  <th>Hỏng thì</th>
-                  <th>Vì sao</th>
-                  <th>Ở đâu</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Redis cache tập quyền</td>
-                  <td>
-                    <span class="status status--match">Mở</span> — bỏ cache, đọc
-                    Postgres
-                  </td>
-                  <td>Redis chỉ là tối ưu; mất nó app chậm, không sai</td>
-                  <td><code>role-permission-cache.service.ts:16-18</code></td>
-                </tr>
-                <tr>
-                  <td>Postgres (nguồn sự thật)</td>
-                  <td><span class="status status--gap">Đóng</span> — 500</td>
-                  <td>
-                    Không biết quyền thì không thể cho qua; 500 để người trực
-                    thấy
-                  </td>
-                  <td><code>permission-resolver.service.ts:19-21</code></td>
-                </tr>
-                <tr>
-                  <td>Route thiếu <code>@RequirePermission</code></td>
-                  <td><span class="status status--gap">Đóng</span> — 500</td>
-                  <td>Lỗi wiring, không phải lỗi client</td>
-                  <td><code>access-token.guard.ts:81-93</code></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="callout callout--info">
-          <div class="callout__title">
-            Câu hỏi để tự kiểm mỗi lần viết <code>try/catch</code> trong guard
-          </div>
-          "Nếu tôi nuốt lỗi này, ai bị hại — người dùng hợp lệ hay kẻ tấn công?"
-          Nuốt lỗi Redis cache: người dùng hợp lệ vẫn vào được. Nuốt lỗi
-          Postgres: kẻ tấn công có thể vào khi DB chập chờn.
-        </div>
-
-        <div class="sec-head" id="s11">
-          <span class="sec-head__num">11</span
-          ><span class="sec-head__text">Test một guard</span>
-        </div>
+        <p class="prose">
+          <strong>Hàm thứ hai</strong> —
+          <code>RouterExecutionContext.createGuardsFn</code>
+          (<code>node_modules/@nestjs/core/router/router-execution-context.js</code>):
+        </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span
-              >hình dạng tối giản — bản đầy đủ:
-              src/shared/guards/__tests__/guards-test-harness.ts</span
-            >
-          </div>
+          <div class="code-file__header">js</div>
           <pre
             class="code-file__body"
-          ><code><span class="kw">const</span> context = {
-  getHandler: () =&gt; handlerFn,         <span class="cm">// hàm có (hoặc không có) metadata</span>
-  getClass:   () =&gt; ControllerClass,
-  switchToHttp: () =&gt; ({ getRequest: () =&gt; request, getResponse: () =&gt; response }),
-} <span class="kw">as unknown as</span> ExecutionContext;
-
-<span class="cm">// metadata nằm trên HÀM → dán nhãn thật lên hàm giả, guard đọc ra đúng như production</span>
-Reflect.<span class="fn">defineMetadata</span>(PERMISSION_KEY, <span class="st">"product:read:own"</span>, handlerFn);
-
-<span class="kw">await</span> <span class="fn">expect</span>(guard.<span class="fn">canActivate</span>(context)).rejects.<span class="fn">toMatchObject</span>({ status: 401 });</code></pre>
+          ><code>createGuardsFn(guards, instance, callback, contextType) {
+  const canActivateFn = async (args) =&gt; {
+    const canActivate = await this.guardsConsumer.tryActivate(guards, args, instance, callback, contextType);
+    if (!canActivate) {
+      throw new ForbiddenException(FORBIDDEN_MESSAGE);   // (6) false → 403 &quot;Forbidden resource&quot;
+    }
+  };
+  return guards.length ? canActivateFn : null;
+}</code></pre>
         </div>
-        <p class="dim">
-          Bốn spec để học: <code>access-token</code>,
-          <code>authorization-header</code>, <code>api-key</code>,
-          <code>app-throttler</code> trong
+        <p class="prose">Bảy điều rút ra, mỗi điều là một mục phía dưới:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Dòng</th>
+                <th>Điều rút ra</th>
+                <th>Mục</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>(1)</td>
+                <td>
+                  Route không có guard nào thì không tốn gì — không có
+                  &quot;guard rỗng&quot; chạy ngầm
+                </td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>(2)</td>
+                <td>
+                  Một <code>ExecutionContext</code> <strong>mới</strong> cho mỗi
+                  request, gắn loại transport
+                </td>
+                <td><a href="#16-nâng-cao">16</a></td>
+              </tr>
+              <tr>
+                <td>(3)</td>
+                <td>
+                  Thứ tự chạy = thứ tự trong mảng <code>guards</code>; mảng này
+                  Nest ghép từ global → class → method
+                </td>
+                <td><a href="#7-thứ-tự-chạy-và-short-circuit">7</a></td>
+              </tr>
+              <tr>
+                <td>(4)</td>
+                <td>
+                  Guard <strong>chạy tuần tự</strong>, không song song — guard
+                  sau chỉ chạy khi guard trước đã <code>await</code> xong và trả
+                  <code>true</code>
+                </td>
+                <td><a href="#7-thứ-tự-chạy-và-short-circuit">7</a></td>
+              </tr>
+              <tr>
+                <td>(5)</td>
+                <td>
+                  <code>return false</code> dừng vòng lặp tức thì; guard sau
+                  không được gọi
+                </td>
+                <td><a href="#7-thứ-tự-chạy-và-short-circuit">7</a></td>
+              </tr>
+              <tr>
+                <td>(6)</td>
+                <td>
+                  <code>false</code> luôn thành 403 với thông điệp cố định; muốn
+                  mã khác phải <code>throw</code>
+                </td>
+                <td><a href="#3-return-false-hay-throw">3</a></td>
+              </tr>
+              <tr>
+                <td>—</td>
+                <td>
+                  Không có <code>try/catch</code> nào: guard
+                  <code>throw</code> gì, lỗi đó bay thẳng lên exception filter
+                </td>
+                <td>
+                  <a href="#3-return-false-hay-throw">3</a>,
+                  <a href="#12-fail-open-hay-fail-closed">12</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <blockquote>
+          <p class="prose">
+            Cái <code>guards</code> truyền vào là mảng
+            <strong>instance</strong> đã được resolve sẵn lúc boot (qua
+            <code>GuardsContextCreator</code>), không phải class. Nghĩa là guard
+            không được tạo lại mỗi request — một instance dùng chung, đúng như
+            provider singleton (<a href="08-request-and-provider-instances.html"
+              >chương 8</a
+            >). Đừng giữ state theo request trong field của guard.
+          </p>
+        </blockquote>
+        <hr />
+        <h2 id="3-return-false-hay-throw" class="sec-head">
+          3. <code>return false</code> hay <code>throw</code>?
+        </h2>
+        <p class="prose">Hai cách chặn, hậu quả khác nhau:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cách</th>
+                <th>Nest làm gì</th>
+                <th>Client nhận</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>return false</code></td>
+                <td>
+                  ném
+                  <code
+                    >ForbiddenException(&quot;Forbidden resource&quot;)</code
+                  >
+                  thay bạn
+                </td>
+                <td>403, thông điệp mặc định của Nest</td>
+              </tr>
+              <tr>
+                <td><code>throw new XException()</code></td>
+                <td>chuyển thẳng cho exception filter</td>
+                <td>mã và thông điệp <strong>bạn</strong> chọn</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Cùng một guard, hai cách viết, hai response khác nhau:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// Cách 1 — return false
+canActivate(ctx: ExecutionContext) {
+  return this.hasToken(ctx);
+}
+// → HTTP 403  { &quot;statusCode&quot;: 403, &quot;message&quot;: &quot;Forbidden resource&quot;, &quot;error&quot;: &quot;Forbidden&quot; }
+//   Client đọc: &quot;tôi không có quyền&quot; — nhưng thực ra là chưa đăng nhập. Sai thông điệp.
+
+// Cách 2 — throw
+canActivate(ctx: ExecutionContext) {
+  if (!this.hasToken(ctx)) {
+    throw new UnauthorizedException(&quot;Access token is required.&quot;);
+  }
+  return true;
+}
+// → HTTP 401  { &quot;statusCode&quot;: 401, &quot;message&quot;: &quot;Access token is required.&quot;, ... }
+//   Client đọc: &quot;đăng nhập đi&quot;. Đúng.</code></pre>
+        </div>
+        <p class="prose">
+          <code>return false</code> tiện cho guard chỉ có một lý do chặn và lý
+          do đó thật sự là &quot;cấm&quot; (403). Nhưng xác thực có
+          <strong>ba</strong> lý do khác hẳn nhau, và client cần phân biệt để
+          biết phải làm gì tiếp:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Tình huống</th>
+                <th>Mã đúng</th>
+                <th>Client nên</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Thiếu token / token hỏng / hết hạn</td>
+                <td><strong>401</strong></td>
+                <td>đăng nhập lại hoặc refresh</td>
+              </tr>
+              <tr>
+                <td>Có token hợp lệ nhưng thiếu quyền</td>
+                <td><strong>403</strong></td>
+                <td>dừng, không thử lại</td>
+              </tr>
+              <tr>
+                <td>Không tra được quyền vì DB/Redis lỗi</td>
+                <td><strong>500</strong></td>
+                <td>thử lại sau — đây là sự cố phía server</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Vì thế guard của dự án <strong>luôn <code>throw</code></strong
+          >, qua một helper thống nhất —
+          <a href="../../src/shared/guards/access-token.guard.ts#L50-L59"
+            >access-token.guard.ts:50-59</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>if (error instanceof TokenExpiredError) {
+  throwHttpException({
+    type: &quot;unauthorized&quot;,
+    code: ErrorCode.ACCESS_TOKEN_EXPIRED,
+    message: &quot;Access token is expired.&quot;,
+  });
+}
+
+throwHttpException({
+  type: &quot;unauthorized&quot;,
+  code: ErrorCode.ACCESS_TOKEN_INVALID,
+  message: &quot;Access token is invalid.&quot;,
+});</code></pre>
+        </div>
+        <p class="prose">
+          Để ý thêm trường <code>code</code>: client phân biệt &quot;hết
+          hạn&quot; (nên gọi refresh) với &quot;hỏng&quot; (nên đăng xuất) bằng
+          mã máy đọc được, không phải bằng so chuỗi <code>message</code>. Cùng
+          401 nhưng hai hành động khác nhau phía client.
+        </p>
+        <p class="prose">
+          Và một quyết định đáng đọc kỹ ở
+          <a href="../../src/shared/guards/access-token.guard.ts#L63-L71"
+            >dòng 63-71</a
+          >: lỗi khi <em>resolve</em> quyền (hạ tầng)
+          <strong>được để nguyên cho lan lên</strong> thành 500. Guard cũ bọc
+          mọi thứ trong một <code>catch</code> và trả &quot;forbidden&quot; — sự
+          cố hạ tầng bị hoá trang thành chính sách, và người trực không bao giờ
+          thấy.
+        </p>
+        <blockquote>
+          <p class="prose">
+            Quy tắc thực hành: guard chỉ bắt <strong>những lỗi nó hiểu</strong>.
+            Lỗi không hiểu — cho đi.
+          </p>
+        </blockquote>
+        <p class="prose">
+          <strong
+            >Ném lỗi không phải <code>HttpException</code> thì sao?</strong
+          >
+          Nếu guard <code>throw new Error(&quot;boom&quot;)</code>, Nest không
+          biết mã nào, filter mặc định trả 500 và log stack. Đó là hành vi
+          <strong>đúng</strong> cho lỗi hạ tầng — nhưng nếu bạn vô tình ném
+          <code>Error</code> cho một lý do nghiệp vụ (&quot;thiếu header&quot;),
+          client nhận 500 vô nghĩa. Lỗi nghiệp vụ luôn là
+          <code>HttpException</code> (hoặc helper bọc nó như
+          <code>throwHttpException</code>).
+        </p>
+        <hr />
+        <h2 id="4-guard-tối-giản-trong-dự-án" class="sec-head">
+          4. Guard tối giản trong dự án
+        </h2>
+        <p class="prose">
+          <a href="../../src/shared/guards/api-key.guard.ts#L13-L29"
+            >api-key.guard.ts:13-29</a
+          >
+          là guard nhỏ nhất, đủ để thấy hình dạng:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class ApiKeyGuard implements CanActivate {
+  constructor(private readonly appConfigService: AppConfigService) {}
+
+  canActivate(context: ExecutionContext) {
+    const request = context.switchToHttp().getRequest&lt;Request&gt;();
+    const headerApiKey = request.headers[SECRET_API_KEY];
+
+    if (headerApiKey === &quot;secretApiKey&quot;) {
+      return true;
+    }
+
+    throw new UnauthorizedException(&quot;API key is invalid.&quot;);
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Ba bước kinh điển:
+          <strong>lấy request → kiểm → trả <code>true</code> hoặc ném</strong>.
+          Có DI (<code>AppConfigService</code>) dù dòng đọc config hiện bị
+          comment (dòng 21) và guard này chưa được route nào dùng — nó nằm đó
+          làm nhánh <code>ApiKey</code> của guard ghép ở
+          <a href="#9-guard-ghép-authorizationheaderguard">mục 9</a>.
+        </p>
+        <p class="prose">Hai điểm nhỏ đáng học ngay từ guard nhỏ nhất:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <code>SECRET_API_KEY</code> là
+              <code>&quot;x-api-key&quot;</code> — <strong>chữ thường</strong>.
+              Node hạ mọi tên header về chữ thường trong
+              <code>req.headers</code>, nên
+              <code>request.headers[&quot;X-Api-Key&quot;]</code> luôn là
+              <code>undefined</code>. Lỗi này im lặng: guard chỉ ném 401 đều
+              đặn.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <code>request.headers[...]</code> có kiểu
+              <code>string | string[] | undefined</code>. So sánh
+              <code>===</code> với chuỗi tự động loại trường hợp mảng (client
+              gửi header hai lần). Nếu bạn viết
+              <code>.startsWith(...)</code> thì phải kiểm kiểu trước.
+            </p>
+          </li>
+        </ul>
+        <hr />
+        <h2 id="5-bảy-guard-viết-tay-từ-dễ-đến-khó" class="sec-head">
+          5. Bảy guard viết tay, từ dễ đến khó
+        </h2>
+        <p class="prose">
+          Mỗi guard dưới đây là một mẫu hoàn chỉnh, chạy được, và minh hoạ đúng
+          <strong>một</strong> kỹ thuật mới so với guard trước nó. Chúng không
+          có trong repo — đây là bài tập tay;
+          <a href="#17-trong-dự-án-này">mục 17</a> là bảng những guard
+          <strong>có</strong> trong repo.
+        </p>
+        <h3 id="51-maintenanceguard--guard-không-cần-request" class="sub">
+          5.1. <code>MaintenanceGuard</code> — guard không cần request
+        </h3>
+        <p class="prose">
+          Kỹ thuật: guard có thể <strong>không nhìn request</strong> mà quyết
+          định bằng trạng thái bên ngoài. Ví dụ dùng
+          <code>ConfigService</code> từ <code>@nestjs/config</code>; module phải
+          import <code>ConfigModule</code>. <code>AppConfigService</code> hiện
+          không có API public <code>get()</code> hoặc trường maintenance; muốn
+          tích hợp vào repo cần khai và validate cấu hình này.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class MaintenanceGuard implements CanActivate {
+  constructor(private readonly config: ConfigService) {}
+
+  canActivate(): boolean {
+    if (this.config.get(&quot;MAINTENANCE_MODE&quot;) === &quot;true&quot;) {
+      throw new ServiceUnavailableException(&quot;Service is under maintenance.&quot;);
+    }
+    return true;
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Đăng ký làm <code>APP_GUARD</code> <strong>đầu tiên</strong>, mọi
+          route trả 503 khi bật cờ — trước cả rate limit, trước cả verify token.
+          Lưu ý: cờ đọc mỗi request từ config đã load lúc boot, nên đổi env phải
+          restart. Muốn bật/tắt nóng thì đọc từ Redis — và lúc đó câu hỏi
+          fail-open/fail-closed ở
+          <a href="#12-fail-open-hay-fail-closed">mục 12</a> xuất hiện ngay.
+        </p>
+        <h3 id="52-internalnetworkguard--guard-đọc-request-thô" class="sub">
+          5.2. <code>InternalNetworkGuard</code> — guard đọc request thô
+        </h3>
+        <p class="prose">
+          Kỹ thuật: header và IP là <strong>chuỗi thô, chưa validate</strong>;
+          guard phải tự phòng thủ kiểu.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class InternalNetworkGuard implements CanActivate {
+  private readonly allowed = new Set([&quot;10.0.0.0/8&quot;, &quot;127.0.0.1&quot;]);
+
+  canActivate(context: ExecutionContext): boolean {
+    const req = context.switchToHttp().getRequest&lt;Request&gt;();
+
+    // req.ip đã tôn trọng `trust proxy` nếu main.ts bật; nếu không, đây là IP của LB.
+    const ip = req.ip ?? req.socket.remoteAddress ?? &quot;&quot;;
+
+    if (!this.isAllowed(ip)) {
+      // 404 thay 403: không xác nhận với người ngoài rằng route này tồn tại
+      throw new NotFoundException();
+    }
+    return true;
+  }
+
+  private isAllowed(ip: string): boolean {
+    return this.allowed.has(ip) || ip.startsWith(&quot;10.&quot;);
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Dùng cho <code>/metrics</code>, <code>/admin/jobs</code>… Điểm đáng
+          nhớ: <strong>mã lỗi cũng là chính sách</strong> — trả 404 thay 403 để
+          không lộ sự tồn tại của route. Cùng ý với
+          <code>AppThrottlerGuard</code> cố ý không nói giới hạn nào bị chạm (<a
+            href="#10-guard-kế-thừa-thư-viện-appthrottlerguard"
+            >mục 10</a
+          >).
+        </p>
+        <h3
+          id="53-rolesguard--guard-đọc-metadata-mẫu-kinh-điển-của-nest"
+          class="sub"
+        >
+          5.3. <code>RolesGuard</code> — guard đọc metadata (mẫu kinh điển của
+          Nest)
+        </h3>
+        <p class="prose">
+          Kỹ thuật:
+          <strong
+            >decorator dán nhãn + guard đọc nhãn qua
+            <code>Reflector</code></strong
+          >. Đây là mẫu trong tài liệu chính thức của Nest, và là thứ dự án đã
+          thay bằng permission (<a
+            href="#53b-vì-sao-dự-án-không-dùng-rolesguard"
+            >mục 5.3b</a
+          >).
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// roles.decorator.ts
+export const ROLES_KEY = &quot;roles&quot;;
+export const Roles = (...roles: string[]) =&gt; SetMetadata(ROLES_KEY, roles);
+
+// roles.guard.ts
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const required = this.reflector.getAllAndOverride&lt;string[] | undefined&gt;(
+      ROLES_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (!required || required.length === 0) {
+      return true; // không dán nhãn = không giới hạn theo role
+    }
+
+    const req = context.switchToHttp().getRequest&lt;Request&gt;();
+    const user = req[REQUEST_USER_KEY] as { roleName?: string } | undefined;
+
+    if (!user) {
+      throw new UnauthorizedException(); // RolesGuard chạy sau guard xác thực
+    }
+
+    return required.includes(user.roleName ?? &quot;&quot;);
+  }
+}
+
+// controller
+@Roles(&quot;admin&quot;)
+@Delete(&quot;:id&quot;)
+remove(@Param(&quot;id&quot;) id: string) { ... }</code></pre>
+        </div>
+        <p class="prose">Ba chi tiết:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <code>getAllAndOverride([handler, class])</code>: nhãn trên method
+              <strong>đè</strong> nhãn trên class. Có
+              <code>@Roles(&quot;admin&quot;)</code> trên class và
+              <code>@Roles(&quot;admin&quot;, &quot;seller&quot;)</code> trên
+              một method → method đó cho seller vào. Nếu muốn
+              <strong>gộp</strong> thì dùng <code>getAllAndMerge</code>, cho
+              <code
+                >[&quot;admin&quot;, &quot;admin&quot;,
+                &quot;seller&quot;]</code
+              >.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Guard này <strong>phụ thuộc thứ tự</strong>: nó đọc
+              <code>req.user</code> mà guard xác thực gắn. Đăng ký sai thứ tự →
+              luôn 401. Xem <a href="#7-thứ-tự-chạy-và-short-circuit">mục 7</a>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <code>return true</code> khi không có nhãn là
+              <strong>fail-open theo thiết kế</strong>: route quên
+              <code>@Roles</code> thì ai đăng nhập cũng vào. Đây chính là điểm
+              yếu dự án đóng lại bằng boot-check (<a
+                href="#12-fail-open-hay-fail-closed"
+                >mục 12</a
+              >).
+            </p>
+          </li>
+        </ul>
+        <h4 id="53b-vì-sao-dự-án-không-dùng-rolesguard" class="sub">
+          5.3b. Vì sao dự án không dùng <code>RolesGuard</code>
+        </h4>
+        <p class="prose">
+          <code>@Roles(&quot;admin&quot;)</code> khoá cứng
+          <strong>tên role</strong> vào code. Thêm role &quot;support&quot; là
+          phải sửa hàng chục controller. Dự án dán
+          <strong>quyền</strong>
+          (<code>@RequirePermission(&quot;brand:delete:any&quot;)</code>) và tra
+          bảng role→permission trong DB (<a
+            href="../../src/shared/guards/access-token.guard.ts#L98-L110"
+            >access-token.guard.ts:98-110</a
+          >). Thêm role mới là thêm dòng trong DB, không đụng code. Cơ chế guard
+          <strong>y hệt</strong> <code>RolesGuard</code> — chỉ khác nhãn nói về
+          &quot;cần gì&quot; thay vì &quot;là ai&quot;. Toàn bộ mô hình ở
+          <a href="../authorization-guide.md">authorization-guide.md</a>.
+        </p>
+        <h3 id="54-banneduserguard--guard-async-hỏi-db" class="sub">
+          5.4. <code>BannedUserGuard</code> — guard async hỏi DB
+        </h3>
+        <p class="prose">
+          Kỹ thuật: guard <strong>async</strong> với phụ thuộc ngoài, và quyết
+          định lỗi nào bắt, lỗi nào cho lan. Schema của repo có
+          <code>User.status</code> (<code>ACTIVE</code>, <code>INACTIVE</code>,
+          <code>BLOCKED</code>), không có <code>bannedAt</code>; ví dụ chỉ cho
+          phép tài khoản ACTIVE. Đăng ký guard này sau guard xác thực.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class BannedUserGuard implements CanActivate {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async canActivate(context: ExecutionContext): Promise&lt;boolean&gt; {
+    const req = context.switchToHttp().getRequest&lt;Request&gt;();
+    const user = req[REQUEST_USER_KEY] as AccessTokenPayload | undefined;
+
+    if (!user) {
+      return true; // route public — không có ai để kiểm
+    }
+
+    // Không try/catch: Prisma lỗi → 500, đúng bản chất. Xem mục 12.
+    const row = await this.prisma.user.findUnique({
+      where: { id: user.userId },
+      select: { status: true },
+    });
+
+    if (!row || row.status !== &quot;ACTIVE&quot;) {
+      throw new ForbiddenException(&quot;Account is suspended.&quot;);
+    }
+    return true;
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Vấn đề thật của guard này không phải code mà là
+          <strong>chi phí</strong>: một query DB cho
+          <strong>mỗi</strong> request đã đăng nhập. Ba cách trả lời, theo thứ
+          tự nên thử:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              Đưa trạng thái tài khoản vào JWT payload → không cần query, nhưng
+              ban chỉ có hiệu lực khi token hết hạn (15 phút?).
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Cache trong Redis với TTL ngắn — đúng cách dự án làm với tập quyền
+              (<a href="../redis-role-permission-cache.md"
+                >redis-role-permission-cache.md</a
+              >).
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Chấp nhận query nếu DB nhẹ và yêu cầu ban tức thì là cứng.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Guard là nơi tốt để <strong>quyết định</strong>, không phải nơi tốt để
+          <strong>tính toán đắt</strong> — <a href="#16-nâng-cao">mục 16</a>.
+        </p>
+        <h3 id="55-requireheadername--guard-nhận-tham-số-mixin" class="sub">
+          5.5. <code>RequireHeader(name)</code> — guard nhận tham số (mixin)
+        </h3>
+        <p class="prose">
+          Kỹ thuật: <code>@UseGuards</code> chỉ nhận class hoặc instance, không
+          nhận tham số. Muốn
+          <code>@UseGuards(RequireHeader(&quot;x-tenant&quot;))</code> thì phải
+          viết <strong>hàm trả về class</strong> — Nest gọi đây là
+          <em>mixin</em>.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>import { mixin, Type } from &quot;@nestjs/common&quot;;
+
+export const RequireHeader = (name: string): Type&lt;CanActivate&gt; =&gt; {
+  @Injectable()
+  class RequireHeaderGuard implements CanActivate {
+    constructor(private readonly logger: PinoLogger) {} // vẫn có DI
+
+    canActivate(context: ExecutionContext): boolean {
+      const req = context.switchToHttp().getRequest&lt;Request&gt;();
+      if (typeof req.headers[name.toLowerCase()] !== &quot;string&quot;) {
+        this.logger.warn(`missing header ${name}`);
+        throw new BadRequestException(`Header ${name} is required.`);
+      }
+      return true;
+    }
+  }
+  return mixin(RequireHeaderGuard);
+};
+
+// dùng
+@UseGuards(RequireHeader(&quot;x-tenant&quot;))
+@Get()
+list() { ... }</code></pre>
+        </div>
+        <p class="prose">
+          <code>mixin()</code> đặt tên class ngẫu nhiên để hai lần gọi
+          <code>RequireHeader(&quot;a&quot;)</code> và
+          <code>RequireHeader(&quot;b&quot;)</code> không đụng nhau trong
+          container. Nếu không cần DI thì đơn giản hơn: truyền
+          <strong>instance</strong> —
+          <code>@UseGuards(new RequireHeaderGuard(&quot;x-tenant&quot;))</code>
+          với constructor nhận <code>name</code>. Nest chấp nhận cả class lẫn
+          instance trong <code>@UseGuards</code>.
+        </p>
+        <p class="prose">
+          So với cách dự án làm: <code>@AuthApi([...], &quot;OR&quot;)</code>
+          <strong>không</strong> tạo guard mới mỗi lần — nó chỉ dán metadata, và
+          <strong>một</strong> guard toàn cục đọc metadata rồi rẽ nhánh (<a
+            href="#9-guard-ghép-authorizationheaderguard"
+            >mục 9</a
+          >). Mixin phù hợp khi mỗi route cần guard
+          <strong>khác hẳn</strong> nhau; metadata phù hợp khi mọi route cần
+          <strong>cùng một guard với tham số khác</strong>. Dự án ở trường hợp
+          thứ hai.
+        </p>
+        <h3 id="56-ownershipguard--và-vì-sao-nó-thường-là-ý-tồi" class="sub">
+          5.6. <code>OwnershipGuard</code> — và vì sao nó thường là ý tồi
+        </h3>
+        <p class="prose">
+          Kỹ thuật: guard đọc <code>params</code> — và bài học
+          <strong>khi nào không nên viết guard</strong>.
+        </p>
+        <p class="prose">
+          Yêu cầu quen thuộc: &quot;seller chỉ sửa được sản phẩm của mình&quot;.
+          Viết thành guard:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class ProductOwnershipGuard implements CanActivate {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async canActivate(context: ExecutionContext): Promise&lt;boolean&gt; {
+    const req = context.switchToHttp().getRequest&lt;Request&gt;();
+    const user = req[REQUEST_USER_KEY] as AccessTokenPayload;
+
+    // params.id là CHUỖI THÔ — ParseUUIDPipe chưa chạy (mục 8)
+    const id = req.params.id;
+    if (!isUUID(id)) throw new NotFoundException();
+
+    const product = await this.prisma.product.findUnique({
+      where: { id },
+      select: { createdById: true },
+    });
+
+    if (!product) throw new NotFoundException();
+    if (product.createdById !== user.userId) throw new ForbiddenException();
+    return true;
+  }
+}</code></pre>
+        </div>
+        <p class="prose">Chạy được, nhưng có bốn vấn đề:</p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong>Query hai lần</strong>: guard <code>findUnique</code> để
+              kiểm chủ, rồi service <code>findUnique</code> lại để sửa. Chưa kể
+              race: giữa hai lần, chủ sở hữu có thể đã đổi.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Admin phải được đi vòng</strong>: thêm
+              <code>if (user.roleName === &quot;admin&quot;) return true</code>
+              — và tên role lại vào code.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Không tái dụng</strong>: <code>OrderOwnershipGuard</code>,
+              <code>ReviewOwnershipGuard</code>… mỗi resource một guard gần
+              giống nhau.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Guard biết quá nhiều nghiệp vụ</strong>: nó biết bảng
+              <code>product</code> có cột <code>createdById</code>.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Dự án làm khác: guard chỉ xác định <strong>phạm vi</strong> (<code
+            >own</code
+          >
+          hay <code>any</code>) rồi để service lo.
+          <code
+            >@PermissionScope([&quot;product&quot;, &quot;update&quot;])</code
+          >
+          (<a
+            href="../../src/shared/param-decorators/permission-scope.decorator.ts"
+            >permission-scope.decorator.ts</a
+          >) trả <code>&quot;own&quot;</code> hoặc <code>&quot;any&quot;</code>,
+          service biến thành <code>where</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// trong service — một query, làm cả kiểm chủ lẫn update
+await this.prisma.product.update({
+  where: {
+    id,
+    ...(scope === Scope.OWN ? { createdById: userId } : {}),
+  },
+  data,
+});
+// → Prisma ném &quot;record not found&quot; nếu không phải của mình → 404, không lộ sự tồn tại</code></pre>
+        </div>
+        <p class="prose">
+          Quy tắc: guard quyết định
+          <strong>&quot;được vào cửa không&quot;</strong>;
+          <strong>&quot;được chạm vào bản ghi nào&quot;</strong> là việc của
+          tầng truy vấn, vì chỉ ở đó câu hỏi và dữ liệu ở cùng một nơi.
+        </p>
+        <h3 id="57-wsauthguard--guard-cho-transport-khác-http" class="sub">
+          5.7. <code>WsAuthGuard</code> — guard cho transport khác HTTP
+        </h3>
+        <p class="prose">
+          Kỹ thuật: <code>context.getType()</code> và <code>switchToWs()</code>.
+          Một guard có thể phục vụ nhiều transport.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class WsAuthGuard implements CanActivate {
+  constructor(private readonly tokens: TokenService) {}
+
+  async canActivate(context: ExecutionContext): Promise&lt;boolean&gt; {
+    if (context.getType() !== &quot;ws&quot;) {
+      return true; // hoặc throw — tuỳ bạn muốn guard này chặt đến đâu
+    }
+
+    const client = context.switchToWs().getClient&lt;Socket&gt;();
+    const token = client.handshake.auth?.token as string | undefined;
+
+    if (!token) {
+      throw new WsException(&quot;Unauthorized&quot;); // KHÔNG phải HttpException
+    }
+
+    client.data.user = await this.tokens.verifyAccessToken(token);
+    return true;
+  }
+}</code></pre>
+        </div>
+        <p class="prose">Hai khác biệt so với HTTP:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              Ném <code>WsException</code>, không
+              <code>UnauthorizedException</code>. Filter WebSocket không hiểu mã
+              HTTP.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Không có <code>request</code> để gắn dữ liệu — gắn vào
+              <code>client.data</code>. Cùng ý với
+              <a href="#11-truyền-dữ-liệu-từ-guard-xuống-handler">mục 11</a>,
+              khác object.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Với microservice (<code>&quot;rpc&quot;</code>):
+          <code>switchToRpc().getData()</code> là payload message,
+          <code>getContext()</code> là metadata transport (header Kafka,
+          properties RabbitMQ…). Dự án hiện chỉ có HTTP nên không có guard nào
+          rẽ nhánh theo <code>getType()</code>.
+        </p>
+        <hr />
+        <h2
+          id="6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard"
+          class="sec-head"
+        >
+          6. Ba cách đăng ký, và vì sao dự án chọn <code>APP_GUARD</code>
+        </h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cách</th>
+                <th>Viết ở đâu</th>
+                <th>Phạm vi</th>
+                <th>Có DI không</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>@UseGuards(G)</code> trên method</td>
+                <td>controller</td>
+                <td>một route</td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td><code>@UseGuards(G)</code> trên class</td>
+                <td>controller</td>
+                <td>mọi route của controller</td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td><code>app.useGlobalGuards(new G())</code></td>
+                <td><code>main.ts</code></td>
+                <td>toàn app</td>
+                <td>
+                  <strong>Không</strong> — bạn <code>new</code> bằng tay, không
+                  ai tiêm gì
+                </td>
+              </tr>
+              <tr>
+                <td><code>{ provide: APP_GUARD, useClass: G }</code></td>
+                <td>một module</td>
+                <td>toàn app</td>
+                <td><strong>Có</strong> — Nest tạo instance qua container</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">Cả bốn cách trong code:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// (1) một route
+@Controller(&quot;products&quot;)
+export class ProductController {
+  @UseGuards(InternalNetworkGuard)
+  @Post(&quot;reindex&quot;)
+  reindex() { ... }
+}
+
+// (2) cả controller — mọi route trong đây đều qua guard
+@UseGuards(RolesGuard)
+@Controller(&quot;admin&quot;)
+export class AdminController { ... }
+
+// (3) toàn app, KHÔNG có DI — chỉ được khi guard không cần gì
+// main.ts
+app.useGlobalGuards(new MaintenanceGuardWithoutDeps());
+
+// (4) toàn app, CÓ DI — cách dự án dùng
+@Module({
+  providers: [{ provide: APP_GUARD, useClass: AuthorizationHeaderGuard }],
+})
+export class BaseModule {}</code></pre>
+        </div>
+        <p class="prose">
+          <code>@UseGuards</code> nhận nhiều guard, và nhận cả instance:
+          <code
+            >@UseGuards(RolesGuard, new
+            RequireHeaderGuard(&quot;x-tenant&quot;))</code
+          >. Instance thì không có DI, class thì có — cùng luật với cách (3) và
+          (4).
+        </p>
+        <p class="prose">
+          Dòng cuối bảng là lý do
+          <a href="../../src/shared/modules/base.module.ts#L43-L54"
+            >base.module.ts:43-54</a
+          >
+          trông như vậy:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>const guards: Provider[] = [
+  AccessTokenGuard,
+  ApiKeyGuard,
+  { provide: APP_GUARD, useClass: AppThrottlerGuard },
+  { provide: APP_GUARD, useClass: AuthorizationHeaderGuard },
+];</code></pre>
+        </div>
+        <p class="prose">
+          <code>AuthorizationHeaderGuard</code> cần <code>Reflector</code>,
+          <code>AccessTokenGuard</code>, <code>ApiKeyGuard</code> tiêm vào.
+          <code>AccessTokenGuard</code> lại cần <code>TokenService</code>,
+          <code>PermissionResolverService</code>. Với
+          <code>useGlobalGuards(new ...)</code> bạn phải tự <code>new</code> cả
+          cây đó — không làm được. <code>APP_GUARD</code> để container làm.
+        </p>
+        <p class="prose">
+          Hai dòng đầu (<code>AccessTokenGuard</code>, <code>ApiKeyGuard</code>)
+          là <strong>provider thường</strong>: có mặt trong container để được
+          tiêm, nhưng <strong>không tự chạy</strong> cho request nào. Chỉ hai
+          dòng có <code>APP_GUARD</code> mới chạy. Nhầm điểm này là tưởng có bốn
+          guard toàn cục — thực ra là hai.
+        </p>
+        <p class="prose">
+          <strong
+            >Bẫy <code>APP_GUARD</code> &quot;trong module con&quot;.</strong
+          >
+          Đặt <code>{ provide: APP_GUARD, useClass: G }</code> trong
+          <code>ProductModule</code> <strong>không</strong> làm G chỉ chạy cho
+          route của product. <code>APP_GUARD</code> luôn là
+          <strong>toàn app</strong>, bất kể khai ở module nào — module chỉ quyết
+          định G được resolve dependency từ scope nào. Muốn phạm vi một module →
+          <code>@UseGuards</code> trên từng controller của module đó (hoặc một
+          base controller chung).
+        </p>
+        <p class="prose">
+          <strong>Vì sao <code>useGlobalGuards</code> vẫn tồn tại?</strong> Cho
+          trường hợp guard không cần DI, hoặc ứng dụng không dùng module Nest
+          đầy đủ. Nếu bạn thật sự cần vừa <code>useGlobalGuards</code> vừa DI,
+          có cách lách: <code>app.useGlobalGuards(app.get(MyGuard))</code> — lấy
+          instance đã có từ container. Nhưng <code>APP_GUARD</code> gọn hơn và
+          test được.
+        </p>
+        <p class="prose">
+          Dự án <strong>không dùng <code>@UseGuards</code> ở đâu cả</strong>.
+          Mọi route đi qua cùng hai guard toàn cục; khác biệt giữa route nằm ở
+          <strong>metadata</strong> (<code>@RequirePermission</code>,
+          <code>@AuthApi</code>, <code>@Throttle</code>), không ở việc gắn guard
+          nào. Đó là mẫu đáng theo: guard là hằng số, chính sách là dữ liệu.
+        </p>
+        <hr />
+        <h2 id="7-thứ-tự-chạy-và-short-circuit" class="sec-head">
+          7. Thứ tự chạy và short-circuit
+        </h2>
+        <p class="prose">
+          Hai luật (đọc thẳng từ vòng <code>for</code> ở
+          <a href="#2-đọc-mã-nguồn-nest-gọi-guard-thế-nào">mục 2</a>):
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong>Cấp:</strong> guard toàn cục → guard cấp controller →
+              guard cấp method.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Trong một cấp:</strong> theo thứ tự đăng ký / thứ tự trong
+              <code>@UseGuards(A, B)</code>.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">Một ví dụ đủ để thấy cả hai luật và short-circuit:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// base.module.ts
+{ provide: APP_GUARD, useClass: G1 },
+{ provide: APP_GUARD, useClass: G2 },
+
+// controller
+@UseGuards(G3)
+@Controller(&quot;x&quot;)
+class XController {
+  @UseGuards(G4, G5)
+  @Get()
+  get() { return &quot;ok&quot;; }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Mỗi guard <code>console.log(tên)</code> rồi trả <code>true</code>,
+          riêng <code>G4</code> trả <code>false</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>G1
+G2
+G3
+G4
+→ 403 Forbidden resource        (G5 và handler không chạy)</code></pre>
+        </div>
+        <p class="prose">
+          Guard cấp method <strong>cộng dồn</strong> với cấp class và cấp
+          global, không đè. Đây là khác biệt lớn với metadata (<code
+            >getAllAndOverride</code
+          >
+          cho method đè class).
+        </p>
+        <p class="prose">
+          Short-circuit là công cụ thiết kế, và dự án dùng nó có chủ đích:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// base.module.ts:40-43
+// Order matters: Nest runs global guards in registration order, and rate
+// limiting has to come first. Behind the auth guard it would never see the
+// flood of unauthenticated requests it exists to stop, and every rejected
+// request would still have paid for a token verification first.</code></pre>
+        </div>
+        <p class="prose">
+          <code>AppThrottlerGuard</code> đứng trước
+          <code>AuthorizationHeaderGuard</code>. Nếu đảo lại: một cơn lũ request
+          không token vẫn phải qua verify JWT (tốn CPU) trước khi bị rate limit
+          chặn — và rate limiter chỉ đếm những request đã qua auth, tức là không
+          đếm được đúng thứ nó sinh ra để chặn.
+        </p>
+        <p class="prose">
+          Nguyên tắc chung khi xếp guard:
+          <strong
+            >rẻ trước, đắt sau; chặn nhiều trước, chặn ít sau; guard cung cấp dữ
+            liệu trước guard tiêu thụ dữ liệu</strong
+          >. Ví dụ đúng thứ tự cho một app có nhiều guard hơn dự án:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>MaintenanceGuard      (đọc 1 cờ)              → chặn mọi thứ khi bảo trì
+AppThrottlerGuard     (1 lệnh Redis INCR)     → chặn lũ
+AuthorizationHeader   (verify JWT + tra quyền) → gắn req.user, req.granted_permissions
+BannedUserGuard       (đọc req.user, 1 query) → cần req.user đã có</code></pre>
+        </div>
+        <p class="prose">
+          Đảo hai dòng cuối là <code>BannedUserGuard</code> luôn thấy
+          <code>req.user === undefined</code>.
+        </p>
+        <hr />
+        <h2 id="8-guard-nhìn-thấy-gì--và-không-thấy-gì" class="sec-head">
+          8. Guard nhìn thấy gì — và không thấy gì
+        </h2>
+        <p class="prose">
+          Vì đứng <strong>sau middleware, trước pipe</strong>, guard có một góc
+          nhìn cụ thể:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Thấy</th>
+                <th>Không thấy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>request</code> đã qua body-parser →
+                  <code>req.body</code> là object thô
+                </td>
+                <td>
+                  body <strong>chưa</strong> qua <code>ValidationPipe</code> —
+                  chưa whitelist, chưa transform thành DTO class
+                </td>
+              </tr>
+              <tr>
+                <td>header, query, params (chuỗi thô)</td>
+                <td>params đã parse — <code>ParseUUIDPipe</code> chưa chạy</td>
+              </tr>
+              <tr>
+                <td>metadata của handler qua <code>Reflector</code></td>
+                <td>kết quả handler (đó là việc của interceptor)</td>
+              </tr>
+              <tr>
+                <td>
+                  những gì middleware đã gắn: <code>req.id</code> (pino),
+                  <code>req.i18nContext</code>
+                </td>
+                <td>những gì param decorator sẽ tính (chúng chạy sau guard)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Cụ thể với một request <code>GET /products/abc?limit=10</code> có
+          <code>@Param(&quot;id&quot;, ParseUUIDPipe)</code> và
+          <code>@Query() dto: PageQueryDto</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>canActivate(ctx) {
+  const req = ctx.switchToHttp().getRequest&lt;Request&gt;();
+  req.params.id;    // &quot;abc&quot;  — chuỗi, chưa bị ParseUUIDPipe từ chối (400 sẽ đến SAU guard)
+  req.query.limit;  // &quot;10&quot;   — chuỗi, chưa thành number 10 của DTO
+  req.body;         // {}     — body-parser đã chạy; với POST là JSON thô, chưa whitelist
+}</code></pre>
+        </div>
+        <p class="prose">Hệ quả thực hành:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Không validate DTO trong guard.</strong> Body chưa sạch.
+              <code>AppThrottlerGuard</code> của dự án đọc
+              <code>req.body.email</code> để làm khoá rate-limit (<a
+                href="../../src/shared/utils/throttler-options.factory.ts#L67-L85"
+                >throttler-options.factory.ts:67-85</a
+              >) — và vì thế phải tự phòng thủ: kiểm
+              <code>typeof === &quot;string&quot;</code>, cắt độ dài, chuẩn hoá
+              chữ thường. Đọc hàm <code>emailSubjectOf</code> đó như một bài mẫu
+              về &quot;đọc body trong guard đúng cách&quot;.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                >Guard đọc <code>params.id</code> phải tự kiểm định dạng</strong
+              >
+              — như <code>OwnershipGuard</code> ở
+              <a href="#56-ownershipguard--và-vì-sao-nó-thường-là-ý-tồi"
+                >mục 5.6</a
+              >
+              gọi <code>isUUID</code>. Đưa chuỗi bất kỳ vào Prisma
+              <code>where: { id }</code> với cột UUID sẽ ném lỗi Prisma → 500
+              thay vì 404.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Metadata handler là siêu năng lực của guard.</strong>
+              Middleware không có. Đây là lý do duy nhất cần nhớ khi phân vân
+              &quot;viết guard hay middleware&quot; —
+              <a href="04-middleware.html">chương 4</a>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Guard chạy trước pipe</strong> còn có nghĩa: request bị
+              pipe từ chối (400) <strong>vẫn đã tốn</strong> một lần verify
+              token và tra quyền. Không tránh được, và đó là lý do guard phải
+              rẻ.
+            </p>
+          </li>
+        </ul>
+        <hr />
+        <h2 id="9-guard-ghép-authorizationheaderguard" class="sec-head">
+          9. Guard ghép: <code>AuthorizationHeaderGuard</code>
+        </h2>
+        <p class="prose">
+          Route có thể cần Bearer, hoặc API key, hoặc không cần gì, hoặc
+          <strong>một trong hai</strong>. Thay vì mỗi route gắn guard khác nhau,
+          dự án có <strong>một guard điều phối</strong> đọc nhãn rồi gọi guard
+          con —
+          <a href="../../src/shared/guards/authorization-header.guard.ts"
+            >authorization-header.guard.ts</a
+          >.
+        </p>
+        <p class="prose">
+          Nhãn được dán bằng
+          <a href="../../src/shared/param-decorators/auth-api.decorator.ts"
+            >auth-api.decorator.ts</a
+          >:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>export const AuthApi = (authorizationTypes?, combinedCondition?) =&gt;
+  SetMetadata(AUTHORIZATION_HEADER_KEY, {
+    authorizationTypes,
+    combinedCondition,
+  });
+
+export const IsPublicApi = () =&gt; AuthApi([AuthorizationType.NONE]);</code></pre>
+        </div>
+        <p class="prose">Bốn cách dán, bốn hành vi:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>@Get(&quot;brands&quot;)                                   // không nhãn → mặc định [BEARER], AND → phải có token hợp lệ
+@IsPublicApi() @Get(&quot;brands&quot;)                    // [NONE]            → ai cũng vào
+@AuthApi([&quot;Bearer&quot;, &quot;ApiKey&quot;], &quot;OR&quot;) @Post()     // token HOẶC api key → dịch vụ nội bộ hay người dùng đều gọi được
+@AuthApi([&quot;Bearer&quot;, &quot;ApiKey&quot;], &quot;AND&quot;) @Post()    // token VÀ api key   → người dùng gọi qua một app đã đăng ký</code></pre>
+        </div>
+        <p class="prose">
+          Trong repo hiện chỉ dùng hai dòng đầu (<code>@IsPublicApi()</code> ở
+          <a href="../../src/routes/brand/brand.controller.ts#L53"
+            >brand.controller.ts:53</a
+          >
+          là ví dụ), nhưng guard đã sẵn cho hai dòng sau.
+        </p>
+        <p class="prose"><strong>Bảng tra guard con</strong> (dòng 26-32):</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>private readonly authorizationTypeMapper = {
+  [AuthorizationType.BEARER]: this.accessTokenGuard,
+  [AuthorizationType.API_KEY]: this.apiKeyGuard,
+  [AuthorizationType.NONE]: { canActivate: () =&gt; true },
+};</code></pre>
+        </div>
+        <p class="prose">
+          <code>NONE</code> là một &quot;guard&quot; luôn cho qua — không cần
+          class riêng, một object có <code>canActivate</code> là đủ vì Nest chỉ
+          gọi method (duck typing: <code>CanActivate</code> là interface, không
+          phải class).
+        </p>
+        <blockquote>
+          <p class="prose">
+            Trông như bug: property initializer dùng
+            <code>this.accessTokenGuard</code>
+            <strong>trước</strong> constructor. Không sao — với
+            <code>target: ES2021</code> trong tsconfig, TypeScript emit
+            <em>parameter property</em> (<code
+              >this.accessTokenGuard = accessTokenGuard</code
+            >) <strong>trước</strong> property initializer trong constructor.
+            Đổi target lên ES2022 và bật <code>useDefineForClassFields</code> là
+            thứ tự đổi, và dòng này thành <code>undefined</code>. Nếu một ngày
+            guard này ném &quot;cannot read canActivate of undefined&quot;, nhìn
+            tsconfig.
+          </p>
+          <p class="prose">
+            Tự kiểm chứng trong 30 giây — cùng một file, hai target (chạy ngoài
+            repo cho output sạch):
+          </p>
+          <div class="code-file">
+            <div class="code-file__header">bash</div>
+            <pre
+              class="code-file__body"
+            ><code>cat &gt; /tmp/order.ts &lt;&lt;&#39;EOF&#39;
+class A {
+  private readonly map = { x: this.dep };
+  constructor(private readonly dep: string) {}
+}
+console.log(new A(&quot;có giá trị&quot;));
+EOF
+
+npx tsc /tmp/order.ts --target ES2021 --types --outDir /tmp/a
+node /tmp/a/order.js
+#   → A { dep: &#39;có giá trị&#39;, map: { x: &#39;có giá trị&#39; } }      ← parameter property gán trước
+
+npx tsc /tmp/order.ts --target ES2022 --useDefineForClassFields --types --outDir /tmp/b
+#   → error TS2729: Property &#39;dep&#39; is used before its initialization.
+node /tmp/b/order.js
+#   → A { dep: &#39;có giá trị&#39;, map: { x: undefined } }          ← field khởi tạo trước, chưa có dep</code></pre>
+          </div>
+          <p class="prose">
+            Hai lệnh <code>tsc</code> viết tách nhau, đừng nối bằng
+            <code>&amp;&amp;</code>: ở target ES2022, <code>tsc</code>
+            <strong>báo lỗi và trả exit code 2</strong> (nó tự phát hiện
+            <code>dep</code> bị dùng trước khi khởi tạo — đúng cái ta muốn chứng
+            minh), nhưng <strong>vẫn emit file JS</strong>, nên
+            <code>node</code> chạy sau đó vẫn cho thấy <code>undefined</code>.
+            Nối bằng <code>&amp;&amp;</code> thì <code>node</code> không bao giờ
+            chạy.
+          </p>
+          <p class="prose">
+            Cách viết an toàn với mọi target: chuyển bảng tra vào trong
+            constructor, hoặc thành getter.
+          </p>
+        </blockquote>
+        <p class="prose">
+          <strong>Đọc nhãn với mặc định đóng</strong> (dòng 41-48, đã bàn ở
+          <a href="02-reflector-execution-context-and-discovery.html"
+            >chương 2</a
+          >): không nhãn = <code>[BEARER]</code> + <code>AND</code>. Quên dán
+          nhãn là route <strong>bị khoá</strong>, không phải mở — đúng chiều an
+          toàn.
+        </p>
+        <p class="prose">
+          <strong>Nhánh <code>OR</code></strong> (dòng 50-70):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>for (const authorizationType of authorizationTypes) {
+  const guardInstance = this.authorizationTypeMapper[authorizationType];
+  try {
+    const canActivate = await guardInstance.canActivate(context);
+    if (canActivate) return true;
+  } catch (error) {
+    this.logger.error(error);
+    continue; // guard con fail → thử guard tiếp theo
+  }
+}
+throwHttpException({
+  type: &quot;unauthorized&quot;,
+  code: ErrorCode.AUTHORIZATION_FAILED,
+  message: &quot;Authorization failed for all conditions.&quot;,
+});</code></pre>
+        </div>
+        <p class="prose">
+          Thử lần lượt, ai cho qua đầu tiên là xong.
+          <strong>Nuốt lỗi của guard con</strong> để thử tiếp — đúng với nghĩa
+          &quot;hoặc&quot;. Nhưng để ý ba hệ quả:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              Thông điệp lỗi chi tiết của guard con (401 &quot;expired&quot; vs
+              &quot;invalid&quot;) bị thay bằng một câu chung. Cái giá của OR.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Lỗi <strong>hạ tầng</strong> của guard con (Postgres sập khi
+              <code>AccessTokenGuard</code> tra quyền) cũng bị nuốt và biến
+              thành 401. Trong nhánh OR, fail-closed của guard con bị guard cha
+              làm mờ đi — chấp nhận được vì cuối cùng vẫn <strong>chặn</strong>,
+              nhưng mã lỗi sai (401 thay 500). Nếu OR được dùng nhiều, nên rẽ:
+              <code>HttpException</code> thì <code>continue</code>, lỗi khác thì
+              <code>throw</code> lại.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Nếu <code>NONE</code> nằm trong danh sách OR cùng
+              <code>BEARER</code>: token hỏng →
+              <code>AccessTokenGuard</code> ném → bị nuốt → thử
+              <code>NONE</code> → <strong>qua luôn, không kiểm quyền</strong>.
+              Đây là lỗ hổng thật, và boot-check của dự án
+              <strong>từ chối khởi động</strong> khi thấy hình dạng này (<a
+                href="../../src/shared/services/permission-coverage.service.ts#L44"
+                >permission-coverage.service.ts:44, 55-58</a
+              >). <code>None</code> chỉ được đứng một mình.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          <strong>Nhánh <code>AND</code></strong> (dòng 72-79):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>for (const authorizationType of authorizationTypes) {
+  const guardInstance = this.authorizationTypeMapper[authorizationType];
+  await guardInstance.canActivate(context); // guard con tự throw nếu fail
+}
+return true;</code></pre>
+        </div>
+        <p class="prose">
+          Mọi guard con phải qua. Không <code>try/catch</code> — guard con ném
+          gì, client nhận đúng cái đó. Vì mặc định là <code>AND</code> với một
+          phần tử <code>[BEARER]</code>,
+          <strong>đường đi thường ngày</strong> của một request là: vào nhánh
+          này, gọi <code>AccessTokenGuard</code> một lần, xong.
+        </p>
+        <p class="prose">
+          Để ý nhánh AND <strong>bỏ qua giá trị trả về</strong>: nó tin rằng
+          guard con chặn bằng <code>throw</code>, không bằng
+          <code>return false</code>. Với <code>AccessTokenGuard</code> và
+          <code>ApiKeyGuard</code> điều đó đúng. Nếu một ngày thêm guard con trả
+          <code>false</code>, nhánh AND sẽ cho qua sai. Cách chặt hơn:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const ok = await guardInstance.canActivate(context);
+if (!ok) throwHttpException({ type: &quot;unauthorized&quot;, ... });</code></pre>
+        </div>
+        <p class="prose">
+          Bài học từ guard ghép: khi gộp nhiều guard, bạn phải
+          <strong>quyết định rõ chuyện gì xảy ra khi một guard con fail</strong
+          >. Nuốt hay lan? Câu trả lời khác nhau cho OR và AND, và nó ảnh hưởng
+          đến cả bảo mật lẫn thông điệp lỗi.
+        </p>
+        <hr />
+        <h2 id="10-guard-kế-thừa-thư-viện-appthrottlerguard" class="sec-head">
+          10. Guard kế thừa thư viện: <code>AppThrottlerGuard</code>
+        </h2>
+        <p class="prose">
+          Không phải guard nào cũng viết từ đầu.
+          <a href="../../src/shared/guards/app-throttler.guard.ts#L18-L44"
+            >app-throttler.guard.ts:18-44</a
+          >
+          kế thừa <code>ThrottlerGuard</code> của
+          <code>@nestjs/throttler</code> và chỉ
+          <strong>override một method</strong>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class AppThrottlerGuard extends ThrottlerGuard {
+  protected throwThrottlingException(
+    context: ExecutionContext,
+    detail: ThrottlerLimitDetail,
+  ): Promise&lt;void&gt; {
+    const response = context.switchToHttp().getResponse&lt;Response&gt;();
+
+    if (!response.headersSent) {
+      response.header(&quot;Retry-After&quot;, String(detail.timeToBlockExpire));
+    }
+
+    throwHttpException({
+      type: &quot;tooManyRequests&quot;,
+      message: &quot;Too many requests. Please try again later.&quot;,
+    });
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Toàn bộ logic đếm, lưu Redis, đọc <code>@Throttle()</code> — thư viện
+          làm. Dự án chỉ đổi <strong>cách báo lỗi</strong>: dùng envelope lỗi
+          chung của API thay vì <code>ThrottlerException</code> của thư viện, và
+          phát lại header <code>Retry-After</code> dưới tên chuẩn.
+        </p>
+        <p class="prose">
+          <code>ThrottlerGuard</code> được thiết kế để kế thừa: nó lộ ra một
+          loạt method <code>protected</code> như những
+          <strong>điểm móc</strong>. Ba điểm hay bị override nhất:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class AppThrottlerGuard extends ThrottlerGuard {
+  // (1) Khoá đếm là gì? Mặc định: IP. Dự án đổi qua options factory (keyed theo IP + email).
+  protected async getTracker(req: Request): Promise&lt;string&gt; {
+    return req.ip ?? &quot;unknown&quot;;
+  }
+
+  // (2) Bỏ qua request nào? Ví dụ: health check từ load balancer.
+  protected async shouldSkip(context: ExecutionContext): Promise&lt;boolean&gt; {
+    const req = context.switchToHttp().getRequest&lt;Request&gt;();
+    return req.path === &quot;/health&quot;;
+  }
+
+  // (3) Báo lỗi thế nào? — điểm dự án dùng.
+  protected async throwThrottlingException(...) { ... }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Dự án chọn cấu hình <code>getTracker</code> và <code>skipIf</code> qua
+          <strong>options</strong> (<a
+            href="../../src/shared/utils/throttler-options.factory.ts"
+            >throttler-options.factory.ts</a
+          >) thay vì override, vì có <strong>ba</strong> throttler với ba khoá
+          khác nhau — override một method thì chỉ có một khoá. Hai đường
+          (override hay options) đều đúng; chọn đường cho phép khai báo
+          <strong>từng throttler</strong>.
+        </p>
+        <p class="prose">
+          Guard này cũng là ví dụ tốt về <strong>metadata của thư viện</strong>:
+          <code>@Throttle(AuthThrottle.LOGIN)</code> ở
+          <a href="../../src/routes/auth/auth.controller.ts#L89"
+            >auth.controller.ts:89</a
+          >
+          là <code>SetMetadata</code> với key của
+          <code>@nestjs/throttler</code>; <code>ThrottlerGuard</code> đọc bằng
+          <code>Reflector</code> — cùng cơ chế
+          <a href="01-decorators-and-metadata.html">chương 1</a>-2, chỉ khác
+          người viết. <code>@SkipThrottle()</code> cũng vậy.
+        </p>
+        <p class="prose">
+          Nhớ dòng comment ở dòng 39-40: thông điệp
+          <strong>cố ý không nói</strong> giới hạn nào bị chạm hay còn bao nhiêu
+          — thông tin đó là &quot;oracle&quot; miễn phí cho người đang dò rate
+          limit. Toàn bộ chính sách ở
+          <a href="../rate-limiting-guide.md">rate-limiting-guide.md</a>.
+        </p>
+        <p class="prose">
+          <strong>Khi nào kế thừa, khi nào bọc?</strong> Kế thừa khi thư viện
+          <strong>thiết kế cho</strong> việc đó (method <code>protected</code>,
+          tài liệu nói &quot;override to customize&quot;). Bọc (guard của bạn
+          giữ instance guard thư viện và gọi <code>canActivate</code> của nó —
+          như guard ghép ở
+          <a href="#9-guard-ghép-authorizationheaderguard">mục 9</a> làm với
+          guard con) khi bạn chỉ cần đổi <strong>điều kiện gọi</strong>, không
+          đổi <strong>cách chạy</strong> bên trong.
+        </p>
+        <hr />
+        <h2 id="11-truyền-dữ-liệu-từ-guard-xuống-handler" class="sec-head">
+          11. Truyền dữ liệu từ guard xuống handler
+        </h2>
+        <p class="prose">
+          Guard và handler không gọi nhau. Kênh duy nhất là
+          <strong>object <code>request</code></strong> — cả hai cùng cầm một
+          tham chiếu.
+        </p>
+        <p class="prose">Guard ghi hai lần, theo đúng thứ tự chạy:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// canActivate, dòng 128 — ngay sau khi verify token xong
+request[REQUEST_USER_KEY] = payload; // &quot;user&quot;
+
+// verifyPermission (được canActivate gọi ngay sau đó), dòng 102
+request[REQUEST_GRANTED_PERMISSIONS_KEY] = granted; // &quot;granted_permissions&quot;</code></pre>
+        </div>
+        <p class="prose">
+          (Hai dòng nằm ở
+          <a href="../../src/shared/guards/access-token.guard.ts#L128">128</a>
+          và
+          <a href="../../src/shared/guards/access-token.guard.ts#L102">102</a> —
+          số dòng nhỏ hơn lại chạy sau, vì <code>verifyPermission</code> được
+          định nghĩa phía trên <code>canActivate</code> trong file.)
+        </p>
+        <p class="prose">
+          Handler đọc qua param decorator (<a
+            href="01-decorators-and-metadata.html#8-createparamdecorator--loại-decorator-thứ-hai-chạy-mỗi-request"
+            >chương 1, mục 8</a
+          >). Toàn bộ đường đi của một giá trị, từ guard đến service:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// 1. Guard ghi
+request[REQUEST_USER_KEY] = payload;
+
+// 2. Param decorator đọc (active-user.decorator.ts)
+const ActiveUser = createParamDecorator((field, ctx) =&gt; {
+  const user = ctx.switchToHttp().getRequest()[REQUEST_USER_KEY];
+  return field ? user[field] : user;
+});
+
+// 3. Handler nhận như tham số thường
+@Get(&quot;me&quot;)
+@RequirePermission(&quot;profile:read:own&quot;)
+me(@ActiveUser(&quot;userId&quot;) userId: string) {
+  return this.profileService.get(userId);
+}</code></pre>
+        </div>
+        <p class="prose">
+          Handler <strong>không biết</strong> guard tồn tại. Đổi cách xác thực
+          (JWT → session) chỉ sửa guard và decorator; handler và service giữ
+          nguyên. Đó là lợi ích của kênh <code>request</code> — nó là chỗ nối
+          duy nhất.
+        </p>
+        <p class="prose">
+          Ví dụ thứ hai, dữ liệu tính toán thay vì sao chép:
+          <code
+            >@PermissionScope([&quot;product&quot;, &quot;update&quot;])</code
+          >
+          đọc tập quyền guard đã gắn rồi <strong>suy ra</strong>
+          <code>&quot;own&quot;</code> hay <code>&quot;any&quot;</code> (<a
+            href="../../src/shared/param-decorators/permission-scope.decorator.ts"
+            >permission-scope.decorator.ts</a
+          >). Guard không cần biết handler sẽ hỏi resource nào — nó gắn cả tập,
+          decorator lọc.
+        </p>
+        <p class="prose">Hai điểm kỹ thuật:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              Key là hằng số trong
+              <a href="../../src/constants/auth.constant.ts#L1-L4"
+                >auth.constant.ts:1-4</a
+              >, không phải chuỗi rải rác — đổi tên một chỗ.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <code>request[&quot;granted_permissions&quot;] = ...</code>
+              compile được trên kiểu <code>Request</code> của Express
+              <strong>chỉ vì</strong> <code>noImplicitAny: false</code> (<a
+                href="../../tsconfig.json#L19"
+                >tsconfig.json:19</a
+              >). Cách chặt hơn là mở rộng kiểu:
+            </p>
+          </li>
+        </ul>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// src/types/express.d.ts — ví dụ minh hoạ, dự án chưa có
+import { AccessTokenPayload } from &quot;./jwt-payload.type&quot;;
+import { PermissionKey } from &quot;@/constants/permission.constant&quot;;
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AccessTokenPayload;
+      granted_permissions?: ReadonlySet&lt;PermissionKey&gt;;
+    }
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Khi đó <code>request.user</code> có kiểu, <code>request.usr</code> (gõ
+          sai) là lỗi compile, và bật <code>noImplicitAny</code> sẽ không đỏ.
+          Passport dùng đúng kỹ thuật này để có <code>req.user</code> — nếu bạn
+          dùng Passport song song, hai khai báo <code>user</code> phải cùng
+          kiểu, nếu không TypeScript báo xung đột.
+        </p>
+        <p class="prose">
+          <strong>Không dùng field của guard để truyền dữ liệu.</strong> Guard
+          là singleton (<a href="#2-đọc-mã-nguồn-nest-gọi-guard-thế-nào"
+            >mục 2</a
+          >); <code>this.currentUser = payload</code> là hai request đồng thời
+          ghi đè nhau. Lỗi này không xuất hiện trong test đơn luồng và chỉ nổ
+          trên production.
+        </p>
+        <hr />
+        <h2 id="12-fail-open-hay-fail-closed" class="sec-head">
+          12. Fail-open hay fail-closed
+        </h2>
+        <p class="prose">
+          Khi một thứ guard phụ thuộc bị hỏng, guard nên
+          <strong>mở</strong> (cho qua) hay <strong>đóng</strong> (chặn)? Không
+          có câu trả lời chung — phải quyết từng phụ thuộc:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Phụ thuộc</th>
+                <th>Hỏng thì</th>
+                <th>Vì sao</th>
+                <th>Ở đâu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Redis cache tập quyền</td>
+                <td><strong>Mở</strong> — bỏ cache, đọc Postgres</td>
+                <td>Redis chỉ là tối ưu; mất nó app chậm, không sai</td>
+                <td>
+                  <a
+                    href="../../src/shared/services/role-permission-cache.service.ts#L16-L18"
+                    >role-permission-cache.service.ts:16-18</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Postgres (nguồn sự thật về quyền)</td>
+                <td><strong>Đóng</strong> — 500</td>
+                <td>
+                  Không biết quyền thì không thể cho qua; và phải là 500 để
+                  người trực thấy
+                </td>
+                <td>
+                  <a
+                    href="../../src/shared/services/permission-resolver.service.ts#L19-L21"
+                    >permission-resolver.service.ts:19-21</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Route thiếu <code>@RequirePermission</code></td>
+                <td><strong>Đóng</strong> — 500</td>
+                <td>Lỗi wiring, không phải lỗi client</td>
+                <td>
+                  <a
+                    href="../../src/shared/guards/access-token.guard.ts#L84-L96"
+                    >access-token.guard.ts:84-96</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td>Redis của rate limiter</td>
+                <td>(do <code>@nestjs/throttler</code> quyết)</td>
+                <td>—</td>
+                <td><code>ThrottlerRedisStorage</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">Hai cách viết cùng một guard, một mở một đóng:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// FAIL-OPEN — chỉ đúng khi phụ thuộc là &quot;tối ưu&quot;, không phải &quot;sự thật&quot;
+async canActivate(ctx) {
+  let cached: Set&lt;string&gt; | undefined;
+  try {
+    cached = await this.redis.getPermissions(roleId);
+  } catch (e) {
+    this.logger.warn(&quot;permission cache unavailable, falling back to DB&quot;, e);
+    // không throw — đi tiếp xuống Postgres
+  }
+  const granted = cached ?? (await this.db.permissionsOf(roleId)); // DB lỗi → lan lên → 500
+  ...
+}
+
+// FAIL-CLOSED — mặc định cho mọi thứ liên quan đến &quot;ai được làm gì&quot;
+async canActivate(ctx) {
+  const granted = await this.db.permissionsOf(roleId); // không try/catch
+  if (!satisfies(granted, required)) throw new ForbiddenException();
+  return true;
+}</code></pre>
+        </div>
+        <p class="prose">
+          Và <strong>anti-pattern</strong> dự án đã từng có, để nhận diện:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// ĐỪNG — mọi lỗi thành 403, người trực mù
+async canActivate(ctx) {
+  try {
+    const granted = await this.db.permissionsOf(roleId);
+    return satisfies(granted, required);
+  } catch {
+    return false;   // Postgres sập → client thấy &quot;Forbidden&quot; → ticket &quot;tôi mất quyền&quot; thay vì alert &quot;DB down&quot;
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Câu hỏi để tự kiểm mỗi lần viết <code>try/catch</code> trong guard:
+          <em
+            >&quot;nếu tôi nuốt lỗi này, ai bị hại — người dùng hợp lệ hay kẻ
+            tấn công?&quot;</em
+          >
+          Nuốt lỗi Redis cache: người dùng hợp lệ vẫn vào được. Nuốt lỗi
+          Postgres: kẻ tấn công có thể vào khi DB chập chờn. Khác nhau hoàn
+          toàn.
+        </p>
+        <p class="prose">
+          <strong>Fail-closed ở thời điểm boot</strong> còn tốt hơn ở thời điểm
+          request. Dòng &quot;route thiếu <code>@RequirePermission</code> →
+          500&quot; là lưới cuối; lưới đầu là
+          <code>PermissionCoverageService</code> (<a
+            href="../../src/shared/services/permission-coverage.service.ts"
+            >permission-coverage.service.ts</a
+          >) quét mọi route lúc <code>onApplicationBootstrap</code> và
+          <strong>không cho app lên</strong> nếu có route không public mà thiếu
+          nhãn. Lỗi cấu hình bị bắt lúc deploy, không phải lúc khách hàng gọi.
+          Đây là mẫu đáng bắt chước cho bất kỳ guard nào dựa trên metadata bắt
+          buộc.
+        </p>
+        <hr />
+        <h2 id="13-test-một-guard" class="sec-head">13. Test một guard</h2>
+        <p class="prose">
+          Guard chỉ cần một <code>ExecutionContext</code> — và
+          <code>ExecutionContext</code> chỉ là object có vài method. Không cần
+          boot Nest.
+        </p>
+        <h3 id="131-unit-test-với-context-giả" class="sub">
+          13.1. Unit test với context giả
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// hình dạng tối giản — dự án có bản đầy đủ ở src/shared/guards/__tests__/guards-test-harness.ts
+const context = {
+  getHandler: () =&gt; handlerFn, // hàm có (hoặc không có) metadata
+  getClass: () =&gt; ControllerClass,
+  getType: () =&gt; &quot;http&quot;,
+  switchToHttp: () =&gt; ({
+    getRequest: () =&gt; request, // { headers: { authorization: &quot;Bearer ...&quot; } }
+    getResponse: () =&gt; response,
+  }),
+} as unknown as ExecutionContext;
+
+await expect(guard.canActivate(context)).rejects.toMatchObject({ status: 401 });</code></pre>
+        </div>
+        <p class="prose">
+          Vì metadata nằm trên <strong>hàm</strong>, test có thể dán nhãn thật
+          lên một hàm giả:
+          <code
+            >Reflect.defineMetadata(PERMISSION_KEY,
+            &quot;product:read:own&quot;, handlerFn)</code
+          >. Guard đọc ra đúng như production. Hoặc mock
+          <code>Reflector</code> — cách harness của dự án chọn:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// guards-test-harness.ts — hai Reflector tách nhau, vì hai guard cùng gọi getAllAndOverride
+accessTokenReflector: {
+  getAllAndOverride: jest.fn().mockReturnValue(&quot;product:read:own&quot; satisfies PermissionKey),
+},</code></pre>
+        </div>
+        <p class="prose">
+          Một test đủ ba nhánh 401/403/200 của <code>AccessTokenGuard</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>it(&quot;returns 401 when there is no token&quot;, async () =&gt; {
+  const ctx = buildContext({ headers: {} });
+  await expect(guard.canActivate(ctx)).rejects.toMatchObject({ status: 401 });
+});
+
+it(&quot;returns 403 when the token is valid but the grant set lacks the key&quot;, async () =&gt; {
+  mocks.tokenService.verifyAccessToken.mockResolvedValue({
+    userId: &quot;u1&quot;,
+    roleId: &quot;r1&quot;,
+  });
+  mocks.permissionResolverService.forRoles.mockResolvedValue(new Set()); // mặc định của harness
+  const ctx = buildContext({ headers: { authorization: &quot;Bearer ok&quot; } });
+  await expect(guard.canActivate(ctx)).rejects.toMatchObject({ status: 403 });
+});
+
+it(&quot;passes and attaches user + grants when the key is held&quot;, async () =&gt; {
+  mocks.tokenService.verifyAccessToken.mockResolvedValue({
+    userId: &quot;u1&quot;,
+    roleId: &quot;r1&quot;,
+  });
+  mocks.permissionResolverService.forRoles.mockResolvedValue(
+    new Set([&quot;product:read:own&quot;]),
+  );
+  const request = { headers: { authorization: &quot;Bearer ok&quot; } };
+  const ctx = buildContext(request);
+
+  await expect(guard.canActivate(ctx)).resolves.toBe(true);
+  expect(request[REQUEST_USER_KEY]).toEqual({ userId: &quot;u1&quot;, roleId: &quot;r1&quot; });
+  expect(request[REQUEST_GRANTED_PERMISSIONS_KEY]).toEqual(
+    new Set([&quot;product:read:own&quot;]),
+  );
+});</code></pre>
+        </div>
+        <p class="prose">
+          Test cuối kiểm cả <strong>tác dụng phụ</strong> (ghi vào request) — đó
+          là hợp đồng với handler, không chỉ giá trị trả về.
+        </p>
+        <p class="prose">
+          Để ý harness mặc định <code>forRoles</code> trả
+          <strong>tập rỗng</strong>: một test quên arrange sẽ ra 403, không phải
+          pass ngẫu nhiên. Mock cũng nên fail-closed.
+        </p>
+        <h3 id="132-test-một-guard-ghép" class="sub">
+          13.2. Test một guard ghép
+        </h3>
+        <p class="prose">
+          Với <code>AuthorizationHeaderGuard</code>, mock
+          <strong>guard con</strong> thay vì mock sâu hơn — bạn test logic điều
+          phối, không test lại <code>AccessTokenGuard</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>it(&quot;tries the next guard when the first one throws under OR&quot;, async () =&gt; {
+  mocks.reflector.getAllAndOverride.mockReturnValue({
+    authorizationTypes: [&quot;Bearer&quot;, &quot;ApiKey&quot;],
+    combinedCondition: &quot;OR&quot;,
+  });
+  jest
+    .spyOn(accessTokenGuard, &quot;canActivate&quot;)
+    .mockRejectedValue(new UnauthorizedException());
+  jest.spyOn(apiKeyGuard, &quot;canActivate&quot;).mockResolvedValue(true);
+
+  await expect(guard.canActivate(ctx)).resolves.toBe(true);
+  expect(apiKeyGuard.canActivate).toHaveBeenCalledTimes(1);
+});</code></pre>
+        </div>
+        <p class="prose">
+          Spec thật: <code>authorization-header.guard.spec.ts</code> có 12 test,
+          trong đó &quot;skips failed guard and continues with OR condition to
+          find passing guard&quot; là bằng chứng cho hành vi nuốt lỗi ở
+          <a href="#9-guard-ghép-authorizationheaderguard">mục 9</a>.
+        </p>
+        <h3 id="133-e2e-tắt-hoặc-thay-guard" class="sub">
+          13.3. E2E: tắt hoặc thay guard
+        </h3>
+        <p class="prose">
+          Với guard gắn bằng <code>@UseGuards(X)</code>,
+          <code>.overrideGuard(X)</code> có thể thay instance theo class. Nhưng
+          repo dùng <code>APP_GUARD</code> + <code>useClass</code>: Nest sinh
+          token application provider riêng, nên
+          <code>.overrideGuard(AuthorizationHeaderGuard)</code>
+          <strong>không tự thay global guard này</strong>.
+        </p>
+        <p class="prose">
+          Trong module minh hoạ phục vụ test, dùng cùng một provider qua
+          <code>useExisting</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>providers: [
+  AuthorizationHeaderGuard,
+  { provide: APP_GUARD, useExisting: AuthorizationHeaderGuard },
+];
+
+const moduleRef = await Test.createTestingModule({ imports: [TinyModule] })
+  .overrideProvider(AuthorizationHeaderGuard)
+  .useValue({
+    canActivate: (ctx: ExecutionContext) =&gt; {
+      const req = ctx.switchToHttp().getRequest();
+      req[REQUEST_USER_KEY] = { userId: &quot;u1&quot;, roleId: &quot;admin&quot; };
+      req[REQUEST_GRANTED_PERMISSIONS_KEY] = new Set([&quot;brand:read:any&quot;]);
+      return true;
+    },
+  })
+  .compile();</code></pre>
+        </div>
+        <p class="prose">
+          Guard giả phải tái tạo state user và grants nếu handler đọc chúng. Ví
+          dụ này yêu cầu module được đăng ký như trên,
+          <strong>không phải</strong> đoạn override có thể copy vào
+          <code>AppModule</code> hiện tại. Xem ví dụ hoàn chỉnh không cần DB ở
+          <a href="13-testing-fundamentals.html">chương 13</a>.
+        </p>
+        <p class="prose">
+          Dự án <strong>không</strong> làm thế: bộ e2e
+          (<code>test/e2e/**</code>) đăng nhập thật qua
+          <code>/auth/login</code> rồi gửi Bearer, vì mục tiêu của e2e ở đây là
+          kiểm cả ma trận quyền (xem
+          <code>manage-product-access.e2e-spec.ts</code>). Hai cách phục vụ hai
+          mục tiêu; đừng override guard khi thứ bạn muốn test
+          <strong>chính là</strong> guard.
+        </p>
+        <h3 id="134-test-metadata-được-dán-đúng" class="sub">
+          13.4. Test metadata được dán đúng
+        </h3>
+        <p class="prose">
+          Guard đọc metadata; nhưng ai bảo đảm controller
+          <strong>đã dán</strong>? Một test rẻ và hay bị bỏ qua:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>it(&quot;requires brand:delete:any on remove()&quot;, () =&gt; {
+  const key = Reflect.getMetadata(
+    PERMISSION_KEY,
+    BrandController.prototype.remove,
+  );
+  expect(key).toBe(&quot;brand:delete:any&quot;);
+});</code></pre>
+        </div>
+        <p class="prose">
+          Dự án thay test này bằng boot-check (<a
+            href="#12-fail-open-hay-fail-closed"
+            >mục 12</a
+          >) — mạnh hơn vì bắt cả route <strong>chưa có</strong> test.
+        </p>
+        <p class="prose">
+          Bốn spec có sẵn để học cách viết:
+          <code>access-token.guard.spec.ts</code>,
+          <code>authorization-header.guard.spec.ts</code>,
+          <code>api-key.guard.spec.ts</code>,
+          <code>app-throttler.guard.spec.ts</code> trong
           <code>src/shared/guards/__tests__/</code>.
         </p>
+        <hr />
+        <h2 id="14-những-lỗi-hay-gặp" class="sec-head">
+          14. Những lỗi hay gặp
+        </h2>
+        <p class="prose">Mỗi lỗi kèm triệu chứng để nhận ra nhanh.</p>
+        <p class="prose">
+          <strong>1. Quên <code>await</code> khi gọi guard con.</strong>
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// SAI — Promise luôn truthy → mọi request đều qua
+if (this.accessTokenGuard.canActivate(ctx)) return true;
 
-        <div class="sec-head" id="s12">
-          <span class="sec-head__num">12</span
-          ><span class="sec-head__text">Nâng cao</span>
+// ĐÚNG
+if (await this.accessTokenGuard.canActivate(ctx)) return true;</code></pre>
         </div>
-        <div class="card-grid">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label ve-card__label--b">Không phải HTTP</div>
-            <p>
-              <code>getType()</code> trả <code>"rpc"</code>/<code>"ws"</code>;
-              <code>switchToRpc()</code>/<code>switchToWs()</code>. Một guard
-              phục vụ nhiều transport nếu rẽ nhánh theo type.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              Class + method cùng chạy
-            </div>
-            <p>
-              <code>@UseGuards(A)</code> class +
-              <code>@UseGuards(B)</code> method → A rồi B. Guard là
-              <strong>cộng dồn</strong>, không "đè" như metadata.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--amber">
-              Không làm việc nặng / ghi DB
-            </div>
-            <p>
-              Guard chạy cho mọi request khớp, kể cả request pipe sẽ từ chối
-              ngay sau. Tra đọc có cache thì được; audit log vào DB thì để
-              interceptor/service.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 3">
-            <div class="ve-card__label ve-card__label--amber">
-              Header trước khi throw
-            </div>
-            <p>
-              Trả <code>false</code> không sửa được body. Muốn thêm header
-              (<code>Retry-After</code>) → ghi vào <code>response</code>
-              <em>trước</em> khi throw, kiểm <code>headersSent</code>.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 4">
-            <div class="ve-card__label ve-card__label--c">
-              <code>@Public()</code> kiểu phổ biến vs cách dự án
-            </div>
-            <p>
-              Nhiều dự án viết <code>if (isPublic) return true</code> đầu guard
-              auth. Dự án này: public là một
-              <em>loại xác thực</em> (<code>None</code>) trong guard điều phối,
-              và boot-check ép mọi route chọn rõ. Khó quên hơn.
-            </p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s13">
-          <span class="sec-head__num">13</span
-          ><span class="sec-head__text">Trong dự án này</span>
-        </div>
+        <p class="prose">
+          Triệu chứng: route &quot;bảo mật&quot; cho mọi người vào; test unit
+          vẫn xanh nếu test cũng quên <code>await</code>. Guard ghép của dự án
+          <code>await</code> đúng ở cả hai nhánh.
+        </p>
+        <p class="prose">
+          <strong>2. Quên <code>@Injectable()</code>.</strong> Nếu không còn
+          metadata constructor, Nest có thể dựng guard với dependency
+          <code>undefined</code>, rồi lỗi lúc <code>canActivate()</code> dùng
+          nó. Khi metadata có token nhưng thiếu provider mới có lỗi
+          <code>can&#39;t resolve dependencies</code> lúc dựng container.
+        </p>
+        <p class="prose">
+          <strong
+            >3. <code>useGlobalGuards(new G())</code> rồi thắc mắc DI không hoạt
+            động.</strong
+          >
+          Xem
+          <a href="#6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard">mục 6</a>.
+          Chuyển sang <code>APP_GUARD</code>.
+        </p>
+        <p class="prose">
+          <strong
+            >4. Tưởng <code>APP_GUARD</code> trong module con là guard của
+            module con.</strong
+          >
+          Không — toàn app. Xem
+          <a href="#6-ba-cách-đăng-ký-và-vì-sao-dự-án-chọn-app_guard">mục 6</a>.
+        </p>
+        <p class="prose">
+          <strong>5. Đọc header với chữ hoa.</strong>
+          <code>req.headers[&quot;Authorization&quot;]</code> luôn
+          <code>undefined</code>. Node hạ chữ thường. Dùng
+          <code>req.headers.authorization</code>.
+        </p>
+        <p class="prose">
+          <strong>6. Dùng guard để validate body.</strong> Body chưa qua pipe;
+          bạn đang viết lại <code>ValidationPipe</code> bằng tay và kém hơn.
+          Guard trả lời &quot;ai&quot;, pipe trả lời &quot;dữ liệu có đúng
+          dạng&quot;. Xem
+          <a href="#15-guard-middleware-interceptor-hay-pipe">mục 15</a>.
+        </p>
+        <p class="prose">
+          <strong>7. Giữ state theo request trong field guard.</strong>
+          Singleton — hai request ghi đè nhau. Gắn vào <code>request</code> (<a
+            href="#11-truyền-dữ-liệu-từ-guard-xuống-handler"
+            >mục 11</a
+          >).
+        </p>
+        <p class="prose">
+          <strong>8. Nuốt mọi lỗi và <code>return false</code>.</strong> Sự cố
+          hạ tầng thành 403 im lặng. Xem
+          <a href="#12-fail-open-hay-fail-closed">mục 12</a>.
+        </p>
+        <p class="prose">
+          <strong>9. Không có nhãn thì <code>return true</code>.</strong> Route
+          quên decorator trở thành route mở. Mặc định phải là
+          <strong>đóng</strong>, hoặc có boot-check. Guard ghép của dự án mặc
+          định <code>[BEARER]</code>; <code>AccessTokenGuard</code> thiếu
+          <code>@RequirePermission</code> thì 500.
+        </p>
+        <p class="prose">
+          <strong
+            >10. Lấy <code>context.getHandler()</code> sai cấp cho
+            <code>getAllAndOverride</code>.</strong
+          >
+          Truyền <code>[getClass(), getHandler()]</code> (ngược thứ tự) là class
+          <strong>đè</strong> method — trái ý mọi người. Thứ tự đúng:
+          <code>[context.getHandler(), context.getClass()]</code> — phần tử đầu
+          ưu tiên.
+        </p>
+        <p class="prose">
+          <strong
+            >11. Ném <code>HttpException</code> trong guard WebSocket /
+            RPC.</strong
+          >
+          Filter của transport đó không hiểu; client nhận lỗi mơ hồ. Dùng
+          <code>WsException</code> / <code>RpcException</code> (<a
+            href="#57-wsauthguard--guard-cho-transport-khác-http"
+            >mục 5.7</a
+          >).
+        </p>
+        <p class="prose">
+          <strong>12. Observable không complete.</strong>
+          <code>canActivate</code> trả <code>subject.asObservable()</code> không
+          có <code>take(1)</code> → request treo vô hạn, không log gì. Xem
+          <a href="#1-guard-trả-lời-đúng-một-câu-hỏi">mục 1</a>.
+        </p>
+        <hr />
+        <h2 id="15-guard-middleware-interceptor-hay-pipe" class="sec-head">
+          15. Guard, middleware, interceptor hay pipe?
+        </h2>
+        <p class="prose">
+          Bốn tầng đứng gần nhau và người mới hay chọn sai. Bảng tra theo
+          <strong>câu hỏi bạn muốn trả lời</strong>:
+        </p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Guard</th>
-                  <th>Kiểu</th>
-                  <th>Chạy khi</th>
-                  <th>Chặn bằng</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>AppThrottlerGuard</code></td>
-                  <td>Kế thừa thư viện · <code>APP_GUARD</code> #1</td>
-                  <td>mọi request</td>
-                  <td>429 + <code>Retry-After</code></td>
-                </tr>
-                <tr>
-                  <td><code>AuthorizationHeaderGuard</code></td>
-                  <td>Ghép / điều phối · <code>APP_GUARD</code> #2</td>
-                  <td>mọi request</td>
-                  <td>uỷ quyền guard con; OR fail → 401 chung</td>
-                </tr>
-                <tr>
-                  <td><code>AccessTokenGuard</code></td>
-                  <td>Provider thường, guard ghép gọi</td>
-                  <td>route <code>Bearer</code> (mặc định)</td>
-                  <td>401 / 403 / 500 phân biệt rõ</td>
-                </tr>
-                <tr>
-                  <td><code>ApiKeyGuard</code></td>
-                  <td>Provider thường, guard ghép gọi</td>
-                  <td>route <code>ApiKey</code> (hiện: không route nào)</td>
-                  <td>401</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Bạn muốn…</th>
+                <th>Tầng</th>
+                <th>Vì sao không phải tầng khác</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  Quyết định request có được vào handler không,
+                  <strong>dựa trên nhãn</strong>
+                </td>
+                <td><strong>Guard</strong></td>
+                <td>
+                  Middleware không biết handler nào sẽ nhận request → không đọc
+                  được metadata
+                </td>
+              </tr>
+              <tr>
+                <td>Gắn request id, đọc cookie, bật CORS, parse body</td>
+                <td>Middleware</td>
+                <td>
+                  Việc &quot;chuẩn bị request&quot; không cần biết handler; và
+                  cần chạy cho cả route 404
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Kiểm tra / biến đổi <strong>một tham số</strong> (UUID, DTO,
+                  số nguyên)
+                </td>
+                <td>Pipe</td>
+                <td>
+                  Guard chưa có tham số đã tách; pipe chạy đúng lúc tham số được
+                  bind
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Đo thời gian, bọc envelope, cache
+                  <strong>kết quả handler</strong>
+                </td>
+                <td>Interceptor</td>
+                <td>Guard/middleware không được gọi lại khi handler trả về</td>
+              </tr>
+              <tr>
+                <td>Đọc file multipart rồi mới cho handler chạy</td>
+                <td>Interceptor</td>
+                <td>
+                  Đó là <code>FileInterceptor</code> — cần cả &quot;trước&quot;
+                  (parse) và biết handler nào (metadata)
+                </td>
+              </tr>
+              <tr>
+                <td>Rate limit theo IP</td>
+                <td>Guard</td>
+                <td>
+                  Có thể là middleware, nhưng guard đọc được
+                  <code>@Throttle()</code> / <code>@SkipThrottle()</code> theo
+                  route
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Rate limit chung cho <strong>mọi</strong> route kể cả 404
+                </td>
+                <td>Middleware</td>
+                <td>
+                  Guard chỉ chạy khi route khớp — request đến đường không tồn
+                  tại không qua guard
+                </td>
+              </tr>
+              <tr>
+                <td>Kiểm &quot;bản ghi này có phải của tôi không&quot;</td>
+                <td>Service (query)</td>
+                <td>
+                  Guard phải query hai lần và biết nghiệp vụ —
+                  <a href="#56-ownershipguard--và-vì-sao-nó-thường-là-ý-tồi"
+                    >mục 5.6</a
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        <div class="sec-head" id="s14">
-          <span class="sec-head__num">14</span
-          ><span class="sec-head__text">Tự kiểm chứng</span>
+        <p class="prose">
+          Điểm cuối trong bảng hay gây ngạc nhiên:
+          <strong>guard không chạy cho request không khớp route nào</strong>.
+          <code>GET /khong-ton-tai</code> đi qua middleware, không qua guard
+          nào, và ra 404. Nếu bạn muốn rate limit cả những request dò đường,
+          middleware mới với tới — nhưng lúc đó không đọc được metadata. Dự án
+          chấp nhận guard vì chính sách rate limit của nó khai theo route
+          (<code>@Throttle(AuthThrottle.LOGIN)</code>).
+        </p>
+        <p class="prose">
+          Chi tiết từng tầng:
+          <a href="04-middleware.html">chương 4</a> (middleware),
+          <a href="07-dto-validation-transformation-serialization.html"
+            >chương 7</a
+          >
+          (pipe), <a href="09-interceptors.html">chương 9</a> (interceptor), và
+          bức tranh chung ở
+          <a href="05-request-lifecycle-in-this-project.html">chương 5</a>.
+        </p>
+        <hr />
+        <h2 id="16-nâng-cao" class="sec-head">16. Nâng cao</h2>
+        <p class="prose">
+          <strong>Guard cho ngữ cảnh không phải HTTP.</strong>
+          <code>context.getType()</code> trả <code>&quot;rpc&quot;</code> hay
+          <code>&quot;ws&quot;</code>; <code>switchToRpc()</code> /
+          <code>switchToWs()</code> thay <code>switchToHttp()</code>. Một guard
+          có thể phục vụ nhiều loại transport nếu rẽ nhánh theo
+          <code>getType()</code> — ví dụ đầy đủ ở
+          <a href="#57-wsauthguard--guard-cho-transport-khác-http">mục 5.7</a>.
+          Với GraphQL, <code>getType&lt;GqlContextType&gt;()</code> trả
+          <code>&quot;graphql&quot;</code> và cần
+          <code>GqlExecutionContext.create(context).getContext().req</code> để
+          lấy request.
+        </p>
+        <p class="prose">
+          <strong>Guard cấp class và cấp method cùng chạy.</strong>
+          <code>@UseGuards(A)</code> trên class +
+          <code>@UseGuards(B)</code> trên method → A rồi B. Không phải
+          &quot;method đè class&quot; như metadata — guard là
+          <strong>cộng dồn</strong>. Không có cách &quot;tắt&quot; guard cấp
+          class cho một method; muốn thế, guard phải đọc một nhãn
+          &quot;skip&quot; (như <code>@SkipThrottle()</code>).
+        </p>
+        <p class="prose">
+          <strong>Không làm việc nặng hay ghi DB trong guard.</strong> Guard
+          chạy cho mọi request khớp, kể cả request sẽ bị pipe từ chối ngay sau
+          đó. Tra đọc có cache thì được (dự án làm vậy); ghi log audit vào DB
+          thì không — để interceptor hoặc service. Nếu buộc phải ghi (đếm lần
+          đăng nhập sai), ghi <strong>bất đồng bộ không await</strong> vào
+          queue, không chặn request.
+        </p>
+        <p class="prose">
+          <strong>Bỏ rate limit cho một route:</strong>
+          <code>@SkipThrottle()</code> của thư viện — cũng là metadata,
+          <code>ThrottlerGuard</code> đọc và bỏ qua. Bỏ cho một throttler cụ
+          thể: <code>@SkipThrottle({ credential: true })</code>.
+        </p>
+        <p class="prose">
+          <strong
+            >Guard không sửa được response body khi trả
+            <code>false</code>.</strong
+          >
+          Muốn body riêng thì phải <code>throw</code> (<a
+            href="#3-return-false-hay-throw"
+            >mục 3</a
+          >). Muốn thêm header (như <code>Retry-After</code>) thì ghi vào
+          <code>response</code> <strong>trước</strong> khi throw — đúng như
+          <code>AppThrottlerGuard</code> làm, có kiểm <code>headersSent</code>.
+        </p>
+        <p class="prose">
+          <strong>Guard và <code>@Public()</code> kiểu phổ biến.</strong> Nhiều
+          dự án Nest viết <code>if (isPublic) return true</code> ở đầu guard
+          auth:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const isPublic = this.reflector.getAllAndOverride&lt;boolean&gt;(IS_PUBLIC_KEY, [
+  ctx.getHandler(),
+  ctx.getClass(),
+]);
+if (isPublic) return true;</code></pre>
         </div>
-        <div class="stack">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label">01 · Ba mã lỗi từ một guard</div>
-            <pre
-              class="code-file__body"
-              style="border: 1px solid var(--border); border-radius: 8px"
-            ><code><span class="cm"># 401 — không token</span>
+        <p class="prose">
+          Dự án này làm khác: public là một
+          <strong>loại xác thực</strong> (<code>None</code>) trong guard điều
+          phối, và boot-check ép mọi route phải chọn rõ. Hai cách đều đúng; cách
+          của dự án khó quên hơn — và <code>@IsPublicApi()</code> trên
+          <strong>class</strong> sẽ mở cả controller, điều
+          <code>getAllAndOverride</code> cho phép nhưng bạn nên cân nhắc trước
+          khi dùng.
+        </p>
+        <p class="prose">
+          <strong>Guard request-scoped.</strong> Nếu guard tiêm một provider
+          <code>Scope.REQUEST</code>, guard cũng thành request-scoped và được
+          tạo lại mỗi request — chậm hơn đáng kể. Thay bằng đọc
+          <code>request</code> trực tiếp từ <code>ExecutionContext</code>, gần
+          như luôn đủ.
+          <a href="08-request-and-provider-instances.html">Chương 8</a> bàn kỹ.
+        </p>
+        <p class="prose">
+          <strong>Guard trên <code>@Controller</code> kế thừa.</strong>
+          <code>@UseGuards</code> trên lớp cha <strong>có</strong> áp cho lớp
+          con: Nest đọc bằng
+          <code>Reflect.getMetadata(GUARDS_METADATA, constructor)</code>
+          (<code>core/helpers/context-creator.js</code>), và
+          <code>getMetadata</code> đi theo chuỗi prototype của constructor
+          (<code>Object.getPrototypeOf(Child) === Parent</code>). Nhưng lớp con
+          dán <code>@UseGuards</code> riêng thì metadata của con
+          <strong>đè</strong> của cha, không cộng dồn — khác với luật class +
+          method ở trên. Muốn cả hai, khai lại cả hai trên lớp con.
+        </p>
+        <p class="prose">
+          <strong><code>canActivate</code> ném đồng bộ vs bất đồng bộ.</strong>
+          Guard <code>async</code> ném → Promise reject → Nest
+          <code>await</code> → filter. Guard đồng bộ ném → exception lan thẳng.
+          Cả hai đều đến filter; khác biệt chỉ là nếu bạn
+          <strong>tự</strong> gọi <code>guard.canActivate()</code> trong guard
+          ghép mà không <code>await</code>, throw đồng bộ bạn bắt được bằng
+          <code>try</code>, throw bất đồng bộ thì không.
+        </p>
+        <hr />
+        <h2 id="17-trong-dự-án-này" class="sec-head">17. Trong dự án này</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Guard</th>
+                <th>File</th>
+                <th>Kiểu</th>
+                <th>Chạy khi</th>
+                <th>Chặn bằng</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>AppThrottlerGuard</code></td>
+                <td>
+                  <a href="../../src/shared/guards/app-throttler.guard.ts"
+                    >app-throttler.guard.ts</a
+                  >
+                </td>
+                <td>Kế thừa thư viện, <code>APP_GUARD</code> thứ 1</td>
+                <td>mọi request</td>
+                <td>429 + <code>Retry-After</code></td>
+              </tr>
+              <tr>
+                <td><code>AuthorizationHeaderGuard</code></td>
+                <td>
+                  <a
+                    href="../../src/shared/guards/authorization-header.guard.ts"
+                    >authorization-header.guard.ts</a
+                  >
+                </td>
+                <td>Ghép / điều phối, <code>APP_GUARD</code> thứ 2</td>
+                <td>mọi request</td>
+                <td>uỷ quyền guard con; OR fail → 401 chung</td>
+              </tr>
+              <tr>
+                <td><code>AccessTokenGuard</code></td>
+                <td>
+                  <a href="../../src/shared/guards/access-token.guard.ts"
+                    >access-token.guard.ts</a
+                  >
+                </td>
+                <td>Provider thường, được gọi bởi guard ghép</td>
+                <td>route có <code>Bearer</code> (mặc định)</td>
+                <td>401 / 403 / 500 phân biệt rõ</td>
+              </tr>
+              <tr>
+                <td><code>ApiKeyGuard</code></td>
+                <td>
+                  <a href="../../src/shared/guards/api-key.guard.ts"
+                    >api-key.guard.ts</a
+                  >
+                </td>
+                <td>Provider thường, được gọi bởi guard ghép</td>
+                <td>route có <code>ApiKey</code> (hiện: không route nào)</td>
+                <td>401</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">Metadata mà các guard này đọc:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Decorator</th>
+                <th>Key</th>
+                <th>Ai đọc</th>
+                <th>Mặc định khi thiếu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>@AuthApi(types, condition)</code> /
+                  <code>@IsPublicApi()</code>
+                </td>
+                <td><code>authorization_header</code></td>
+                <td><code>AuthorizationHeaderGuard</code></td>
+                <td>
+                  <code>[Bearer]</code>, <code>AND</code> —
+                  <strong>đóng</strong>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>@RequirePermission(&quot;res:act:scope&quot;)</code>
+                </td>
+                <td><code>required_permission</code></td>
+                <td><code>AccessTokenGuard</code></td>
+                <td>
+                  500 lúc request; <strong>app không boot</strong> nhờ
+                  <code>PermissionCoverageService</code>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>@Throttle(...)</code> / <code>@SkipThrottle()</code>
+                </td>
+                <td>(của <code>@nestjs/throttler</code>)</td>
+                <td><code>AppThrottlerGuard</code> (kế thừa)</td>
+                <td>dùng <code>GlobalThrottle</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Đường đi của một request <code>DELETE /brands/:id</code> có token hợp
+          lệ của seller:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>AppThrottlerGuard        đếm IP → dưới 120/phút → qua
+AuthorizationHeaderGuard đọc @AuthApi → không có → [Bearer], AND
+  └ AccessTokenGuard     tách &quot;Bearer xxx&quot; → verify → req.user = payload
+                         đọc @RequirePermission → &quot;brand:delete:any&quot;
+                         forRoles([seller]) → Set { &quot;product:*:own&quot;, ... }  (Redis, hụt thì Postgres)
+                         req.granted_permissions = Set
+                         satisfies(Set, &quot;brand:delete:any&quot;) → false → throw 403 PERMISSION_DENIED
+→ HttpExceptionFilter → { statusCode: 403, code: &quot;PERMISSION_DENIED&quot;, message: &quot;You do not have permission...&quot; }</code></pre>
+        </div>
+        <p class="prose">
+          Handler <code>remove()</code> không bao giờ được gọi;
+          <code>ParseUUIDPipe</code> trên <code>:id</code> cũng chưa chạy.
+        </p>
+        <hr />
+        <h2 id="18-tự-kiểm-chứng" class="sec-head">18. Tự kiểm chứng</h2>
+        <p class="prose">
+          <strong>1. Ba mã lỗi từ một guard.</strong> App đang chạy (<code
+            >pnpm start:dev</code
+          >), gọi:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre class="code-file__body"><code># 401 — không token
 curl -s -i localhost:3000/roles | head -1
-<span class="cm"># 401 — token rác</span>
-curl -s -i -H "Authorization: Bearer abc" localhost:3000/roles | head -1
-<span class="cm"># 403 — token client gọi route admin</span>
-TOKEN=$(curl -s -X POST localhost:3000/auth/login -H 'Content-Type: application/json' \
-  -d '{"email":"&lt;client-email&gt;","password":"&lt;password&gt;"}' | jq -r .accessToken)
-curl -s -i -H "Authorization: Bearer $TOKEN" localhost:3000/roles | head -1</code></pre>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              02 · Xem short-circuit
-            </div>
-            <p>
-              Gọi một route với token rác
-              <strong>thật nhanh nhiều lần</strong> — bạn nhận 429, không phải
-              401. Rate limiter đứng trước và dừng dây chuyền trước khi auth
-              chạy.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              03 · Bộ test guard
-            </div>
-            <p>
-              <code>npx jest src/shared/guards</code> — mở
-              <code>authorization-header.guard.spec.ts</code>, tìm test về
-              <code>OR</code>: nó chứng minh lỗi guard con bị nuốt và thử tiếp.
-            </p>
-          </div>
-        </div>
 
-        <div class="footer-nav">
-          <a href="02-reflector-execution-context-and-discovery.html"
-            ><small>Chương trước</small>← 02 — Reflector, ExecutionContext,
-            Discovery</a
-          >
-          <a href="04-middleware.html"
-            ><small>Chương tiếp</small>04 — Middleware →</a
-          >
+# 401 — token rác
+curl -s -i -H &quot;Authorization: Bearer abc&quot; localhost:3000/roles | head -1
+
+# 403 — đăng nhập bằng tài khoản client rồi gọi route admin
+TOKEN=$(curl -s -X POST localhost:3000/auth/login -H &#39;Content-Type: application/json&#39; \
+  -d &#39;{&quot;email&quot;:&quot;&lt;client-email&gt;&quot;,&quot;password&quot;:&quot;&lt;password&gt;&quot;}&#39; | jq -r .accessToken)
+curl -s -i -H &quot;Authorization: Bearer $TOKEN&quot; localhost:3000/roles | head -1
+
+# 200 — route public, không cần gì
+curl -s -i localhost:3000/brands | head -1</code></pre>
         </div>
-      </div>
-      <!-- /main -->
+        <p class="prose">
+          Ba lần đầu, ba mã khác nhau, cùng một guard. Lần thứ tư: guard ghép rẽ
+          sang nhánh <code>None</code>.
+        </p>
+        <p class="prose">
+          <strong>2. Xem short-circuit.</strong> Gọi một route với token rác
+          <strong>thật nhanh nhiều lần</strong> (vượt hạn mức) — bạn nhận 429,
+          không phải 401. Rate limiter đứng trước và dừng dây chuyền trước khi
+          auth chạy.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>for i in $(seq 1 130); do curl -s -o /dev/null -w &quot;%{http_code}\n&quot; -H &quot;Authorization: Bearer abc&quot; localhost:3000/roles; done | sort | uniq -c
+#   120 401
+#    10 429      ← từ request 121, AppThrottlerGuard chặn trước khi AccessTokenGuard chạy</code></pre>
+        </div>
+        <p class="prose">
+          <strong>3. Xem guard chạy trước pipe.</strong> Gửi
+          <code>DELETE /brands/not-a-uuid</code> <strong>không token</strong>:
+          bạn nhận 401, không phải 400. <code>ParseUUIDPipe</code> chưa được
+          chạy vì guard đã chặn.
+        </p>
+        <p class="prose">
+          <strong>4. Xem boot-check fail-closed.</strong> Xoá tạm
+          <code>@RequirePermission(...)</code> khỏi một handler bất kỳ (ví dụ
+          <code>brand.controller.ts</code> dòng 71), chạy
+          <code>pnpm start:dev</code>: app <strong>không lên</strong>, log in ra
+          tên controller và handler thiếu nhãn. Hoàn lại rồi chạy tiếp.
+        </p>
+        <p class="prose">
+          <strong>5. Viết thêm một guard.</strong> Thêm
+          <code>MaintenanceGuard</code> từ
+          <a href="#51-maintenanceguard--guard-không-cần-request">mục 5.1</a>
+          vào đầu mảng <code>guards</code> trong <code>base.module.ts</code>,
+          đặt <code>MAINTENANCE_MODE=true</code>, gọi bất kỳ route: 503 cho mọi
+          thứ, kể cả route public. Đổi vị trí nó xuống <strong>sau</strong>
+          <code>AuthorizationHeaderGuard</code>: route không token giờ trả 401
+          thay 503 — bạn vừa thấy thứ tự guard quyết định mã lỗi.
+        </p>
+        <p class="prose"><strong>6. Chạy bộ test guard:</strong></p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>npx jest src/shared/guards</code></pre>
+        </div>
+        <p class="prose">
+          Mở <code>authorization-header.guard.spec.ts</code> và tìm test về
+          <code>OR</code> — nó chứng minh lỗi guard con bị nuốt và thử tiếp.
+        </p>
+        <hr />
+        <p class="prose">
+          <strong>Tiếp theo:</strong>
+          <a href="04-middleware.html">Chương 4 — Middleware</a>: tầng đứng
+          <strong>trước</strong> guard, và vì sao nó không được giao việc xác
+          thực.
+        </p>
+        <footer class="source-footer">
+          <a href="03-guards.md">Nguồn Markdown</a> · Sinh bằng
+          scripts/build-nestjs-fundamentals.cjs
+        </footer>
+      </main>
     </div>
-    <!-- /wrap -->
-
-    <script>
-      (function () {
-        var toggle = document.getElementById("themeToggle");
-        var saved = null;
-        try {
-          saved = localStorage.getItem("theme");
-        } catch (e) {}
-        var initial =
-          saved ||
-          (matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        if (saved) document.documentElement.setAttribute("data-theme", initial);
-        toggle.textContent = initial === "dark" ? "☀" : "☾";
-        toggle.addEventListener("click", function () {
-          var current =
-            document.documentElement.getAttribute("data-theme") ||
-            (matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light");
-          var next = current === "light" ? "dark" : "light";
-          document.documentElement.setAttribute("data-theme", next);
-          try {
-            localStorage.setItem("theme", next);
-          } catch (e) {}
-          toggle.textContent = next === "dark" ? "☀" : "☾";
-        });
-      })();
-    </script>
-
     <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      const config = {
-        fitPadding: 28,
-        minHeight: 320,
-        maxHeightPx: 960,
-        maxHeightVh: 0.84,
-        maxInitialZoom: 1.8,
-        minZoom: 0.08,
-        maxZoom: 6.5,
-        zoomStep: 0.14,
-        readabilityFloor: 0.58,
-      };
-      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-      let activeDrag = null;
-      addEventListener("mousemove", (e) => activeDrag?.onMove(e));
-      addEventListener("mouseup", () => {
-        activeDrag?.onEnd();
-        activeDrag = null;
+      // Shared behavior for the Markdown-generated foundation pages.
+      const themeToggle = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+      }
+      let initialTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      try {
+        initialTheme =
+          localStorage.getItem("fundamentals-theme") ?? initialTheme;
+      } catch {
+        // Storage can be unavailable when opening a local HTML file.
+      }
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        try {
+          localStorage.setItem("fundamentals-theme", theme);
+        } catch {
+          // Storage can be unavailable when opening a local HTML file.
+        }
+        applyTheme(theme);
       });
-      const attr = document.documentElement.getAttribute("data-theme");
-      const isDark =
-        attr === "dark" ||
-        (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "base",
-        look: "classic",
-        themeVariables: {
-          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-          fontSize: "15px",
-          primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
-          primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
-          primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
-          secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
-          secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
-          tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
-          tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          lineColor: isDark ? "#a89e90" : "#7c756a",
-          noteBkgColor: isDark ? "#342e29" : "#fffdf7",
-          noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          noteBorderColor: isDark ? "#fbbf24" : "#b45309",
-          actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
-          actorBorder: isDark ? "#f0743f" : "#c2410c",
-          actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          signalColor: isDark ? "#a89e90" : "#7c756a",
-          signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-        },
-      });
-      function initDiagram(shell) {
-        const wrap = shell.querySelector(".mermaid-wrap"),
-          viewport = shell.querySelector(".mermaid-viewport"),
-          canvas = shell.querySelector(".mermaid-canvas"),
-          source = shell.querySelector(".diagram-source"),
-          label = shell.querySelector(".zoom-label");
-        if (!wrap || !viewport || !canvas || !source || !label) return;
-        let zoom = 1,
-          fitMode = "contain",
-          panX = 0,
-          panY = 0,
-          svgW = 0,
-          svgH = 0,
-          sx = 0,
-          sy = 0,
-          spx = 0,
-          spy = 0,
-          touchDist = 0,
-          touchCx = 0,
-          touchCy = 0;
-        function constrainPan() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            rW = svgW * zoom,
-            rH = svgH * zoom,
-            pad = config.fitPadding;
-          panX =
-            rW + pad * 2 <= vpW
-              ? (vpW - rW) / 2
-              : clamp(panX, vpW - rW - pad, pad);
-          panY =
-            rH + pad * 2 <= vpH
-              ? (vpH - rH) / 2
-              : clamp(panY, vpH - rH - pad, pad);
-        }
-        function applyTransform() {
-          const svg = canvas.querySelector("svg");
-          if (!svg || !svgW) return;
-          constrainPan();
-          svg.style.width = svgW * zoom + "px";
-          svg.style.height = svgH * zoom + "px";
-          canvas.style.transform = `translate(${panX}px, ${panY}px)`;
-          label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
-        }
-        function canPan() {
-          return (
-            svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
-            svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
-          );
-        }
-        function computeSmartFit() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            aW = Math.max(80, vpW - config.fitPadding * 2),
-            aH = Math.max(80, vpH - config.fitPadding * 2),
-            contain = Math.min(aW / svgW, aH / svgH);
-          let z = contain,
-            mode = "contain";
-          if (contain < config.readabilityFloor) {
-            const chartR = svgH / svgW,
-              vpR = vpH / Math.max(vpW, 1);
-            if (chartR >= vpR) {
-              z = aW / svgW;
-              mode = "width-priority";
-            } else {
-              z = aH / svgH;
-              mode = "height-priority";
-            }
-          }
-          return {
-            zoom: clamp(z, config.minZoom, config.maxInitialZoom),
-            mode,
-          };
-        }
-        function fitDiagram() {
-          if (!svgW) return;
-          const fit = computeSmartFit();
-          zoom = fit.zoom;
-          fitMode = fit.mode;
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function setOneToOne() {
-          zoom = clamp(1, config.minZoom, config.maxZoom);
-          fitMode = "1:1";
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function zoomAround(factor, cx, cy) {
-          const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
-            ratio = next / zoom;
-          panX = cx - ratio * (cx - panX);
-          panY = cy - ratio * (cy - panY);
-          zoom = next;
-          fitMode = "custom";
-          applyTransform();
-        }
-        function readSvgNaturalSize(svg) {
-          let w = 0,
-            h = 0;
-          if (svg.viewBox?.baseVal?.width > 0) {
-            w = svg.viewBox.baseVal.width;
-            h = svg.viewBox.baseVal.height;
-          }
-          if (!w) {
-            w = parseFloat(svg.getAttribute("width")) || 0;
-            h = parseFloat(svg.getAttribute("height")) || 0;
-          }
-          if (!w) {
-            const b = svg.getBBox();
-            w = b.width;
-            h = b.height;
-          }
-          if (!w) {
-            const r = svg.getBoundingClientRect();
-            w = r.width || 1000;
-            h = r.height || 700;
-          }
-          if (!svg.getAttribute("viewBox"))
-            svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-          return { w, h };
-        }
-        function setAdaptiveHeight() {
-          if (!svgW) return;
-          const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2),
-            idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
-            maxVp = Math.floor(innerHeight * config.maxHeightVh),
-            hardMax = Math.min(
-              config.maxHeightPx,
-              Math.max(config.minHeight + 40, maxVp),
-            );
-          wrap.style.height =
-            Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
-        }
-        function openInNewTab() {
-          const svg = canvas.querySelector("svg");
-          if (!svg) return;
-          const clone = svg.cloneNode(true);
-          clone.style.width = "";
-          clone.style.height = "";
-          const bg = isDark ? "#1c1916" : "#faf6f0";
-          const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
-          open(
-            URL.createObjectURL(new Blob([html], { type: "text/html" })),
-            "_blank",
-          );
-        }
-        async function render() {
-          try {
-            const code = source.textContent.trim();
-            if (!code) {
-              label.textContent = "Lỗi: nguồn rỗng";
-              return;
-            }
-            const id =
-              "diagram-" +
-              Date.now() +
-              "-" +
-              Math.random().toString(36).slice(2, 8);
-            const { svg } = await mermaid.render(id, code);
-            canvas.innerHTML = svg;
-            const svgNode = canvas.querySelector("svg");
-            if (!svgNode) {
-              label.textContent = "Lỗi: không có SVG";
-              return;
-            }
-            const size = readSvgNaturalSize(svgNode);
-            svgW = size.w;
-            svgH = size.h;
-            svgNode.removeAttribute("width");
-            svgNode.removeAttribute("height");
-            svgNode.style.maxWidth = "none";
-            svgNode.style.display = "block";
-            setAdaptiveHeight();
-            fitDiagram();
-          } catch (err) {
-            console.error("Mermaid render failed:", err);
-            label.textContent = "Lỗi: " + (err.message || "render thất bại");
-          }
-        }
-        const actions = {
-          "zoom-in": () =>
-            zoomAround(
-              1 + config.zoomStep,
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-out": () =>
-            zoomAround(
-              1 / (1 + config.zoomStep),
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-fit": fitDiagram,
-          "zoom-one": setOneToOne,
-          "zoom-expand": openInNewTab,
+
+      let mermaid;
+      try {
+        ({ default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+        ));
+      } catch {
+        document.querySelectorAll(".diagram-shell").forEach((shell) => {
+          shell.querySelector(".mermaid-wrap").hidden = true;
+          shell.querySelector(".diagram-code").open = true;
+        });
+      }
+      if (mermaid) {
+        const config = {
+          fitPadding: 28,
+          minHeight: 320,
+          maxHeightPx: 960,
+          maxHeightVh: 0.84,
+          maxInitialZoom: 1.8,
+          minZoom: 0.08,
+          maxZoom: 6.5,
+          zoomStep: 0.14,
+          readabilityFloor: 0.58,
         };
-        Object.entries(actions).forEach(([action, handler]) => {
-          wrap
-            .querySelector(`[data-action="${action}"]`)
-            ?.addEventListener("click", handler);
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+        let activeDrag = null;
+        addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+        addEventListener("mouseup", () => {
+          activeDrag?.onEnd();
+          activeDrag = null;
         });
-        viewport.addEventListener("dblclick", fitDiagram);
-        viewport.addEventListener(
-          "wheel",
-          (e) => {
-            if (e.ctrlKey || e.metaKey) {
-              e.preventDefault();
-              const rect = viewport.getBoundingClientRect();
-              zoomAround(
-                e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep),
-                e.clientX - rect.left,
-                e.clientY - rect.top,
+        const attr = document.documentElement.getAttribute("data-theme");
+        const isDark =
+          attr === "dark" ||
+          (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "classic",
+          themeVariables: {
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontSize: "15px",
+            primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+            primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+            primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+            secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+            secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+            tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+            tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            lineColor: isDark ? "#a89e90" : "#7c756a",
+            noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+            noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+            actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+            actorBorder: isDark ? "#f0743f" : "#c2410c",
+            actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            signalColor: isDark ? "#a89e90" : "#7c756a",
+            signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          },
+        });
+        function initDiagram(shell) {
+          const wrap = shell.querySelector(".mermaid-wrap"),
+            viewport = shell.querySelector(".mermaid-viewport"),
+            canvas = shell.querySelector(".mermaid-canvas"),
+            source = shell.querySelector(".diagram-source"),
+            label = shell.querySelector(".zoom-label");
+          if (!wrap || !viewport || !canvas || !source || !label) return;
+          let zoom = 1,
+            fitMode = "contain",
+            panX = 0,
+            panY = 0,
+            svgW = 0,
+            svgH = 0,
+            sx = 0,
+            sy = 0,
+            spx = 0,
+            spy = 0,
+            touchDist = 0,
+            touchCx = 0,
+            touchCy = 0;
+          function constrainPan() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              rW = svgW * zoom,
+              rH = svgH * zoom,
+              pad = config.fitPadding;
+            panX =
+              rW + pad * 2 <= vpW
+                ? (vpW - rW) / 2
+                : clamp(panX, vpW - rW - pad, pad);
+            panY =
+              rH + pad * 2 <= vpH
+                ? (vpH - rH) / 2
+                : clamp(panY, vpH - rH - pad, pad);
+          }
+          function applyTransform() {
+            const svg = canvas.querySelector("svg");
+            if (!svg || !svgW) return;
+            constrainPan();
+            svg.style.width = svgW * zoom + "px";
+            svg.style.height = svgH * zoom + "px";
+            canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+            label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+          }
+          function canPan() {
+            return (
+              svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+              svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+            );
+          }
+          function computeSmartFit() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              aW = Math.max(80, vpW - config.fitPadding * 2),
+              aH = Math.max(80, vpH - config.fitPadding * 2),
+              contain = Math.min(aW / svgW, aH / svgH);
+            let z = contain,
+              mode = "contain";
+            if (contain < config.readabilityFloor) {
+              const chartR = svgH / svgW,
+                vpR = vpH / Math.max(vpW, 1);
+              if (chartR >= vpR) {
+                z = aW / svgW;
+                mode = "width-priority";
+              } else {
+                z = aH / svgH;
+                mode = "height-priority";
+              }
+            }
+            return {
+              zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+              mode,
+            };
+          }
+          function fitDiagram() {
+            if (!svgW) return;
+            const fit = computeSmartFit();
+            zoom = fit.zoom;
+            fitMode = fit.mode;
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function setOneToOne() {
+            zoom = clamp(1, config.minZoom, config.maxZoom);
+            fitMode = "1:1";
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function zoomAround(factor, cx, cy) {
+            const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+              ratio = next / zoom;
+            panX = cx - ratio * (cx - panX);
+            panY = cy - ratio * (cy - panY);
+            zoom = next;
+            fitMode = "custom";
+            applyTransform();
+          }
+          function readSvgNaturalSize(svg) {
+            let w = 0,
+              h = 0;
+            if (svg.viewBox?.baseVal?.width > 0) {
+              w = svg.viewBox.baseVal.width;
+              h = svg.viewBox.baseVal.height;
+            }
+            if (!w) {
+              w = parseFloat(svg.getAttribute("width")) || 0;
+              h = parseFloat(svg.getAttribute("height")) || 0;
+            }
+            if (!w) {
+              const b = svg.getBBox();
+              w = b.width;
+              h = b.height;
+            }
+            if (!w) {
+              const r = svg.getBoundingClientRect();
+              w = r.width || 1000;
+              h = r.height || 700;
+            }
+            if (!svg.getAttribute("viewBox"))
+              svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            return { w, h };
+          }
+          function setAdaptiveHeight() {
+            if (!svgW) return;
+            const usableW = Math.max(
+                280,
+                wrap.getBoundingClientRect().width - 2,
+              ),
+              idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+              maxVp = Math.floor(innerHeight * config.maxHeightVh),
+              hardMax = Math.min(
+                config.maxHeightPx,
+                Math.max(config.minHeight + 40, maxVp),
               );
-              return;
+            wrap.style.height =
+              Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+          }
+          function openInNewTab() {
+            const svg = canvas.querySelector("svg");
+            if (!svg) return;
+            const clone = svg.cloneNode(true);
+            clone.style.width = "";
+            clone.style.height = "";
+            const bg = isDark ? "#1c1916" : "#faf6f0";
+            const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+            open(
+              URL.createObjectURL(new Blob([html], { type: "text/html" })),
+              "_blank",
+            );
+          }
+          async function render() {
+            try {
+              const code = source.textContent.trim();
+              if (!code) {
+                label.textContent = "Lỗi: nguồn rỗng";
+                return;
+              }
+              const id =
+                "diagram-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).slice(2, 8);
+              const { svg } = await mermaid.render(id, code);
+              canvas.innerHTML = svg;
+              const svgNode = canvas.querySelector("svg");
+              if (!svgNode) {
+                label.textContent = "Lỗi: không có SVG";
+                return;
+              }
+              const size = readSvgNaturalSize(svgNode);
+              svgW = size.w;
+              svgH = size.h;
+              svgNode.removeAttribute("width");
+              svgNode.removeAttribute("height");
+              svgNode.style.maxWidth = "none";
+              svgNode.style.display = "block";
+              setAdaptiveHeight();
+              fitDiagram();
+            } catch (err) {
+              console.error("Mermaid render failed:", err);
+              label.textContent = "Lỗi: " + (err.message || "render thất bại");
             }
-            if (canPan()) {
-              e.preventDefault();
-              panX -= e.deltaX;
-              panY -= e.deltaY;
-              applyTransform();
-            }
-          },
-          { passive: false },
-        );
-        viewport.addEventListener("mousedown", (e) => {
-          if (e.target.closest(".zoom-controls") || !canPan()) return;
-          wrap.classList.add("is-panning");
-          sx = e.clientX;
-          sy = e.clientY;
-          spx = panX;
-          spy = panY;
-          e.preventDefault();
-          activeDrag = {
-            onMove: (ev) => {
-              panX = spx + (ev.clientX - sx);
-              panY = spy + (ev.clientY - sy);
-              applyTransform();
-            },
-            onEnd: () => wrap.classList.remove("is-panning"),
+          }
+          const actions = {
+            "zoom-in": () =>
+              zoomAround(
+                1 + config.zoomStep,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-out": () =>
+              zoomAround(
+                1 / (1 + config.zoomStep),
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-fit": fitDiagram,
+            "zoom-one": setOneToOne,
+            "zoom-expand": openInNewTab,
           };
-        });
-        viewport.addEventListener(
-          "touchstart",
-          (e) => {
-            if (e.touches.length === 1) {
-              sx = e.touches[0].clientX;
-              sy = e.touches[0].clientY;
-              spx = panX;
-              spy = panY;
-            } else if (e.touches.length === 2) {
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY;
-              touchDist = Math.sqrt(dx * dx + dy * dy);
-              const r = viewport.getBoundingClientRect();
-              touchCx =
-                (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
-              touchCy =
-                (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
-            }
-          },
-          { passive: true },
-        );
-        viewport.addEventListener(
-          "touchmove",
-          (e) => {
-            if (e.touches.length === 1 && canPan()) {
-              if (touchDist > 0) {
+          Object.entries(actions).forEach(([action, handler]) => {
+            wrap
+              .querySelector(`[data-action="${action}"]`)
+              ?.addEventListener("click", handler);
+          });
+          viewport.addEventListener("dblclick", fitDiagram);
+          viewport.addEventListener(
+            "wheel",
+            (e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                zoomAround(
+                  e.deltaY < 0
+                    ? 1 + config.zoomStep
+                    : 1 / (1 + config.zoomStep),
+                  e.clientX - rect.left,
+                  e.clientY - rect.top,
+                );
+                return;
+              }
+              if (canPan()) {
+                e.preventDefault();
+                panX -= e.deltaX;
+                panY -= e.deltaY;
+                applyTransform();
+              }
+            },
+            { passive: false },
+          );
+          viewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest(".zoom-controls") || !canPan()) return;
+            wrap.classList.add("is-panning");
+            sx = e.clientX;
+            sy = e.clientY;
+            spx = panX;
+            spy = panY;
+            e.preventDefault();
+            activeDrag = {
+              onMove: (ev) => {
+                panX = spx + (ev.clientX - sx);
+                panY = spy + (ev.clientY - sy);
+                applyTransform();
+              },
+              onEnd: () => wrap.classList.remove("is-panning"),
+            };
+          });
+          viewport.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length === 1) {
                 sx = e.touches[0].clientX;
                 sy = e.touches[0].clientY;
                 spx = panX;
                 spy = panY;
-                touchDist = 0;
+              } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchDist = Math.sqrt(dx * dx + dy * dy);
+                const r = viewport.getBoundingClientRect();
+                touchCx =
+                  (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+                touchCy =
+                  (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
               }
-              e.preventDefault();
-              panX = spx + (e.touches[0].clientX - sx);
-              panY = spy + (e.touches[0].clientY - sy);
-              applyTransform();
-            } else if (e.touches.length === 2 && touchDist > 0) {
-              e.preventDefault();
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY,
-                d = Math.sqrt(dx * dx + dy * dy);
-              zoomAround(d / touchDist, touchCx, touchCy);
-              touchDist = d;
-            }
-          },
-          { passive: false },
-        );
-        new ResizeObserver(() => {
-          if (svgW) {
-            setAdaptiveHeight();
-            fitDiagram();
-          }
-        }).observe(wrap);
-        render();
-      }
-      document.querySelectorAll(".diagram-shell").forEach(initDiagram);
-    </script>
-
-    <script>
-      (function () {
-        const toc = document.getElementById("toc");
-        if (!toc) return;
-        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
-        const sections = [];
-        links.forEach((link) => {
-          const id = link.getAttribute("href").slice(1);
-          const el = document.getElementById(id);
-          if (el) sections.push({ id, el, link });
-        });
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                links.forEach((l) => l.classList.remove("active"));
-                const match = sections.find((s) => s.el === entry.target);
-                if (match) {
-                  match.link.classList.add("active");
-                  if (window.innerWidth <= 1000)
-                    match.link.scrollIntoView({
-                      behavior: "smooth",
-                      block: "nearest",
-                      inline: "center",
-                    });
+            },
+            { passive: true },
+          );
+          viewport.addEventListener(
+            "touchmove",
+            (e) => {
+              if (e.touches.length === 1 && canPan()) {
+                if (touchDist > 0) {
+                  sx = e.touches[0].clientX;
+                  sy = e.touches[0].clientY;
+                  spx = panX;
+                  spy = panY;
+                  touchDist = 0;
                 }
+                e.preventDefault();
+                panX = spx + (e.touches[0].clientX - sx);
+                panY = spy + (e.touches[0].clientY - sy);
+                applyTransform();
+              } else if (e.touches.length === 2 && touchDist > 0) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY,
+                  d = Math.sqrt(dx * dx + dy * dy);
+                zoomAround(d / touchDist, touchCx, touchCy);
+                touchDist = d;
               }
-            });
-          },
-          { rootMargin: "-10% 0px -80% 0px" },
-        );
-        sections.forEach((s) => observer.observe(s.el));
-        links.forEach((link) => {
-          link.addEventListener("click", (e) => {
-            e.preventDefault();
-            const id = link.getAttribute("href").slice(1);
-            const el = document.getElementById(id);
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth", block: "start" });
-              history.replaceState(null, "", "#" + id);
+            },
+            { passive: false },
+          );
+          new ResizeObserver(() => {
+            if (svgW) {
+              setAdaptiveHeight();
+              fitDiagram();
             }
-          });
-        });
-      })();
+          }).observe(wrap);
+          render();
+        }
+        document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+      }
     </script>
   </body>
 </html>

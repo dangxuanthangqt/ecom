@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chương 4 — Middleware</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Azeret+Mono:wght@400;500;600&amp;display=swap"
       rel="stylesheet"
     />
     <style>
@@ -1092,1195 +1092,2653 @@
           max-width: none;
         }
       }
+
+      /* Markdown-generated content uses the existing paper/ink theme. */
+      h2.sec-head {
+        display: block;
+        font-size: 1.45rem;
+        line-height: 1.5;
+        scroll-margin-top: 24px;
+      }
+      h3.sub {
+        font-size: 1.15rem;
+        margin-top: 30px;
+        line-height: 1.6;
+      }
+      h4.sub,
+      h5.sub,
+      h6.sub {
+        margin-top: 24px;
+        line-height: 1.6;
+      }
+      blockquote {
+        margin: 20px 0;
+        padding: 12px 22px;
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+      }
+      blockquote .prose:last-child {
+        margin-bottom: 0;
+      }
+      .main > ul,
+      .main > ol {
+        padding-left: 26px;
+        margin: 16px 0 24px;
+      }
+      li {
+        line-height: 1.85;
+      }
+      li > .prose {
+        margin: 6px 0;
+      }
+      pre.code-file__body {
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      pre code {
+        font: inherit;
+        color: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .series-bar {
+        flex-wrap: wrap;
+      }
+      .series-bar a[aria-current="page"] {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .diagram-code {
+        margin: 10px 0 24px;
+      }
+      .diagram-code pre {
+        overflow-x: auto;
+        padding: 16px;
+        background: var(--surface);
+      }
+      .source-footer {
+        margin: 48px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.8rem;
+      }
+      .mermaid-wrap[hidden] {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <button
       class="theme-toggle"
       id="themeToggle"
-      title="Đổi giao diện sáng/tối"
       aria-label="Đổi giao diện sáng tối"
-    ></button>
+    >
+      ☾
+    </button>
     <div class="wrap">
-      <nav class="toc" id="toc">
-        <div class="toc-title">Chương 4</div>
-        <a href="#s1">(req, res, next)</a>
-        <a href="#s2">Chạy lúc nào</a>
-        <a href="#s3">Hai cách viết</a>
-        <a href="#s4">Ba cách đăng ký</a>
-        <a href="#s5">So với guard / pipe</a>
-        <a href="#s6">Vì sao auth không ở đây</a>
-        <a href="#s7">Bốn middleware trong dự án</a>
-        <a href="#s8">Nếu cần viết một cái</a>
-        <a href="#s9">Nâng cao</a>
-        <a href="#s10">Trong dự án</a>
-        <a href="#s11">Tự kiểm chứng</a>
+      <nav class="toc" aria-label="Mục lục chương">
+        <div class="toc-title">Trong chương</div>
+        <a href="#1-middleware-là-hàm-req-res-next-của-express"
+          >1. Middleware là hàm (req, res, next) của Express</a
+        ><a href="#2-chạy-lúc-nào--và-vì-sao-điều-đó-quyết-định-mọi-thứ"
+          >2. Chạy lúc nào — và vì sao điều đó quyết định mọi thứ</a
+        ><a href="#3-bốn-cách-viết">3. Bốn cách viết</a
+        ><a href="#4-ba-cách-đăng-ký--và-mọi-biến-thể-của-forroutes"
+          >4. Ba cách đăng ký — và mọi biến thể của forRoutes</a
+        ><a href="#5-middleware-vs-guard-vs-interceptor-vs-pipe"
+          >5. Middleware vs Guard vs Interceptor vs Pipe</a
+        ><a href="#6-vì-sao-xác-thực-không-phải-middleware-trong-dự-án"
+          >6. Vì sao xác thực không phải middleware trong dự án</a
+        ><a href="#7-bốn-middleware-đang-chạy-trong-dự-án"
+          >7. Bốn middleware đang chạy trong dự án</a
+        ><a href="#8-bộ-sưu-tập-tám-middleware-mẫu"
+          >8. Bộ sưu tập: tám middleware mẫu</a
+        ><a href="#9-test-một-middleware">9. Test một middleware</a
+        ><a href="#10-nâng-cao">10. Nâng cao</a
+        ><a href="#11-trong-dự-án-này">11. Trong dự án này</a
+        ><a href="#12-tự-kiểm-chứng">12. Tự kiểm chứng</a>
         <div class="toc-series">
           <a href="index.html">↑ Mục lục bộ</a
-          ><a href="03-guards.html">← Chương 3</a
-          ><a href="05-request-lifecycle-in-this-project.html">→ Chương 5</a>
+          ><a href="04-middleware.md">Bản Markdown</a>
         </div>
       </nav>
-
-      <div class="main">
-        <div class="series-bar">
-          <a href="index.html">Mục lục</a><span class="sep">·</span>
-          <a href="00-prototype-and-this.html">00 Prototype</a>
-          <a href="01-decorators-and-metadata.html">01 Decorator</a>
-          <a href="02-reflector-execution-context-and-discovery.html"
+      <main class="main">
+        <nav class="series-bar" aria-label="Các chương">
+          <a href="index.html">Mục lục</a
+          ><a href="00-prototype-and-this.html">00 Prototype</a
+          ><a href="01-decorators-and-metadata.html">01 Decorator</a
+          ><a href="02-reflector-execution-context-and-discovery.html"
             >02 Reflector</a
-          >
-          <a href="03-guards.html">03 Guard</a>
-          <span>04 Middleware</span>
-          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
-          <a href="06-modules-and-dependency-injection.html"
+          ><a href="03-guards.html">03 Guard</a
+          ><a href="04-middleware.html" aria-current="page">04 Middleware</a
+          ><a href="05-request-lifecycle-in-this-project.html"
+            >05 Vòng đời request</a
+          ><a href="06-modules-and-dependency-injection.html"
             >06 Module &amp; DI</a
-          >
-          <a href="07-dto-validation-transformation-serialization.html"
+          ><a href="07-dto-validation-transformation-serialization.html"
             >07 DTO</a
+          ><a href="08-request-and-provider-instances.html"
+            >08 Instance &amp; scope</a
+          ><a href="09-interceptors.html">09 Interceptor</a
+          ><a href="10-exception-filters.html">10 Filter</a
+          ><a href="11-controllers-and-http-routing.html">11 Controller</a
+          ><a href="12-pipes-and-input-contracts.html">12 Pipe</a
+          ><a href="13-testing-fundamentals.html">13 Testing</a
+          ><a href="14-bootstrap-configuration-and-shutdown.html"
+            >14 Bootstrap</a
+          ><a href="appendix-a-reflect-metadata-internals.html"
+            >Phụ lục A — reflect-metadata bên trong</a
           >
-          <a href="appendix-a-reflect-metadata-internals.html"
-            >A reflect-metadata</a
-          >
-          <span class="sep">·</span
-          ><a href="04-middleware.md">bản markdown đầy đủ</a>
-        </div>
-
+        </nav>
         <header class="masthead">
-          <div class="eyebrow">Chương 4</div>
-          <h1>Middleware</h1>
-          <p class="subtitle">
-            Tầng <strong>dưới</strong> NestJS — nó thuộc về Express. Chạy lúc
-            nào, viết và đăng ký ra sao, khác guard chỗ nào, và trả lời câu hỏi
-            <em>"sao không làm auth bằng middleware cho gọn?"</em>
-          </p>
-          <div class="masthead-meta">
-            <span class="tag">Express 5.0.1</span
-            ><span class="tag tag--b">0 middleware tự viết</span
-            ><span class="tag tag--c">4 middleware đang chạy</span>
-          </div>
+          <h1 id="chương-4--middleware">Chương 4 — Middleware</h1>
         </header>
-
-        <div class="sec-head" id="s1">
-          <span class="sec-head__num">01</span
-          ><span class="sec-head__text"
-            >Middleware là hàm <code>(req, res, next)</code> của Express</span
-          >
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header"><span>Express thuần</span></div>
-            <pre
-              class="code-file__body"
-            ><code><span class="kw">function</span> <span class="fn">logRequest</span>(req: Request, res: Response, next: NextFunction) {
+        <blockquote>
+          <p class="prose">
+            Middleware là tầng <strong>dưới</strong> NestJS — nó thuộc về
+            Express. Chương này giải thích nó chạy lúc nào, viết và đăng ký ra
+            sao, khác guard chỗ nào, và trả lời câu hỏi mà người mới hay đặt:
+            <em>&quot;sao không làm auth bằng middleware cho gọn?&quot;</em> Dự
+            án không viết middleware nào bằng tay, nhưng có
+            <strong>bốn</strong> middleware đang chạy mỗi request — đến từ thư
+            viện. Nửa sau chương là một
+            <strong>bộ sưu tập tám middleware mẫu</strong> viết theo đúng quy
+            ước của dự án, kèm cách test.
+          </p>
+        </blockquote>
+        <p class="prose"><strong>Mục lục</strong></p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <a href="#1-middleware-là-hàm-req-res-next-của-express"
+                >Middleware là hàm <code>(req, res, next)</code> của Express</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#2-chạy-lúc-nào--và-vì-sao-điều-đó-quyết-định-mọi-thứ"
+                >Chạy lúc nào — và vì sao điều đó quyết định mọi thứ</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#3-bốn-cách-viết">Bốn cách viết</a></p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#4-ba-cách-đăng-ký--và-mọi-biến-thể-của-forroutes"
+                >Ba cách đăng ký — và mọi biến thể của <code>forRoutes</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#5-middleware-vs-guard-vs-interceptor-vs-pipe"
+                >Middleware vs Guard vs Interceptor vs Pipe</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#6-vì-sao-xác-thực-không-phải-middleware-trong-dự-án"
+                >Vì sao xác thực không phải middleware trong dự án</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#7-bốn-middleware-đang-chạy-trong-dự-án"
+                >Bốn middleware đang chạy trong dự án</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#8-bộ-sưu-tập-tám-middleware-mẫu"
+                >Bộ sưu tập: tám middleware mẫu</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#9-test-một-middleware">Test một middleware</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#10-nâng-cao">Nâng cao</a></p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#11-trong-dự-án-này">Trong dự án này</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#12-tự-kiểm-chứng">Tự kiểm chứng</a></p>
+          </li>
+        </ol>
+        <hr />
+        <h2 id="1-middleware-là-hàm-req-res-next-của-express" class="sec-head">
+          1. Middleware là hàm <code>(req, res, next)</code> của Express
+        </h2>
+        <p class="prose">
+          Ứng dụng Nest HTTP của dự án chạy trên
+          <code>@nestjs/platform-express</code> (Express
+          <strong>5.0.1</strong>). Bên dưới mọi thứ là một Express app, và
+          Express xử lý request bằng <strong>một chuỗi hàm</strong> gọi nối tiếp
+          — gọi là <em>stack</em>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>function logRequest(req: Request, res: Response, next: NextFunction) {
   console.log(req.method, req.url);
-  <span class="fn">next</span>();   <span class="cm">// gọi hàm kế tiếp; không gọi là request treo</span>
+  next(); // gọi hàm kế tiếp trong chuỗi; không gọi là request treo
 }</code></pre>
-          </div>
-          <div class="ve-card ve-card--hero" style="--i: 0">
-            <div class="ve-card__label">Một quy tắc</div>
-            <p>
-              Làm việc của mình rồi gọi <code>next()</code>, hoặc tự trả
-              response và <em>không</em> gọi <code>next()</code>.
-            </p>
-            <p>
-              Không <code>ExecutionContext</code>, không <code>Reflector</code>,
-              không khái niệm "handler" — vì đây chưa phải Nest. Đổi lại:
-              <code>cors</code>, <code>helmet</code>, <code>compression</code>,
-              <code>cookie-parser</code>… dùng nguyên xi. Lợi thế lớn nhất là
-              <strong>hệ sinh thái</strong>.
-            </p>
-          </div>
         </div>
+        <p class="prose">
+          Ba tham số, một quy tắc:
+          <strong>làm việc của mình rồi gọi <code>next()</code></strong
+          >, hoặc tự trả response và không gọi <code>next()</code>. Không có
+          <code>ExecutionContext</code>, không có <code>Reflector</code>, không
+          có khái niệm &quot;handler&quot; — vì đây chưa phải Nest.
+        </p>
+        <h3 id="11-chuỗi-gọi-nhìn-từ-express-thuần" class="sub">
+          1.1 Chuỗi gọi nhìn từ Express thuần
+        </h3>
+        <p class="prose">
+          Bỏ Nest đi một phút. Đây là toàn bộ mô hình mà mọi thứ trong chương
+          này xây lên:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>import express from &quot;express&quot;;
 
-        <div class="sec-head" id="s2">
-          <span class="sec-head__num">02</span
-          ><span class="sec-head__text"
-            >Chạy lúc nào — và vì sao điều đó quyết định mọi thứ</span
-          >
+const app = express();
+
+app.use((req, res, next) =&gt; {
+  console.log(&quot;1. mọi request đi qua đây&quot;);
+  next();
+});
+
+app.use(&quot;/admin&quot;, (req, res, next) =&gt; {
+  console.log(&quot;2. chỉ request bắt đầu bằng /admin&quot;);
+  next();
+});
+
+app.use((req, res, next) =&gt; {
+  if (req.headers[&quot;x-blocked&quot;]) {
+    // Tự trả response và KHÔNG gọi next(): chuỗi dừng ở đây.
+    return res.status(403).json({ message: &quot;blocked&quot; });
+  }
+  next();
+});
+
+app.get(&quot;/admin/users&quot;, (req, res) =&gt; {
+  console.log(&quot;4. handler&quot;);
+  res.json([]);
+});</code></pre>
         </div>
-        <div class="pipeline">
-          <div class="pipeline__step ve-card pipeline__step--hi" style="--i: 0">
-            <div class="ve-card__label">Middleware</div>
-            <p style="font-size: 13.5px">
-              <strong>ở đây</strong> — Nest <em>chưa</em> chọn handler
+        <p class="prose">
+          <code>GET /admin/users</code> in ra <code>1 → 2 → 4</code>.
+          <code>GET /products</code> chỉ in ra <code>1</code> rồi 404: hàm 2
+          không khớp path, hàm 3 chạy nhưng im lặng, và không có handler nào cho
+          <code>/products</code>. Thêm header <code>x-blocked</code> vào là dừng
+          ở hàm 3, handler không bao giờ chạy.
+        </p>
+        <p class="prose">Ba điều rút ra, dùng lại suốt chương:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Thứ tự stack = thứ tự gọi <code>.use()</code>.</strong>
+              Không có cơ chế &quot;ưu tiên&quot; nào khác.
             </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div
-            class="pipeline__step ve-card pipeline__step--mute"
-            style="--i: 1"
-          >
-            <div class="ve-card__label ve-card__label--plum">Guard</div>
-            <p style="font-size: 13.5px">đã biết handler</p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div
-            class="pipeline__step ve-card pipeline__step--mute"
-            style="--i: 2"
-          >
-            <div class="ve-card__label ve-card__label--b">Interceptor</div>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div
-            class="pipeline__step ve-card pipeline__step--mute"
-            style="--i: 3"
-          >
-            <div class="ve-card__label ve-card__label--c">Pipe</div>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div
-            class="pipeline__step ve-card pipeline__step--mute"
-            style="--i: 4"
-          >
-            <div class="ve-card__label ve-card__label--amber">Handler</div>
-          </div>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Một middleware có ba lối ra:</strong>
+              <code>next()</code> (đi tiếp), <code>next(err)</code> (nhảy tới
+              error handler), hoặc tự <code>res.send</code> (kết thúc). Quên cả
+              ba là request treo cho tới khi client timeout.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Khớp path xảy ra ở tầng Express</strong>, bằng chuỗi/regex
+              — không phải bằng decorator <code>@Get()</code> của Nest.
+            </p>
+          </li>
+        </ul>
+        <h3 id="12-nexterr--lối-ra-thứ-ba" class="sub">
+          1.2 <code>next(err)</code> — lối ra thứ ba
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>app.use((req, res, next) =&gt; {
+  if (!req.headers[&quot;content-type&quot;]?.includes(&quot;json&quot;)) {
+    return next(new Error(&quot;only JSON&quot;)); // nhảy thẳng tới error handler
+  }
+  next();
+});
+
+// error handler của Express: 4 tham số
+app.use((err, req, res, next) =&gt; {
+  res.status(500).json({ message: err.message });
+});</code></pre>
         </div>
-        <div class="callout callout--danger">
-          <div class="callout__title">Nói một lần cho rõ</div>
-          <strong>Middleware không đọc được metadata của handler.</strong> Không
-          <code>@RequirePermission</code>, không <code>@AuthApi</code>, không
-          <code>@Throttle</code>. Express đã khớp path để biết có chạy
-          middleware này không, nhưng "handler" theo nghĩa Nest — hàm có
-          metadata — <em>chưa tồn tại</em> trong ngữ cảnh của nó. Bất kỳ quyết
-          định nào cần biết "route này khai gì" <strong>không thể</strong> nằm ở
-          middleware.
+        <p class="prose">
+          Trong Nest bạn hầu như không viết error handler kiểu bốn tham số này.
+          Nhưng cần biết nó tồn tại, vì
+          <a href="#4-ba-cách-đăng-ký--và-mọi-biến-thể-của-forroutes">mục 4</a>
+          sẽ cho thấy: middleware đăng ký qua module thì Nest
+          <strong>tự bọc</strong> để <code>next(err)</code> (hoặc
+          <code>throw</code>) đi về <code>GlobalExceptionFilter</code>.
+          <code>app.use</code> đăng ký trước <code>app.init()</code> cũng có thể
+          chuyển lỗi tới error-middleware cuối của Nest; khác nhau ở cơ chế
+          proxy và thứ tự stack, không phải luôn bị tách khỏi filter.
+        </p>
+        <h3 id="13-hệ-sinh-thái" class="sub">1.3 Hệ sinh thái</h3>
+        <p class="prose">
+          Mọi middleware Express ngoài kia dùng được nguyên xi, vì Nest không
+          thay đổi chữ ký:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Gói</th>
+                <th>Làm gì</th>
+                <th>Cách vào app</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>cors</code></td>
+                <td>header CORS, trả lời preflight</td>
+                <td><code>app.enableCors()</code> — dự án đang dùng</td>
+              </tr>
+              <tr>
+                <td><code>body-parser</code></td>
+                <td>parse JSON / form thành <code>req.body</code></td>
+                <td>Nest tự đăng ký — dự án đang dùng</td>
+              </tr>
+              <tr>
+                <td><code>pino-http</code></td>
+                <td>log request, sinh <code>req.id</code></td>
+                <td>
+                  <code>nestjs-pino</code> đăng ký qua module — dự án đang dùng
+                </td>
+              </tr>
+              <tr>
+                <td><code>helmet</code></td>
+                <td>bộ header bảo mật (<code>X-Frame-Options</code>, CSP…)</td>
+                <td><code>app.use(helmet())</code></td>
+              </tr>
+              <tr>
+                <td><code>compression</code></td>
+                <td>gzip/brotli response</td>
+                <td><code>app.use(compression())</code></td>
+              </tr>
+              <tr>
+                <td><code>cookie-parser</code></td>
+                <td><code>req.cookies</code></td>
+                <td><code>app.use(cookieParser())</code></td>
+              </tr>
+              <tr>
+                <td><code>express-static</code></td>
+                <td>phục vụ file tĩnh</td>
+                <td>
+                  <code>app.useStaticAssets()</code> trên
+                  <code>NestExpressApplication</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+        <p class="prose">
+          Đây là lợi thế lớn của middleware:
+          <strong>không phải viết lại</strong>. Khi một việc đã có gói Express
+          làm tốt, câu hỏi chỉ là &quot;đăng ký ở đâu&quot; (<a
+            href="#4-ba-cách-đăng-ký--và-mọi-biến-thể-của-forroutes"
+            >mục 4</a
+          >), không phải &quot;viết thế nào&quot;.
+        </p>
+        <hr />
+        <h2
+          id="2-chạy-lúc-nào--và-vì-sao-điều-đó-quyết-định-mọi-thứ"
+          class="sec-head"
+        >
+          2. Chạy lúc nào — và vì sao điều đó quyết định mọi thứ
+        </h2>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>Request → [ Middleware ] → Guard → Interceptor → Pipe → Handler
+            ↑ ở đây, Nest CHƯA chọn handler</code></pre>
+        </div>
+        <p class="prose">
+          Middleware chạy
+          <strong
+            >trước khi Nest quyết định request sẽ rơi vào controller/method
+            nào</strong
+          >. Express đã khớp path để biết có chạy middleware này không
+          (<code>forRoutes</code>), nhưng cái &quot;handler&quot; theo nghĩa
+          Nest — hàm có metadata, có <code>@RequirePermission</code> —
+          <strong>chưa tồn tại</strong> trong ngữ cảnh của middleware.
+        </p>
+        <h3 id="21-lúc-đó-req-có-gì-chưa-có-gì" class="sub">
+          2.1 Lúc đó <code>req</code> có gì, chưa có gì
+        </h3>
+        <p class="prose">
+          Cụ thể hoá bằng một request <code>POST /brands</code> có body JSON và
+          header <code>Authorization</code>, tới lúc middleware tự viết của bạn
+          chạy (giả sử đăng ký qua module, xem
+          <a href="#thứ-tự-thực-tế">thứ tự ở mục 7</a>):
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Trên <code>req</code></th>
+                <th>Đã có?</th>
+                <th>Ai đặt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>req.method</code>, <code>req.url</code>,
+                  <code>req.headers</code>
+                </td>
+                <td>Có</td>
+                <td>Node <code>http</code></td>
+              </tr>
+              <tr>
+                <td><code>req.ip</code></td>
+                <td>Có</td>
+                <td>Express, theo <code>trust proxy</code></td>
+              </tr>
+              <tr>
+                <td><code>req.body</code></td>
+                <td>Có</td>
+                <td>
+                  <code>body-parser</code> (Nest đăng ký trong
+                  <code>init()</code>)
+                </td>
+              </tr>
+              <tr>
+                <td><code>req.id</code></td>
+                <td>Có</td>
+                <td>
+                  <code>pino-http</code> (nếu middleware của bạn đứng sau)
+                </td>
+              </tr>
+              <tr>
+                <td><code>req.i18nContext</code></td>
+                <td>Có</td>
+                <td><code>I18nMiddleware</code> (nếu đứng sau)</td>
+              </tr>
+              <tr>
+                <td><code>req.params</code></td>
+                <td>Theo pattern middleware</td>
+                <td>
+                  Có thể có params từ
+                  <code>forRoutes(&quot;brands/:id&quot;)</code>; chưa phải
+                  params của handler
+                </td>
+              </tr>
+              <tr>
+                <td><code>req.route</code></td>
+                <td><strong>Không</strong></td>
+                <td>Express chỉ gán khi vào router</td>
+              </tr>
+              <tr>
+                <td>Handler / controller</td>
+                <td><strong>Không</strong></td>
+                <td>chưa chọn</td>
+              </tr>
+              <tr>
+                <td>Metadata <code>@RequirePermission</code></td>
+                <td><strong>Không</strong></td>
+                <td>không có handler thì không có gì để đọc</td>
+              </tr>
+              <tr>
+                <td><code>req.user</code></td>
+                <td><strong>Không</strong></td>
+                <td>guard chưa chạy</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Hàng <code>req.params</code> đáng dừng lại:
+          <code>forRoutes(&quot;brands/:id&quot;)</code> khiến Express khớp được
+          path, nhưng <code>:id</code> đó là của
+          <strong>pattern middleware</strong>, không phải của
+          <code>@Get(&quot;:id&quot;)</code> — Nest bind middleware bằng
+          <code>app.use(pattern, fn)</code> riêng, nên
+          <code>req.params</code> trong middleware là của pattern bạn viết trong
+          <code>forRoutes</code>, và <code>req.params</code> khi vào handler là
+          của decorator. Hai thứ khác nhau, đừng trông chờ chúng khớp.
+        </p>
+        <h3 id="22-hệ-quả" class="sub">2.2 Hệ quả</h3>
+        <p class="prose">Nói một lần cho rõ:</p>
+        <blockquote>
+          <p class="prose">
+            <strong>Middleware không đọc được metadata của handler.</strong>
+            Không <code>@RequirePermission</code>, không <code>@AuthApi</code>,
+            không <code>@Throttle</code>. Bất kỳ quyết định nào cần biết
+            &quot;route này khai gì&quot; <strong>không thể</strong> nằm ở
+            middleware.
+          </p>
+        </blockquote>
+        <p class="prose">
+          Thử ép cũng không được. Đây là đoạn code người mới hay viết, và vì sao
+          nó vô nghĩa:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>use(req: Request, res: Response, next: NextFunction) {
+  // ??? handler nào? Không có tham chiếu nào tới controller/method ở đây.
+  const perm = Reflect.getMetadata(PERMISSION_KEY, ???);
+  next();
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>Reflect.getMetadata</code> cần một <strong>target</strong> — hàm
+          hoặc class. Middleware không có tham chiếu tới hàm handler, vì router
+          còn chưa chạy để chọn nó. Guard có
+          <code>context.getHandler()</code> chính là vì guard chạy
+          <strong>sau</strong> router (<a
+            href="02-reflector-execution-context-and-discovery.html"
+            >chương 2</a
+          >).
+        </p>
         <p class="prose">
           Ngược lại, vì chạy sớm, middleware là chỗ đúng cho việc
           <strong>phải xảy ra với mọi request bất kể đích đến</strong>: parse
-          body, gắn request id, mở CORS, phát hiện ngôn ngữ.
+          body, gắn request id, mở CORS, đo thời gian, phát hiện ngôn ngữ — và
+          cả request sẽ bị 401, 404 sau đó.
         </p>
-
-        <div class="sec-head" id="s3">
-          <span class="sec-head__num">03</span
-          ><span class="sec-head__text">Hai cách viết</span>
-        </div>
-        <div class="diff-panels">
-          <div>
-            <div class="diff-panel__header diff-panel__header--a">
-              Hàm thuần — không DI, gọn
-            </div>
-            <div class="diff-panel__body">
-              <pre
-                class="code-file__body"
-                style="
-                  border: 0;
-                  padding: 0;
-                  background: transparent;
-                  font-size: 13px;
-                "
-              ><code><span class="kw">export function</span> <span class="fn">requestTiming</span>(req, res, next) {
-  <span class="kw">const</span> start = Date.<span class="fn">now</span>();
-  res.<span class="fn">on</span>(<span class="st">"finish"</span>, () =&gt;
-    console.log(<span class="st">`${req.url} ${Date.now() - start}ms`</span>));
-  <span class="fn">next</span>();
-}</code></pre>
-            </div>
-          </div>
-          <div>
-            <div class="diff-panel__header diff-panel__header--b">
-              Class NestMiddleware — có DI
-            </div>
-            <div class="diff-panel__body">
-              <pre
-                class="code-file__body"
-                style="
-                  border: 0;
-                  padding: 0;
-                  background: transparent;
-                  font-size: 13px;
-                "
-              ><code>@<span class="fn">Injectable</span>()
-<span class="kw">export class</span> RequestTimingMiddleware <span class="kw">implements</span> NestMiddleware {
-  <span class="kw">constructor</span>(<span class="kw">private readonly</span> logger: PinoLogger) {}
-  <span class="fn">use</span>(req, res, next) {
-    <span class="kw">const</span> start = Date.<span class="fn">now</span>();
-    res.<span class="fn">on</span>(<span class="st">"finish"</span>, () =&gt; <span class="kw">this</span>.logger.<span class="fn">info</span>({ ms: Date.now() - start }));
-    <span class="fn">next</span>();
-  }
-}</code></pre>
-            </div>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s4">
-          <span class="sec-head__num">04</span
-          ><span class="sec-head__text">Ba cách đăng ký</span>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Cách</th>
-                  <th>Ở đâu</th>
-                  <th>DI</th>
-                  <th>Chọn route</th>
-                  <th>Lỗi ném ra đi đâu</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>app.use(fn)</code></td>
-                  <td><code>main.ts</code></td>
-                  <td><span class="status status--gap">Không</span></td>
-                  <td>toàn app</td>
-                  <td>
-                    <strong>Express</strong> xử lý —
-                    <code>GlobalExceptionFilter</code> <em>không</em> thấy
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>consumer.apply(M).forRoutes(…)</code></td>
-                  <td><code>configure()</code> của module</td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td>path / method / controller, có <code>exclude()</code></td>
-                  <td>Nest bọc proxy → <strong>về exception filter</strong></td>
-                </tr>
-                <tr>
-                  <td>Thư viện tự đăng ký</td>
-                  <td>module của thư viện</td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td>thư viện quyết</td>
-                  <td>như dòng trên</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <hr />
+        <h2 id="3-bốn-cách-viết" class="sec-head">3. Bốn cách viết</h2>
+        <h3 id="31-hàm-thuần--không-di-gọn" class="sub">
+          3.1 Hàm thuần — không DI, gọn
+        </h3>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>mẫu chuẩn — ví dụ minh hoạ</span>
-          </div>
+          <div class="code-file__header">ts</div>
           <pre
             class="code-file__body"
-          ><code><span class="kw">export class</span> AppModule <span class="kw">implements</span> NestModule {
-  <span class="fn">configure</span>(consumer: MiddlewareConsumer) {
-    consumer
-      .<span class="fn">apply</span>(RequestTimingMiddleware)
-      .<span class="fn">exclude</span>({ path: <span class="st">"health"</span>, method: RequestMethod.GET })   <span class="cm">// giả định có route health</span>
-      .<span class="fn">forRoutes</span>(<span class="st">"*path"</span>);                                     <span class="cm">// Nest 11: wildcard có tên</span>
+          ><code>export function requestTiming(req: Request, res: Response, next: NextFunction) {
+  const start = Date.now();
+  res.on(&quot;finish&quot;, () =&gt;
+    console.log(`${req.method} ${req.url} ${Date.now() - start}ms`),
+  );
+  next();
+}</code></pre>
+        </div>
+        <p class="prose">
+          Dùng khi không cần tiêm gì và logic vài dòng. Nest gọi là
+          <em>functional middleware</em>. Đăng ký được cả bằng
+          <code>app.use</code> và <code>consumer.apply</code>.
+        </p>
+        <h3 id="32-class-nestmiddleware--có-di" class="sub">
+          3.2 Class <code>NestMiddleware</code> — có DI
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class RequestTimingMiddleware implements NestMiddleware {
+  constructor(private readonly logger: PinoLogger) {}
+
+  use(req: Request, res: Response, next: NextFunction) {
+    const start = Date.now();
+    res.on(&quot;finish&quot;, () =&gt;
+      this.logger.info({ ms: Date.now() - start }, &quot;request done&quot;),
+    );
+    next();
   }
 }</code></pre>
         </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label ve-card__label--amber">
-              Nest 11 đổi cú pháp wildcard
-            </div>
-            <p>
-              <code>path-to-regexp</code> v8 yêu cầu wildcard có tên:
-              <code>"*path"</code> hoặc <code>"{*path}"</code>.
-              <code>"*"</code> cũ vẫn được tự chuyển (kèm cảnh báo);
-              <code>"/users/*"</code> phải thành <code>"/users/*path"</code>.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--amber">
-              Module chỉ là nơi đặt code
-            </div>
-            <p>
-              Middleware trong <code>configure()</code> của một module
-              <strong>không</strong> bị giới hạn vào route của module đó.
-              <code>forRoutes("*path")</code> áp cho mọi route toàn app.
-            </p>
-          </div>
-        </div>
+        <p class="prose">
+          Dùng khi cần service (config, Redis, logger). Interface
+          <code>NestMiddleware</code> chỉ đòi một method
+          <code>use(req, res, next)</code>. Class này phải nằm trong
+          <code>providers</code> của module đăng ký nó — hoặc các dependency của
+          nó phải resolve được từ module đó (<a
+            href="06-modules-and-dependency-injection.html"
+            >chương 6</a
+          >).
+        </p>
+        <h3 id="33-factory--hàm-nhận-option-trả-middleware" class="sub">
+          3.3 Factory — hàm nhận option, trả middleware
+        </h3>
+        <p class="prose">
+          Khi cùng một logic cần vài cấu hình khác nhau ở vài chỗ:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>export function requireHeader(
+  name: string,
+  message = `Missing header ${name}`,
+) {
+  return (req: Request, res: Response, next: NextFunction) =&gt; {
+    if (!req.headers[name.toLowerCase()]) {
+      throw new BadRequestException(message);
+    }
+    next();
+  };
+}
 
-        <div class="sec-head" id="s5">
-          <span class="sec-head__num">05</span
-          ><span class="sec-head__text"
-            >Middleware vs Guard vs Interceptor vs Pipe</span
-          >
+// đăng ký
+consumer.apply(requireHeader(&quot;x-tenant-id&quot;)).forRoutes(&quot;orders&quot;, &quot;cart&quot;);
+consumer
+  .apply(requireHeader(&quot;x-api-key&quot;, &quot;API key required&quot;))
+  .forRoutes(&quot;media&quot;);</code></pre>
         </div>
+        <p class="prose">
+          Đây chính là hình dạng của <code>cors(options)</code>,
+          <code>helmet(options)</code>, <code>pinoHttp(options)</code>: gọi
+          factory một lần lúc boot, nhận về hàm <code>(req, res, next)</code>.
+        </p>
+        <h3 id="34-async" class="sub">3.4 Async</h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class FeatureFlagMiddleware implements NestMiddleware {
+  constructor(private readonly redis: Redis) {}
+
+  async use(req: Request, res: Response, next: NextFunction) {
+    try {
+      const frozen = await this.redis.get(&quot;flags:write-freeze&quot;);
+      if (frozen === &quot;1&quot; &amp;&amp; req.method !== &quot;GET&quot;) {
+        throw new ServiceUnavailableException(&quot;Writes are temporarily frozen.&quot;);
+      }
+      next();
+    } catch (err) {
+      next(err); // KHÔNG throw sau await trong hàm thuần — xem §10
+    }
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Hai điều cần nhớ với async: (1) <code>next()</code>
+          <strong>không</strong> trả Promise, nên <code>await next()</code> vô
+          nghĩa — muốn chạy gì <em>sau</em> handler thì dùng
+          <code>res.on(&quot;finish&quot;)</code>; (2) lỗi sau
+          <code>await</code> phải qua <code>next(err)</code> hoặc dựa vào việc
+          Nest bọc class middleware. Chi tiết ở
+          <a href="#10-nâng-cao">mục 10</a>.
+        </p>
+        <h3 id="chọn-cách-nào" class="sub">Chọn cách nào</h3>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th>Middleware</th>
-                  <th>Guard</th>
-                  <th>Interceptor</th>
-                  <th>Pipe</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Biết handler nào sắp chạy</td>
-                  <td><span class="status status--gap">Không</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                </tr>
-                <tr>
-                  <td>Đọc metadata handler</td>
-                  <td><span class="status status--gap">Không</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                  <td><span class="status status--match">Có</span></td>
-                </tr>
-                <tr>
-                  <td>Thấy body đã validate</td>
-                  <td>Không</td>
-                  <td>Không</td>
-                  <td>Có (sau pipe)</td>
-                  <td>chính nó validate</td>
-                </tr>
-                <tr>
-                  <td>Sửa response</td>
-                  <td>Có (thô)</td>
-                  <td>Header được, body không</td>
-                  <td><strong>Có</strong> (map kết quả)</td>
-                  <td>Không</td>
-                </tr>
-                <tr>
-                  <td>Dùng cho</td>
-                  <td>log, id, CORS, parse, ngôn ngữ</td>
-                  <td><strong>quyền vào cửa</strong></td>
-                  <td>serialize, cache</td>
-                  <td>validate, transform</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Cần…</th>
+                <th>Chọn</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Vài dòng, không tiêm gì</td>
+                <td>Hàm thuần</td>
+              </tr>
+              <tr>
+                <td>Service từ DI</td>
+                <td>Class <code>NestMiddleware</code></td>
+              </tr>
+              <tr>
+                <td>Cùng logic, khác option, vài chỗ</td>
+                <td>Factory</td>
+              </tr>
+              <tr>
+                <td>Gọi I/O (Redis, DB)</td>
+                <td>Class + <code>async use</code></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="callout callout--info">
-          <div class="callout__title">Chọn nhanh</div>
-          "Việc này có cần biết route đích khai gì không?" Có →
-          guard/interceptor/pipe. Không → middleware.
+        <hr />
+        <h2
+          id="4-ba-cách-đăng-ký--và-mọi-biến-thể-của-forroutes"
+          class="sec-head"
+        >
+          4. Ba cách đăng ký — và mọi biến thể của <code>forRoutes</code>
+        </h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cách</th>
+                <th>Ở đâu</th>
+                <th>DI</th>
+                <th>Chọn route</th>
+                <th>Lỗi ném ra đi đâu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>app.use(fn)</code></td>
+                <td><code>main.ts</code></td>
+                <td>Không</td>
+                <td>toàn app</td>
+                <td>
+                  Qua error-middleware cuối của Nest nếu đăng ký trước
+                  <code>init()</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>consumer.apply(M).forRoutes(...)</code></td>
+                <td><code>configure()</code> của một module</td>
+                <td>Có</td>
+                <td>
+                  theo path / method / controller, có <code>exclude()</code>
+                </td>
+                <td>
+                  Nest bọc proxy → <strong>về exception filter</strong> như lỗi
+                  handler
+                </td>
+              </tr>
+              <tr>
+                <td>Thư viện tự đăng ký</td>
+                <td>trong module của thư viện</td>
+                <td>Có</td>
+                <td>thư viện quyết</td>
+                <td>như dòng trên</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        <div class="sec-head" id="s6">
-          <span class="sec-head__num">06</span
-          ><span class="sec-head__text"
-            >Vì sao xác thực không phải middleware trong dự án</span
-          >
-        </div>
-        <div class="card-grid">
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            <div class="ve-card__label">
-              1 · Public và protected trộn trong một controller
-            </div>
-            <p>
-              <code>brand.controller.ts</code>: <code>GET /brands</code> public,
-              <code>POST /brands</code> cần <code>brand:create:any</code>.
-              Middleware không biết request rơi vào route nào → phải tự khớp
-              path, tức viết lại router. Guard đọc
-              <code>@IsPublicApi()</code> là xong.
-            </p>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              2 · Phân quyền cần <code>@RequirePermission</code>
-            </div>
-            <p>
-              Middleware không đọc được. Nếu ép, bạn có một bảng
-              <code>path → permission</code> bên ngoài —
-              <strong>chính là thiết kế cũ</strong> mà lần refactor vừa rồi bỏ
-              đi vì bốn lỗ hổng.
-            </p>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              3 · Boot-check chỉ tồn tại nhờ metadata
-            </div>
-            <p>
-              <code>PermissionCoverageService</code> quét nhãn trên handler. Với
-              middleware, không có gì để quét.
-            </p>
-          </div>
-        </div>
-        <div class="callout callout--success">
-          <div class="callout__title">Nói gọn</div>
-          Middleware trả lời <em>"request này là gì"</em>. Guard trả lời
-          <em>"request này được làm gì"</em>. Auth là câu thứ hai.
-        </div>
-
-        <div class="sec-head" id="s7">
-          <span class="sec-head__num">07</span
-          ><span class="sec-head__text"
-            >Bốn middleware đang chạy trong dự án</span
-          >
+        <h3 id="41-appuse--nhanh-toàn-app-ngoài-nest" class="sub">
+          4.1 <code>app.use</code> — nhanh, toàn app, ngoài Nest
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// main.ts
+const app = await NestFactory.create&lt;NestExpressApplication&gt;(AppModule);
+app.use(helmet());
+app.use(compression());</code></pre>
         </div>
         <p class="prose">
-          Không file nào trong <code>src/</code> implement
+          Thích hợp cho middleware thư viện (helmet, compression). Với
+          middleware cần DI hoặc chọn route theo controller; khi đó
+          <code>consumer.apply</code> diễn đạt rõ hơn.
+          <code>app.use</code> trước <code>init()</code> vẫn có đường tới global
+          filter qua error-middleware cuối của Nest.
+        </p>
+        <h3 id="42-consumerapply--mẫu-chuẩn" class="sub">
+          4.2 <code>consumer.apply</code> — mẫu chuẩn
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>@Module({ providers: [RequestTimingMiddleware] })
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RequestTimingMiddleware)
+      .exclude({ path: &quot;health&quot;, method: RequestMethod.GET }) // giả định có route health
+      .forRoutes(&quot;*path&quot;); // Nest 11: wildcard có tên
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>configure()</code> chạy trong <code>app.init()</code>, sau khi
+          mọi provider đã được tạo — nên class middleware ở đây được resolve từ
+          DI như provider bình thường.
+        </p>
+        <blockquote>
+          <p class="prose">
+            <strong>Nest 11 đổi cú pháp wildcard.</strong>
+            <code>path-to-regexp</code> v8 yêu cầu wildcard có tên:
+            <code>&quot;*path&quot;</code> hoặc
+            <code>&quot;{*path}&quot;</code>. Chuỗi
+            <code>&quot;*&quot;</code> cũ vẫn được Nest tự chuyển đổi (kèm cảnh
+            báo) — <code>nestjs-pino</code> và <code>nestjs-i18n</code> trong dự
+            án đang dùng <code>&quot;*&quot;</code> và chạy được là nhờ đó.
+            <code>&quot;/users/*&quot;</code> phải viết thành
+            <code>&quot;/users/*path&quot;</code>. Dự án chưa có middleware tự
+            viết nên chưa chạm điểm này.
+          </p>
+        </blockquote>
+        <h3 id="43-mọi-biến-thể-của-forroutes" class="sub">
+          4.3 Mọi biến thể của <code>forRoutes</code>
+        </h3>
+        <p class="prose">
+          <code>forRoutes</code> nhận ba kiểu đối số, trộn tuỳ ý:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>configure(consumer: MiddlewareConsumer) {
+  // Đây là các cách đăng ký độc lập; chọn cách phù hợp, không chain forRoutes().
+  // (a) Chuỗi path, mọi method:
+  consumer.apply(TenantMiddleware).forRoutes(&quot;orders&quot;);
+
+  // (b) RouteInfo, có thể truyền nhiều đối số:
+  consumer.apply(TenantMiddleware).forRoutes(
+    { path: &quot;brands&quot;, method: RequestMethod.POST },
+    { path: &quot;brands/:id&quot;, method: RequestMethod.PATCH },
+  );
+
+  // (c) Mọi route trong controller:
+  consumer.apply(TenantMiddleware).forRoutes(BrandController, CategoryController);
+
+  // (d) Trộn các loại đối số:
+  consumer.apply(TenantMiddleware)
+    .forRoutes(&quot;cart&quot;, { path: &quot;orders&quot;, method: RequestMethod.ALL }, ReviewController);
+}</code></pre>
+        </div>
+        <p class="prose">
+          Chọn (c) khi middleware gắn với <strong>một nhóm nghiệp vụ</strong> —
+          refactor đổi path của controller thì middleware đi theo, không cần sửa
+          hai chỗ. Chọn (a)/(b) khi gắn với <strong>hình dạng URL</strong> (ví
+          dụ <code>&quot;*path&quot;</code>, hay
+          <code>&quot;webhooks/*path&quot;</code>).
+        </p>
+        <h3 id="44-nhiều-middleware-thứ-tự-và-nhiều-chuỗi-apply" class="sub">
+          4.4 Nhiều middleware, thứ tự, và nhiều chuỗi <code>apply</code>
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>configure(consumer: MiddlewareConsumer) {
+  // Chạy theo đúng thứ tự khai: A → B → C, cho cùng một tập route.
+  consumer.apply(A, B, C).forRoutes(&quot;*path&quot;);
+
+  // Chuỗi apply thứ hai — bind SAU chuỗi thứ nhất.
+  consumer.apply(D).forRoutes(OrderController);
+}</code></pre>
+        </div>
+        <p class="prose">
+          Trộn hàm và class trong cùng <code>apply</code> là hợp lệ:
+          <code
+            >consumer.apply(helmet(), TenantMiddleware,
+            requireHeader(&quot;x-tenant-id&quot;))</code
+          >.
+        </p>
+        <p class="prose">
+          Thứ tự <strong>giữa các module</strong> có <code>configure()</code> =
+          thứ tự Nest duyệt module — thường là thứ tự <code>imports</code>,
+          module cha trước. Nếu hai middleware ở hai module có phụ thuộc thứ tự
+          (B cần <code>req.tenantId</code> mà A đặt),
+          <strong>đặt cả hai vào một <code>apply(A, B)</code></strong> thay vì
+          dựa vào thứ tự import. Rõ ràng hơn, và không vỡ khi ai đó đảo
+          <code>imports</code>.
+        </p>
+        <h3 id="45-exclude" class="sub">4.5 <code>exclude()</code></h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>consumer
+  .apply(MaintenanceModeMiddleware)
+  .exclude(
+    &quot;health&quot;, // chuỗi: mọi method
+    { path: &quot;auth/login&quot;, method: RequestMethod.POST }, // RouteInfo
+    &quot;webhooks/*path&quot;, // wildcard cũng được
+  )
+  .forRoutes(&quot;*path&quot;);</code></pre>
+        </div>
+        <p class="prose">Hai điều dễ vấp:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <code>exclude</code> khớp path
+              <strong>đã tính global prefix</strong> cho bạn. Nếu có
+              <code>setGlobalPrefix(&quot;api&quot;)</code>, vẫn viết
+              <code>&quot;health&quot;</code>, không phải
+              <code>&quot;api/health&quot;</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <code>exclude</code> chỉ hoạt động với
+              chuỗi/<code>RouteInfo</code>,
+              <strong>không nhận class controller</strong>. Muốn &quot;trừ cả
+              controller X&quot; thì liệt kê path của nó, hoặc đảo lại:
+              <code>forRoutes</code> liệt kê đúng những controller cần.
+            </p>
+          </li>
+        </ul>
+        <h3 id="46-đăng-ký-ở-module-nào-thì-áp-cho-route-nào" class="sub">
+          4.6 Đăng ký ở module nào thì áp cho route nào?
+        </h3>
+        <p class="prose">
+          Điểm hay bị hiểu sai: middleware đăng ký trong
+          <code>configure()</code> của <strong>một module</strong>
+          <strong>không</strong> bị giới hạn vào route của module đó.
+          <code>forRoutes(&quot;*path&quot;)</code> viết trong
+          <code>BrandModule</code> áp cho <strong>mọi</strong> route toàn app.
+          Module chỉ là nơi đặt code và nơi resolve DI cho class middleware.
+        </p>
+        <p class="prose">
+          Quy ước đề xuất cho dự án nếu bắt đầu có middleware tự viết:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              Middleware <strong>toàn app</strong> →
+              <code>configure()</code> của <code>AppModule</code> (hiện
+              <code>AppModule</code> chưa <code>implements NestModule</code>;
+              thêm vào).
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Middleware <strong>cho một nhóm route</strong> →
+              <code>configure()</code> của module sở hữu controller đó,
+              <code>forRoutes(ControllerClass)</code>.
+            </p>
+          </li>
+        </ul>
+        <h3 id="47-lỗi-đi-đâu--vì-sao-cột-cuối-của-bảng-quan-trọng" class="sub">
+          4.7 Lỗi đi đâu — vì sao cột cuối của bảng quan trọng
+        </h3>
+        <p class="prose">
+          Với <code>consumer.apply</code>, Nest không đưa thẳng
+          <code>instance.use</code> cho Express. Nó bọc bằng một proxy có sẵn
+          exception handler (<code>MiddlewareModule.createProxy</code> trong
+          <code>@nestjs/core</code>):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>Express gọi → proxy(req, res, next)
+                 └─ try { await instance.use(req, res, next) }
+                    catch (err) { exceptionsHandler.next(err, host) }   ← chính là đường vào filter</code></pre>
+        </div>
+        <p class="prose">
+          Nghĩa là <code>throw new ServiceUnavailableException()</code> trong
+          middleware class <strong>ra đúng envelope lỗi</strong> của
+          <code>GlobalExceptionFilter</code>. <code>app.use(fn)</code> trước
+          <code>init()</code> không có proxy này nhưng lỗi vẫn tới global filter
+          qua error-middleware cuối của Nest. Middleware thêm
+          <strong>sau</strong> error-middleware không thể chuyển ngược stack tới
+          nó. <code>requestId</code> chỉ có nếu middleware gắn ID đã chạy trước
+          khi lỗi phát sinh; không phụ thuộc riêng vào cách đăng ký.
+        </p>
+        <hr />
+        <h2 id="5-middleware-vs-guard-vs-interceptor-vs-pipe" class="sec-head">
+          5. Middleware vs Guard vs Interceptor vs Pipe
+        </h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Middleware</th>
+                <th>Guard</th>
+                <th>Interceptor</th>
+                <th>Pipe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Biết handler nào sắp chạy</td>
+                <td><strong>Không</strong></td>
+                <td>Có</td>
+                <td>Có</td>
+                <td>Không</td>
+              </tr>
+              <tr>
+                <td>Đọc metadata handler</td>
+                <td>Không</td>
+                <td><strong>Có</strong></td>
+                <td>Có</td>
+                <td>Không</td>
+              </tr>
+              <tr>
+                <td>Thấy body đã validate</td>
+                <td>Không</td>
+                <td>Không</td>
+                <td>Có (sau pipe)</td>
+                <td>Chính nó validate</td>
+              </tr>
+              <tr>
+                <td>Sửa response</td>
+                <td>Có (thô, qua <code>res</code>)</td>
+                <td>Header được, body không</td>
+                <td><strong>Có</strong> (map kết quả)</td>
+                <td>Không</td>
+              </tr>
+              <tr>
+                <td>Chạy khi handler ném lỗi</td>
+                <td>Không liên quan</td>
+                <td>Không liên quan</td>
+                <td>Có (<code>catchError</code>)</td>
+                <td>Không</td>
+              </tr>
+              <tr>
+                <td>Chạy cho request 404</td>
+                <td><strong>Có</strong></td>
+                <td>Không</td>
+                <td>Không</td>
+                <td>Không</td>
+              </tr>
+              <tr>
+                <td>DI</td>
+                <td>Class có / hàm không</td>
+                <td>Có (qua <code>APP_GUARD</code>)</td>
+                <td>Có</td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td>Dùng thư viện Express</td>
+                <td><strong>Nguyên xi</strong></td>
+                <td>Không</td>
+                <td>Không</td>
+                <td>Không</td>
+              </tr>
+              <tr>
+                <td>Dùng cho</td>
+                <td>log, id, CORS, parse, ngôn ngữ</td>
+                <td><strong>quyền vào cửa</strong></td>
+                <td>serialize, cache, đo thời gian handler</td>
+                <td>validate, transform</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Câu hỏi để chọn nhanh:
+          <strong
+            >&quot;Việc này có cần biết route đích khai gì không?&quot;</strong
+          >
+          Có → guard/interceptor/pipe. Không → middleware.
+        </p>
+        <p class="prose">
+          Một dòng trong bảng cần nói rõ:
+          <strong>&quot;Sửa response&quot; của guard</strong>. Guard lấy được
+          <code>res</code> qua
+          <code>context.switchToHttp().getResponse()</code>, nên
+          <strong>ghi header thì được</strong> —
+          <code>AppThrottlerGuard</code> của dự án ghi
+          <code>Retry-After</code> rồi mới ném 429 (<a
+            href="03-guards.html#10-guard-kế-thừa-thư-viện-appthrottlerguard"
+            >chương 3 §8</a
+          >). Cái guard <strong>không</strong> làm được là
+          <em>nhào nặn body thành công</em> của handler: handler còn chưa chạy,
+          chưa có gì để nhào. Việc đó là của interceptor. Nói gọn: guard chạm
+          được vào <strong>vỏ</strong> response, không chạm được vào
+          <strong>ruột</strong>.
+        </p>
+        <h3 id="cùng-một-việc-hai-tầng-khác-kết-quả" class="sub">
+          Cùng một việc, hai tầng, khác kết quả
+        </h3>
+        <p class="prose">
+          &quot;Đo thời gian request&quot; là ví dụ tốt vì đặt được ở cả hai
+          tầng và cho hai con số <strong>khác nhau</strong>:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Đặt ở</th>
+                <th>Đo được gì</th>
+                <th>Bao gồm</th>
+                <th>Bỏ lỡ</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Middleware</td>
+                <td>
+                  Từ lúc vào Express tới <code>res</code> <code>finish</code>
+                </td>
+                <td>guard, pipe, handler, serialize, ghi socket</td>
+                <td>thời gian parse body trước nó</td>
+              </tr>
+              <tr>
+                <td>Interceptor</td>
+                <td>Từ lúc <code>intercept()</code> tới khi observable emit</td>
+                <td>handler + interceptor sau nó</td>
+                <td>
+                  guard, pipe, filter, ghi socket;
+                  <strong>không chạy cho 401/404</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          pino-http của dự án đo kiểu thứ nhất (<code>responseTime</code> trong
+          log). Nếu muốn &quot;handler này mất bao lâu&quot; để tối ưu query, đó
+          là việc của interceptor — không phải sửa middleware.
+        </p>
+        <hr />
+        <h2
+          id="6-vì-sao-xác-thực-không-phải-middleware-trong-dự-án"
+          class="sec-head"
+        >
+          6. Vì sao xác thực không phải middleware trong dự án
+        </h2>
+        <p class="prose">
+          Nhiều framework (Express thuần, Koa) làm auth bằng middleware. Dự án
+          này <strong>cố ý không</strong>, vì ba lý do đều xuất phát từ
+          <a href="#2-chạy-lúc-nào--và-vì-sao-điều-đó-quyết-định-mọi-thứ"
+            >mục 2</a
+          >:
+        </p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong
+                >Route public và route cần token trộn nhau trong cùng
+                controller</strong
+              >
+              (<code>brand.controller.ts</code>:
+              <code>GET /brands</code> public, <code>POST /brands</code> cần
+              <code>brand:create:any</code>). Middleware không biết request sắp
+              rơi vào route nào → phải tự khớp path bằng tay, tức là viết lại
+              router. Guard đọc <code>@IsPublicApi()</code> /
+              <code>@AuthApi()</code> là xong.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                >Phân quyền cần <code>@RequirePermission</code> trên
+                handler.</strong
+              >
+              Middleware không đọc được. Nếu ép, bạn sẽ có một bảng
+              <code>path → permission</code> bên ngoài — chính là thiết kế cũ mà
+              lần refactor vừa rồi bỏ đi vì bốn lỗ hổng.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Boot-check</strong> (<a
+                href="../../src/shared/services/permission-coverage.service.ts"
+                >permission-coverage.service.ts</a
+              >) chỉ có thể tồn tại vì chính sách nằm trên handler dưới dạng
+              metadata. Với middleware, không có gì để quét.
+            </p>
+          </li>
+        </ol>
+        <h3 id="nhìn-cái-auth-middleware-đó-sẽ-trông-thế-nào" class="sub">
+          Nhìn cái &quot;auth middleware&quot; đó sẽ trông thế nào
+        </h3>
+        <p class="prose">Để thấy rõ vì sao nó tệ, hãy viết thử:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// ĐỪNG LÀM THẾ NÀY — minh hoạ vấn đề
+const PUBLIC_ROUTES = [
+  { method: &quot;GET&quot;, pattern: /^\/brands(\/[^/]+)?$/ },
+  { method: &quot;GET&quot;, pattern: /^\/products/ },
+  { method: &quot;POST&quot;, pattern: /^\/auth\/login$/ },
+  // ... 40 dòng nữa, phải cập nhật mỗi khi thêm route
+];
+
+const ROUTE_PERMISSIONS: Record&lt;string, string&gt; = {
+  &quot;POST /brands&quot;: &quot;brand:create:any&quot;,
+  &quot;PATCH /brands/:id&quot;: &quot;brand:update:any&quot;, // &quot;:id&quot; — bạn tự parse hay tự regex?
+  // ...
+};
+
+export function authMiddleware(req, res, next) {
+  const isPublic = PUBLIC_ROUTES.some(
+    (r) =&gt; r.method === req.method &amp;&amp; r.pattern.test(req.path),
+  );
+  if (isPublic) return next();
+
+  const user = verifyToken(req.headers.authorization); // ném 401 nếu hỏng
+  const key = `${req.method} ${normalize(req.path)}`; // normalize: đổi UUID → &quot;:id&quot;…
+  const needed = ROUTE_PERMISSIONS[key];
+  if (needed &amp;&amp; !user.permissions.includes(needed))
+    throw new ForbiddenException();
+
+  req.user = user;
+  next();
+}</code></pre>
+        </div>
+        <p class="prose">Bốn lỗ hổng lộ ra ngay:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Thêm route mới quên khai</strong> → mặc định là… gì?
+              Public thì lộ dữ liệu; cần token thì route public mới bị 401.
+              Không có đường nào an toàn. Guard +
+              <code>@IsPublicApi()</code> mặc định là <em>cần token</em>, và
+              boot-check bắt route quên <code>@RequirePermission</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong><code>normalize(req.path)</code></strong> là bạn tự viết
+              lại router — <code>/brands/abc</code> là <code>:id</code> hay là
+              sub-route <code>/brands/abc</code>?
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Hai nguồn sự thật</strong>: controller nói một điều, bảng
+              nói điều khác, không có gì ép chúng khớp.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Không test theo đơn vị được</strong>: muốn biết
+              <code>POST /brands</code> cần quyền gì phải chạy cả middleware với
+              URL thật.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Nói gọn:
+          <strong
+            >middleware trả lời &quot;request này là gì&quot;; guard trả lời
+            &quot;request này được làm gì&quot;.</strong
+          >
+          Auth là câu thứ hai.
+        </p>
+        <hr />
+        <h2 id="7-bốn-middleware-đang-chạy-trong-dự-án" class="sec-head">
+          7. Bốn middleware đang chạy trong dự án
+        </h2>
+        <p class="prose">
+          Không có file nào trong <code>src/</code> implement
           <code>NestMiddleware</code>. Nhưng mỗi request vẫn đi qua bốn
-          middleware trước khi tới guard — tất cả từ thư viện.
+          middleware trước khi tới guard, tất cả từ thư viện:
         </p>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label">
-              7.1 · body-parser — mặc định của Nest
-            </div>
-            <p>
-              <code>NestFactory.create()</code> tự đăng ký <code>json</code> +
-              <code>urlencoded</code>. Vì thế <code>req.body</code> trong guard
-              đã là object. Tắt bằng <code>{ bodyParser: false }</code>; giữ
-              body thô cho webhook bằng <code>{ rawBody: true }</code>.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              7.2 · CORS — <code>main.ts:27-32</code>
-            </div>
-            <p>
-              <code>enableCors</code> gói gọn gói <code>cors</code> và
-              <code>app.use</code> nó. Request <code>OPTIONS</code> (preflight)
-              được trả lời <strong>ngay tại đây</strong> với 204 — không bao giờ
-              tới guard. Đó là lý do preflight không bị 401.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              7.3 · Log + request id — <code>nestjs-pino</code>
-            </div>
-            <p>
-              <code>LoggerModule</code> tự
-              <code>consumer.apply(pinoHttp).forRoutes("*")</code>. Cấu hình ở
-              <code>setup-logger.util.ts</code>: <code>genReqId</code> (39-48)
-              lấy <code>X-Request-Id</code> client gửi hoặc sinh UUID,
-              <strong>ghi ngược lại header response</strong>;
-              <code>redact</code> (9-17) che <code>authorization</code>,
-              <code>password</code>, <code>email</code> trước khi ghi log.
-              Redact <em>phải</em> ở middleware — nó cần thấy request thô.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 3">
-            <div class="ve-card__label ve-card__label--plum">
-              7.4 · Ngôn ngữ — <code>nestjs-i18n</code>
-            </div>
-            <p>
-              <code>i18n.module.ts:26-30</code> khai hai resolver
-              (<code>Accept-Language</code>, <code>x-lang</code>).
-              <code>I18nModule</code> đăng ký <code>I18nMiddleware</code> cho
-              mọi route: chạy resolver, gắn <code>req.i18nContext</code>, mở
-              <code>AsyncLocalStorage</code> để
-              <code>I18nContext.current(ctx)</code> ở
-              <code>current-lang.decorator.ts:6</code> đọc được.
-              <strong>Quan hệ ngầm:</strong> <code>@CurrentLang()</code> (tầng
-              Nest) phụ thuộc một middleware (tầng Express) đã chạy trước.
-            </p>
-          </div>
-        </div>
-        <div class="callout callout--warning">
-          <div class="callout__title">
-            Không phải middleware nhưng ảnh hưởng middleware:
-            <code>trust proxy</code> — <code>main.ts:24</code>
-          </div>
-          Quyết định <code>req.ip</code> là gì, mà <code>req.ip</code> là khoá
-          rate-limit của <code>AppThrottlerGuard</code>. Mặc định "không tin
-          ai": tin thừa một hop là kẻ tấn công giả
-          <code>X-Forwarded-For</code> để có budget mới mỗi request.
-        </div>
-        <div class="pipeline">
-          <div class="pipeline__step ve-card" style="--i: 0">
-            <div class="ve-card__label">body-parser + CORS</div>
-            <p style="font-size: 13px; color: var(--text-dim)">
-              lúc tạo app / <code>enableCors</code>
-            </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--c">pino-http</div>
-            <p style="font-size: 13px; color: var(--text-dim)">
-              <code>req.id</code> · đăng ký lúc <code>app.init()</code>
-            </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--plum">
-              I18nMiddleware
-            </div>
-            <p style="font-size: 13px; color: var(--text-dim)">
-              <code>req.i18nContext</code>
-            </p>
-          </div>
-          <div class="pipeline__arrow">→</div>
-          <div class="pipeline__step ve-card pipeline__step--hi" style="--i: 3">
-            <div class="ve-card__label ve-card__label--amber">
-              [Nest] AppThrottlerGuard → …
-            </div>
-            <p style="font-size: 13px; color: var(--text-dim)">
-              <a href="03-guards.html">chương 3</a>
-            </p>
-          </div>
-        </div>
+        <h3 id="71-body-parser--mặc-định-của-nest" class="sub">
+          7.1 Body parser — mặc định của Nest
+        </h3>
+        <p class="prose">
+          <code>NestFactory.create()</code> tự đăng ký <code>body-parser</code>
+          <code>json</code> và <code>urlencoded</code> bên trong
+          <code>app.init()</code> (<code>registerParserMiddleware</code>). Vì
+          thế <code>req.body</code> trong guard đã là object (<a
+            href="03-guards.html"
+            >chương 3</a
+          >). Tuỳ chọn liên quan:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// Tắt hẳn — bạn tự đăng ký parser mình muốn
+NestFactory.create(AppModule, { bodyParser: false });
 
-        <div class="sec-head" id="s8">
-          <span class="sec-head__num">08</span
-          ><span class="sec-head__text">Nếu bạn cần viết một middleware</span>
+// Giữ body thô song song với body đã parse — cần cho verify chữ ký webhook (Stripe, GitHub)
+NestFactory.create&lt;NestExpressApplication&gt;(AppModule, { rawBody: true });
+// rồi trong handler: req.rawBody (Buffer)
+
+// Nâng giới hạn 100kb mặc định — ví dụ cho route nhận JSON lớn
+const app = await NestFactory.create&lt;NestExpressApplication&gt;(AppModule, {
+  bodyParser: false,
+});
+app.useBodyParser(&quot;json&quot;, { limit: &quot;10mb&quot; });
+app.useBodyParser(&quot;urlencoded&quot;, { extended: true });</code></pre>
         </div>
         <p class="prose">
-          Ví dụ hợp lệ: chế độ bảo trì — trả 503 cho mọi request trừ một route
-          health check (dự án hiện chưa có route này; ví dụ giả định có),
-          <strong>không cần biết route đích</strong>.
+          Dự án dùng mặc định. Lưu ý: body vượt <code>limit</code> là
+          <strong>body-parser</strong> ném <code>413</code> — lỗi này sinh ở
+          tầng Express thuần, vẫn tới <code>GlobalExceptionFilter</code> qua
+          error-middleware cuối của Nest. Body lỗi thường
+          <strong>không</strong> có <code>requestId</code> vì parser chạy trước
+          pino-http (xem
+          <a href="05-request-lifecycle-in-this-project.html">chương 5 §5</a>).
         </p>
-        <details class="collapsible">
-          <summary>Code minh hoạ — MaintenanceModeMiddleware + đăng ký</summary>
-          <div class="collapsible__body">
-            <pre
-              class="code-file__body"
-              style="border: 1px solid var(--border); border-radius: 8px"
-            ><code>@<span class="fn">Injectable</span>()
-<span class="kw">export class</span> MaintenanceModeMiddleware <span class="kw">implements</span> NestMiddleware {
-  <span class="kw">constructor</span>(<span class="kw">private readonly</span> appConfigService: AppConfigService) {}
+        <h3 id="72-cors--maints27-32" class="sub">
+          7.2 CORS — <a href="../../src/main.ts#L27-L32">main.ts:27-32</a>
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>app.enableCors({
+  origin: &quot;http://localhost:3000&quot;,
+  methods: &quot;GET,HEAD,PUT,PATCH,POST,DELETE&quot;,
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+});</code></pre>
+        </div>
+        <p class="prose">
+          <code>enableCors</code> gói gọn gói <code>cors</code> của Express và
+          <code>app.use</code> nó <strong>ngay lúc gọi</strong> — trước cả
+          <code>init()</code>. Request <code>OPTIONS</code> (preflight) được trả
+          lời <strong>tại đây</strong> với 204 — không bao giờ tới guard. Đó là
+          lý do preflight không bị 401 dù không có token.
+        </p>
+        <p class="prose">Hai option đáng hiểu vì hay bị hỏi:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <code>preflightContinue: false</code> — CORS
+              <strong>tự kết thúc</strong> request OPTIONS. Nếu
+              <code>true</code>, nó gọi <code>next()</code> và request đi tiếp
+              vào Nest… rồi 404 vì không controller nào khai
+              <code>@Options()</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <code>origin</code> là chuỗi cố định. Muốn nhiều origin theo môi
+              trường:
+              <code
+                >origin: (origin, cb) =&gt; cb(null,
+                ALLOWED.includes(origin))</code
+              >
+              — vẫn là một hàm chạy trong middleware, không cần biết route.
+            </p>
+          </li>
+        </ul>
+        <h3 id="73-log-request--request-id--nestjs-pino" class="sub">
+          7.3 Log request + request id — <code>nestjs-pino</code>
+        </h3>
+        <p class="prose">
+          <code>LoggerModule.forRootAsync</code> ở
+          <a href="../../src/shared/modules/base.module.ts#L86-L89"
+            >base.module.ts:86-89</a
+          >
+          làm hai việc: cung cấp <code>Logger</code> cho DI,
+          <strong>và</strong> trong <code>configure()</code> của chính nó
+          <code
+            >consumer.apply(pinoHttp).forRoutes({ path: &quot;*&quot;, method:
+            RequestMethod.ALL })</code
+          >. Đây là ví dụ thực của
+          <a href="#4-ba-cách-đăng-ký--và-mọi-biến-thể-của-forroutes"
+            >cách đăng ký thứ ba</a
+          >: một module thư viện <code>implements NestModule</code> và tự bind
+          middleware cho toàn app. Cấu hình ở
+          <a href="../../src/shared/utils/setup-logger.util.ts"
+            >setup-logger.util.ts</a
+          >:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              <a href="../../src/shared/utils/setup-logger.util.ts#L39-L48"
+                >dòng 39-48</a
+              >: <code>genReqId</code> — lấy <code>X-Request-Id</code> client
+              gửi, không có thì sinh UUID, và
+              <strong>ghi ngược lại header response</strong>. Mọi tầng sau
+              (guard, filter) đọc <code>req.id</code> để gắn vào log và vào body
+              lỗi (<code>requestId</code> trong envelope —
+              <a
+                href="../../src/shared/filters/global-exception.filter.ts#L112-L114"
+                >global-exception.filter.ts:112-114</a
+              >).
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="../../src/shared/utils/setup-logger.util.ts#L9-L17"
+                >dòng 9-17</a
+              >: <code>redact</code> — che <code>authorization</code>,
+              <code>password</code>, <code>email</code>… trước khi ghi log. Việc
+              này <strong>phải</strong> ở middleware: nó cần thấy request thô,
+              trước khi bất kỳ ai xử lý.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="../../src/shared/utils/setup-logger.util.ts#L19-L37"
+                >dòng 19-37</a
+              >: ba mẫu message cho lúc nhận, lúc xong, lúc lỗi.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Đây là ví dụ hoàn hảo về việc <strong>đúng tầng</strong>: log và
+          request id không cần biết handler, cần chạy cho cả request bị 401 và
+          404 → middleware. Và
+          <code>res.setHeader(&quot;X-Request-Id&quot;)</code> trong
+          <code>genReqId</code> là ví dụ về middleware
+          <strong>ghi header response sớm</strong> — trước khi có bất kỳ body
+          nào.
+        </p>
+        <h3 id="74-phát-hiện-ngôn-ngữ--nestjs-i18n" class="sub">
+          7.4 Phát hiện ngôn ngữ — <code>nestjs-i18n</code>
+        </h3>
+        <p class="prose">
+          <a href="../../src/shared/modules/i18n.module.ts#L26-L30"
+            >i18n.module.ts:26-30</a
+          >
+          khai hai resolver: header <code>Accept-Language</code> và header tuỳ
+          chỉnh <code>x-lang</code>. <code>I18nModule</code> của thư viện đăng
+          ký <code>I18nMiddleware</code> với
+          <code>forRoutes(&quot;*&quot;)</code>; middleware này chạy resolver,
+          gắn <code>req.i18nContext</code>, và mở một
+          <code>AsyncLocalStorage</code> để
+          <code>I18nContext.current(ctx)</code> ở
+          <a
+            href="../../src/shared/param-decorators/current-lang.decorator.ts#L6"
+            >current-lang.decorator.ts:6</a
+          >
+          đọc được — dù param decorator chạy sau nhiều tầng.
+        </p>
+        <p class="prose">
+          Một quan hệ ngầm đáng ghi:
+          <strong
+            ><code>@CurrentLang()</code> (param decorator, tầng Nest) phụ thuộc
+            vào một middleware (tầng Express) đã chạy trước</strong
+          >. Tắt <code>I18nModule</code> là decorator này ném lỗi. Đây là mẫu
+          chung của nhiều thư viện: middleware <strong>gắn ngữ cảnh</strong> lên
+          <code>req</code> (hoặc vào <code>AsyncLocalStorage</code>), tầng Nest
+          <strong>tiêu thụ</strong> ngữ cảnh đó.
+        </p>
+        <h3 id="một-cấu-hình-ảnh-hưởng-tới-middleware-trust-proxy" class="sub">
+          Một cấu hình ảnh hưởng tới middleware: <code>trust proxy</code>
+        </h3>
+        <p class="prose">
+          <a href="../../src/main.ts#L24">main.ts:24</a> —
+          <code>app.set(&quot;trust proxy&quot;, trustProxyHops)</code>. Không
+          phải middleware, nhưng quyết định <code>req.ip</code> là gì, mà
+          <code>req.ip</code> là khoá rate-limit của
+          <code>AppThrottlerGuard</code>. Comment ở dòng 20-23 giải thích vì sao
+          mặc định là &quot;không tin ai&quot;: tin thừa một hop là kẻ tấn công
+          giả <code>X-Forwarded-For</code> để có budget mới mỗi request.
+        </p>
+        <h3 id="thứ-tự-thực-tế" class="sub">Thứ tự thực tế</h3>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>enableCors()          init(): body-parser      init(): module middleware theo thứ tự module        router
+   cors          →    json → urlencoded    →   pino-http (req.id) → I18nMiddleware (req.i18nContext) → [Nest] guard → ...
+(main.ts:27,           (Nest tự đăng ký)         (BaseModule)          (SharedModule → I18nModule)
+ gọi trước listen)</code></pre>
+        </div>
+        <p class="prose">
+          Ba mốc thời gian, một nguyên tắc:
+          <strong>gọi <code>.use()</code> trước thì đứng trước</strong>.
+          <code>enableCors</code> gọi ở dòng 27 nên đứng đầu; body-parser gắn
+          khi <code>init()</code> chạy (bên trong <code>listen()</code> dòng
+          47); hai middleware module gắn trong cùng <code>init()</code> nhưng
+          sau body-parser.
+          <a href="05-request-lifecycle-in-this-project.html">Chương 5</a> có
+          snippet in ra stack Express để tự kiểm chứng thứ tự này.
+        </p>
+        <hr />
+        <h2 id="8-bộ-sưu-tập-tám-middleware-mẫu" class="sec-head">
+          8. Bộ sưu tập: tám middleware mẫu
+        </h2>
+        <p class="prose">
+          Tất cả đều <strong>chưa tồn tại</strong> trong dự án. Mỗi ví dụ viết
+          theo quy ước dự án (class <code>@Injectable</code>,
+          <code>throw HttpException</code> để đi qua
+          <code>GlobalExceptionFilter</code>, đăng ký qua
+          <code>consumer.apply</code>), kèm câu trả lời cho &quot;vì sao là
+          middleware chứ không phải guard&quot;.
+        </p>
+        <h3 id="81-chế-độ-bảo-trì--trả-503-trừ-health-check" class="sub">
+          8.1 Chế độ bảo trì — trả 503 trừ health check
+        </h3>
+        <p class="prose">
+          <em>Vì sao middleware:</em> áp cho mọi request, kể cả route không tồn
+          tại; không cần biết handler. Ví dụ dùng <code>ConfigService</code> từ
+          <code>@nestjs/config</code>; module phải import
+          <code>ConfigModule</code>. Repo chưa có cờ maintenance trong
+          <code>AppConfigService</code>, nên tích hợp thực tế cần bổ sung schema
+          env tương ứng.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// src/shared/middlewares/maintenance-mode.middleware.ts — minh hoạ
+@Injectable()
+export class MaintenanceModeMiddleware implements NestMiddleware {
+  constructor(private readonly config: ConfigService) {}
 
-  <span class="fn">use</span>(req: Request, res: Response, next: NextFunction) {
-    <span class="kw">if</span> (!<span class="kw">this</span>.appConfigService.appConfig.maintenanceMode) <span class="kw">return</span> <span class="fn">next</span>();
+  use(req: Request, res: Response, next: NextFunction) {
+    if (this.config.get(&quot;MAINTENANCE_MODE&quot;) !== &quot;true&quot;) {
+      return next();
+    }
 
-    <span class="cm">// Vì đăng ký qua consumer.apply, GlobalExceptionFilter bắt và trả đúng envelope.</span>
-    <span class="kw">throw new</span> <span class="fn">ServiceUnavailableException</span>(<span class="st">"Service is under maintenance."</span>);
+    res.setHeader(&quot;Retry-After&quot;, &quot;600&quot;);
+    // Đăng ký qua consumer.apply nên GlobalExceptionFilter bắt được → envelope chuẩn.
+    throw new ServiceUnavailableException(&quot;Service is under maintenance.&quot;);
   }
 }
 
-<span class="cm">// app.module.ts</span>
-<span class="kw">export class</span> AppModule <span class="kw">implements</span> NestModule {
-  <span class="fn">configure</span>(consumer: MiddlewareConsumer) {
-    consumer.<span class="fn">apply</span>(MaintenanceModeMiddleware)
-      .<span class="fn">exclude</span>({ path: <span class="st">"health"</span>, method: RequestMethod.GET })
-      .<span class="fn">forRoutes</span>(<span class="st">"*path"</span>);
+// app.module.ts
+@Module({
+  imports: [SharedModule, BaseModule, RouteModule],
+  providers: [MaintenanceModeMiddleware],
+})
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(MaintenanceModeMiddleware)
+      .exclude({ path: &quot;health&quot;, method: RequestMethod.GET })
+      .forRoutes(&quot;*path&quot;);
   }
 }</code></pre>
-          </div>
-        </details>
-        <div class="ve-card ve-card--recessed" style="--i: 0">
-          <div class="ve-card__label">Checklist trước khi viết</div>
-          <ul class="node-list">
-            <li>
-              Cần biết handler/metadata? → <strong>không</strong> viết
-              middleware.
-            </li>
-            <li>
-              Cần chạy cho cả request sẽ bị 401/404? → middleware là đúng.
-            </li>
-            <li>
-              Cần DI? → class <code>NestMiddleware</code> +
-              <code>consumer.apply</code>.
-            </li>
-            <li>
-              Muốn lỗi ra đúng envelope? → <code>consumer.apply</code>, không
-              <code>app.use</code>.
-            </li>
-            <li>Nhớ <code>next()</code> ở mọi nhánh không trả response.</li>
-          </ul>
         </div>
-
-        <div class="sec-head" id="s9">
-          <span class="sec-head__num">09</span
-          ><span class="sec-head__text">Nâng cao</span>
-        </div>
-        <div class="card-grid">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label ve-card__label--b">
-              <code>res.on("finish")</code>
-            </div>
-            <p>
-              Middleware chạy <em>trước</em>, nhưng đăng ký callback chạy
-              <em>sau</em> — cách pino-http đo <code>responseTime</code>. Đừng
-              <code>await next()</code>: <code>next()</code> của Express không
-              trả Promise.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--amber">
-              Lỗi async trong hàm thuần
-            </div>
-            <p>
-              Express 4 không bắt Promise reject → request treo. Express 5 (Nest
-              11 dùng) bắt được, nhưng thói quen <code>next(err)</code> hoặc
-              class <code>NestMiddleware</code> vẫn an toàn hơn.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--b">
-              Chạy cả cho route không tồn tại
-            </div>
-            <p>
-              <code>forRoutes("*path")</code> chạy với path không có controller
-              → rồi mới 404. Vì thế pino có log cả request 404.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 3">
-            <div class="ve-card__label ve-card__label--red">
-              Đừng "gắn user vào request" ở middleware rồi guard đọc
-            </div>
-            <p>
-              Hai chỗ hiểu về token; middleware không biết route có public không
-              nên phải nuốt lỗi → auth im lặng thất bại. Để guard làm cả hai.
-            </p>
-          </div>
-        </div>
-
-        <div class="sec-head" id="s10">
-          <span class="sec-head__num">10</span
-          ><span class="sec-head__text">Trong dự án này</span>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Middleware</th>
-                  <th>Nguồn</th>
-                  <th>Đăng ký ở</th>
-                  <th>Gắn gì lên request</th>
-                  <th>Ai dùng sau đó</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>body-parser</td>
-                  <td>Nest mặc định</td>
-                  <td><code>NestFactory.create</code></td>
-                  <td><code>req.body</code></td>
-                  <td>throttler (email key), <code>ValidationPipe</code></td>
-                </tr>
-                <tr>
-                  <td>cors</td>
-                  <td>Express, qua <code>enableCors</code></td>
-                  <td><code>main.ts:27-32</code></td>
-                  <td>header CORS; trả lời preflight</td>
-                  <td>trình duyệt</td>
-                </tr>
-                <tr>
-                  <td>pino-http</td>
-                  <td><code>nestjs-pino</code></td>
-                  <td>
-                    <code>base.module.ts:86-89</code> +
-                    <code>setup-logger.util.ts</code>
-                  </td>
-                  <td>
-                    <code>req.id</code>, <code>req.log</code>; header
-                    <code>X-Request-Id</code>
-                  </td>
-                  <td>
-                    <code>GlobalExceptionFilter</code> (<code>requestId</code>),
-                    mọi log
-                  </td>
-                </tr>
-                <tr>
-                  <td>I18nMiddleware</td>
-                  <td><code>nestjs-i18n</code></td>
-                  <td><code>i18n.module.ts:16-32</code></td>
-                  <td>
-                    <code>req.i18nContext</code>, <code>AsyncLocalStorage</code>
-                  </td>
-                  <td><code>@CurrentLang()</code>, <code>I18nService</code></td>
-                </tr>
-                <tr>
-                  <td><em>(setting)</em> <code>trust proxy</code></td>
-                  <td>Express</td>
-                  <td><code>main.ts:24</code></td>
-                  <td>quyết định <code>req.ip</code></td>
-                  <td><code>AppThrottlerGuard</code></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <p class="dim">
-          Tự viết: <strong>0</strong>. Không phải thiếu — mọi việc cross-cutting
-          đã có thư viện làm, và mọi việc cần biết handler đã đúng chỗ ở
-          guard/pipe/interceptor.
+        <h3
+          id="82-tenant-id-từ-header--gắn-ngữ-cảnh-lên-req-kèm-khai-báo-kiểu"
+          class="sub"
+        >
+          8.2 Tenant id từ header — gắn ngữ cảnh lên <code>req</code> (kèm khai
+          báo kiểu)
+        </h3>
+        <p class="prose">
+          <em>Vì sao middleware:</em> là &quot;request này là gì&quot;, không
+          phải &quot;được làm gì&quot;. Guard, service phía sau chỉ
+          <strong>đọc</strong>.
         </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>// src/types/express.d.ts — mở rộng kiểu Request của Express
+import &quot;express-serve-static-core&quot;; // module augmentation, không thay thế khai báo gốc
 
-        <div class="sec-head" id="s11">
-          <span class="sec-head__num">11</span
-          ><span class="sec-head__text">Tự kiểm chứng</span>
-        </div>
-        <div class="stack">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label">
-              01 · Request id đi vòng qua middleware rồi ra header
-            </div>
-            <pre
-              class="code-file__body"
-              style="border: 1px solid var(--border); border-radius: 8px"
-            ><code>curl -s -D - -o /dev/null localhost:3000/products | grep -i x-request-id
-curl -s -D - -o /dev/null -H "X-Request-Id: thu-nghiem-123" localhost:3000/products | grep -i x-request-id</code></pre>
-            <p>
-              Lần một: UUID server sinh. Lần hai:
-              <code>thu-nghiem-123</code> giữ nguyên — đúng logic
-              <code>genReqId</code>.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              02 · Preflight CORS không tới guard
-            </div>
-            <pre
-              class="code-file__body"
-              style="border: 1px solid var(--border); border-radius: 8px"
-            ><code>curl -s -i -X OPTIONS localhost:3000/roles -H "Origin: http://localhost:3000" \
-  -H "Access-Control-Request-Method: GET" | head -1</code></pre>
-            <p>
-              <code>204</code>, không phải <code>401</code> — dù
-              <code>/roles</code> cần token.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              03 · Ngôn ngữ do middleware quyết
-            </div>
-            <p>
-              Gọi một route trả bản dịch với <code>-H "x-lang: vi"</code> rồi
-              <code>-H "x-lang: en"</code>. Handler không đọc header nào —
-              <code>@CurrentLang()</code> chỉ hỏi context mà
-              <code>I18nMiddleware</code> đã đặt.
-            </p>
-          </div>
-          <div class="ve-card" style="--i: 3">
-            <div class="ve-card__label ve-card__label--plum">
-              04 · Redact hoạt động
-            </div>
-            <p>
-              Đăng nhập với body có <code>password</code>, nhìn log — trường đó
-              hiện <code>**GDPR COMPLIANT**</code>. Redact xảy ra ở middleware
-              pino với request thô, không thể muộn hơn.
-            </p>
-          </div>
-        </div>
+declare module &quot;express-serve-static-core&quot; {
+  interface Request {
+    tenantId?: string;
+  }
+}
 
-        <div class="footer-nav">
-          <a href="03-guards.html"><small>Chương trước</small>← 03 — Guard</a>
-          <a href="05-request-lifecycle-in-this-project.html"
-            ><small>Chương tiếp</small>05 — Vòng đời một request →</a
+// src/shared/middlewares/tenant.middleware.ts
+@Injectable()
+export class TenantMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    const raw = req.headers[&quot;x-tenant-id&quot;];
+    const tenantId = Array.isArray(raw) ? raw[0] : raw;
+
+    if (!tenantId || !/^[a-z0-9-]{3,32}$/.test(tenantId)) {
+      throw new BadRequestException(&quot;Missing or malformed X-Tenant-Id header.&quot;);
+    }
+
+    req.tenantId = tenantId;
+    next();
+  }
+}
+
+// order.module.ts — chỉ các route cần tenant
+export class OrderModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(TenantMiddleware).forRoutes(OrderController, CartController);
+  }
+}
+
+// đọc lại ở tầng Nest bằng param decorator
+export const TenantId = createParamDecorator(
+  (_: unknown, ctx: ExecutionContext) =&gt;
+    ctx.switchToHttp().getRequest&lt;Request&gt;().tenantId,
+);</code></pre>
+        </div>
+        <p class="prose">
+          Đây đúng là mẫu của <code>I18nMiddleware</code> +
+          <code>@CurrentLang()</code> trong dự án, viết tay. Lưu ý
+          <strong>không</strong> gắn <code>req.user</code> theo cách này —
+          <a href="#10-nâng-cao">mục 10</a> giải thích.
+        </p>
+        <h3
+          id="83-ép-content-type-applicationjson-cho-request-có-body"
+          class="sub"
+        >
+          8.3 Ép <code>Content-Type: application/json</code> cho request có body
+        </h3>
+        <p class="prose">
+          <em>Vì sao middleware:</em> kiểm Content-Type trước guard và handler,
+          không phụ thuộc metadata route. Middleware đăng ký qua
+          <code>consumer.apply</code> chạy sau parser mặc định; ví dụ này không
+          ngăn parser đọc body. Muốn kiểm trước parser phải đăng ký
+          <code>app.use</code> trước <code>init()</code> và chủ động sắp thứ tự
+          parser.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const METHODS_WITH_BODY = new Set([&quot;POST&quot;, &quot;PUT&quot;, &quot;PATCH&quot;]);
+
+export function requireJsonBody(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  if (!METHODS_WITH_BODY.has(req.method)) return next();
+
+  const length = Number(req.headers[&quot;content-length&quot;] ?? 0);
+  if (length === 0 &amp;&amp; !req.headers[&quot;transfer-encoding&quot;]) return next(); // không body; chunked có thể không có Content-Length
+
+  if (!req.is(&quot;application/json&quot;)) {
+    throw new UnsupportedMediaTypeException(&quot;Body must be application/json.&quot;);
+  }
+  next();
+}
+
+// exclude route upload multipart
+consumer
+  .apply(requireJsonBody)
+  .exclude({ path: &quot;media/*path&quot;, method: RequestMethod.POST })
+  .forRoutes(&quot;*path&quot;);</code></pre>
+        </div>
+        <p class="prose">
+          Vì sao cần: <code>body-parser</code> <strong>bỏ qua</strong> body có
+          Content-Type lạ và để <code>req.body = {}</code>. Không có middleware
+          này, client gửi <code>text/plain</code> sẽ nhận lỗi validation
+          &quot;field X is required&quot; — đúng nhưng gây hiểu nhầm. 415 rõ
+          hơn.
+        </p>
+        <h3 id="84-header-deprecation-cho-một-nhóm-route-cũ" class="sub">
+          8.4 Header <code>Deprecation</code> cho một nhóm route cũ
+        </h3>
+        <p class="prose">
+          <em>Vì sao middleware:</em> chỉ ghi header, không cần metadata; gắn
+          theo controller để refactor path không vỡ.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>export function deprecated(sunset: string, successor: string) {
+  return (req: Request, res: Response, next: NextFunction) =&gt; {
+    res.setHeader(&quot;Deprecation&quot;, &quot;true&quot;);
+    res.setHeader(&quot;Sunset&quot;, sunset);
+    res.setHeader(&quot;Link&quot;, `&lt;${successor}&gt;; rel=&quot;successor-version&quot;`);
+    next();
+  };
+}
+
+consumer
+  .apply(deprecated(&quot;Sat, 31 Jan 2027 00:00:00 GMT&quot;, &quot;/v2/brand-translations&quot;))
+  .forRoutes(BrandTranslationController);</code></pre>
+        </div>
+        <p class="prose">
+          Header phải set <strong>trước</strong> khi body được ghi — middleware
+          đứng trước handler nên luôn thoả. (Đặt cùng logic vào
+          <code>res.on(&quot;finish&quot;)</code> sẽ <strong>không</strong> hoạt
+          động: lúc đó header đã đi rồi.)
+        </p>
+        <h3 id="85-đo-thời-gian-và-cảnh-báo-request-chậm" class="sub">
+          8.5 Đo thời gian và cảnh báo request chậm
+        </h3>
+        <p class="prose">
+          <em>Vì sao middleware:</em> muốn đo cả 401/404/429; muốn tính cả thời
+          gian guard và pipe.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class SlowRequestMiddleware implements NestMiddleware {
+  private readonly thresholdMs = 1_000;
+
+  constructor(
+    @InjectPinoLogger(SlowRequestMiddleware.name)
+    private readonly logger: PinoLogger,
+  ) {}
+
+  use(req: Request, res: Response, next: NextFunction) {
+    const start = process.hrtime.bigint();
+
+    res.once(&quot;finish&quot;, () =&gt; {
+      const ms = Number(process.hrtime.bigint() - start) / 1e6;
+      if (ms &gt; this.thresholdMs) {
+        this.logger.warn(
+          {
+            requestId: req.id,
+            method: req.method,
+            url: req.originalUrl,
+            status: res.statusCode,
+            ms,
+          },
+          &quot;slow request&quot;,
+        );
+      }
+    });
+
+    next();
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>finish</code> bắn khi byte cuối được đưa cho OS. Có thêm
+          <code>close</code> — bắn kể cả khi client ngắt giữa chừng; nếu muốn
+          đếm request bị huỷ thì nghe cả hai và dùng cờ để không đếm đôi.
+        </p>
+        <h3 id="86-chặn-danh-sách-ip-đen" class="sub">
+          8.6 Chặn danh sách IP đen
+        </h3>
+        <p class="prose">
+          <em>Vì sao middleware:</em> càng sớm càng rẻ — không parse body, không
+          chạy guard cho request đằng nào cũng bị chặn. Nếu cần &quot;route nào
+          được miễn&quot; theo metadata thì chuyển thành guard đứng trước
+          throttler.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+export class IpBlocklistMiddleware implements NestMiddleware {
+  constructor(private readonly redis: Redis) {}
+
+  async use(req: Request, res: Response, next: NextFunction) {
+    try {
+      // req.ip đã tôn trọng `trust proxy` (main.ts:24) — cùng khoá với AppThrottlerGuard
+      const blocked = await this.redis.sismember(&quot;ip:blocklist&quot;, req.ip ?? &quot;&quot;);
+      if (blocked) {
+        throw new ForbiddenException(&quot;Forbidden.&quot;);
+      }
+      next();
+    } catch (err) {
+      next(err);
+    }
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          Đăng ký <strong>trước</strong> pino-http? Không được từ
+          <code>AppModule</code> — <code>BaseModule</code> import trước nên pino
+          bind trước. Chấp nhận: request bị chặn vẫn có một dòng log và
+          <code>X-Request-Id</code>, và đó thường là điều bạn muốn.
+        </p>
+        <h3 id="87-bỏ-dấu--cuối-url--chuẩn-hoá-path" class="sub">
+          8.7 Bỏ dấu <code>/</code> cuối URL — chuẩn hoá path
+        </h3>
+        <p class="prose">
+          <em>Vì sao middleware:</em> là việc của URL, xảy ra trước routing;
+          Express 5 mặc định coi <code>/brands</code> và
+          <code>/brands/</code> là một rồi, nhưng nếu muốn client thấy
+          <strong>một</strong> URL canonical thì redirect ở đây.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>export function stripTrailingSlash(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  if (req.method === &quot;GET&quot; &amp;&amp; req.path.length &gt; 1 &amp;&amp; req.path.endsWith(&quot;/&quot;)) {
+    const query = req.url.slice(req.path.length); // giữ ?a=b
+    return res.redirect(308, req.path.slice(0, -1) + query);
+  }
+  next();
+}</code></pre>
+        </div>
+        <p class="prose">
+          Ví dụ này <strong>tự trả response</strong> (<code>res.redirect</code>)
+          và không gọi <code>next()</code> — lối ra thứ ba ở
+          <a href="#1-middleware-là-hàm-req-res-next-của-express">mục 1</a>.
+        </p>
+        <h3 id="88-giữ-body-thô-cho-webhook--cấu-hình-thay-vì-viết" class="sub">
+          8.8 Giữ body thô cho webhook — cấu hình thay vì viết
+        </h3>
+        <p class="prose">
+          <em>Vì sao ở đây:</em> nhu cầu &quot;verify chữ ký HMAC trên body
+          thô&quot; là nhu cầu middleware (phải chạm vào byte trước khi parse),
+          nhưng câu trả lời <strong>không phải viết middleware</strong> — bật cờ
+          có sẵn:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// main.ts
+const app = await NestFactory.create&lt;NestExpressApplication&gt;(AppModule, {
+  bufferLogs: true,
+  rawBody: true, // body-parser giữ Buffer ở req.rawBody song song với req.body
+});
+
+// webhook.controller.ts
+@Post(&quot;webhooks/payment&quot;)
+@IsPublicApi()
+handle(@Req() req: RawBodyRequest&lt;Request&gt;, @Headers(&quot;x-signature&quot;) signature: string) {
+  verifyHmac(req.rawBody!, signature); // ném 401 nếu sai
+  ...
+}</code></pre>
+        </div>
+        <p class="prose">
+          Bài học: trước khi viết middleware, kiểm tra xem
+          <code>NestFactory.create</code> options, <code>enableCors</code>,
+          <code>useBodyParser</code>, <code>useStaticAssets</code> đã có cờ cho
+          việc đó chưa.
+        </p>
+        <h3 id="checklist-trước-khi-viết" class="sub">
+          Checklist trước khi viết
+        </h3>
+        <ul>
+          <li>
+            <p class="prose">
+              Việc này có cần biết handler/metadata không? → Có thì
+              <strong>không</strong> viết middleware.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Có cần chạy cho cả request sẽ bị 401/404 không? → Có thì
+              middleware là đúng.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Đã có cờ cấu hình sẵn (<code>rawBody</code>,
+              <code>useBodyParser</code>, <code>enableCors</code> option) chưa?
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Cần DI? → class <code>NestMiddleware</code> +
+              <code>consumer.apply</code>. Không → hàm thuần hoặc factory.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Lỗi tới global filter chưa? Kiểm thứ tự stack và middleware gắn
+              request ID; <code>app.use</code> trước <code>init()</code> cũng có
+              đường tới filter.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Nhớ <code>next()</code> ở mọi nhánh không trả response. Async →
+              <code>try/catch</code> + <code>next(err)</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Ghi header response? → phải trước <code>next()</code>, không phải
+              trong <code>finish</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Gắn gì lên <code>req</code>? → khai báo kiểu qua
+              <code>declare module &quot;express-serve-static-core&quot;</code>.
+            </p>
+          </li>
+        </ul>
+        <hr />
+        <h2 id="9-test-một-middleware" class="sec-head">
+          9. Test một middleware
+        </h2>
+        <h3 id="91-unit--không-cần-nest" class="sub">
+          9.1 Unit — không cần Nest
+        </h3>
+        <p class="prose">
+          Middleware chỉ là hàm nhận ba đối số, nên test đơn vị là gọi nó với
+          object giả:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// tenant.middleware.spec.ts
+describe(&quot;TenantMiddleware&quot;, () =&gt; {
+  const middleware = new TenantMiddleware();
+
+  const call = (headers: Record&lt;string, string&gt;) =&gt; {
+    const req = { headers } as unknown as Request;
+    const res = {} as Response;
+    const next = jest.fn();
+    const run = () =&gt; middleware.use(req, res, next);
+    return { req, next, run };
+  };
+
+  it(&quot;gắn tenantId và gọi next khi header hợp lệ&quot;, () =&gt; {
+    const { req, next, run } = call({ &quot;x-tenant-id&quot;: &quot;acme-vn&quot; });
+    run();
+    expect(req.tenantId).toBe(&quot;acme-vn&quot;);
+    expect(next).toHaveBeenCalledWith(); // không có đối số = không lỗi
+  });
+
+  it(&quot;ném 400 khi thiếu header&quot;, () =&gt; {
+    const { next, run } = call({});
+    expect(run).toThrow(BadRequestException);
+    expect(next).not.toHaveBeenCalled();
+  });
+});</code></pre>
+        </div>
+        <p class="prose">
+          Với middleware có DI (<code>AppConfigService</code>,
+          <code>Redis</code>), truyền mock qua constructor — không cần
+          <code>Test.createTestingModule</code>.
+        </p>
+        <h3 id="92-e2e--chứng-minh-lỗi-đi-qua-filter" class="sub">
+          9.2 e2e — chứng minh lỗi đi qua filter
+        </h3>
+        <p class="prose">
+          Đây là test cho khẳng định ở
+          <a href="#47-lỗi-đi-đâu--vì-sao-cột-cuối-của-bảng-quan-trọng">§4.7</a
+          >: ném từ middleware đăng ký qua module thì ra envelope chuẩn.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>// maintenance-mode.e2e-spec.ts
+@Controller(&quot;ping&quot;)
+class PingController {
+  @Get() ping() {
+    return { ok: true };
+  }
+}
+
+@Module({
+  controllers: [PingController],
+  providers: [{ provide: ConfigService, useValue: { get: () =&gt; &quot;true&quot; } }],
+})
+class TinyModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MaintenanceModeMiddleware).forRoutes(&quot;*path&quot;);
+  }
+}
+
+it(&quot;503 từ middleware mang envelope của GlobalExceptionFilter&quot;, async () =&gt; {
+  const moduleRef = await Test.createTestingModule({
+    imports: [TinyModule],
+    providers: [{ provide: APP_FILTER, useClass: GlobalExceptionFilter }],
+  }).compile();
+  const app = moduleRef.createNestApplication();
+  await app.init();
+
+  const res = await request(app.getHttpServer()).get(&quot;/ping&quot;);
+
+  expect(res.status).toBe(503);
+  expect(res.body).toMatchObject({
+    statusCode: 503,
+    message: &quot;Service is under maintenance.&quot;,
+  });
+  // TinyModule không có pino-http, nên không assert requestId.
+  // Muốn kiểm ID, thêm middleware gắn req.id trước middleware bảo trì.
+
+  await app.close();
+});</code></pre>
+        </div>
+        <p class="prose">
+          Để đối chiếu, bỏ đăng ký bảo trì trong <code>configure()</code>, rồi
+          gọi
+          <code
+            >app.use((req, res, next) =&gt; new
+            MaintenanceModeMiddleware(config).use(req, res, next))</code
           >
+          <strong>trước</strong> <code>app.init()</code>: lỗi vẫn tới global
+          filter. Nếu thêm middleware sau error-middleware cuối của Nest, lỗi
+          không thể đi ngược stack tới filter đó.
+        </p>
+        <h3 id="93-kiểm-tra-thứ-tự-stack" class="sub">
+          9.3 Kiểm tra thứ tự stack
+        </h3>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>const express = app.getHttpAdapter().getInstance();
+console.log(express.router.stack.map((l) =&gt; l.name)); // Express 5: app.router
+// [ &#39;corsMiddleware&#39;, &#39;jsonParser&#39;, &#39;urlencodedParser&#39;, &#39;bound &#39;, &#39;bound &#39;, ... &#39;router&#39; ]</code></pre>
         </div>
-      </div>
-      <!-- /main -->
+        <p class="prose">
+          Các entry <code>bound </code> là proxy của Nest bọc middleware module
+          (pino, i18n) — tên bị mất vì đã <code>bind</code>. Đủ để xác nhận cors
+          đứng trước body-parser và cả hai đứng trước middleware module.
+        </p>
+        <hr />
+        <h2 id="10-nâng-cao" class="sec-head">10. Nâng cao</h2>
+        <p class="prose">
+          <strong
+            ><code>res.on(&quot;finish&quot;)</code> để đo sau khi response
+            đi.</strong
+          >
+          Middleware chạy <em>trước</em>, nhưng có thể đăng ký callback chạy
+          <em>sau</em> — đây là cách pino-http đo <code>responseTime</code>.
+          Đừng đo bằng cách <code>await next()</code> — <code>next()</code> của
+          Express không trả Promise. Và
+          <strong>không set header trong <code>finish</code></strong
+          >: header đã gửi rồi, <code>setHeader</code> ném
+          <code>ERR_HTTP_HEADERS_SENT</code>.
+        </p>
+        <p class="prose">
+          <strong>Lỗi async trong middleware hàm thuần.</strong>
+          <code>async (req, res, next) =&gt; { throw ... }</code> — Express 4
+          <strong>không</strong> bắt Promise reject; request treo. Hoặc
+          <code>try/catch</code> rồi <code>next(err)</code>, hoặc dùng class
+          <code>NestMiddleware</code> (Nest bọc và chuyển cho filter). Express 5
+          (Nest 11 dùng) bắt reject và chuyển xuống error handler; với
+          <code>app.use</code> trước <code>init()</code>, đường này tới global
+          filter cuối của Nest. Lỗi trong callback tách rời như timer vẫn cần
+          bắt rồi <code>next(err)</code>; Express không theo dõi callback đó.
+        </p>
+        <p class="prose">
+          <strong><code>exclude()</code> khớp path sau global prefix.</strong>
+          Nếu app có <code>setGlobalPrefix(&quot;api&quot;)</code>,
+          <code>exclude(&quot;health&quot;)</code> vẫn viết không có
+          <code>api/</code>. Ngược lại, middleware <code>app.use</code> thuần
+          <strong>không</strong> biết global prefix —
+          <code>app.use(&quot;/health&quot;, fn)</code> phải tự viết
+          <code>/api/health</code>.
+        </p>
+        <p class="prose">
+          <strong>Middleware cho route không tồn tại.</strong>
+          <code>forRoutes(&quot;*path&quot;)</code> chạy cả với path không có
+          controller nào → rồi mới 404. Đó là lý do log của pino có cả dòng cho
+          request 404, và lý do bảng ở
+          <a href="#5-middleware-vs-guard-vs-interceptor-vs-pipe">mục 5</a> có
+          dòng &quot;Chạy cho request 404: Có&quot; — guard/interceptor/pipe
+          không bao giờ thấy những request này.
+        </p>
+        <p class="prose">
+          <strong
+            >Không dùng middleware để &quot;gắn user vào request&quot; rồi guard
+            đọc.</strong
+          >
+          Bạn sẽ có hai chỗ hiểu về token, và middleware không biết route có
+          public không nên phải nuốt lỗi → auth im lặng thất bại. Để guard làm
+          cả hai việc. Gắn <strong>ngữ cảnh không cần xác minh</strong> (tenant
+          id, ngôn ngữ, request id) thì ngược lại là việc đúng của middleware —
+          khác nhau ở chỗ: ngữ cảnh đó <strong>không quyết định quyền</strong>.
+        </p>
+        <p class="prose">
+          <strong>Middleware <code>Scope.REQUEST</code>.</strong> Class
+          middleware có thể
+          <code>@Injectable({ scope: Scope.REQUEST })</code> hoặc phụ thuộc vào
+          provider request-scoped; Nest sẽ tạo instance mới mỗi request (nhánh
+          <code>contextId</code> trong
+          <code>MiddlewareModule.bindHandler</code>). Hiếm khi cần, và trả giá y
+          như mọi provider request-scoped —
+          <a href="08-request-and-provider-instances.html">chương 8</a>.
+        </p>
+        <p class="prose">
+          <strong>Versioning.</strong> Nếu app bật
+          <code>app.enableVersioning()</code>, <code>RouteInfo</code> nhận thêm
+          <code>version</code>:
+          <code
+            >forRoutes({ path: &quot;brands&quot;, method: RequestMethod.ALL,
+            version: &quot;2&quot; })</code
+          >. Dự án chưa bật versioning.
+        </p>
+        <p class="prose">
+          <strong
+            ><code>req.body</code> là <code>{}</code> khi không parse được —
+            không phải <code>undefined</code>.</strong
+          >
+          Với body-parser 1.x mà <code>@nestjs/platform-express</code> 11 kéo
+          theo, request không có body hoặc có Content-Type lạ đều cho
+          <code>req.body = {}</code>. Đây là lý do
+          <a href="#83-ép-content-type-applicationjson-cho-request-có-body"
+            >§8.3</a
+          >
+          tồn tại, và lý do guard đọc <code>req.body.email</code> không cần
+          check <code>undefined</code> ở tầng object.
+        </p>
+        <p class="prose">
+          <strong>Fastify.</strong> Đổi adapter sang Fastify thì chữ ký
+          middleware Nest vẫn là <code>(req, res, next)</code> nhưng
+          <code>req</code>/<code>res</code> là của Fastify (qua
+          <code>@fastify/middie</code>), và gói Express (<code>cors</code>,
+          <code>helmet</code>) phải thay bằng plugin Fastify tương ứng. Đây là
+          cái giá thật của &quot;middleware thuộc tầng dưới Nest&quot;: nó
+          <strong>gắn với platform</strong>. Guard/interceptor/pipe thì không.
+        </p>
+        <hr />
+        <h2 id="11-trong-dự-án-này" class="sec-head">11. Trong dự án này</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Middleware</th>
+                <th>Nguồn</th>
+                <th>Đăng ký ở</th>
+                <th>Gắn gì lên request</th>
+                <th>Ai dùng sau đó</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>body-parser</code> json/urlencoded</td>
+                <td>Nest mặc định</td>
+                <td><code>NestFactory.create</code> → <code>init()</code></td>
+                <td><code>req.body</code></td>
+                <td>
+                  <code>AppThrottlerGuard</code> (email key),
+                  <code>ValidationPipe</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>cors</code></td>
+                <td>Express, qua <code>enableCors</code></td>
+                <td><a href="../../src/main.ts#L27-L32">main.ts:27-32</a></td>
+                <td>header CORS; trả lời preflight</td>
+                <td>trình duyệt</td>
+              </tr>
+              <tr>
+                <td><code>pino-http</code></td>
+                <td><code>nestjs-pino</code></td>
+                <td>
+                  <a href="../../src/shared/modules/base.module.ts#L86-L89"
+                    >base.module.ts:86-89</a
+                  >
+                  +
+                  <a href="../../src/shared/utils/setup-logger.util.ts"
+                    >setup-logger.util.ts</a
+                  >
+                </td>
+                <td>
+                  <code>req.id</code>, <code>req.log</code>; header
+                  <code>X-Request-Id</code>
+                </td>
+                <td>
+                  <code>GlobalExceptionFilter</code> (<code>requestId</code>),
+                  mọi log
+                </td>
+              </tr>
+              <tr>
+                <td><code>I18nMiddleware</code></td>
+                <td><code>nestjs-i18n</code></td>
+                <td>
+                  <a href="../../src/shared/modules/i18n.module.ts#L16-L32"
+                    >i18n.module.ts:16-32</a
+                  >
+                </td>
+                <td>
+                  <code>req.i18nContext</code>, <code>AsyncLocalStorage</code>
+                </td>
+                <td><code>@CurrentLang()</code>, <code>I18nService</code></td>
+              </tr>
+              <tr>
+                <td>
+                  <em>(không phải middleware)</em> <code>trust proxy</code>
+                </td>
+                <td>Express setting</td>
+                <td><a href="../../src/main.ts#L24">main.ts:24</a></td>
+                <td>quyết định <code>req.ip</code></td>
+                <td><code>AppThrottlerGuard</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Tự viết: <strong>0</strong>. Đó không phải thiếu — mọi việc
+          cross-cutting cần thiết đã có thư viện làm, và mọi việc cần biết
+          handler đã đúng chỗ ở guard/pipe/interceptor. Khi cần cái đầu tiên,
+          <a href="#8-bộ-sưu-tập-tám-middleware-mẫu">mục 8</a> là khuôn: đặt ở
+          <code>src/shared/middlewares/</code>, đăng ký qua
+          <code>configure()</code> của <code>AppModule</code> (toàn app) hoặc
+          module sở hữu controller (nhóm route).
+        </p>
+        <hr />
+        <h2 id="12-tự-kiểm-chứng" class="sec-head">12. Tự kiểm chứng</h2>
+        <p class="prose">App đang chạy (<code>pnpm start:dev</code>).</p>
+        <p class="prose">
+          <strong>1. Request id đi vòng qua middleware rồi ra header:</strong>
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>curl -s -D - -o /dev/null localhost:3000/products | grep -i x-request-id
+curl -s -D - -o /dev/null -H &quot;X-Request-Id: thu-nghiem-123&quot; localhost:3000/products | grep -i x-request-id</code></pre>
+        </div>
+        <p class="prose">
+          Lần một: một UUID do server sinh. Lần hai:
+          <code>thu-nghiem-123</code> được <strong>giữ nguyên</strong> — đúng
+          logic <code>genReqId</code>.
+        </p>
+        <p class="prose"><strong>2. Preflight CORS không tới guard:</strong></p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>curl -s -i -X OPTIONS localhost:3000/roles -H &quot;Origin: http://localhost:3000&quot; \
+  -H &quot;Access-Control-Request-Method: GET&quot; | head -1</code></pre>
+        </div>
+        <p class="prose">
+          <code>204</code>, không phải <code>401</code> — dù
+          <code>/roles</code> cần token. Middleware CORS trả lời trước khi guard
+          chạy.
+        </p>
+        <p class="prose">
+          <strong>3. Middleware chạy cả cho route không tồn tại:</strong>
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>curl -s -D - localhost:3000/khong-ton-tai | grep -i -E &quot;^HTTP|x-request-id&quot;</code></pre>
+        </div>
+        <p class="prose">
+          <code>404</code> <strong>và</strong> vẫn có <code>X-Request-Id</code>,
+          và trong log server có một dòng cho request này. Guard không chạy
+          (không có 401), nhưng pino-http thì có.
+        </p>
+        <p class="prose">
+          <strong>4. Ngôn ngữ được middleware quyết:</strong> gọi một route trả
+          về bản dịch với <code>-H &quot;x-lang: vi&quot;</code> rồi
+          <code>-H &quot;x-lang: en&quot;</code>. Handler không đọc header nào —
+          <code>@CurrentLang()</code> chỉ hỏi context mà
+          <code>I18nMiddleware</code> đã đặt.
+        </p>
+        <p class="prose">
+          <strong>5. Redact hoạt động:</strong> đăng nhập với body có
+          <code>password</code>, nhìn log — trường đó hiện
+          <code>**GDPR COMPLIANT**</code>. Log được ghi bởi middleware pino với
+          request thô, nên redact phải xảy ra ở đây, không thể muộn hơn.
+        </p>
+        <p class="prose">
+          <strong
+            >6. Lỗi tầng Express thuần không có <code>requestId</code>:</strong
+          >
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>curl -s -X POST localhost:3000/auth/login -H &quot;Content-Type: application/json&quot; -d &#39;{&quot;email&quot;: &quot;a@b.c&quot;,&#39;</code></pre>
+        </div>
+        <p class="prose">
+          JSON hỏng → <code>body-parser</code> ném trước pino. Error-middleware
+          cuối của Nest đổi lỗi thành 400 rồi gọi global filter, nên vẫn có
+          envelope; thường thiếu <code>requestId</code> vì pino chưa chạy. So
+          với 400 từ <code>ValidationPipe</code>, khác biệt này cho biết lỗi
+          sinh trước hay sau tầng gắn ID.
+        </p>
+        <hr />
+        <p class="prose">
+          <strong>Tiếp theo:</strong>
+          <a href="05-request-lifecycle-in-this-project.html"
+            >Chương 5 — Vòng đời một request trong dự án</a
+          >: ráp bốn chương lại thành một đường đi duy nhất, từng tầng, từng
+          file.
+        </p>
+        <footer class="source-footer">
+          <a href="04-middleware.md">Nguồn Markdown</a> · Sinh bằng
+          scripts/build-nestjs-fundamentals.cjs
+        </footer>
+      </main>
     </div>
-    <!-- /wrap -->
-
-    <script>
-      (function () {
-        var toggle = document.getElementById("themeToggle");
-        var saved = null;
-        try {
-          saved = localStorage.getItem("theme");
-        } catch (e) {}
-        var initial =
-          saved ||
-          (matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        if (saved) document.documentElement.setAttribute("data-theme", initial);
-        toggle.textContent = initial === "dark" ? "☀" : "☾";
-        toggle.addEventListener("click", function () {
-          var current =
-            document.documentElement.getAttribute("data-theme") ||
-            (matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light");
-          var next = current === "light" ? "dark" : "light";
-          document.documentElement.setAttribute("data-theme", next);
-          try {
-            localStorage.setItem("theme", next);
-          } catch (e) {}
-          toggle.textContent = next === "dark" ? "☀" : "☾";
-        });
-      })();
-    </script>
-
     <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      const config = {
-        fitPadding: 28,
-        minHeight: 320,
-        maxHeightPx: 960,
-        maxHeightVh: 0.84,
-        maxInitialZoom: 1.8,
-        minZoom: 0.08,
-        maxZoom: 6.5,
-        zoomStep: 0.14,
-        readabilityFloor: 0.58,
-      };
-      const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-      let activeDrag = null;
-      addEventListener("mousemove", (e) => activeDrag?.onMove(e));
-      addEventListener("mouseup", () => {
-        activeDrag?.onEnd();
-        activeDrag = null;
+      // Shared behavior for the Markdown-generated foundation pages.
+      const themeToggle = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+      }
+      let initialTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      try {
+        initialTheme =
+          localStorage.getItem("fundamentals-theme") ?? initialTheme;
+      } catch {
+        // Storage can be unavailable when opening a local HTML file.
+      }
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+        try {
+          localStorage.setItem("fundamentals-theme", theme);
+        } catch {
+          // Storage can be unavailable when opening a local HTML file.
+        }
+        applyTheme(theme);
       });
-      const attr = document.documentElement.getAttribute("data-theme");
-      const isDark =
-        attr === "dark" ||
-        (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: "base",
-        look: "classic",
-        themeVariables: {
-          fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
-          fontSize: "15px",
-          primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
-          primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
-          primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
-          secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
-          secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
-          tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
-          tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          lineColor: isDark ? "#a89e90" : "#7c756a",
-          noteBkgColor: isDark ? "#342e29" : "#fffdf7",
-          noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          noteBorderColor: isDark ? "#fbbf24" : "#b45309",
-          actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
-          actorBorder: isDark ? "#f0743f" : "#c2410c",
-          actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-          signalColor: isDark ? "#a89e90" : "#7c756a",
-          signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
-        },
-      });
-      function initDiagram(shell) {
-        const wrap = shell.querySelector(".mermaid-wrap"),
-          viewport = shell.querySelector(".mermaid-viewport"),
-          canvas = shell.querySelector(".mermaid-canvas"),
-          source = shell.querySelector(".diagram-source"),
-          label = shell.querySelector(".zoom-label");
-        if (!wrap || !viewport || !canvas || !source || !label) return;
-        let zoom = 1,
-          fitMode = "contain",
-          panX = 0,
-          panY = 0,
-          svgW = 0,
-          svgH = 0,
-          sx = 0,
-          sy = 0,
-          spx = 0,
-          spy = 0,
-          touchDist = 0,
-          touchCx = 0,
-          touchCy = 0;
-        function constrainPan() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            rW = svgW * zoom,
-            rH = svgH * zoom,
-            pad = config.fitPadding;
-          panX =
-            rW + pad * 2 <= vpW
-              ? (vpW - rW) / 2
-              : clamp(panX, vpW - rW - pad, pad);
-          panY =
-            rH + pad * 2 <= vpH
-              ? (vpH - rH) / 2
-              : clamp(panY, vpH - rH - pad, pad);
-        }
-        function applyTransform() {
-          const svg = canvas.querySelector("svg");
-          if (!svg || !svgW) return;
-          constrainPan();
-          svg.style.width = svgW * zoom + "px";
-          svg.style.height = svgH * zoom + "px";
-          canvas.style.transform = `translate(${panX}px, ${panY}px)`;
-          label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
-        }
-        function canPan() {
-          return (
-            svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
-            svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
-          );
-        }
-        function computeSmartFit() {
-          const vpW = viewport.clientWidth,
-            vpH = viewport.clientHeight,
-            aW = Math.max(80, vpW - config.fitPadding * 2),
-            aH = Math.max(80, vpH - config.fitPadding * 2),
-            contain = Math.min(aW / svgW, aH / svgH);
-          let z = contain,
-            mode = "contain";
-          if (contain < config.readabilityFloor) {
-            const chartR = svgH / svgW,
-              vpR = vpH / Math.max(vpW, 1);
-            if (chartR >= vpR) {
-              z = aW / svgW;
-              mode = "width-priority";
-            } else {
-              z = aH / svgH;
-              mode = "height-priority";
-            }
-          }
-          return {
-            zoom: clamp(z, config.minZoom, config.maxInitialZoom),
-            mode,
-          };
-        }
-        function fitDiagram() {
-          if (!svgW) return;
-          const fit = computeSmartFit();
-          zoom = fit.zoom;
-          fitMode = fit.mode;
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function setOneToOne() {
-          zoom = clamp(1, config.minZoom, config.maxZoom);
-          fitMode = "1:1";
-          panX = (viewport.clientWidth - svgW * zoom) / 2;
-          panY = (viewport.clientHeight - svgH * zoom) / 2;
-          applyTransform();
-        }
-        function zoomAround(factor, cx, cy) {
-          const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
-            ratio = next / zoom;
-          panX = cx - ratio * (cx - panX);
-          panY = cy - ratio * (cy - panY);
-          zoom = next;
-          fitMode = "custom";
-          applyTransform();
-        }
-        function readSvgNaturalSize(svg) {
-          let w = 0,
-            h = 0;
-          if (svg.viewBox?.baseVal?.width > 0) {
-            w = svg.viewBox.baseVal.width;
-            h = svg.viewBox.baseVal.height;
-          }
-          if (!w) {
-            w = parseFloat(svg.getAttribute("width")) || 0;
-            h = parseFloat(svg.getAttribute("height")) || 0;
-          }
-          if (!w) {
-            const b = svg.getBBox();
-            w = b.width;
-            h = b.height;
-          }
-          if (!w) {
-            const r = svg.getBoundingClientRect();
-            w = r.width || 1000;
-            h = r.height || 700;
-          }
-          if (!svg.getAttribute("viewBox"))
-            svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
-          return { w, h };
-        }
-        function setAdaptiveHeight() {
-          if (!svgW) return;
-          const usableW = Math.max(280, wrap.getBoundingClientRect().width - 2),
-            idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
-            maxVp = Math.floor(innerHeight * config.maxHeightVh),
-            hardMax = Math.min(
-              config.maxHeightPx,
-              Math.max(config.minHeight + 40, maxVp),
-            );
-          wrap.style.height =
-            Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
-        }
-        function openInNewTab() {
-          const svg = canvas.querySelector("svg");
-          if (!svg) return;
-          const clone = svg.cloneNode(true);
-          clone.style.width = "";
-          clone.style.height = "";
-          const bg = isDark ? "#1c1916" : "#faf6f0";
-          const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
-          open(
-            URL.createObjectURL(new Blob([html], { type: "text/html" })),
-            "_blank",
-          );
-        }
-        async function render() {
-          try {
-            const code = source.textContent.trim();
-            if (!code) {
-              label.textContent = "Lỗi: nguồn rỗng";
-              return;
-            }
-            const id =
-              "diagram-" +
-              Date.now() +
-              "-" +
-              Math.random().toString(36).slice(2, 8);
-            const { svg } = await mermaid.render(id, code);
-            canvas.innerHTML = svg;
-            const svgNode = canvas.querySelector("svg");
-            if (!svgNode) {
-              label.textContent = "Lỗi: không có SVG";
-              return;
-            }
-            const size = readSvgNaturalSize(svgNode);
-            svgW = size.w;
-            svgH = size.h;
-            svgNode.removeAttribute("width");
-            svgNode.removeAttribute("height");
-            svgNode.style.maxWidth = "none";
-            svgNode.style.display = "block";
-            setAdaptiveHeight();
-            fitDiagram();
-          } catch (err) {
-            console.error("Mermaid render failed:", err);
-            label.textContent = "Lỗi: " + (err.message || "render thất bại");
-          }
-        }
-        const actions = {
-          "zoom-in": () =>
-            zoomAround(
-              1 + config.zoomStep,
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-out": () =>
-            zoomAround(
-              1 / (1 + config.zoomStep),
-              viewport.clientWidth / 2,
-              viewport.clientHeight / 2,
-            ),
-          "zoom-fit": fitDiagram,
-          "zoom-one": setOneToOne,
-          "zoom-expand": openInNewTab,
+
+      let mermaid;
+      try {
+        ({ default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+        ));
+      } catch {
+        document.querySelectorAll(".diagram-shell").forEach((shell) => {
+          shell.querySelector(".mermaid-wrap").hidden = true;
+          shell.querySelector(".diagram-code").open = true;
+        });
+      }
+      if (mermaid) {
+        const config = {
+          fitPadding: 28,
+          minHeight: 320,
+          maxHeightPx: 960,
+          maxHeightVh: 0.84,
+          maxInitialZoom: 1.8,
+          minZoom: 0.08,
+          maxZoom: 6.5,
+          zoomStep: 0.14,
+          readabilityFloor: 0.58,
         };
-        Object.entries(actions).forEach(([action, handler]) => {
-          wrap
-            .querySelector(`[data-action="${action}"]`)
-            ?.addEventListener("click", handler);
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+        let activeDrag = null;
+        addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+        addEventListener("mouseup", () => {
+          activeDrag?.onEnd();
+          activeDrag = null;
         });
-        viewport.addEventListener("dblclick", fitDiagram);
-        viewport.addEventListener(
-          "wheel",
-          (e) => {
-            if (e.ctrlKey || e.metaKey) {
-              e.preventDefault();
-              const rect = viewport.getBoundingClientRect();
-              zoomAround(
-                e.deltaY < 0 ? 1 + config.zoomStep : 1 / (1 + config.zoomStep),
-                e.clientX - rect.left,
-                e.clientY - rect.top,
+        const attr = document.documentElement.getAttribute("data-theme");
+        const isDark =
+          attr === "dark" ||
+          (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "classic",
+          themeVariables: {
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontSize: "15px",
+            primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+            primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+            primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+            secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+            secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+            tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+            tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            lineColor: isDark ? "#a89e90" : "#7c756a",
+            noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+            noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+            actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+            actorBorder: isDark ? "#f0743f" : "#c2410c",
+            actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            signalColor: isDark ? "#a89e90" : "#7c756a",
+            signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+          },
+        });
+        function initDiagram(shell) {
+          const wrap = shell.querySelector(".mermaid-wrap"),
+            viewport = shell.querySelector(".mermaid-viewport"),
+            canvas = shell.querySelector(".mermaid-canvas"),
+            source = shell.querySelector(".diagram-source"),
+            label = shell.querySelector(".zoom-label");
+          if (!wrap || !viewport || !canvas || !source || !label) return;
+          let zoom = 1,
+            fitMode = "contain",
+            panX = 0,
+            panY = 0,
+            svgW = 0,
+            svgH = 0,
+            sx = 0,
+            sy = 0,
+            spx = 0,
+            spy = 0,
+            touchDist = 0,
+            touchCx = 0,
+            touchCy = 0;
+          function constrainPan() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              rW = svgW * zoom,
+              rH = svgH * zoom,
+              pad = config.fitPadding;
+            panX =
+              rW + pad * 2 <= vpW
+                ? (vpW - rW) / 2
+                : clamp(panX, vpW - rW - pad, pad);
+            panY =
+              rH + pad * 2 <= vpH
+                ? (vpH - rH) / 2
+                : clamp(panY, vpH - rH - pad, pad);
+          }
+          function applyTransform() {
+            const svg = canvas.querySelector("svg");
+            if (!svg || !svgW) return;
+            constrainPan();
+            svg.style.width = svgW * zoom + "px";
+            svg.style.height = svgH * zoom + "px";
+            canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+            label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+          }
+          function canPan() {
+            return (
+              svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+              svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+            );
+          }
+          function computeSmartFit() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              aW = Math.max(80, vpW - config.fitPadding * 2),
+              aH = Math.max(80, vpH - config.fitPadding * 2),
+              contain = Math.min(aW / svgW, aH / svgH);
+            let z = contain,
+              mode = "contain";
+            if (contain < config.readabilityFloor) {
+              const chartR = svgH / svgW,
+                vpR = vpH / Math.max(vpW, 1);
+              if (chartR >= vpR) {
+                z = aW / svgW;
+                mode = "width-priority";
+              } else {
+                z = aH / svgH;
+                mode = "height-priority";
+              }
+            }
+            return {
+              zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+              mode,
+            };
+          }
+          function fitDiagram() {
+            if (!svgW) return;
+            const fit = computeSmartFit();
+            zoom = fit.zoom;
+            fitMode = fit.mode;
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function setOneToOne() {
+            zoom = clamp(1, config.minZoom, config.maxZoom);
+            fitMode = "1:1";
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function zoomAround(factor, cx, cy) {
+            const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+              ratio = next / zoom;
+            panX = cx - ratio * (cx - panX);
+            panY = cy - ratio * (cy - panY);
+            zoom = next;
+            fitMode = "custom";
+            applyTransform();
+          }
+          function readSvgNaturalSize(svg) {
+            let w = 0,
+              h = 0;
+            if (svg.viewBox?.baseVal?.width > 0) {
+              w = svg.viewBox.baseVal.width;
+              h = svg.viewBox.baseVal.height;
+            }
+            if (!w) {
+              w = parseFloat(svg.getAttribute("width")) || 0;
+              h = parseFloat(svg.getAttribute("height")) || 0;
+            }
+            if (!w) {
+              const b = svg.getBBox();
+              w = b.width;
+              h = b.height;
+            }
+            if (!w) {
+              const r = svg.getBoundingClientRect();
+              w = r.width || 1000;
+              h = r.height || 700;
+            }
+            if (!svg.getAttribute("viewBox"))
+              svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            return { w, h };
+          }
+          function setAdaptiveHeight() {
+            if (!svgW) return;
+            const usableW = Math.max(
+                280,
+                wrap.getBoundingClientRect().width - 2,
+              ),
+              idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+              maxVp = Math.floor(innerHeight * config.maxHeightVh),
+              hardMax = Math.min(
+                config.maxHeightPx,
+                Math.max(config.minHeight + 40, maxVp),
               );
-              return;
+            wrap.style.height =
+              Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+          }
+          function openInNewTab() {
+            const svg = canvas.querySelector("svg");
+            if (!svg) return;
+            const clone = svg.cloneNode(true);
+            clone.style.width = "";
+            clone.style.height = "";
+            const bg = isDark ? "#1c1916" : "#faf6f0";
+            const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+            open(
+              URL.createObjectURL(new Blob([html], { type: "text/html" })),
+              "_blank",
+            );
+          }
+          async function render() {
+            try {
+              const code = source.textContent.trim();
+              if (!code) {
+                label.textContent = "Lỗi: nguồn rỗng";
+                return;
+              }
+              const id =
+                "diagram-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).slice(2, 8);
+              const { svg } = await mermaid.render(id, code);
+              canvas.innerHTML = svg;
+              const svgNode = canvas.querySelector("svg");
+              if (!svgNode) {
+                label.textContent = "Lỗi: không có SVG";
+                return;
+              }
+              const size = readSvgNaturalSize(svgNode);
+              svgW = size.w;
+              svgH = size.h;
+              svgNode.removeAttribute("width");
+              svgNode.removeAttribute("height");
+              svgNode.style.maxWidth = "none";
+              svgNode.style.display = "block";
+              setAdaptiveHeight();
+              fitDiagram();
+            } catch (err) {
+              console.error("Mermaid render failed:", err);
+              label.textContent = "Lỗi: " + (err.message || "render thất bại");
             }
-            if (canPan()) {
-              e.preventDefault();
-              panX -= e.deltaX;
-              panY -= e.deltaY;
-              applyTransform();
-            }
-          },
-          { passive: false },
-        );
-        viewport.addEventListener("mousedown", (e) => {
-          if (e.target.closest(".zoom-controls") || !canPan()) return;
-          wrap.classList.add("is-panning");
-          sx = e.clientX;
-          sy = e.clientY;
-          spx = panX;
-          spy = panY;
-          e.preventDefault();
-          activeDrag = {
-            onMove: (ev) => {
-              panX = spx + (ev.clientX - sx);
-              panY = spy + (ev.clientY - sy);
-              applyTransform();
-            },
-            onEnd: () => wrap.classList.remove("is-panning"),
+          }
+          const actions = {
+            "zoom-in": () =>
+              zoomAround(
+                1 + config.zoomStep,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-out": () =>
+              zoomAround(
+                1 / (1 + config.zoomStep),
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-fit": fitDiagram,
+            "zoom-one": setOneToOne,
+            "zoom-expand": openInNewTab,
           };
-        });
-        viewport.addEventListener(
-          "touchstart",
-          (e) => {
-            if (e.touches.length === 1) {
-              sx = e.touches[0].clientX;
-              sy = e.touches[0].clientY;
-              spx = panX;
-              spy = panY;
-            } else if (e.touches.length === 2) {
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY;
-              touchDist = Math.sqrt(dx * dx + dy * dy);
-              const r = viewport.getBoundingClientRect();
-              touchCx =
-                (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
-              touchCy =
-                (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
-            }
-          },
-          { passive: true },
-        );
-        viewport.addEventListener(
-          "touchmove",
-          (e) => {
-            if (e.touches.length === 1 && canPan()) {
-              if (touchDist > 0) {
+          Object.entries(actions).forEach(([action, handler]) => {
+            wrap
+              .querySelector(`[data-action="${action}"]`)
+              ?.addEventListener("click", handler);
+          });
+          viewport.addEventListener("dblclick", fitDiagram);
+          viewport.addEventListener(
+            "wheel",
+            (e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                zoomAround(
+                  e.deltaY < 0
+                    ? 1 + config.zoomStep
+                    : 1 / (1 + config.zoomStep),
+                  e.clientX - rect.left,
+                  e.clientY - rect.top,
+                );
+                return;
+              }
+              if (canPan()) {
+                e.preventDefault();
+                panX -= e.deltaX;
+                panY -= e.deltaY;
+                applyTransform();
+              }
+            },
+            { passive: false },
+          );
+          viewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest(".zoom-controls") || !canPan()) return;
+            wrap.classList.add("is-panning");
+            sx = e.clientX;
+            sy = e.clientY;
+            spx = panX;
+            spy = panY;
+            e.preventDefault();
+            activeDrag = {
+              onMove: (ev) => {
+                panX = spx + (ev.clientX - sx);
+                panY = spy + (ev.clientY - sy);
+                applyTransform();
+              },
+              onEnd: () => wrap.classList.remove("is-panning"),
+            };
+          });
+          viewport.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length === 1) {
                 sx = e.touches[0].clientX;
                 sy = e.touches[0].clientY;
                 spx = panX;
                 spy = panY;
-                touchDist = 0;
+              } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchDist = Math.sqrt(dx * dx + dy * dy);
+                const r = viewport.getBoundingClientRect();
+                touchCx =
+                  (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+                touchCy =
+                  (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
               }
-              e.preventDefault();
-              panX = spx + (e.touches[0].clientX - sx);
-              panY = spy + (e.touches[0].clientY - sy);
-              applyTransform();
-            } else if (e.touches.length === 2 && touchDist > 0) {
-              e.preventDefault();
-              const dx = e.touches[0].clientX - e.touches[1].clientX,
-                dy = e.touches[0].clientY - e.touches[1].clientY,
-                d = Math.sqrt(dx * dx + dy * dy);
-              zoomAround(d / touchDist, touchCx, touchCy);
-              touchDist = d;
-            }
-          },
-          { passive: false },
-        );
-        new ResizeObserver(() => {
-          if (svgW) {
-            setAdaptiveHeight();
-            fitDiagram();
-          }
-        }).observe(wrap);
-        render();
-      }
-      document.querySelectorAll(".diagram-shell").forEach(initDiagram);
-    </script>
-
-    <script>
-      (function () {
-        const toc = document.getElementById("toc");
-        if (!toc) return;
-        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
-        const sections = [];
-        links.forEach((link) => {
-          const id = link.getAttribute("href").slice(1);
-          const el = document.getElementById(id);
-          if (el) sections.push({ id, el, link });
-        });
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                links.forEach((l) => l.classList.remove("active"));
-                const match = sections.find((s) => s.el === entry.target);
-                if (match) {
-                  match.link.classList.add("active");
-                  if (window.innerWidth <= 1000)
-                    match.link.scrollIntoView({
-                      behavior: "smooth",
-                      block: "nearest",
-                      inline: "center",
-                    });
+            },
+            { passive: true },
+          );
+          viewport.addEventListener(
+            "touchmove",
+            (e) => {
+              if (e.touches.length === 1 && canPan()) {
+                if (touchDist > 0) {
+                  sx = e.touches[0].clientX;
+                  sy = e.touches[0].clientY;
+                  spx = panX;
+                  spy = panY;
+                  touchDist = 0;
                 }
+                e.preventDefault();
+                panX = spx + (e.touches[0].clientX - sx);
+                panY = spy + (e.touches[0].clientY - sy);
+                applyTransform();
+              } else if (e.touches.length === 2 && touchDist > 0) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY,
+                  d = Math.sqrt(dx * dx + dy * dy);
+                zoomAround(d / touchDist, touchCx, touchCy);
+                touchDist = d;
               }
-            });
-          },
-          { rootMargin: "-10% 0px -80% 0px" },
-        );
-        sections.forEach((s) => observer.observe(s.el));
-        links.forEach((link) => {
-          link.addEventListener("click", (e) => {
-            e.preventDefault();
-            const id = link.getAttribute("href").slice(1);
-            const el = document.getElementById(id);
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth", block: "start" });
-              history.replaceState(null, "", "#" + id);
+            },
+            { passive: false },
+          );
+          new ResizeObserver(() => {
+            if (svgW) {
+              setAdaptiveHeight();
+              fitDiagram();
             }
-          });
-        });
-      })();
+          }).observe(wrap);
+          render();
+        }
+        document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+      }
     </script>
   </body>
 </html>

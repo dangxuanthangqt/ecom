@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="vi">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Phụ lục A — reflect-metadata bên trong</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Azeret+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Azeret+Mono:wght@400;500;600&amp;display=swap"
       rel="stylesheet"
     />
     <style>
@@ -1092,364 +1092,574 @@
           max-width: none;
         }
       }
+
+      /* Markdown-generated content uses the existing paper/ink theme. */
+      h2.sec-head {
+        display: block;
+        font-size: 1.45rem;
+        line-height: 1.5;
+        scroll-margin-top: 24px;
+      }
+      h3.sub {
+        font-size: 1.15rem;
+        margin-top: 30px;
+        line-height: 1.6;
+      }
+      h4.sub,
+      h5.sub,
+      h6.sub {
+        margin-top: 24px;
+        line-height: 1.6;
+      }
+      blockquote {
+        margin: 20px 0;
+        padding: 12px 22px;
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+      }
+      blockquote .prose:last-child {
+        margin-bottom: 0;
+      }
+      .main > ul,
+      .main > ol {
+        padding-left: 26px;
+        margin: 16px 0 24px;
+      }
+      li {
+        line-height: 1.85;
+      }
+      li > .prose {
+        margin: 6px 0;
+      }
+      pre.code-file__body {
+        margin: 0;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      pre code {
+        font: inherit;
+        color: inherit;
+        background: none;
+        padding: 0;
+        border: 0;
+      }
+      .series-bar {
+        flex-wrap: wrap;
+      }
+      .series-bar a[aria-current="page"] {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .diagram-code {
+        margin: 10px 0 24px;
+      }
+      .diagram-code pre {
+        overflow-x: auto;
+        padding: 16px;
+        background: var(--surface);
+      }
+      .source-footer {
+        margin: 48px 0;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.8rem;
+      }
+      .mermaid-wrap[hidden] {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <button
       class="theme-toggle"
       id="themeToggle"
-      title="Đổi giao diện sáng/tối"
       aria-label="Đổi giao diện sáng tối"
-    ></button>
+    >
+      ☾
+    </button>
     <div class="wrap">
-      <nav class="toc" id="toc">
-        <div class="toc-title">Phụ lục A</div>
-        <a href="#s1">Nó là gì</a>
-        <a href="#s2">Ba tầng Map trong WeakMap</a>
-        <a href="#s3">Vì sao WeakMap</a>
-        <a href="#s4">getMetadata đi ngược chain</a>
-        <a href="#s5">design:* TypeScript tự dán</a>
-        <a href="#s6">Reflect.decorate</a>
-        <a href="#s7">Registry</a>
-        <a href="#s8">Bảng tra API</a>
-        <a href="#s9">Quyết định cho Nest</a>
-        <a href="#s10">Tự kiểm chứng</a>
+      <nav class="toc" aria-label="Mục lục chương">
+        <div class="toc-title">Trong chương</div>
+        <a href="#1-nó-là-gì-và-vì-sao-phải-import-một-lần"
+          >1. Nó là gì, và vì sao phải import một lần</a
+        ><a href="#2-bảng-ẩn-là-ba-tầng-map-lồng-trong-một-weakmap"
+          >2. Bảng ẩn là ba tầng Map lồng trong một WeakMap</a
+        ><a href="#3-vì-sao-là-weakmap">3. Vì sao là WeakMap</a
+        ><a href="#4-getmetadata-đi-ngược-chain--đọc-thẳng-mã-nguồn"
+          >4. getMetadata đi ngược chain — đọc thẳng mã nguồn</a
+        ><a
+          href="#5-ba-nhãn-typescript-tự-dán-designtype-designparamtypes-designreturntype"
+          >5. Ba nhãn TypeScript tự dán: design:type, design:paramtypes,
+          design:returntype</a
+        ><a href="#6-reflectdecorate--thư-viện-cũng-là-người-áp-decorator"
+          >6. Reflect.decorate — thư viện cũng là người áp decorator</a
+        ><a href="#7-registry-nhiều-bản-copy-thư-viện-vẫn-dùng-chung-một-bảng"
+          >7. Registry: nhiều bản copy thư viện vẫn dùng chung một bảng</a
+        ><a href="#8-bảng-tra-api-đầy-đủ">8. Bảng tra API đầy đủ</a
+        ><a href="#9-những-điều-hành-vi-thư-viện-quyết-định-cho-nest"
+          >9. Những điều hành vi thư viện quyết định cho Nest</a
+        ><a href="#10-tự-kiểm-chứng">10. Tự kiểm chứng</a>
         <div class="toc-series">
           <a href="index.html">↑ Mục lục bộ</a
-          ><a href="00-prototype-and-this.html">← Chương 0</a
-          ><a href="01-decorators-and-metadata.html">← Chương 1</a>
+          ><a href="appendix-a-reflect-metadata-internals.md">Bản Markdown</a>
         </div>
       </nav>
-
-      <div class="main">
-        <div class="series-bar">
-          <a href="index.html">Mục lục</a><span class="sep">·</span>
-          <a href="00-prototype-and-this.html">00 Prototype</a>
-          <a href="01-decorators-and-metadata.html">01 Decorator</a>
-          <a href="02-reflector-execution-context-and-discovery.html"
+      <main class="main">
+        <nav class="series-bar" aria-label="Các chương">
+          <a href="index.html">Mục lục</a
+          ><a href="00-prototype-and-this.html">00 Prototype</a
+          ><a href="01-decorators-and-metadata.html">01 Decorator</a
+          ><a href="02-reflector-execution-context-and-discovery.html"
             >02 Reflector</a
-          >
-          <a href="03-guards.html">03 Guard</a>
-          <a href="04-middleware.html">04 Middleware</a>
-          <a href="05-request-lifecycle-in-this-project.html">05 Vòng đời</a>
-          <a href="06-modules-and-dependency-injection.html"
+          ><a href="03-guards.html">03 Guard</a
+          ><a href="04-middleware.html">04 Middleware</a
+          ><a href="05-request-lifecycle-in-this-project.html"
+            >05 Vòng đời request</a
+          ><a href="06-modules-and-dependency-injection.html"
             >06 Module &amp; DI</a
-          >
-          <a href="07-dto-validation-transformation-serialization.html"
+          ><a href="07-dto-validation-transformation-serialization.html"
             >07 DTO</a
+          ><a href="08-request-and-provider-instances.html"
+            >08 Instance &amp; scope</a
+          ><a href="09-interceptors.html">09 Interceptor</a
+          ><a href="10-exception-filters.html">10 Filter</a
+          ><a href="11-controllers-and-http-routing.html">11 Controller</a
+          ><a href="12-pipes-and-input-contracts.html">12 Pipe</a
+          ><a href="13-testing-fundamentals.html">13 Testing</a
+          ><a href="14-bootstrap-configuration-and-shutdown.html"
+            >14 Bootstrap</a
+          ><a
+            href="appendix-a-reflect-metadata-internals.html"
+            aria-current="page"
+            >Phụ lục A — reflect-metadata bên trong</a
           >
-          <span>A reflect-metadata</span>
-          <span class="sep">·</span
-          ><a href="appendix-a-reflect-metadata-internals.md"
-            >bản markdown đầy đủ</a
-          >
-        </div>
-
+        </nav>
         <header class="masthead">
-          <div class="eyebrow">Phụ lục A</div>
-          <h1><code>reflect-metadata</code> bên trong</h1>
-          <p class="subtitle">
-            <a href="01-decorators-and-metadata.html">Chương 1</a> gọi nó là
-            "bảng ẩn của thủ thư" và dừng ở cách dùng. Phụ lục này mở nắp: bảng
-            ẩn là <strong>cấu trúc dữ liệu gì</strong>,
-            <code>getMetadata</code> <strong>đi ngược chain thế nào</strong>,
-            TypeScript <strong>tự dán những gì</strong> — và những chỗ hành vi
-            thư viện quyết định hành vi của Nest.
-          </p>
+          <h1 id="phụ-lục-a--reflect-metadata-bên-trong">
+            Phụ lục A — reflect-metadata bên trong
+          </h1>
         </header>
-
-        <div class="callout callout--info">
-          <div class="callout__title">
-            Đọc sau <a href="00-prototype-and-this.html">chương 0</a> và
-            <a href="01-decorators-and-metadata.html">chương 1</a>
-          </div>
-          Mọi trích dẫn mã nguồn lấy từ <code>reflect-metadata@0.2.2</code> đang
-          cài trong dự án
-          (<code>node_modules/reflect-metadata/Reflect.js</code>), kèm số dòng
-          để bạn mở ra đối chiếu.
-        </div>
-
-        <!-- ══ 01 ══ -->
-        <div class="sec-head" id="s1">
-          <span class="sec-head__num">01</span
-          ><span class="sec-head__text"
-            >Nó là gì, và vì sao phải <code>import</code> một lần</span
-          >
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>polyfill vá lên global Reflect</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code><span class="kw">import</span> <span class="st">"reflect-metadata"</span>; <span class="cm">// không import tên gì — chỉ chạy file</span>
-
-<span class="kw">typeof</span> Reflect.defineMetadata; <span class="cm">// "function" (trước import: "undefined")</span>
-<span class="kw">typeof</span> Reflect.getMetadata;    <span class="cm">// "function"</span>
-<span class="kw">typeof</span> Reflect.decorate;       <span class="cm">// "function" ← mục 6</span>
-<span class="kw">typeof</span> Reflect.metadata;       <span class="cm">// "function" ← decorator factory có sẵn</span></code></pre>
-          </div>
-          <div class="stack">
-            <div class="ve-card ve-card--hero" style="--i: 0">
-              <div class="ve-card__label">Polyfill cho một đề xuất chuẩn</div>
-              Metadata Reflection API, của Ron Buckton — người cũng viết phần
-              decorator của TypeScript. Đề xuất chưa vào ECMAScript, nên thư
-              viện tự cài API đó lên object toàn cục <code>Reflect</code>.
-            </div>
-            <div class="ve-card" style="--i: 1">
-              <div class="ve-card__label ve-card__label--b">Ba điều đi kèm</div>
-              <ul style="margin: 0; padding-left: 1.3em">
-                <li>
-                  <strong>Một lần cho cả tiến trình.</strong>
-                  <code>@nestjs/core</code> import ở đầu, nên
-                  <code>src/</code> không có dòng này; script
-                  <code>ts-node</code> tự viết thì phải tự import.
-                </li>
-                <li>
-                  <strong>Ba bản build:</strong> <code>Reflect.js</code> (đầy
-                  đủ), <code>ReflectLite.js</code> (bỏ polyfill Map/Set),
-                  <code>ReflectNoConflict.js</code> (không vá global). Nest dùng
-                  bản đầy đủ.
-                </li>
-                <li>
-                  <strong>Không chạm vào object của bạn.</strong> Không thêm
-                  property, không đổi prototype. Dữ liệu nằm ở nơi khác —
-                  <a href="#s2">mục 2</a>.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ 02 ══ -->
-        <div class="sec-head" id="s2">
-          <span class="sec-head__num">02</span
-          ><span class="sec-head__text"
-            >Bảng ẩn là ba tầng <code>Map</code> lồng trong một
-            <code>WeakMap</code></span
-          >
-        </div>
-        <div class="ve-card" style="--i: 0">
-          <div class="ve-card__label">
-            Một tầng gián tiếp nữa, nói trước cho khỏi bất ngờ
-          </div>
-          <code>WeakMap</code> ở dòng 1013 <strong>không</strong> phải biến toàn
-          cục đứng một mình: nó nằm <strong>bên trong</strong> hàm
-          <code>CreateMetadataProvider(registry)</code>
-          (<code>Reflect.js:1010</code>). Mọi <code>defineMetadata</code> /
-          <code>getMetadata</code> đều đi qua một <strong>registry</strong> để
-          hỏi "ô này thuộc provider nào" rồi mới chạm tới
-          <code>WeakMap</code> đó. Khi trong tiến trình chỉ có
-          <strong>một</strong> bản <code>reflect-metadata</code> — trường hợp
-          của dự án này — thì chỉ có đúng một provider, nên hình ba tầng dưới
-          đây mô tả đúng cái bạn quan sát được. Vì sao cần lớp registry: xem
-          <a href="#s7">mục 7</a>.
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>Reflect.js:1013, 1029-1051</span><span>rút gọn</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code><span class="kw">var</span> metadata = <span class="kw">new</span> <span class="fn">_WeakMap</span>(); <span class="cm">// [[Metadata]] internal slot</span>
-
-<span class="kw">function</span> <span class="fn">GetOrCreateMetadataMap</span>(O, P, Create) {
-  <span class="kw">var</span> targetMetadata = metadata.<span class="fn">get</span>(O);   <span class="cm">// tầng 1: TARGET</span>
-  <span class="kw">if</span> (<span class="fn">IsUndefined</span>(targetMetadata)) {
-    <span class="kw">if</span> (!Create) <span class="kw">return undefined</span>;
-    targetMetadata = <span class="kw">new</span> <span class="fn">_Map</span>();
-    metadata.<span class="fn">set</span>(O, targetMetadata);
-  }
-  <span class="kw">var</span> metadataMap = targetMetadata.<span class="fn">get</span>(P); <span class="cm">// tầng 2: PROPERTY KEY</span>
-  <span class="kw">if</span> (<span class="fn">IsUndefined</span>(metadataMap)) {          <span class="cm">//   undefined = cả quyển</span>
-    <span class="kw">if</span> (!Create) <span class="kw">return undefined</span>;
-    metadataMap = <span class="kw">new</span> <span class="fn">_Map</span>();
-    targetMetadata.<span class="fn">set</span>(P, metadataMap);
-  }
-  <span class="kw">return</span> metadataMap;                        <span class="cm">// tầng 3: key → value</span>
-}</code></pre>
-          </div>
-          <div class="stack">
-            <div class="code-file" style="margin: 0">
-              <div class="code-file__header">
-                <span>viết lại thành kiểu</span>
-              </div>
-              <pre class="code-file__body"><code>WeakMap&lt;
-  object,                     <span class="cm">// target: class, prototype, hay hàm</span>
-  Map&lt;
-    string | symbol | <span class="kw">undefined</span>, <span class="cm">// propertyKey; undefined = cả target</span>
-    Map&lt;any, any&gt;             <span class="cm">// metadataKey → metadataValue</span>
-  &gt;
-&gt;</code></pre>
-            </div>
-            <div class="ve-card ve-card--hero" style="--i: 0">
-              <div class="ve-card__label ve-card__label--amber">
-                Ba điều rút ra
-              </div>
-              <ol style="margin: 0; padding-left: 1.3em">
-                <li>
-                  <strong>"Cả quyển"</strong> (<a
-                    href="01-decorators-and-metadata.html"
-                    >chương 1</a
+        <blockquote>
+          <p class="prose">
+            <a
+              href="01-decorators-and-metadata.html#6-metadata-bảng-ẩn-của-reflect-metadata"
+              >Chương 1 §6</a
+            >
+            gọi <code>reflect-metadata</code> là &quot;bảng ẩn của thủ thư&quot;
+            và dừng ở cách dùng. Phụ lục này mở nắp: bảng ẩn đó là
+            <strong>cấu trúc dữ liệu gì</strong>, <code>getMetadata</code>
+            <strong>đi ngược chain thế nào</strong>, TypeScript
+            <strong>tự dán những gì</strong>, và những chỗ hành vi thư viện
+            quyết định hành vi của Nest. Đọc sau
+            <a href="00-prototype-and-this.html">chương 0</a> và chương 1; mọi
+            trích dẫn mã nguồn lấy từ <code>reflect-metadata@0.2.2</code> đang
+            cài trong dự án
+            (<code>node_modules/reflect-metadata/Reflect.js</code>).
+          </p>
+        </blockquote>
+        <p class="prose"><strong>Mục lục</strong></p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <a href="#1-nó-là-gì-và-vì-sao-phải-import-một-lần"
+                >Nó là gì, và vì sao phải <code>import</code> một lần</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#2-bảng-ẩn-là-ba-tầng-map-lồng-trong-một-weakmap"
+                >Bảng ẩn là ba tầng <code>Map</code> lồng trong một
+                <code>WeakMap</code></a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#3-vì-sao-là-weakmap">Vì sao là <code>WeakMap</code></a>
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#4-getmetadata-đi-ngược-chain--đọc-thẳng-mã-nguồn"
+                ><code>getMetadata</code> đi ngược chain — đọc thẳng mã nguồn</a
+              >
+            </p>
+            <ul>
+              <li>
+                <p class="prose">
+                  <a
+                    href="#41-hệ-quả-với-setmetadata-dán-lên-hàm-thì-override-là-mất"
+                    >4.1 Hệ quả với <code>SetMetadata</code>: dán lên hàm thì
+                    override là mất</a
                   >
-                  §6.5) là hàng có key <code>undefined</code> ở tầng 2.
-                  <code>Map</code> chấp nhận <code>undefined</code> làm key.
-                </li>
-                <li>
-                  <strong>Class, hàm, prototype là ba entry riêng</strong> ở
-                  tầng 1 — ba object khác nhau. Đó là
-                  <a href="01-decorators-and-metadata.html">chương 1</a> §6.4.
-                </li>
-                <li>
-                  <code>defineMetadata</code> hai lần cùng key là
-                  <code>Map.set</code> hai lần →
-                  <strong>ghi đè im lặng</strong>.
-                </li>
-              </ol>
-            </div>
-          </div>
-        </div>
+                  ·
+                  <a href="#42-đọc-từ-instance-vẫn-được"
+                    >4.2 Đọc từ instance vẫn được</a
+                  >
+                </p>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#5-ba-nhãn-typescript-tự-dán-designtype-designparamtypes-designreturntype"
+                >Ba nhãn TypeScript tự dán: <code>design:type</code>,
+                <code>design:paramtypes</code>,
+                <code>design:returntype</code></a
+              >
+            </p>
+            <ul>
+              <li>
+                <p class="prose">
+                  <a href="#51-chỉ-dán-khi-có-decorator-ở-đúng-chỗ-đó"
+                    >5.1 Chỉ dán khi có decorator ở đúng chỗ đó</a
+                  >
+                  ·
+                  <a href="#52-kiểu-nào-ra-hàm-dựng-nào"
+                    >5.2 Kiểu nào ra hàm dựng nào</a
+                  >
+                  ·
+                  <a href="#53-import-vòng--undefined"
+                    >5.3 Import vòng → <code>undefined</code></a
+                  >
+                </p>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#6-reflectdecorate--thư-viện-cũng-là-người-áp-decorator"
+                ><code>Reflect.decorate</code> — thư viện cũng là người áp
+                decorator</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a
+                href="#7-registry-nhiều-bản-copy-thư-viện-vẫn-dùng-chung-một-bảng"
+                >Registry: nhiều bản copy thư viện vẫn dùng chung một bảng</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#8-bảng-tra-api-đầy-đủ">Bảng tra API đầy đủ</a>
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="#9-những-điều-hành-vi-thư-viện-quyết-định-cho-nest"
+                >Những điều hành vi thư viện quyết định cho Nest</a
+              >
+            </p>
+          </li>
+          <li>
+            <p class="prose"><a href="#10-tự-kiểm-chứng">Tự kiểm chứng</a></p>
+          </li>
+        </ol>
+        <hr />
+        <h2 id="1-nó-là-gì-và-vì-sao-phải-import-một-lần" class="sec-head">
+          1. Nó là gì, và vì sao phải <code>import</code> một lần
+        </h2>
+        <p class="prose">
+          <code>reflect-metadata</code> là <strong>polyfill</strong> cho một đề
+          xuất chuẩn (Metadata Reflection API, của Ron Buckton — người cũng viết
+          phần decorator của TypeScript). Đề xuất chưa vào ECMAScript, nên thư
+          viện tự cài API đó lên object toàn cục <code>Reflect</code>:
+        </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>hình dung với đúng dữ liệu của dự án</span>
-          </div>
-          <pre class="code-file__body out">
-metadata (WeakMap)
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>import &quot;reflect-metadata&quot;; // không import tên gì — chỉ chạy file để nó vá Reflect
+
+typeof Reflect.defineMetadata; // &quot;function&quot;  (trước import: &quot;undefined&quot;)
+typeof Reflect.getMetadata; // &quot;function&quot;
+typeof Reflect.decorate; // &quot;function&quot;  ← mục 6
+typeof Reflect.metadata; // &quot;function&quot;  ← decorator factory có sẵn</code></pre>
+        </div>
+        <p class="prose">Ba điều đi kèm:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>Một lần cho cả tiến trình.</strong>
+              <code>Reflect</code> là global; vá xong thì mọi file đều thấy.
+              <code>@nestjs/core</code> import nó ở đầu, nên trong
+              <code>src/</code> của dự án không có dòng này — nhưng script
+              <code>ts-node</code> tự viết thì phải tự import, không thì
+              <code>Reflect.defineMetadata is not a function</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Ba bản build:</strong> <code>Reflect.js</code> (đầy đủ, có
+              polyfill <code>Map</code>/<code>Set</code>/<code>WeakMap</code>
+              cho runtime cổ), <code>ReflectLite.js</code> (bỏ polyfill),
+              <code>ReflectNoConflict.js</code> (export hàm riêng,
+              <strong>không</strong> vá global — dùng khi sợ đụng thư viện
+              khác). Nest dùng bản đầy đủ.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Nó không chạm vào object của bạn.</strong> Không thêm
+              property, không đổi prototype. Toàn bộ dữ liệu nằm ở nơi khác —
+              <a href="#2-bảng-ẩn-là-ba-tầng-map-lồng-trong-một-weakmap"
+                >mục 2</a
+              >.
+            </p>
+          </li>
+        </ul>
+        <hr />
+        <h2
+          id="2-bảng-ẩn-là-ba-tầng-map-lồng-trong-một-weakmap"
+          class="sec-head"
+        >
+          2. Bảng ẩn là ba tầng <code>Map</code> lồng trong một
+          <code>WeakMap</code>
+        </h2>
+        <p class="prose">
+          Đây là đoạn tạo kho chứa, <code>Reflect.js:1013</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>// [[Metadata]] internal slot
+var metadata = new _WeakMap();</code></pre>
+        </div>
+        <blockquote>
+          <p class="prose">
+            <strong>Một tầng gián tiếp nữa, nói trước cho khỏi bất ngờ.</strong>
+            <code>WeakMap</code> ở dòng 1013 <strong>không</strong> phải một
+            biến toàn cục đứng một mình: nó nằm <strong>bên trong</strong> hàm
+            <code>CreateMetadataProvider(registry)</code>
+            (<code>Reflect.js:1010</code>). Mọi lệnh
+            <code>defineMetadata</code> / <code>getMetadata</code> đều đi qua
+            một <strong>registry</strong> để hỏi &quot;ô dữ liệu này thuộc
+            provider nào&quot; rồi mới chạm tới <code>WeakMap</code> đó. Khi
+            trong tiến trình chỉ có <strong>một</strong> bản
+            <code>reflect-metadata</code> — trường hợp của dự án này — thì chỉ
+            có đúng một provider, nên hình ba tầng dưới đây mô tả đúng cái bạn
+            quan sát được. Vì sao phải có lớp registry: xem
+            <a
+              href="#7-registry-nhiều-bản-copy-thư-viện-vẫn-dùng-chung-một-bảng"
+              >mục 7</a
+            >.
+          </p>
+        </blockquote>
+        <p class="prose">
+          và đoạn tra/ tạo ô, <code>Reflect.js:1029-1051</code> (rút gọn):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>function GetOrCreateMetadataMap(O, P, Create) {
+  var targetMetadata = metadata.get(O); //         tầng 1: theo TARGET
+  if (IsUndefined(targetMetadata)) {
+    if (!Create) return undefined;
+    targetMetadata = new _Map();
+    metadata.set(O, targetMetadata);
+  }
+  var metadataMap = targetMetadata.get(P); //      tầng 2: theo PROPERTY KEY (undefined = cả quyển)
+  if (IsUndefined(metadataMap)) {
+    if (!Create) return undefined;
+    metadataMap = new _Map();
+    targetMetadata.set(P, metadataMap);
+  }
+  return metadataMap; //                            tầng 3: metadataKey → value
+}</code></pre>
+        </div>
+        <p class="prose">Viết lại thành kiểu:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>WeakMap&lt;
+  object, //                    target: class, prototype, hay hàm
+  Map&lt;
+    string | symbol | undefined, // propertyKey; undefined = metadata của cả target
+    Map&lt;any, any&gt; //              metadataKey → metadataValue
+  &gt;
+&gt;;</code></pre>
+        </div>
+        <p class="prose">Hình dung với đúng dữ liệu của dự án:</p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>metadata (WeakMap)
 ├── RoleController                          ← target là CLASS
-│     └── undefined                          ← "cả quyển"
-│           ├── "path"               → "roles"
-│           ├── "__controller__"     → true
-│           └── "design:paramtypes"  → [RoleService]
+│     └── undefined                          ← &quot;cả quyển&quot;
+│           ├── &quot;path&quot;               → &quot;roles&quot;
+│           ├── &quot;__controller__&quot;     → true
+│           └── &quot;design:paramtypes&quot;  → [RoleService]
 ├── RoleController.prototype.createRole     ← target là HÀM (SetMetadata dán lên descriptor.value)
 │     └── undefined
-│           ├── "path"                → "/"
-│           ├── "method"              → 1
-│           └── "required_permission" → "role:create:any"
+│           ├── &quot;path&quot;                → &quot;/&quot;
+│           ├── &quot;method&quot;              → 1
+│           └── &quot;required_permission&quot; → &quot;role:create:any&quot;
 └── CreateRoleRequestDto.prototype          ← target là PROTOTYPE
-      ├── "name"                             ← "một trang"
-      │     ├── "design:type"                 → String
-      │     └── "swagger/apiModelProperties"  → {...}
-      └── "permissionIds"
-            └── "design:type"                 → Array</pre
-          >
+      ├── &quot;name&quot;                             ← &quot;một trang&quot;
+      │     ├── &quot;design:type&quot;                 → String
+      │     └── &quot;swagger/apiModelProperties&quot;  → {...}
+      └── &quot;permissionIds&quot;
+            └── &quot;design:type&quot;                 → Array</code></pre>
         </div>
-
-        <!-- ══ 03 ══ -->
-        <div class="sec-head" id="s3">
-          <span class="sec-head__num">03</span
-          ><span class="sec-head__text">Vì sao là <code>WeakMap</code></span>
-        </div>
+        <p class="prose">Ba điều rút ra:</p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong
+                >&quot;Cả quyển&quot; trong
+                <a
+                  href="01-decorators-and-metadata.html#65-dán-cho-cả-quyển-hay-cho-một-trang"
+                  >chương 1 §6.5</a
+                >
+                chính là hàng có key <code>undefined</code></strong
+              >
+              ở tầng 2. Không có phép màu — <code>Map</code> chấp nhận
+              <code>undefined</code> làm key.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Class, hàm, prototype là ba entry riêng</strong> ở tầng 1,
+              vì chúng là ba object khác nhau. Đó là toàn bộ nội dung
+              <a
+                href="01-decorators-and-metadata.html#64-một-class-một-hàm--hai-quyển-sách-khác-nhau"
+                >chương 1 §6.4</a
+              >.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                ><code>defineMetadata</code> hai lần cùng key là
+                <code>Map.set</code> hai lần</strong
+              >
+              → ghi đè im lặng, không cảnh báo.
+              <a href="01-decorators-and-metadata.html#69-bảng-tra-api"
+                >Chương 1 §6.9</a
+              >
+              ghi &quot;ghi đè im lặng nếu trùng key&quot; là từ đây.
+            </p>
+          </li>
+        </ol>
+        <hr />
+        <h2 id="3-vì-sao-là-weakmap" class="sec-head">
+          3. Vì sao là <code>WeakMap</code>
+        </h2>
         <p class="prose">
           <code>WeakMap</code> khác <code>Map</code> ở một điểm:
           <strong>key phải là object, và không giữ object đó sống</strong>. Khi
           không còn ai tham chiếu tới target, garbage collector dọn target
-          <strong>và</strong> dọn luôn hàng metadata của nó.
+          <strong>và</strong> dọn luôn hàng metadata của nó. Hệ quả cho người
+          dùng:
         </p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Nếu dùng…</th>
-                  <th>Thì…</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>Map</code> thường</td>
-                  <td>
-                    mọi class từng được dán metadata sống mãi trong bộ nhớ, kể
-                    cả class tạo động rồi bỏ
-                  </td>
-                </tr>
-                <tr>
-                  <td>property ẩn trên object (<code>__meta</code>)</td>
-                  <td>
-                    lộ ra khi <code>Object.getOwnPropertyNames</code>, đụng tên,
-                    không dán được lên object frozen
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <strong><code>WeakMap</code></strong>
-                  </td>
-                  <td>
-                    vô hình với target, tự dọn, dán được lên bất kỳ object nào
-                    kể cả frozen
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Nếu dùng…</th>
+                <th>Thì…</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>Map</code> thường</td>
+                <td>
+                  mọi class từng được dán metadata sống mãi trong bộ nhớ, kể cả
+                  class tạo động rồi bỏ
+                </td>
+              </tr>
+              <tr>
+                <td>property ẩn trên object (<code>__meta</code>)</td>
+                <td>
+                  lộ ra khi <code>Object.getOwnPropertyNames</code>, đụng tên,
+                  và không dán được lên object frozen
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong><code>WeakMap</code></strong>
+                </td>
+                <td>
+                  vô hình với target, tự dọn, dán được lên bất kỳ object nào kể
+                  cả frozen
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="card-grid card-grid--2">
-          <div class="callout callout--warning" style="margin: 0">
-            <div class="callout__title">Đổi lại: không liệt kê được</div>
-            <code>WeakMap</code> không iterate được. Đó là lý do Nest phải tự
-            quét: <code>DiscoveryService</code> +
-            <code>MetadataScanner</code> đi qua từng controller, từng method
-            trên prototype rồi mới gọi <code>getMetadata</code> từng cái (<a
-              href="02-reflector-execution-context-and-discovery.html"
-              >chương 2</a
-            >). Không có hàm "cho tôi mọi handler có
-            <code>required_permission</code>" — kho chứa không hỗ trợ câu hỏi
-            đó.
-          </div>
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header"><span>key phải là object</span></div>
-            <pre
-              class="code-file__body"
-            ><code>Reflect.<span class="fn">defineMetadata</span>(<span class="st">"k"</span>, <span class="st">1</span>, <span class="st">"str"</span>);    <span class="cm">// TypeError</span>
-Reflect.<span class="fn">defineMetadata</span>(<span class="st">"k"</span>, <span class="st">1</span>, () =&gt; {}); <span class="cm">// OK — hàm là object</span></code></pre>
-          </div>
+        <p class="prose">
+          Đổi lại,
+          <strong>không có cách liệt kê mọi target đã dán metadata</strong> —
+          <code>WeakMap</code> không iterate được. Đó là lý do Nest phải tự
+          quét: <code>DiscoveryService</code> + <code>MetadataScanner</code> đi
+          qua từng controller, từng method trên prototype rồi mới gọi
+          <code>getMetadata</code> từng cái (<a
+            href="02-reflector-execution-context-and-discovery.html"
+            >chương 2</a
+          >). Không có hàm &quot;cho tôi mọi handler có
+          <code>required_permission</code>&quot; — vì kho chứa không hỗ trợ câu
+          hỏi đó.
+        </p>
+        <p class="prose">
+          Còn một hệ quả từ &quot;key phải là object&quot;: dán lên primitive là
+          lỗi.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>Reflect.defineMetadata(&quot;k&quot;, 1, &quot;str&quot;); // TypeError
+Reflect.defineMetadata(&quot;k&quot;, 1, () =&gt; {}); // OK — hàm là object</code></pre>
         </div>
-
-        <!-- ══ 04 ══ -->
-        <div class="sec-head" id="s4">
-          <span class="sec-head__num">04</span
-          ><span class="sec-head__text"
-            ><code>getMetadata</code> đi ngược chain — đọc thẳng mã nguồn</span
-          >
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>Reflect.js:591-599</span
-              ><span>gộp dòng if, logic nguyên vẹn</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code><span class="kw">function</span> <span class="fn">OrdinaryGetMetadata</span>(MetadataKey, O, P) {
-  <span class="kw">var</span> hasOwn = <span class="fn">OrdinaryHasOwnMetadata</span>(MetadataKey, O, P);
-  <span class="kw">if</span> (hasOwn) <span class="kw">return</span> <span class="fn">OrdinaryGetOwnMetadata</span>(MetadataKey, O, P);
-  <span class="kw">var</span> parent = <span class="fn">OrdinaryGetPrototypeOf</span>(O); <span class="cm">// Object.getPrototypeOf</span>
-  <span class="kw">if</span> (!<span class="fn">IsNull</span>(parent))
-    <span class="kw">return</span> <span class="fn">OrdinaryGetMetadata</span>(MetadataKey, parent, P); <span class="cm">// đệ quy</span>
-  <span class="kw">return undefined</span>;
+        <hr />
+        <h2
+          id="4-getmetadata-đi-ngược-chain--đọc-thẳng-mã-nguồn"
+          class="sec-head"
+        >
+          4. <code>getMetadata</code> đi ngược chain — đọc thẳng mã nguồn
+        </h2>
+        <p class="prose">
+          <code>Reflect.js:591-599</code> (giữ nguyên logic, chỉ gộp dòng
+          <code>if</code> cho gọn):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>function OrdinaryGetMetadata(MetadataKey, O, P) {
+  var hasOwn = OrdinaryHasOwnMetadata(MetadataKey, O, P);
+  if (hasOwn) return OrdinaryGetOwnMetadata(MetadataKey, O, P);
+  var parent = OrdinaryGetPrototypeOf(O); //  ← Object.getPrototypeOf
+  if (!IsNull(parent)) return OrdinaryGetMetadata(MetadataKey, parent, P); // đệ quy
+  return undefined;
 }</code></pre>
-          </div>
-          <div class="ve-card ve-card--hero" style="--i: 0">
-            <div class="ve-card__label">
-              Đúng thuật toán tra property của JavaScript
-            </div>
-            <a href="00-prototype-and-this.html">Chương 0</a> §2, chỉ khác chỗ
-            tra: thay vì tra bảng property của <code>O</code>, nó tra
-            <code>metadata.get(O).get(P)</code>. Cùng chain, cùng thứ tự
-            dưới-lên, cùng dừng ở <code>null</code>.
-            <p
-              style="margin: 10px 0 0; color: var(--text-dim); font-size: 14px"
-            >
-              <code>getOwnMetadata</code> là phiên bản không có hai dòng
-              <code>parent</code>. <code>getMetadataKeys</code> gộp key của
-              <code>O</code> và mọi tầng trên, loại trùng.
-            </p>
-          </div>
         </div>
-
-        <h3 class="sub" id="s4.1">
-          4.1 · Hệ quả với <code>SetMetadata</code>: dán lên hàm thì override là
+        <p class="prose">
+          Đây là <strong>đúng thuật toán tra property của JavaScript</strong> ở
+          <a
+            href="00-prototype-and-this.html#2-tìm-không-thấy-thì-đi-hỏi-chỗ-khác-prototype-chain"
+            >chương 0 §2</a
+          >, chỉ khác chỗ tra: thay vì tra bảng property của <code>O</code>, nó
+          tra <code>metadata.get(O).get(P)</code>. Cùng chain, cùng thứ tự
+          dưới-lên, cùng dừng ở <code>null</code>.
+        </p>
+        <p class="prose">
+          <code>getOwnMetadata</code> là phiên bản không có hai dòng
+          <code>parent</code> — chỉ tra <code>O</code>.
+          <code>hasMetadata</code> / <code>hasOwnMetadata</code> cùng cặp.
+          <code>getMetadataKeys</code> gộp key của <code>O</code>
+          <strong>và</strong> của mọi tầng trên, loại trùng;
+          <code>getOwnMetadataKeys</code> chỉ <code>O</code>.
+        </p>
+        <h3
+          id="41-hệ-quả-với-setmetadata-dán-lên-hàm-thì-override-là-mất"
+          class="sub"
+        >
+          4.1 Hệ quả với <code>SetMetadata</code>: dán lên hàm thì override là
           mất
         </h3>
         <p class="prose">
@@ -1457,784 +1667,1188 @@ Reflect.<span class="fn">defineMetadata</span>(<span class="st">"k"</span>, <spa
           <strong>O là gì</strong> quyết định có kế thừa hay không:
         </p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Dán lên…</th>
-                  <th>Chain của O</th>
-                  <th>Class con…</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <strong>class</strong> (<code>@Controller</code>,
-                    <code>@SetMetadata</code> trên class)
-                  </td>
-                  <td><code>Child → Base → Function.prototype</code></td>
-                  <td>
-                    <strong>đọc được</strong> nhãn của cha —
-                    <a href="00-prototype-and-this.html">chương 0</a> §8, chain
-                    thứ hai
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <strong>hàm method</strong> (<code>SetMetadata</code> dán
-                    lên <code>descriptor.value</code>)
-                  </td>
-                  <td><code>hàm → Function.prototype</code></td>
-                  <td>
-                    không override → cùng hàm → đọc được;
-                    <strong>override → hàm mới, không có gì</strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <strong><code>(prototype, tên)</code></strong>
-                    (<code>Reflect.metadata</code>, <code>design:type</code>)
-                  </td>
-                  <td><code>Child.prototype → Base.prototype</code></td>
-                  <td>
-                    <strong>đọc được</strong> dù con có override, vì tra theo
-                    tên
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Nest / bạn dán lên…</th>
+                <th>Chain của O</th>
+                <th>Class con…</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>class</strong> (<code>@Controller</code>,
+                  <code>@SetMetadata</code> trên class)
+                </td>
+                <td><code>Child → Base → Function.prototype</code></td>
+                <td>
+                  <strong>đọc được</strong> nhãn của cha —
+                  <a
+                    href="00-prototype-and-this.html#8-extends-chỉ-là-nối-thêm-một-mắt-vào-chain"
+                    >chương 0 §8</a
+                  >, chain thứ hai
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>hàm method</strong> (<code>SetMetadata</code> dán lên
+                  <code>descriptor.value</code>)
+                </td>
+                <td>
+                  <code>hàm → Function.prototype → Object.prototype</code>
+                </td>
+                <td>
+                  không override → cùng hàm → đọc được;
+                  <strong>override → hàm mới, không có gì</strong>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong><code>(prototype, tên)</code></strong>
+                  (<code>Reflect.metadata</code>, <code>design:type</code>)
+                </td>
+                <td><code>Child.prototype → Base.prototype</code></td>
+                <td>
+                  <strong>đọc được</strong> dù con có override, vì tra theo tên
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header"><span>kiểm chứng</span></div>
-            <pre
-              class="code-file__body"
-            ><code><span class="kw">class</span> Base {
-  @<span class="fn">SetMetadata</span>(<span class="st">"perm"</span>, <span class="st">"a"</span>) <span class="fn">hello</span>() {}
-  @<span class="fn">SetMetadata</span>(<span class="st">"perm"</span>, <span class="st">"b"</span>) <span class="fn">keep</span>() {}
+        <p class="prose">Kiểm chứng:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>class Base {
+  @SetMetadata(&quot;perm&quot;, &quot;a&quot;) hello() {}
+  @SetMetadata(&quot;perm&quot;, &quot;b&quot;) keep() {}
 }
-<span class="kw">class</span> Child <span class="kw">extends</span> Base {
-  <span class="fn">hello</span>() {} <span class="cm">// override</span>
+class Child extends Base {
+  hello() {} // override
 }
 
-Child.prototype.keep === Base.prototype.keep;        <span class="cm">// true</span>
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"perm"</span>, Child.prototype.keep);  <span class="cm">// "b"</span>
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"perm"</span>, Child.prototype.hello); <span class="cm">// undefined — hàm mới</span>
+Child.prototype.keep === Base.prototype.keep; // true — cùng hàm, thừa hưởng qua chain
+Reflect.getMetadata(&quot;perm&quot;, Child.prototype.keep); // &quot;b&quot;
+Reflect.getMetadata(&quot;perm&quot;, Child.prototype.hello); // undefined — hàm mới, chưa ai dán
 
-Reflect.<span class="fn">defineMetadata</span>(<span class="st">"tag"</span>, <span class="st">"x"</span>, Base.prototype, <span class="st">"hello"</span>);
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"tag"</span>, Child.prototype, <span class="st">"hello"</span>);   <span class="cm">// "x" — dù override</span></code></pre>
-          </div>
-          <div class="callout callout--danger" style="margin: 0">
-            <div class="callout__title">Ý nghĩa thực tế cho dự án</div>
-            Nếu ngày nào có <code>BaseController</code> với
-            <code>@RequirePermission</code> trên method, và controller con
-            <strong>override</strong> method đó, nhãn không đi theo. Guard không
-            thấy <code>required_permission</code> →
-            <code>PermissionCoverageService</code> chặn app khởi động
-            (fail-closed, <a href="03-guards.html">chương 3</a>). Cách đúng: dán
-            lại trên method con — hoặc dán trên <strong>class</strong> nếu cả
-            controller cùng một quyền, vì
-            <code>getAllAndOverride([handler, class])</code> sẽ rơi xuống class.
-          </div>
+Reflect.defineMetadata(&quot;tag&quot;, &quot;x&quot;, Base.prototype, &quot;hello&quot;); // dán theo (prototype, tên)
+Reflect.getMetadata(&quot;tag&quot;, Child.prototype, &quot;hello&quot;); // &quot;x&quot; — vẫn đọc được dù override</code></pre>
         </div>
-
-        <h3 class="sub" id="s4.2">4.2 · Đọc từ instance vẫn được</h3>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>vì getPrototypeOf(instance) === Class.prototype</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code>Reflect.<span class="fn">defineMetadata</span>(<span class="st">"tag"</span>, <span class="st">"x"</span>, Base.prototype, <span class="st">"hello"</span>);
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"tag"</span>, <span class="kw">new</span> <span class="fn">Base</span>(), <span class="st">"hello"</span>);    <span class="cm">// "x"</span>
-Reflect.<span class="fn">getOwnMetadata</span>(<span class="st">"tag"</span>, <span class="kw">new</span> <span class="fn">Base</span>(), <span class="st">"hello"</span>); <span class="cm">// undefined</span></code></pre>
-          </div>
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            Nest không dùng cách này (Reflector nhận hàm handler và class),
-            nhưng nó cho thấy bảng ẩn
-            <strong>không có khái niệm riêng về kế thừa</strong>
-            — nó mượn hoàn toàn của prototype chain.
-          </div>
-        </div>
-
-        <!-- ══ 05 ══ -->
-        <div class="sec-head" id="s5">
-          <span class="sec-head__num">05</span
-          ><span class="sec-head__text"
-            >Ba nhãn TypeScript tự dán: <code>design:type</code>,
-            <code>design:paramtypes</code>, <code>design:returntype</code></span
-          >
-        </div>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>emitDecoratorMetadata chèn vào mảng decorator</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code><span class="fn">__decorate</span>([
-  <span class="fn">SetMetadata</span>(<span class="st">"k"</span>, <span class="st">"v"</span>),                       <span class="cm">// của bạn</span>
-  <span class="fn">__metadata</span>(<span class="st">"design:type"</span>, Function),        <span class="cm">// tsc thêm</span>
-  <span class="fn">__metadata</span>(<span class="st">"design:paramtypes"</span>, [String]),  <span class="cm">// tsc thêm</span>
-  <span class="fn">__metadata</span>(<span class="st">"design:returntype"</span>, String),    <span class="cm">// tsc thêm</span>
-], Foo.prototype, <span class="st">"hello"</span>, <span class="kw">null</span>);</code></pre>
-          </div>
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>__metadata = Reflect.metadata — Reflect.js:189</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code><span class="kw">function</span> <span class="fn">metadata</span>(metadataKey, metadataValue) {
-  <span class="kw">function</span> <span class="fn">decorator</span>(target, propertyKey) {
-    <span class="fn">OrdinaryDefineOwnMetadata</span>(metadataKey, metadataValue, target, propertyKey);
-  }
-  <span class="kw">return</span> decorator;
-}
-<span class="cm">// nhận (target, propertyKey) → dán theo (prototype, tên), KHÔNG dán lên hàm
-// → design:* nằm hàng khác required_permission; kế thừa được dù override</span></code></pre>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Nhãn</th>
-                  <th>Dán ở</th>
-                  <th>Giá trị</th>
-                  <th>Ai đọc</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>design:type</code></td>
-                  <td>property, method</td>
-                  <td>hàm dựng của kiểu</td>
-                  <td>
-                    <code>class-validator</code>,
-                    <code>class-transformer</code>, swagger
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>design:paramtypes</code></td>
-                  <td>method, <strong>class</strong> (constructor)</td>
-                  <td>mảng hàm dựng từng tham số</td>
-                  <td><strong>DI container</strong> (class), pipes (method)</td>
-                </tr>
-                <tr>
-                  <td><code>design:returntype</code></td>
-                  <td>method</td>
-                  <td>hàm dựng kiểu trả về</td>
-                  <td>hầu như không ai</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <h3 class="sub" id="s5.1">
-          5.1 · Chỉ dán khi có decorator ở đúng chỗ đó
+        <p class="prose">
+          Ý nghĩa thực tế: nếu ngày nào dự án có <code>BaseController</code> với
+          <code>@RequirePermission</code> trên method, và controller con
+          <strong>override</strong> method đó, nhãn không đi theo. Guard sẽ
+          không thấy <code>required_permission</code> →
+          <code>PermissionCoverageService</code> chặn app khởi động
+          (fail-closed, <a href="03-guards.html">chương 3</a>). Cách đúng là dán
+          lại trên method con — hoặc dán trên <strong>class</strong> nếu cả
+          controller cùng một quyền, vì
+          <code>getAllAndOverride([handler, class])</code> sẽ rơi xuống class.
+        </p>
+        <h3 id="42-đọc-từ-instance-vẫn-được" class="sub">
+          4.2 Đọc từ instance vẫn được
         </h3>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>không decorator → không __decorate → không design:*</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code>@<span class="fn">C</span>() <span class="kw">class</span> Dto    { <span class="fn">constructor</span>(dep: Dep) {} }
-<span class="kw">class</span> NoDeco      { <span class="fn">constructor</span>(dep: Dep) {} }
-
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"design:paramtypes"</span>, Dto);    <span class="cm">// [Dep]</span>
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"design:paramtypes"</span>, NoDeco); <span class="cm">// undefined</span></code></pre>
-          </div>
-          <div class="ve-card ve-card--hero" style="--i: 0">
-            <div class="ve-card__label ve-card__label--red">
-              Đây là toàn bộ lý do <code>@Injectable()</code> tồn tại
-            </div>
-            Bản thân nó chỉ dán một cờ gần như vô dụng; việc thật của nó là
-            <strong
-              >ép <code>tsc</code> sinh <code>design:paramtypes</code> cho
-              constructor</strong
-            >. Bỏ nó khỏi một service có dependency → Nest báo
-            <code>Nest can't resolve dependencies of the RoleService (?)</code>.
-            Cùng lý do cho từng field DTO: <code>class-validator</code> cần
-            <code>design:type</code> nên mỗi field phải có ít nhất một
-            decorator.
-          </div>
+        <p class="prose">
+          Vì <code>getMetadata</code> đi <code>Object.getPrototypeOf</code>, mà
+          <code>Object.getPrototypeOf(instance) === Class.prototype</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>Reflect.defineMetadata(&quot;tag&quot;, &quot;x&quot;, Base.prototype, &quot;hello&quot;);
+Reflect.getMetadata(&quot;tag&quot;, new Base(), &quot;hello&quot;); // &quot;x&quot;     — đi từ instance lên prototype
+Reflect.getOwnMetadata(&quot;tag&quot;, new Base(), &quot;hello&quot;); // undefined — instance không có gì của riêng nó</code></pre>
         </div>
+        <p class="prose">
+          Nest không dùng cách này (Reflector nhận hàm handler và class), nhưng
+          nó cho thấy bảng ẩn
+          <strong>không có khái niệm riêng về kế thừa</strong> — nó mượn hoàn
+          toàn của prototype chain.
+        </p>
+        <hr />
+        <h2
+          id="5-ba-nhãn-typescript-tự-dán-designtype-designparamtypes-designreturntype"
+          class="sec-head"
+        >
+          5. Ba nhãn TypeScript tự dán: <code>design:type</code>,
+          <code>design:paramtypes</code>, <code>design:returntype</code>
+        </h2>
+        <p class="prose">
+          Với cờ <code>emitDecoratorMetadata</code>, <code>tsc</code> chèn thêm
+          vào mảng decorator (<a
+            href="00-prototype-and-this.html#53-bản-chất-của-syntax-sugar-nhìn-code-sau-khi-biên-dịch"
+            >chương 0 §5.3</a
+          >):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre class="code-file__body"><code>__decorate(
+  [
+    SetMetadata(&quot;k&quot;, &quot;v&quot;), //                         ← của bạn
+    __metadata(&quot;design:type&quot;, Function), //           ← tsc thêm
+    __metadata(&quot;design:paramtypes&quot;, [String]), //     ← tsc thêm
+    __metadata(&quot;design:returntype&quot;, String), //       ← tsc thêm
+  ],
+  Foo.prototype,
+  &quot;hello&quot;,
+  null,
+);</code></pre>
+        </div>
+        <p class="prose">
+          <code>__metadata(k, v)</code> chỉ là
+          <code>Reflect.metadata(k, v)</code> — decorator factory có sẵn của thư
+          viện, <code>Reflect.js:189</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>function metadata(metadataKey, metadataValue) {
+  function decorator(target, propertyKey) {
+    OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
+  }
+  return decorator;
+}</code></pre>
+        </div>
+        <p class="prose">
+          Chú ý nó nhận <code>(target, propertyKey)</code> và
+          <strong>dán theo <code>(prototype, tên)</code></strong
+          >, không dán lên hàm. Nên <code>design:*</code> nằm ở hàng khác với
+          <code>required_permission</code> (xem hình
+          <a href="#2-bảng-ẩn-là-ba-tầng-map-lồng-trong-một-weakmap">mục 2</a>),
+          và kế thừa được dù override (<a
+            href="#41-hệ-quả-với-setmetadata-dán-lên-hàm-thì-override-là-mất"
+            >mục 4.1</a
+          >).
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nhãn</th>
+                <th>Dán ở</th>
+                <th>Giá trị</th>
+                <th>Ai đọc</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>design:type</code></td>
+                <td>property, method</td>
+                <td>
+                  hàm dựng của kiểu (<code>String</code>,
+                  <code>Function</code>…)
+                </td>
+                <td>
+                  <code>class-validator</code>, <code>class-transformer</code>,
+                  swagger
+                </td>
+              </tr>
+              <tr>
+                <td><code>design:paramtypes</code></td>
+                <td>method, <strong>class</strong> (constructor)</td>
+                <td>mảng hàm dựng của từng tham số</td>
+                <td>
+                  <strong>DI container</strong> (class), Nest pipes (method)
+                </td>
+              </tr>
+              <tr>
+                <td><code>design:returntype</code></td>
+                <td>method</td>
+                <td>hàm dựng của kiểu trả về</td>
+                <td>hầu như không ai — swagger có thể dùng</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 id="51-chỉ-dán-khi-có-decorator-ở-đúng-chỗ-đó" class="sub">
+          5.1 Chỉ dán khi có decorator ở đúng chỗ đó
+        </h3>
+        <p class="prose">
+          <code>__metadata</code> là một phần tử
+          <strong>trong mảng <code>__decorate</code></strong
+          >. Không có decorator nào ở chỗ đó → không có lời gọi
+          <code>__decorate</code> → không có <code>design:*</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@C()
+class Dto {
+  constructor(dep: Dep) {}
+}
+class NoDeco {
+  constructor(dep: Dep) {}
+}
 
-        <h3 class="sub" id="s5.2">5.2 · Kiểu nào ra hàm dựng nào</h3>
+Reflect.getMetadata(&quot;design:paramtypes&quot;, Dto); // [Dep]
+Reflect.getMetadata(&quot;design:paramtypes&quot;, NoDeco); // undefined</code></pre>
+        </div>
+        <p class="prose">
+          <code>@Injectable()</code> tạo điều kiện để <code>tsc</code> emit
+          <code>design:paramtypes</code>, đồng thời
+          <strong>tự ghi watermark và options scope</strong>. Bỏ decorator cuối
+          cùng khỏi service có dependency có thể khiến Nest boot với dependency
+          <code>undefined</code>, vì không còn mảng token nào để resolve. Khác
+          với token đã được khai nhưng thiếu provider: lỗi đó mới bị phát hiện
+          lúc boot.
+        </p>
+        <p class="prose">
+          <strong>Rule class-validator không nằm trong bảng này.</strong>
+          <code>@IsString()</code> đăng ký rule vào
+          <code>MetadataStorage</code> riêng và kiểm giá trị, không cần
+          <code>design:type</code>. Tương tự, <code>@Expose()</code> của
+          class-transformer có kho riêng. <code>design:type</code> là metadata
+          compiler emit; nó không phải rule validation. Xem
+          <a
+            href="01-decorators-and-metadata.html#65-dán-cho-cả-quyển-hay-cho-một-trang"
+            >chương 1 §6.5</a
+          >.
+        </p>
+        <h3 id="52-kiểu-nào-ra-hàm-dựng-nào" class="sub">
+          5.2 Kiểu nào ra hàm dựng nào
+        </h3>
         <p class="prose">
           Kiểu TypeScript bị xoá khi biên dịch; thứ còn lại để dán phải là
           <strong>giá trị runtime</strong>, và giá trị gần nhất là hàm dựng (<a
-            href="00-prototype-and-this.html"
-            >chương 0</a
-          >
-          §10.8). Đo trực tiếp với <code>tsc 5.7.3</code>,
+            href="00-prototype-and-this.html#108-designtype-là-hàm-dựng-không-phải-tên-kiểu--hệ-quả-của-boxing"
+            >chương 0 §10.8</a
+          >). Bảng ánh xạ đầy đủ, đo trực tiếp với <code>tsc 5.7.3</code>,
           <code>strict: true</code>:
         </p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Annotation</th>
-                  <th>Nhả ra</th>
-                  <th>Ghi chú</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>string</code>, <code>"a" | "b"</code></td>
-                  <td><code>String</code></td>
-                  <td>literal union cùng kiểu gốc → kiểu gốc</td>
-                </tr>
-                <tr>
-                  <td><code>number</code>, enum số</td>
-                  <td><code>Number</code></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td><code>boolean</code></td>
-                  <td><code>Boolean</code></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td>enum chuỗi</td>
-                  <td><code>String</code></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td><code>string[]</code></td>
-                  <td><code>Array</code></td>
-                  <td>
-                    <strong>mất phần tử</strong> — validator phải được bảo
-                    <code>{ each: true }</code>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>Date</code>, class bất kỳ</td>
-                  <td>chính class</td>
-                  <td>đây là thứ DI cần</td>
-                </tr>
-                <tr>
-                  <td><code>name?: string</code></td>
-                  <td><code>String</code></td>
-                  <td><code>?</code> không đổi kiểu</td>
-                </tr>
-                <tr>
-                  <td><code>string | null</code></td>
-                  <td><code>Object</code></td>
-                  <td>
-                    với <code>strictNullChecks</code>, <code>null</code> là kiểu
-                    riêng → union
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>string | number</code></td>
-                  <td><code>Object</code></td>
-                  <td>không có hàm dựng chung</td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>interface</code>, <code>type</code> alias object
-                  </td>
-                  <td><code>Object</code></td>
-                  <td>không tồn tại ở runtime</td>
-                </tr>
-                <tr>
-                  <td><code>any</code>, <code>unknown</code></td>
-                  <td><code>Object</code></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td><code>Promise&lt;T&gt;</code> (return)</td>
-                  <td><code>Promise</code></td>
-                  <td>
-                    <strong>mất <code>T</code></strong>
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>void</code> (return)</td>
-                  <td><code>undefined</code></td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Annotation</th>
+                <th>Nhả ra</th>
+                <th>Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <code>string</code>,
+                  <code>&quot;a&quot; \| &quot;b&quot;</code>
+                </td>
+                <td><code>String</code></td>
+                <td>literal union cùng kiểu gốc → kiểu gốc</td>
+              </tr>
+              <tr>
+                <td><code>number</code>, enum số</td>
+                <td><code>Number</code></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><code>boolean</code></td>
+                <td><code>Boolean</code></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>enum chuỗi</td>
+                <td><code>String</code></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><code>string[]</code></td>
+                <td><code>Array</code></td>
+                <td>
+                  <strong>mất phần tử</strong> — validator phải được bảo
+                  <code>{ each: true }</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>Date</code>, class bất kỳ</td>
+                <td>chính class</td>
+                <td>đây là thứ DI cần</td>
+              </tr>
+              <tr>
+                <td><code>name?: string</code></td>
+                <td><code>String</code></td>
+                <td><code>?</code> không đổi kiểu</td>
+              </tr>
+              <tr>
+                <td><code>string \| null</code></td>
+                <td><code>Object</code></td>
+                <td>
+                  với <code>strictNullChecks</code>, <code>null</code> là kiểu
+                  riêng → union → <code>Object</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code>string \| number</code></td>
+                <td><code>Object</code></td>
+                <td>không có hàm dựng chung</td>
+              </tr>
+              <tr>
+                <td><code>interface</code>, <code>type</code> alias object</td>
+                <td><code>Object</code></td>
+                <td>không tồn tại ở runtime</td>
+              </tr>
+              <tr>
+                <td><code>any</code>, <code>unknown</code></td>
+                <td><code>Object</code></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><code>Promise&lt;T&gt;</code> (return)</td>
+                <td><code>Promise</code></td>
+                <td>
+                  <strong>mất <code>T</code></strong>
+                </td>
+              </tr>
+              <tr>
+                <td><code>void</code> (return)</td>
+                <td><code>undefined</code></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="card-grid">
-          <div class="ve-card" style="--i: 0">
-            <div class="ve-card__label">DI không inject được qua interface</div>
-            <code>constructor(private repo: IRoleRepository)</code> →
-            <code>design:paramtypes</code> là <code>[Object]</code> → Nest không
-            biết tìm provider nào. Phải dùng token +
-            <code>@Inject(TOKEN)</code> —
-            <a href="06-modules-and-dependency-injection.html">chương 6</a>.
-          </div>
-          <div class="ve-card" style="--i: 1">
-            <div class="ve-card__label ve-card__label--b">
-              <code>string | null</code> làm validator mù
-            </div>
-            <code>design:type</code> là <code>Object</code>;
-            <code>@IsString()</code> vẫn chạy vì không dựa vào nó, nhưng
-            <code>class-transformer</code> không còn gì để dựa khi ép kiểu. Nên
-            viết <code>field?: string</code> + <code>@IsOptional()</code>.
-          </div>
-          <div class="ve-card" style="--i: 2">
-            <div class="ve-card__label ve-card__label--c">
-              <code>Promise&lt;PageDto&lt;T&gt;&gt;</code> chỉ còn
-              <code>Promise</code>
-            </div>
-            Swagger không tự suy ra response type — đó là lý do
-            <code>@ApiPageOkResponse({ type: … })</code> phải khai
-            <code>type</code> tường minh.
-          </div>
-        </div>
-
-        <h3 class="sub" id="s5.3">
-          5.3 · Import vòng → <code>undefined</code>
-        </h3>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            <code>__metadata("design:paramtypes", [RoleService])</code> được
-            <strong>đánh giá lúc file load</strong>. Nếu
-            <code>a.ts</code> import <code>b.ts</code> và
-            <code>b.ts</code> import lại <code>a.ts</code>, thì tại thời điểm
-            class trong <code>b.ts</code> được định nghĩa, binding
-            <code>RoleService</code> có thể
-            <strong>chưa được gán</strong> (module <code>a</code> đang load dở)
-            → mảng thành <code>[undefined]</code>.
-          </div>
-          <div class="stack">
-            <div class="code-file" style="margin: 0">
-              <div class="code-file__header">
-                <span>dấu hiệu: chữ ? đúng vị trí</span>
-              </div>
-              <pre class="code-file__body out">
-Nest can't resolve dependencies of the X (?).
-Please make sure that the argument at index [0]
-is available</pre
+        <p class="prose">Ba hậu quả cho dự án:</p>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong>DI không inject được qua interface.</strong>
+              <code>constructor(private repo: IRoleRepository)</code> →
+              <code>design:paramtypes</code> là <code>[Object]</code> → Nest
+              không biết tìm provider nào. Phải dùng token +
+              <code>@Inject(TOKEN)</code> —
+              <a href="06-modules-and-dependency-injection.html">chương 6</a>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                ><code>string | null</code> trong DTO làm validator mù.</strong
               >
-            </div>
-            <div class="callout callout--success" style="margin: 0">
-              <div class="callout__title">Cách sửa</div>
-              Phá vòng import (thường đúng hơn), hoặc
-              <code>@Inject(forwardRef(() =&gt; RoleService))</code> để hoãn
-              việc đọc binding tới lúc gọi.
-            </div>
-          </div>
+              <code>design:type</code> là <code>Object</code>;
+              <code>@IsString()</code> vẫn chạy vì nó không dựa vào
+              <code>design:type</code>, nhưng
+              <code>class-transformer</code> không còn gì để dựa vào khi ép
+              kiểu. Đây là một lý do nên viết <code>field?: string</code> +
+              <code>@IsOptional()</code> thay vì
+              <code>string | null</code> trong DTO.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                >Kiểu trả về <code>Promise&lt;PageDto&lt;T&gt;&gt;</code> chỉ
+                còn <code>Promise</code>.</strong
+              >
+              Swagger không tự suy ra response type — đó là lý do
+              <code>@ApiPageOkResponse({ type: ... })</code> phải khai
+              <code>type</code> tường minh.
+            </p>
+          </li>
+        </ul>
+        <h3 id="53-import-vòng--undefined" class="sub">
+          5.3 Import vòng → <code>undefined</code>
+        </h3>
+        <p class="prose">
+          <code>__metadata(&quot;design:paramtypes&quot;, [RoleService])</code>
+          được <strong>đánh giá lúc file load</strong>. Nếu
+          <code>a.ts</code> import <code>b.ts</code> và <code>b.ts</code> import
+          lại <code>a.ts</code>, thì tại thời điểm class trong
+          <code>b.ts</code> được định nghĩa, binding <code>RoleService</code> từ
+          <code>a.ts</code> có thể <strong>chưa được gán</strong> (module
+          <code>a</code> đang load dở) → mảng thành <code>[undefined]</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre
+            class="code-file__body"
+          ><code>Nest can&#39;t resolve dependencies of the X (?). Please make sure that the argument at index [0] is available</code></pre>
         </div>
-
-        <!-- ══ 06 ══ -->
-        <div class="sec-head" id="s6">
-          <span class="sec-head__num">06</span
-          ><span class="sec-head__text"
-            ><code>Reflect.decorate</code> — thư viện cũng là người áp
-            decorator</span
-          >
+        <p class="prose">
+          Dấu hiệu nhận biết là chữ <code>?</code> ở đúng vị trí. Cách sửa: phá
+          vòng import (thường đúng hơn), hoặc
+          <code>@Inject(forwardRef(() =&gt; RoleService))</code> để hoãn việc
+          đọc binding tới lúc gọi.
+        </p>
+        <hr />
+        <h2
+          id="6-reflectdecorate--thư-viện-cũng-là-người-áp-decorator"
+          class="sec-head"
+        >
+          6. <code>Reflect.decorate</code> — thư viện cũng là người áp decorator
+        </h2>
+        <p class="prose">
+          Nhìn lại helper <code>__decorate</code> mà <code>tsc</code> chèn vào
+          đầu mỗi file (<a
+            href="00-prototype-and-this.html#53-bản-chất-của-syntax-sugar-nhìn-code-sau-khi-biên-dịch"
+            >chương 0 §5.3</a
+          >):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>if (typeof Reflect === &quot;object&quot; &amp;&amp; typeof Reflect.decorate === &quot;function&quot;)
+  r = Reflect.decorate(decorators, target, key, desc);
+else for (var i = decorators.length - 1; i &gt;= 0; i--) ...</code></pre>
         </div>
-        <div class="card-grid card-grid--2">
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>helper __decorate mà tsc chèn vào đầu file</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code><span class="kw">if</span> (<span class="kw">typeof</span> Reflect === <span class="st">"object"</span> &amp;&amp; <span class="kw">typeof</span> Reflect.decorate === <span class="st">"function"</span>)
-  r = Reflect.<span class="fn">decorate</span>(decorators, target, key, desc);   <span class="cm">// ← nhánh này chạy</span>
-<span class="kw">else</span>
-  <span class="kw">for</span> (<span class="kw">var</span> i = decorators.length - <span class="st">1</span>; i &gt;= <span class="st">0</span>; i--) ...  <span class="cm">// dự phòng</span>
-
-<span class="kw">return</span> c &gt; <span class="st">3</span> &amp;&amp; r &amp;&amp; Object.<span class="fn">defineProperty</span>(target, key, r), r;
-<span class="cm">// ↑ ghi descriptor về prototype sau khi áp</span></code></pre>
-          </div>
-          <div class="stack">
-            <div class="ve-card ve-card--hero" style="--i: 0">
-              <div class="ve-card__label">
-                Trong mọi app Nest, thư viện áp decorator của bạn
-              </div>
-              Hai bản làm cùng việc: duyệt mảng
-              <strong>từ cuối lên đầu</strong> ("áp từ dưới lên" ở
-              <a href="01-decorators-and-metadata.html">chương 1</a> §4), với
-              method thì truyền <code>descriptor</code> và cho phép decorator
-              trả descriptor mới; cuối cùng
-              <code>Object.defineProperty</code> ghi về prototype.
-            </div>
-            <div class="callout callout--warning" style="margin: 0">
-              <div class="callout__title">Decorator có thể thay hẳn hàm</div>
-              <code>SetMetadata</code> trả descriptor nguyên, nhưng
-              <code>@Retry()</code>, <code>@Cache()</code> của nhiều thư viện
-              gán <code>descriptor.value = wrapper</code>. Khi đó
-              <code>context.getHandler()</code> trả về <strong>wrapper</strong>,
-              và metadata dán lên hàm gốc <strong>trước</strong> wrapper sẽ mất.
-              Thứ tự decorator lúc này có ý nghĩa.
-            </div>
-          </div>
+        <p class="prose">
+          <code>reflect-metadata</code> <strong>có</strong>
+          <code>Reflect.decorate</code>. Nên trong mọi tiến trình đã import nó —
+          tức mọi app Nest — decorator của bạn được áp bởi thư viện, không bởi
+          vòng <code>for</code> dự phòng. Hai bản làm cùng một việc: duyệt mảng
+          <strong>từ cuối lên đầu</strong> (đó là &quot;áp từ dưới lên&quot; ở
+          <a href="01-decorators-and-metadata.html#4-thứ-tự-chạy">chương 1 §4</a
+          >), với method thì truyền <code>descriptor</code> và cho phép
+          decorator trả descriptor mới để thay hàm; cuối cùng
+          <code>Object.defineProperty(target, key, r)</code> ghi descriptor về
+          prototype.
+        </p>
+        <p class="prose">
+          Điểm đáng nhớ: vì <code>__decorate</code>
+          <strong>ghi lại descriptor</strong> sau khi áp, một decorator có thể
+          <strong>thay hẳn hàm method</strong> (<code
+            >descriptor.value = wrapper</code
+          >). Nest không làm vậy với <code>SetMetadata</code> (nó trả descriptor
+          nguyên), nhưng nhiều thư viện <code>@Retry()</code>,
+          <code>@Cache()</code> thì có — và khi đó
+          <code>context.getHandler()</code> trả về <strong>wrapper</strong>,
+          không phải hàm gốc, nên metadata dán lên hàm gốc
+          <strong>trước</strong> wrapper sẽ mất. Thứ tự decorator lúc này có ý
+          nghĩa.
+        </p>
+        <hr />
+        <h2
+          id="7-registry-nhiều-bản-copy-thư-viện-vẫn-dùng-chung-một-bảng"
+          class="sec-head"
+        >
+          7. Registry: nhiều bản copy thư viện vẫn dùng chung một bảng
+        </h2>
+        <p class="prose">
+          <code>WeakMap metadata</code> ở
+          <a href="#2-bảng-ẩn-là-ba-tầng-map-lồng-trong-một-weakmap">mục 2</a>
+          là biến <strong>cục bộ trong closure</strong> của file
+          <code>Reflect.js</code>. Nếu trong <code>node_modules</code> có hai
+          bản <code>reflect-metadata</code> (hai phiên bản, hoặc bundle nhân
+          đôi), mỗi bản có <code>WeakMap</code> riêng → decorator dán vào bản A,
+          Nest đọc bản B → <code>undefined</code> toàn tập. Phiên bản 0.2.x giải
+          quyết bằng một <strong>registry</strong> treo trên chính
+          <code>Reflect</code>, <code>Reflect.js:83</code>,
+          <code>994-1001</code>:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">js</div>
+          <pre
+            class="code-file__body"
+          ><code>var registrySymbol = Symbol.for(&quot;@reflect-metadata:registry&quot;);
+// ...
+metadataRegistry = root.Reflect[registrySymbol]; // đã có? dùng chung
+// chưa có → tạo và Object.defineProperty(root.Reflect, registrySymbol, ...)</code></pre>
         </div>
-
-        <!-- ══ 07 ══ -->
-        <div class="sec-head" id="s7">
-          <span class="sec-head__num">07</span
-          ><span class="sec-head__text"
-            >Registry: nhiều bản copy thư viện vẫn dùng chung một bảng</span
-          >
+        <p class="prose">
+          <code>Symbol.for</code> là symbol <strong>toàn cục theo tên</strong>,
+          nên mọi bản copy đều tìm ra cùng một registry; registry giữ danh sách
+          provider, và mỗi lần đọc thư viện hỏi registry &quot;ai đang giữ
+          metadata của <code>(O, P)</code> này&quot;. Bạn nhìn thấy nó:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>Object.getOwnPropertySymbols(Reflect).map(String);
+// [ &quot;Symbol(Symbol.toStringTag)&quot;, &quot;Symbol(@reflect-metadata:registry)&quot; ]</code></pre>
         </div>
-        <div class="card-grid card-grid--2">
-          <div class="ve-card ve-card--elevated" style="--i: 0">
-            <code>WeakMap metadata</code> ở <a href="#s2">mục 2</a> là biến
-            <strong>cục bộ trong closure</strong> của <code>Reflect.js</code>.
-            Hai bản <code>reflect-metadata</code> trong
-            <code>node_modules</code> → hai <code>WeakMap</code> riêng →
-            decorator dán vào bản A, Nest đọc bản B →
-            <code>undefined</code> toàn tập. Phiên bản 0.2.x giải quyết bằng một
-            <strong>registry</strong> treo trên chính <code>Reflect</code>.
-          </div>
-          <div class="code-file" style="margin: 0">
-            <div class="code-file__header">
-              <span>Reflect.js:83, 994-1001</span>
-            </div>
-            <pre
-              class="code-file__body"
-            ><code><span class="kw">var</span> registrySymbol = Symbol.<span class="fn">for</span>(<span class="st">"@reflect-metadata:registry"</span>);
-<span class="cm">// ...</span>
-metadataRegistry = root.Reflect[registrySymbol]; <span class="cm">// đã có? dùng chung</span>
-<span class="cm">// chưa có → tạo và Object.defineProperty(root.Reflect, registrySymbol, …)</span>
-
-<span class="cm">// bạn nhìn thấy nó:</span>
-Object.<span class="fn">getOwnPropertySymbols</span>(Reflect).<span class="fn">map</span>(String);
-<span class="cm">// [ "Symbol(Symbol.toStringTag)", "Symbol(@reflect-metadata:registry)" ]</span></code></pre>
-          </div>
-        </div>
-        <div class="callout callout--info">
-          <div class="callout__title">Dự án hiện chỉ có một bản</div>
-          <code>node_modules/.pnpm/reflect-metadata@0.2.2</code> — registry chỉ
-          có một provider. Nhưng khi thêm thư viện kéo theo
+        <p class="prose">
+          Dự án hiện chỉ có <strong>một</strong> bản
+          (<code>node_modules/.pnpm/reflect-metadata@0.2.2</code>), nên registry
+          chỉ có một provider. Nhưng khi thêm thư viện kéo theo
           <code>reflect-metadata@0.1.x</code> (không có registry), hai bên
           <strong>sẽ không thấy nhau</strong> — triệu chứng là decorator chạy mà
           <code>getMetadata</code> trả <code>undefined</code>.
           <code>pnpm why reflect-metadata</code> là lệnh đầu tiên nên gõ.
-        </div>
-
-        <!-- ══ 08 ══ -->
-        <div class="sec-head" id="s8">
-          <span class="sec-head__num">08</span
-          ><span class="sec-head__text">Bảng tra API đầy đủ</span>
-        </div>
+        </p>
+        <hr />
+        <h2 id="8-bảng-tra-api-đầy-đủ" class="sec-head">
+          8. Bảng tra API đầy đủ
+        </h2>
         <p class="prose">
-          Tất cả đều có hai dạng: <code>(key, [value,] target)</code> cho "cả
-          quyển" và <code>(key, [value,] target, propertyKey)</code> cho "một
-          trang".
+          Tất cả đều có hai dạng: <code>(key, [value,] target)</code> cho
+          &quot;cả quyển&quot; và
+          <code>(key, [value,] target, propertyKey)</code> cho &quot;một
+          trang&quot;.
         </p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Hàm</th>
-                  <th>Đi ngược chain?</th>
-                  <th>Trả về</th>
-                  <th>Ghi chú</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>defineMetadata(key, value, target[, p])</code></td>
-                  <td>—</td>
-                  <td><code>void</code></td>
-                  <td><code>Map.set</code> — ghi đè im lặng</td>
-                </tr>
-                <tr>
-                  <td><code>getMetadata(key, target[, p])</code></td>
-                  <td><strong>có</strong></td>
-                  <td>value / <code>undefined</code></td>
-                  <td>thuật toán <a href="#s4">mục 4</a></td>
-                </tr>
-                <tr>
-                  <td><code>getOwnMetadata(key, target[, p])</code></td>
-                  <td>không</td>
-                  <td>value / <code>undefined</code></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td><code>hasMetadata(key, target[, p])</code></td>
-                  <td><strong>có</strong></td>
-                  <td><code>boolean</code></td>
-                  <td>phân biệt "không có" với "có, giá trị undefined"</td>
-                </tr>
-                <tr>
-                  <td><code>hasOwnMetadata(key, target[, p])</code></td>
-                  <td>không</td>
-                  <td><code>boolean</code></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td><code>getMetadataKeys(target[, p])</code></td>
-                  <td><strong>có</strong></td>
-                  <td><code>any[]</code></td>
-                  <td>gộp own + cha, loại trùng, own đứng trước</td>
-                </tr>
-                <tr>
-                  <td><code>getOwnMetadataKeys(target[, p])</code></td>
-                  <td>không</td>
-                  <td><code>any[]</code></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td><code>deleteMetadata(key, target[, p])</code></td>
-                  <td>không</td>
-                  <td><code>boolean</code></td>
-                  <td>chỉ xoá own</td>
-                </tr>
-                <tr>
-                  <td><code>metadata(key, value)</code></td>
-                  <td>—</td>
-                  <td>decorator</td>
-                  <td>
-                    dán theo <code>(target, p)</code>; là thứ
-                    <code>__metadata</code> gọi
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>decorate(decorators, target[, p, desc])</code></td>
-                  <td>—</td>
-                  <td>class / descriptor</td>
-                  <td>
-                    áp mảng từ cuối lên; là thứ <code>__decorate</code> gọi
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Hàm</th>
+                <th>Đi ngược chain?</th>
+                <th>Trả về</th>
+                <th>Ghi chú</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>defineMetadata(key, value, target[, p])</code></td>
+                <td>—</td>
+                <td><code>void</code></td>
+                <td><code>Map.set</code> — ghi đè im lặng</td>
+              </tr>
+              <tr>
+                <td><code>getMetadata(key, target[, p])</code></td>
+                <td><strong>có</strong></td>
+                <td>value / <code>undefined</code></td>
+                <td>
+                  thuật toán
+                  <a href="#4-getmetadata-đi-ngược-chain--đọc-thẳng-mã-nguồn"
+                    >mục 4</a
+                  >
+                </td>
+              </tr>
+              <tr>
+                <td><code>getOwnMetadata(key, target[, p])</code></td>
+                <td>không</td>
+                <td>value / <code>undefined</code></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><code>hasMetadata(key, target[, p])</code></td>
+                <td><strong>có</strong></td>
+                <td><code>boolean</code></td>
+                <td>
+                  phân biệt được &quot;không có&quot; với &quot;có, giá trị
+                  undefined&quot;
+                </td>
+              </tr>
+              <tr>
+                <td><code>hasOwnMetadata(key, target[, p])</code></td>
+                <td>không</td>
+                <td><code>boolean</code></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><code>getMetadataKeys(target[, p])</code></td>
+                <td><strong>có</strong></td>
+                <td><code>any[]</code></td>
+                <td>gộp own + cha, loại trùng, own đứng trước</td>
+              </tr>
+              <tr>
+                <td><code>getOwnMetadataKeys(target[, p])</code></td>
+                <td>không</td>
+                <td><code>any[]</code></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><code>deleteMetadata(key, target[, p])</code></td>
+                <td>không</td>
+                <td><code>boolean</code></td>
+                <td>chỉ xoá own</td>
+              </tr>
+              <tr>
+                <td><code>metadata(key, value)</code></td>
+                <td>—</td>
+                <td>decorator</td>
+                <td>
+                  dán theo <code>(target, p)</code>; là thứ
+                  <code>__metadata</code> gọi
+                </td>
+              </tr>
+              <tr>
+                <td><code>decorate(decorators, target[, p, desc])</code></td>
+                <td>—</td>
+                <td>class / descriptor</td>
+                <td>
+                  áp mảng decorator từ cuối lên; là thứ
+                  <code>__decorate</code> gọi
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
         <p class="prose">
-          Nest bọc bốn hàm đầu trong <code>Reflector</code> và thêm
+          Về <code>target</code>: phải là object (class, prototype, hàm,
+          instance…). Về <code>key</code>: bất kỳ giá trị nào
+          <code>Map</code> nhận — chuỗi là phổ biến, <code>symbol</code> khi cần
+          chắc chắn không đụng tên.
+        </p>
+        <p class="prose">
+          Nest bọc bốn hàm đầu trong <code>Reflector</code> và thêm ba hàm gộp —
           <code>getAll</code>, <code>getAllAndMerge</code>,
-          <code>getAllAndOverride</code> — chỉ là vòng lặp
+          <code>getAllAndOverride</code> — chúng chỉ là vòng lặp
           <code>getMetadata</code> qua một mảng target rồi gộp kết quả (<a
             href="02-reflector-execution-context-and-discovery.html"
-            >chương 2</a
+            >chương 2 §2</a
           >).
         </p>
-
-        <!-- ══ 09 ══ -->
-        <div class="sec-head" id="s9">
-          <span class="sec-head__num">09</span
-          ><span class="sec-head__text"
-            >Những điều hành vi thư viện quyết định cho Nest</span
-          >
-        </div>
+        <hr />
+        <h2
+          id="9-những-điều-hành-vi-thư-viện-quyết-định-cho-nest"
+          class="sec-head"
+        >
+          9. Những điều hành vi thư viện quyết định cho Nest
+        </h2>
+        <p class="prose">
+          Tóm lại, năm quyết định thiết kế của <code>reflect-metadata</code> và
+          hành vi Nest sinh ra từ đó:
+        </p>
         <div class="table-wrap">
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Thư viện làm…</th>
-                  <th>Nên Nest…</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Kho là <code>WeakMap</code>, không liệt kê được</td>
-                  <td>
-                    phải có <code>DiscoveryService</code> +
-                    <code>MetadataScanner</code> quét prototype từng controller
-                    (<a href="02-reflector-execution-context-and-discovery.html"
-                      >chương 2</a
-                    >)
-                  </td>
-                </tr>
-                <tr>
-                  <td>Tầng 1 keyed theo <strong>object</strong></td>
-                  <td>
-                    metadata của class, hàm, prototype là ba nơi riêng;
-                    <code>getAllAndOverride([handler, class])</code> phải hỏi
-                    hai nơi
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <code>getMetadata</code> đi theo
-                    <code>Object.getPrototypeOf</code>
-                  </td>
-                  <td>
-                    decorator trên class cha kế thừa được; trên method thì chỉ
-                    khi không override (<a href="#s4.1">mục 4.1</a>)
-                  </td>
-                </tr>
-                <tr>
-                  <td><code>design:*</code> chỉ có khi có decorator tại chỗ</td>
-                  <td>
-                    <code>@Injectable()</code> bắt buộc dù không mang thông tin;
-                    mỗi field DTO cần ít nhất một decorator
-                  </td>
-                </tr>
-                <tr>
-                  <td>Giá trị kiểu là <strong>hàm dựng</strong></td>
-                  <td>
-                    không inject qua interface; <code>string[]</code> chỉ còn
-                    <code>Array</code>; <code>Promise&lt;T&gt;</code> mất
-                    <code>T</code>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Thư viện làm…</th>
+                <th>Nên Nest…</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kho là <code>WeakMap</code>, không liệt kê được</td>
+                <td>
+                  phải có <code>DiscoveryService</code> +
+                  <code>MetadataScanner</code> quét prototype từng controller
+                  (<a href="02-reflector-execution-context-and-discovery.html"
+                    >chương 2</a
+                  >)
+                </td>
+              </tr>
+              <tr>
+                <td>Tầng 1 keyed theo <strong>object</strong></td>
+                <td>
+                  metadata của class, hàm, prototype là ba nơi riêng;
+                  <code>getAllAndOverride([handler, class])</code> phải hỏi hai
+                  nơi
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <code>getMetadata</code> đi theo
+                  <code>Object.getPrototypeOf</code>
+                </td>
+                <td>
+                  decorator trên class cha kế thừa được; trên method thì chỉ khi
+                  không override (<a
+                    href="#41-hệ-quả-với-setmetadata-dán-lên-hàm-thì-override-là-mất"
+                    >mục 4.1</a
+                  >)
+                </td>
+              </tr>
+              <tr>
+                <td><code>design:*</code> chỉ có khi có decorator tại chỗ</td>
+                <td>
+                  <code>@Injectable()</code> bắt buộc dù không mang thông tin;
+                  mỗi field DTO cần ít nhất một decorator
+                </td>
+              </tr>
+              <tr>
+                <td>Giá trị kiểu là <strong>hàm dựng</strong></td>
+                <td>
+                  không inject qua interface; <code>string[]</code> chỉ còn
+                  <code>Array</code>; <code>Promise&lt;T&gt;</code> mất
+                  <code>T</code>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-
-        <!-- ══ 10 ══ -->
-        <div class="sec-head" id="s10">
-          <span class="sec-head__num">10</span
-          ><span class="sec-head__text">Tự kiểm chứng</span>
-        </div>
-        <div class="callout callout--info">
-          <div class="callout__title">
-            Lưu trong thư mục dự án, chạy
-            <code>npx ts-node reflect-internals.ts</code>
-          </div>
-          tsconfig của dự án đã bật hai cờ decorator. Mọi output trong comment
-          là output thật. Bản đầy đủ ở
-          <a href="appendix-a-reflect-metadata-internals.md">bản markdown</a>.
-        </div>
+        <hr />
+        <h2 id="10-tự-kiểm-chứng" class="sec-head">10. Tự kiểm chứng</h2>
+        <p class="prose">
+          Lưu <code>reflect-internals.ts</code> trong thư mục dự án, chạy
+          <code>npx ts-node reflect-internals.ts</code> (tsconfig của dự án đã
+          bật hai cờ decorator).
+        </p>
         <div class="code-file">
-          <div class="code-file__header">
-            <span>reflect-internals.ts</span><span>chạy được</span>
-          </div>
+          <div class="code-file__header">ts</div>
           <pre
             class="code-file__body"
-          ><code><span class="kw">import</span> <span class="st">"reflect-metadata"</span>;
-<span class="kw">import</span> { SetMetadata } <span class="kw">from</span> <span class="st">"@nestjs/common"</span>;
+          ><code>import &quot;reflect-metadata&quot;;
+import { SetMetadata } from &quot;@nestjs/common&quot;;
 
-<span class="cm">// 1. thư viện vá gì lên Reflect</span>
-<span class="kw">typeof</span> Reflect.decorate, <span class="kw">typeof</span> Reflect.metadata;      <span class="cm">// function function</span>
-Object.<span class="fn">getOwnPropertySymbols</span>(Reflect).<span class="fn">map</span>(String);      <span class="cm">// [..., "Symbol(@reflect-metadata:registry)"]</span>
+// 1. thư viện vá gì lên Reflect
+console.log(
+  &quot;decorate:&quot;,
+  typeof Reflect.decorate,
+  &quot;| metadata:&quot;,
+  typeof Reflect.metadata,
+);
+console.log(&quot;registry:&quot;, Object.getOwnPropertySymbols(Reflect).map(String));
 
-<span class="cm">// 2. dán lên hàm vs dán theo (prototype, tên)</span>
-<span class="kw">class</span> Base {
-  @<span class="fn">SetMetadata</span>(<span class="st">"perm"</span>, <span class="st">"a"</span>) <span class="fn">hello</span>() {}
-  @<span class="fn">SetMetadata</span>(<span class="st">"perm"</span>, <span class="st">"b"</span>) <span class="fn">keep</span>() {}
+// 2. dán lên hàm (SetMetadata) vs dán theo (prototype, tên)
+class Base {
+  @SetMetadata(&quot;perm&quot;, &quot;a&quot;) hello() {}
+  @SetMetadata(&quot;perm&quot;, &quot;b&quot;) keep() {}
 }
-<span class="kw">class</span> Child <span class="kw">extends</span> Base { <span class="fn">hello</span>() {} }
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"perm"</span>, Child.prototype.keep);      <span class="cm">// "b"</span>
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"perm"</span>, Child.prototype.hello);     <span class="cm">// undefined</span>
-Reflect.<span class="fn">defineMetadata</span>(<span class="st">"tag"</span>, <span class="st">"x"</span>, Base.prototype, <span class="st">"hello"</span>);
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"tag"</span>, Child.prototype, <span class="st">"hello"</span>);    <span class="cm">// "x"</span>
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"tag"</span>, <span class="kw">new</span> <span class="fn">Child</span>(), <span class="st">"hello"</span>);         <span class="cm">// "x"</span>
-Reflect.<span class="fn">getOwnMetadata</span>(<span class="st">"tag"</span>, <span class="kw">new</span> <span class="fn">Child</span>(), <span class="st">"hello"</span>);      <span class="cm">// undefined</span>
+class Child extends Base {
+  hello() {}
+}
+console.log(
+  &quot;keep — không override:&quot;,
+  Reflect.getMetadata(&quot;perm&quot;, Child.prototype.keep),
+); // &quot;b&quot;
+console.log(
+  &quot;hello — override:&quot;,
+  Reflect.getMetadata(&quot;perm&quot;, Child.prototype.hello),
+); // undefined
+Reflect.defineMetadata(&quot;tag&quot;, &quot;x&quot;, Base.prototype, &quot;hello&quot;);
+console.log(
+  &quot;(prototype, tên) — override vẫn đọc:&quot;,
+  Reflect.getMetadata(&quot;tag&quot;, Child.prototype, &quot;hello&quot;),
+); // &quot;x&quot;
+console.log(
+  &quot;đọc từ instance:&quot;,
+  Reflect.getMetadata(&quot;tag&quot;, new Child(), &quot;hello&quot;),
+); // &quot;x&quot;
+console.log(
+  &quot;getOwn từ instance:&quot;,
+  Reflect.getOwnMetadata(&quot;tag&quot;, new Child(), &quot;hello&quot;),
+); // undefined
 
-<span class="cm">// 3. "cả quyển" vs "một trang"</span>
-Reflect.<span class="fn">getMetadataKeys</span>(Base.prototype);            <span class="cm">// []</span>
-Reflect.<span class="fn">getMetadataKeys</span>(Base.prototype, <span class="st">"hello"</span>);   <span class="cm">// ["design:returntype","design:paramtypes","design:type","tag"]</span>
+// 3. &quot;cả quyển&quot; vs &quot;một trang&quot; là hai hàng khác nhau
+console.log(&quot;keys cả quyển:&quot;, Reflect.getMetadataKeys(Base.prototype)); // []
+console.log(
+  &quot;keys một trang:&quot;,
+  Reflect.getMetadataKeys(Base.prototype, &quot;hello&quot;),
+);
+// [&quot;design:returntype&quot;, &quot;design:paramtypes&quot;, &quot;design:type&quot;, &quot;tag&quot;]
 
-<span class="cm">// 4. ghi đè im lặng; key symbol; target phải là object</span>
-Reflect.<span class="fn">defineMetadata</span>(<span class="st">"k"</span>, <span class="st">1</span>, Base); Reflect.<span class="fn">defineMetadata</span>(<span class="st">"k"</span>, <span class="st">2</span>, Base);
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"k"</span>, Base);                        <span class="cm">// 2</span>
-Reflect.<span class="fn">defineMetadata</span>(<span class="st">"k"</span>, <span class="st">1</span>, <span class="st">"str"</span> <span class="kw">as never</span>);            <span class="cm">// TypeError</span>
+// 4. ghi đè im lặng; key symbol; target phải là object
+Reflect.defineMetadata(&quot;k&quot;, 1, Base);
+Reflect.defineMetadata(&quot;k&quot;, 2, Base);
+console.log(&quot;define 2 lần:&quot;, Reflect.getMetadata(&quot;k&quot;, Base)); // 2
+const sym = Symbol(&quot;x&quot;);
+Reflect.defineMetadata(sym, &quot;v&quot;, Base);
+console.log(&quot;key symbol:&quot;, Reflect.getMetadata(sym, Base)); // &quot;v&quot;
+try {
+  Reflect.defineMetadata(&quot;k&quot;, 1, &quot;str&quot; as never);
+} catch (e) {
+  console.log(&quot;target primitive:&quot;, (e as Error).constructor.name); // TypeError
+}
 
-<span class="cm">// 5. design:paramtypes chỉ có khi class có decorator</span>
-<span class="kw">const</span> C = (): ClassDecorator =&gt; () =&gt; {};
-<span class="kw">class</span> Dep {}
-@<span class="fn">C</span>() <span class="kw">class</span> WithDeco { <span class="fn">constructor</span>(dep: Dep) {} }
-<span class="kw">class</span> NoDeco       { <span class="fn">constructor</span>(dep: Dep) {} }
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"design:paramtypes"</span>, WithDeco);   <span class="cm">// [Dep]</span>
-Reflect.<span class="fn">getMetadata</span>(<span class="st">"design:paramtypes"</span>, NoDeco);     <span class="cm">// undefined</span></code></pre>
+// 5. design:paramtypes chỉ có khi class có decorator
+const C = (): ClassDecorator =&gt; () =&gt; {};
+class Dep {}
+@C()
+class WithDeco {
+  constructor(dep: Dep) {}
+}
+class NoDeco {
+  constructor(dep: Dep) {}
+}
+console.log(
+  &quot;có decorator:&quot;,
+  Reflect.getMetadata(&quot;design:paramtypes&quot;, WithDeco)?.map((t: any) =&gt; t.name),
+); // [&quot;Dep&quot;]
+console.log(
+  &quot;không decorator:&quot;,
+  Reflect.getMetadata(&quot;design:paramtypes&quot;, NoDeco),
+); // undefined</code></pre>
         </div>
-        <div class="callout callout--success">
-          <div class="callout__title">Rồi thử một việc trong dự án thật</div>
-          Chạy <code>pnpm why reflect-metadata</code> và đếm số phiên bản. Một
-          là đúng. Hai là <a href="#s7">mục 7</a> đang chờ bạn.
-        </div>
-
-        <div class="footer-nav">
-          <a href="00-prototype-and-this.html"
-            ><small>Nền</small>← 00 — Prototype, this, và class</a
+        <p class="prose">
+          Sau đó thử một việc trong dự án thật: chạy
+          <code>pnpm why reflect-metadata</code> và đếm số phiên bản. Một là
+          đúng. Hai là
+          <a href="#7-registry-nhiều-bản-copy-thư-viện-vẫn-dùng-chung-một-bảng"
+            >mục 7</a
           >
-          <a href="01-decorators-and-metadata.html"
-            ><small>Tiếp tục</small>01 — Decorator và metadata →</a
-          >
-        </div>
-      </div>
-      <!-- /main -->
+          đang chờ bạn.
+        </p>
+        <footer class="source-footer">
+          <a href="appendix-a-reflect-metadata-internals.md">Nguồn Markdown</a>
+          · Sinh bằng scripts/build-nestjs-fundamentals.cjs
+        </footer>
+      </main>
     </div>
-    <!-- /wrap -->
-
-    <script>
-      (function () {
-        var toggle = document.getElementById("themeToggle");
-        var saved = null;
+    <script type="module">
+      // Shared behavior for the Markdown-generated foundation pages.
+      const themeToggle = document.getElementById("themeToggle");
+      function applyTheme(theme) {
+        document.documentElement.dataset.theme = theme;
+        themeToggle.textContent = theme === "dark" ? "☀" : "☾";
+      }
+      let initialTheme = matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+      try {
+        initialTheme =
+          localStorage.getItem("fundamentals-theme") ?? initialTheme;
+      } catch {
+        // Storage can be unavailable when opening a local HTML file.
+      }
+      applyTheme(initialTheme);
+      themeToggle.addEventListener("click", () => {
+        const theme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark";
         try {
-          saved = localStorage.getItem("theme");
-        } catch (e) {}
-        var initial =
-          saved ||
-          (matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light");
-        if (saved) document.documentElement.setAttribute("data-theme", initial);
-        toggle.textContent = initial === "dark" ? "☀" : "☾";
-        toggle.addEventListener("click", function () {
-          var current =
-            document.documentElement.getAttribute("data-theme") ||
-            (matchMedia("(prefers-color-scheme: dark)").matches
-              ? "dark"
-              : "light");
-          var next = current === "light" ? "dark" : "light";
-          document.documentElement.setAttribute("data-theme", next);
-          try {
-            localStorage.setItem("theme", next);
-          } catch (e) {}
-          toggle.textContent = next === "dark" ? "☀" : "☾";
+          localStorage.setItem("fundamentals-theme", theme);
+        } catch {
+          // Storage can be unavailable when opening a local HTML file.
+        }
+        applyTheme(theme);
+      });
+
+      let mermaid;
+      try {
+        ({ default: mermaid } = await import(
+          "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"
+        ));
+      } catch {
+        document.querySelectorAll(".diagram-shell").forEach((shell) => {
+          shell.querySelector(".mermaid-wrap").hidden = true;
+          shell.querySelector(".diagram-code").open = true;
         });
-      })();
-    </script>
-    <script>
-      (function () {
-        const toc = document.getElementById("toc");
-        if (!toc) return;
-        const links = Array.from(toc.querySelectorAll('a[href^="#"]'));
-        const sections = [];
-        links.forEach((link) => {
-          const id = link.getAttribute("href").slice(1);
-          const el = document.getElementById(id);
-          if (el) sections.push({ id, el, link });
+      }
+      if (mermaid) {
+        const config = {
+          fitPadding: 28,
+          minHeight: 320,
+          maxHeightPx: 960,
+          maxHeightVh: 0.84,
+          maxInitialZoom: 1.8,
+          minZoom: 0.08,
+          maxZoom: 6.5,
+          zoomStep: 0.14,
+          readabilityFloor: 0.58,
+        };
+        const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+        let activeDrag = null;
+        addEventListener("mousemove", (e) => activeDrag?.onMove(e));
+        addEventListener("mouseup", () => {
+          activeDrag?.onEnd();
+          activeDrag = null;
         });
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                links.forEach((l) => l.classList.remove("active"));
-                const match = sections.find((s) => s.el === entry.target);
-                if (match) {
-                  match.link.classList.add("active");
-                  if (window.innerWidth <= 1000)
-                    match.link.scrollIntoView({
-                      behavior: "smooth",
-                      block: "nearest",
-                      inline: "center",
-                    });
-                }
-              }
-            });
+        const attr = document.documentElement.getAttribute("data-theme");
+        const isDark =
+          attr === "dark" ||
+          (!attr && matchMedia("(prefers-color-scheme: dark)").matches);
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "base",
+          look: "classic",
+          themeVariables: {
+            fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+            fontSize: "15px",
+            primaryColor: isDark ? "#3a2a22" : "#fbe7dc",
+            primaryBorderColor: isDark ? "#f0743f" : "#c2410c",
+            primaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            secondaryColor: isDark ? "#243a1a" : "#ecf5dc",
+            secondaryBorderColor: isDark ? "#a3e635" : "#4d7c0f",
+            secondaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            tertiaryColor: isDark ? "#1c3532" : "#dcf2ef",
+            tertiaryBorderColor: isDark ? "#5eead4" : "#0f766e",
+            tertiaryTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            lineColor: isDark ? "#a89e90" : "#7c756a",
+            noteBkgColor: isDark ? "#342e29" : "#fffdf7",
+            noteTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            noteBorderColor: isDark ? "#fbbf24" : "#b45309",
+            actorBkg: isDark ? "#3a2a22" : "#fbe7dc",
+            actorBorder: isDark ? "#f0743f" : "#c2410c",
+            actorTextColor: isDark ? "#f0e8dc" : "#2c2a25",
+            signalColor: isDark ? "#a89e90" : "#7c756a",
+            signalTextColor: isDark ? "#f0e8dc" : "#2c2a25",
           },
-          { rootMargin: "-10% 0px -80% 0px" },
-        );
-        sections.forEach((s) => observer.observe(s.el));
-        links.forEach((link) => {
-          link.addEventListener("click", (e) => {
-            e.preventDefault();
-            const id = link.getAttribute("href").slice(1);
-            const el = document.getElementById(id);
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth", block: "start" });
-              history.replaceState(null, "", "#" + id);
-            }
-          });
         });
-      })();
+        function initDiagram(shell) {
+          const wrap = shell.querySelector(".mermaid-wrap"),
+            viewport = shell.querySelector(".mermaid-viewport"),
+            canvas = shell.querySelector(".mermaid-canvas"),
+            source = shell.querySelector(".diagram-source"),
+            label = shell.querySelector(".zoom-label");
+          if (!wrap || !viewport || !canvas || !source || !label) return;
+          let zoom = 1,
+            fitMode = "contain",
+            panX = 0,
+            panY = 0,
+            svgW = 0,
+            svgH = 0,
+            sx = 0,
+            sy = 0,
+            spx = 0,
+            spy = 0,
+            touchDist = 0,
+            touchCx = 0,
+            touchCy = 0;
+          function constrainPan() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              rW = svgW * zoom,
+              rH = svgH * zoom,
+              pad = config.fitPadding;
+            panX =
+              rW + pad * 2 <= vpW
+                ? (vpW - rW) / 2
+                : clamp(panX, vpW - rW - pad, pad);
+            panY =
+              rH + pad * 2 <= vpH
+                ? (vpH - rH) / 2
+                : clamp(panY, vpH - rH - pad, pad);
+          }
+          function applyTransform() {
+            const svg = canvas.querySelector("svg");
+            if (!svg || !svgW) return;
+            constrainPan();
+            svg.style.width = svgW * zoom + "px";
+            svg.style.height = svgH * zoom + "px";
+            canvas.style.transform = `translate(${panX}px, ${panY}px)`;
+            label.textContent = Math.round(zoom * 100) + "% — " + fitMode;
+          }
+          function canPan() {
+            return (
+              svgW * zoom + config.fitPadding * 2 > viewport.clientWidth ||
+              svgH * zoom + config.fitPadding * 2 > viewport.clientHeight
+            );
+          }
+          function computeSmartFit() {
+            const vpW = viewport.clientWidth,
+              vpH = viewport.clientHeight,
+              aW = Math.max(80, vpW - config.fitPadding * 2),
+              aH = Math.max(80, vpH - config.fitPadding * 2),
+              contain = Math.min(aW / svgW, aH / svgH);
+            let z = contain,
+              mode = "contain";
+            if (contain < config.readabilityFloor) {
+              const chartR = svgH / svgW,
+                vpR = vpH / Math.max(vpW, 1);
+              if (chartR >= vpR) {
+                z = aW / svgW;
+                mode = "width-priority";
+              } else {
+                z = aH / svgH;
+                mode = "height-priority";
+              }
+            }
+            return {
+              zoom: clamp(z, config.minZoom, config.maxInitialZoom),
+              mode,
+            };
+          }
+          function fitDiagram() {
+            if (!svgW) return;
+            const fit = computeSmartFit();
+            zoom = fit.zoom;
+            fitMode = fit.mode;
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function setOneToOne() {
+            zoom = clamp(1, config.minZoom, config.maxZoom);
+            fitMode = "1:1";
+            panX = (viewport.clientWidth - svgW * zoom) / 2;
+            panY = (viewport.clientHeight - svgH * zoom) / 2;
+            applyTransform();
+          }
+          function zoomAround(factor, cx, cy) {
+            const next = clamp(zoom * factor, config.minZoom, config.maxZoom),
+              ratio = next / zoom;
+            panX = cx - ratio * (cx - panX);
+            panY = cy - ratio * (cy - panY);
+            zoom = next;
+            fitMode = "custom";
+            applyTransform();
+          }
+          function readSvgNaturalSize(svg) {
+            let w = 0,
+              h = 0;
+            if (svg.viewBox?.baseVal?.width > 0) {
+              w = svg.viewBox.baseVal.width;
+              h = svg.viewBox.baseVal.height;
+            }
+            if (!w) {
+              w = parseFloat(svg.getAttribute("width")) || 0;
+              h = parseFloat(svg.getAttribute("height")) || 0;
+            }
+            if (!w) {
+              const b = svg.getBBox();
+              w = b.width;
+              h = b.height;
+            }
+            if (!w) {
+              const r = svg.getBoundingClientRect();
+              w = r.width || 1000;
+              h = r.height || 700;
+            }
+            if (!svg.getAttribute("viewBox"))
+              svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+            return { w, h };
+          }
+          function setAdaptiveHeight() {
+            if (!svgW) return;
+            const usableW = Math.max(
+                280,
+                wrap.getBoundingClientRect().width - 2,
+              ),
+              idealH = (svgH / svgW) * usableW + config.fitPadding * 2,
+              maxVp = Math.floor(innerHeight * config.maxHeightVh),
+              hardMax = Math.min(
+                config.maxHeightPx,
+                Math.max(config.minHeight + 40, maxVp),
+              );
+            wrap.style.height =
+              Math.round(clamp(idealH, config.minHeight, hardMax)) + "px";
+          }
+          function openInNewTab() {
+            const svg = canvas.querySelector("svg");
+            if (!svg) return;
+            const clone = svg.cloneNode(true);
+            clone.style.width = "";
+            clone.style.height = "";
+            const bg = isDark ? "#1c1916" : "#faf6f0";
+            const html = `<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Diagram</title><style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:${bg};padding:40px;box-sizing:border-box}svg{max-width:100%;max-height:90vh;height:auto}</style></head><body>${clone.outerHTML}</body></html>`;
+            open(
+              URL.createObjectURL(new Blob([html], { type: "text/html" })),
+              "_blank",
+            );
+          }
+          async function render() {
+            try {
+              const code = source.textContent.trim();
+              if (!code) {
+                label.textContent = "Lỗi: nguồn rỗng";
+                return;
+              }
+              const id =
+                "diagram-" +
+                Date.now() +
+                "-" +
+                Math.random().toString(36).slice(2, 8);
+              const { svg } = await mermaid.render(id, code);
+              canvas.innerHTML = svg;
+              const svgNode = canvas.querySelector("svg");
+              if (!svgNode) {
+                label.textContent = "Lỗi: không có SVG";
+                return;
+              }
+              const size = readSvgNaturalSize(svgNode);
+              svgW = size.w;
+              svgH = size.h;
+              svgNode.removeAttribute("width");
+              svgNode.removeAttribute("height");
+              svgNode.style.maxWidth = "none";
+              svgNode.style.display = "block";
+              setAdaptiveHeight();
+              fitDiagram();
+            } catch (err) {
+              console.error("Mermaid render failed:", err);
+              label.textContent = "Lỗi: " + (err.message || "render thất bại");
+            }
+          }
+          const actions = {
+            "zoom-in": () =>
+              zoomAround(
+                1 + config.zoomStep,
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-out": () =>
+              zoomAround(
+                1 / (1 + config.zoomStep),
+                viewport.clientWidth / 2,
+                viewport.clientHeight / 2,
+              ),
+            "zoom-fit": fitDiagram,
+            "zoom-one": setOneToOne,
+            "zoom-expand": openInNewTab,
+          };
+          Object.entries(actions).forEach(([action, handler]) => {
+            wrap
+              .querySelector(`[data-action="${action}"]`)
+              ?.addEventListener("click", handler);
+          });
+          viewport.addEventListener("dblclick", fitDiagram);
+          viewport.addEventListener(
+            "wheel",
+            (e) => {
+              if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const rect = viewport.getBoundingClientRect();
+                zoomAround(
+                  e.deltaY < 0
+                    ? 1 + config.zoomStep
+                    : 1 / (1 + config.zoomStep),
+                  e.clientX - rect.left,
+                  e.clientY - rect.top,
+                );
+                return;
+              }
+              if (canPan()) {
+                e.preventDefault();
+                panX -= e.deltaX;
+                panY -= e.deltaY;
+                applyTransform();
+              }
+            },
+            { passive: false },
+          );
+          viewport.addEventListener("mousedown", (e) => {
+            if (e.target.closest(".zoom-controls") || !canPan()) return;
+            wrap.classList.add("is-panning");
+            sx = e.clientX;
+            sy = e.clientY;
+            spx = panX;
+            spy = panY;
+            e.preventDefault();
+            activeDrag = {
+              onMove: (ev) => {
+                panX = spx + (ev.clientX - sx);
+                panY = spy + (ev.clientY - sy);
+                applyTransform();
+              },
+              onEnd: () => wrap.classList.remove("is-panning"),
+            };
+          });
+          viewport.addEventListener(
+            "touchstart",
+            (e) => {
+              if (e.touches.length === 1) {
+                sx = e.touches[0].clientX;
+                sy = e.touches[0].clientY;
+                spx = panX;
+                spy = panY;
+              } else if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY;
+                touchDist = Math.sqrt(dx * dx + dy * dy);
+                const r = viewport.getBoundingClientRect();
+                touchCx =
+                  (e.touches[0].clientX + e.touches[1].clientX) / 2 - r.left;
+                touchCy =
+                  (e.touches[0].clientY + e.touches[1].clientY) / 2 - r.top;
+              }
+            },
+            { passive: true },
+          );
+          viewport.addEventListener(
+            "touchmove",
+            (e) => {
+              if (e.touches.length === 1 && canPan()) {
+                if (touchDist > 0) {
+                  sx = e.touches[0].clientX;
+                  sy = e.touches[0].clientY;
+                  spx = panX;
+                  spy = panY;
+                  touchDist = 0;
+                }
+                e.preventDefault();
+                panX = spx + (e.touches[0].clientX - sx);
+                panY = spy + (e.touches[0].clientY - sy);
+                applyTransform();
+              } else if (e.touches.length === 2 && touchDist > 0) {
+                e.preventDefault();
+                const dx = e.touches[0].clientX - e.touches[1].clientX,
+                  dy = e.touches[0].clientY - e.touches[1].clientY,
+                  d = Math.sqrt(dx * dx + dy * dy);
+                zoomAround(d / touchDist, touchCx, touchCy);
+                touchDist = d;
+              }
+            },
+            { passive: false },
+          );
+          new ResizeObserver(() => {
+            if (svgW) {
+              setAdaptiveHeight();
+              fitDiagram();
+            }
+          }).observe(wrap);
+          render();
+        }
+        document.querySelectorAll(".diagram-shell").forEach(initDiagram);
+      }
     </script>
   </body>
 </html>
