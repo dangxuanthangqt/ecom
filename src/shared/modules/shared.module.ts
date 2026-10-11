@@ -1,6 +1,8 @@
 import { Global, Module, Provider } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 
+import { SharedRoleRepository } from "@/repositories/role/shared-role.repository";
+
 import { TwoFactorAuthenticationService } from "../services/2fa.service";
 import { AppConfigService } from "../services/app-config.service";
 import { EmailService } from "../services/email.service";
@@ -23,6 +25,8 @@ const sharedProviders: Provider[] = [
   S3Service,
   RedisService,
   RolePermissionCacheService,
+  // Caches role IDs in memory, so it must be one app-wide instance.
+  SharedRoleRepository,
   PermissionResolverService,
   ThrottlerRedisStorage,
 ];
