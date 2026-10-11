@@ -1251,17 +1251,17 @@
           </p>
           <p class="prose">
             Chương đi từ <strong>dependency → DI → IoC → container</strong>, rồi
-            giải thích cách Nest dùng <strong>provider và module</strong> để
-            thực hiện việc đó. Bạn sẽ biết vì sao service nhận được repository
-            qua constructor, cách thay dependency trong test và cách sửa lỗi khi
-            Nest không tìm thấy provider.
+            giải thích <strong>provider, controller và module</strong>. Bạn sẽ
+            tự nối được một endpoint với service/repository, biết Nest lấy
+            object trong constructor ở đâu, cách thay dependency trong test và
+            cách sửa lỗi khi Nest không tìm thấy provider.
           </p>
         </blockquote>
         <p class="prose">
           Đọc xong phần nền tảng (<a
             href="#1-vấn-đề-ai-tạo-object-trong-constructor"
             >mục 1–4</a
-          >), bạn cần làm được ba việc:
+          >), bạn cần làm được bốn việc:
         </p>
         <ul>
           <li>
@@ -1273,6 +1273,12 @@
             <p class="prose">
               Đọc constructor để biết class cần gì, rồi lần ra provider/module
               cung cấp dependency đó.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              Phân biệt controller nhận HTTP request với provider thực hiện công
+              việc mà controller cần.
             </p>
           </li>
           <li>
@@ -1370,6 +1376,16 @@
             <p class="prose"><a href="#14-tự-kiểm-chứng">Tự kiểm chứng</a></p>
           </li>
         </ol>
+        <p class="prose">
+          Nếu đang học provider/controller lần đầu, đọc kỹ
+          <a href="#provider-có-phải-là-service-không">provider là gì</a>,
+          <a href="#31-controller-là-gì-và-khác-provider-ở-đâu"
+            >controller là gì</a
+          >, rồi chạy
+          <a href="#33-ghép-controller--service--repository-thành-app-chạy-được"
+            >module hoàn chỉnh</a
+          >.
+        </p>
         <blockquote>
           <p class="prose">
             <strong>Chương này dài — đừng đọc một mạch.</strong> Bốn đường đi,
@@ -2263,6 +2279,154 @@ class RoleService {
           Token thường chính là <strong>class</strong>. Nhưng token có thể là
           chuỗi hay symbol khi thứ cần inject không phải class.
         </p>
+        <h3 id="provider-có-phải-là-service-không" class="sub">
+          Provider có phải là service không?
+        </h3>
+        <p class="prose">
+          <strong>Service</strong> là tên ta đặt cho class thực hiện một nhóm
+          công việc, chẳng hạn <code>RoleService</code> xử lý nghiệp vụ role.
+          <strong>Provider</strong> là vai trò của một dependency trong hệ thống
+          DI: nó được đăng ký để container cung cấp cho nơi cần. Một service
+          thường được đăng ký làm provider, nhưng repository, logger, client
+          Redis hay object cấu hình cũng có thể là provider. Nest không dựa vào
+          hậu tố <code>Service</code> hay <code>Repository</code> để quyết định
+          cách inject.
+        </p>
+        <p class="prose">
+          Trong tài liệu và khi nói chuyện, &quot;provider
+          <code>RoleService</code>&quot; thường chỉ class được đăng ký. Khi đọc
+          cấu hình DI, hãy tách ba thứ:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Thứ cần phân biệt</th>
+                <th>Ví dụ</th>
+                <th>Ý nghĩa</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Token</strong></td>
+                <td><code>RoleService</code></td>
+                <td>Khóa mà consumer yêu cầu container tìm</td>
+              </tr>
+              <tr>
+                <td><strong>Đăng ký provider</strong></td>
+                <td>
+                  <code>{ provide: RoleService, useClass: RoleService }</code>
+                </td>
+                <td>Cách cung cấp dependency cho khóa đó</td>
+              </tr>
+              <tr>
+                <td><strong>Instance/giá trị được cung cấp</strong></td>
+                <td>Một object của <code>RoleService</code></td>
+                <td>Thứ controller thực sự nhận và gọi method</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Ví dụ dưới đây nối controller với một service. Các fragment ở mục 2
+          dùng decorator từ <code>@nestjs/common</code>;
+          <a href="#33-ghép-controller--service--repository-thành-app-chạy-được"
+            >mục 3.3</a
+          >
+          có bản đầy đủ import và bootstrap để chạy trực tiếp.
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Injectable()
+class RoleService {
+  getRoles(): string[] {
+    return [&quot;admin&quot;, &quot;seller&quot;];
+  }
+}
+
+@Controller(&quot;roles&quot;)
+class RoleController {
+  constructor(private readonly roleService: RoleService) {}
+
+  @Get()
+  getRoles(): string[] {
+    return this.roleService.getRoles();
+  }
+}
+
+@Module({ controllers: [RoleController], providers: [RoleService] })
+class RoleModule {}</code></pre>
+        </div>
+        <p class="prose">
+          <code>RoleController</code> yêu cầu token <code>RoleService</code> qua
+          constructor. Container tìm đăng ký trong <code>RoleModule</code>, tạo
+          instance theo công thức <code>useClass</code>, rồi truyền instance đó
+          vào controller. Khi có HTTP request, controller gọi
+          <code>getRoles()</code> trên object đã nhận.
+          <strong
+            >DI cung cấp dependency; DI không tự gọi các method nghiệp
+            vụ.</strong
+          >
+        </p>
+        <h3
+          id="injectable-providers-và-import-làm-ba-việc-khác-nhau"
+          class="sub"
+        >
+          <code>@Injectable()</code>, <code>providers</code> và
+          <code>import</code> làm ba việc khác nhau
+        </h3>
+        <ul>
+          <li>
+            <p class="prose">
+              <strong><code>@Injectable()</code></strong> gắn metadata cho
+              class; với cấu hình TypeScript của repo, decorator cũng giúp phát
+              sinh metadata kiểu tham số constructor để Nest đọc dependency. Nó
+              không tự thêm class vào bất kỳ module nào.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong><code>providers: [RoleService]</code></strong> đăng ký
+              token và công thức tạo trong một module. Đây là chỗ container biết
+              cần quản lý và cung cấp <code>RoleService</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong
+                ><code
+                  >import { RoleService } from &quot;./role.service&quot;</code
+                ></strong
+              >
+              chỉ đưa tên class vào file TypeScript. Nó không đăng ký provider,
+              cũng không mở quyền sử dụng provider từ module khác.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Vì vậy, viết <code>@Injectable()</code> rồi import class vào
+          controller vẫn chưa đủ: provider phải được đăng ký và nhìn thấy từ
+          module chứa controller. Nếu provider nằm ở module khác, cần
+          <code>exports</code> ở nguồn và <code>imports</code> ở nơi dùng.
+        </p>
+        <p class="prose">
+          <code>constructor(private readonly roleService: RoleService)</code>
+          cũng có hai phần độc lập:
+          <strong>kiểu <code>RoleService</code></strong> giúp Nest suy ra token
+          từ metadata;
+          <strong><code>private readonly roleService</code></strong> là cú pháp
+          TypeScript tạo property và gán tham số vào property đó. Tên biến
+          <code>roleService</code> không phải token; đổi tên thành
+          <code>service</code> vẫn inject như cũ.
+        </p>
+        <p class="prose">
+          Container chỉ quản lý object được tạo/cung cấp qua đăng ký của nó. Tự
+          gọi <code>new RoleService(...)</code> vẫn là code TypeScript hợp lệ,
+          nhưng bạn phải tự truyền dependency; <code>@Injectable()</code> không
+          can thiệp vào lệnh <code>new</code> đó. Đây là lý do unit test có thể
+          dùng <code>new</code> với fake, còn ứng dụng để Nest dựng graph
+          dependency.
+        </p>
         <h3 id="21-useclass--dạng-viết-tắt" class="sub">
           2.1 <code>useClass</code> — dạng viết tắt
         </h3>
@@ -2273,7 +2437,7 @@ class RoleService {
 providers: [{ provide: RoleService, useClass: RoleService }];</code></pre>
         </div>
         <p class="prose">
-          99% provider trong dự án là dạng này (<a
+          Các service/repository trong <code>RoleModule</code> dùng dạng này (<a
             href="../../src/routes/role/role.module.ts#L10"
             >role.module.ts:10</a
           >). Container <code>new</code> class đó, tự giải quyết constructor của
@@ -2290,11 +2454,22 @@ providers: [
   { provide: StorageService, useClass: isProd ? S3Service : LocalDiskService },
 ];</code></pre>
         </div>
+        <p class="prose">
+          <code>StorageService</code> là token mà consumer yêu cầu;
+          <code>S3Service</code> hoặc <code>LocalDiskService</code> là class
+          container sẽ dựng. Consumer vẫn inject <code>StorageService</code>,
+          còn implementation được chọn khi cấu hình module. Constructor của
+          implementation cũng được Nest resolve, nên dependency của nó phải nhìn
+          thấy từ module đăng ký provider này.
+        </p>
         <h3 id="22-usevalue--đưa-sẵn-object" class="sub">
           2.2 <code>useValue</code> — đưa sẵn object
         </h3>
         <p class="prose">
-          Không tạo gì, dùng luôn giá trị cho sẵn. Đây là cách
+          Container không dựng class cho đăng ký này: nó cung cấp chính giá trị
+          bạn đưa vào. Giá trị có thể là object, chuỗi, số hoặc hàm. Nest không
+          inject thêm dependency vào một object bạn đã tự tạo cho
+          <code>useValue</code>. Đây là cách
           <strong>test thay thật bằng giả</strong> —
           <a
             href="../../src/routes/role/__tests__/role-service-test-harness.ts#L33-L38"
@@ -2320,6 +2495,14 @@ providers: [
           <code>RoleService</code> vẫn khai <code>RoleRepository</code> trong
           constructor, không sửa một dòng. Container đưa cho nó object jest
           mock.
+        </p>
+        <p class="prose">
+          Mock phải cung cấp những method service thực sự gọi.
+          <code>useValue</code> không biến một object thiếu
+          <code>findManyRoles()</code> thành repository hợp lệ; lỗi đó xuất hiện
+          khi service gọi method. Các consumer của cùng đăng ký
+          <code>useValue</code> nhận cùng object, nên thay đổi state trên mock
+          cũng có thể ảnh hưởng consumer khác.
         </p>
         <h3 id="23-usefactory--tính-ra-rồi-mới-đưa" class="sub">
           2.3 <code>useFactory</code> — tính ra rồi mới đưa
@@ -2347,15 +2530,48 @@ providers: [
 };</code></pre>
         </div>
         <p class="prose">
-          <code>ClassSerializerInterceptor</code> cần <strong>hai</strong> tham
-          số: một <code>Reflector</code> (container có) và một object tuỳ chọn
-          (container không biết). <code>useClass</code> không diễn đạt được
-          chuyện đó; factory thì được.
+          Ở đây ta muốn truyền <strong>hai</strong> tham số: một
+          <code>Reflector</code> (container có) và một object tuỳ chọn do ta
+          chọn. Factory diễn đạt trực tiếp việc đó: Nest cung cấp
+          <code>Reflector</code>, factory tự gọi <code>new</code> với options,
+          rồi giá trị trả về được đăng ký dưới token
+          <code>APP_INTERCEPTOR</code>.
         </p>
         <p class="prose">
           Factory có thể <code>async</code> — container <code>await</code> trước
           khi coi là xong. Đây là cách một provider chờ kết nối mở xong rồi mới
           sẵn sàng.
+        </p>
+        <p class="prose">
+          Ví dụ công thức tạo một client cần cấu hình và bước kết nối, rút gọn
+          phần định nghĩa class:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>{
+  provide: &quot;SEARCH_CLIENT&quot;,
+  inject: [AppConfigService],
+  useFactory: async (config: AppConfigService) =&gt; {
+    const client = new SearchClient(config.searchUrl);
+    await client.connect();
+    return client;
+  },
+}</code></pre>
+        </div>
+        <p class="prose">
+          Consumer <code>@Inject(&quot;SEARCH_CLIENT&quot;)</code> nhận client
+          sau khi promise hoàn tất. Nếu kết nối bị reject, việc khởi tạo
+          provider thất bại; Nest không đưa cho consumer một client &quot;chưa
+          xong&quot;. Ví dụ này minh họa API giả định, repo không có
+          <code>SearchClient</code> hay cấu hình <code>searchUrl</code>.
+        </p>
+        <p class="prose">
+          Với scope mặc định, factory chạy khi dựng provider và kết quả được
+          dùng lại; nó không chạy lại mỗi lần consumer gọi method hoặc mỗi HTTP
+          request. Factory tạo tài nguyên thì cũng cần nơi đóng tài nguyên khi
+          app shutdown; <code>useFactory</code> không tự biết phải gọi
+          <code>disconnect()</code> cho client của bạn. Xem
+          <a href="#11-vòng-đời-hook-nào-chạy-lúc-nào">mục 11</a>.
         </p>
         <h3 id="24-useexisting--bí-danh" class="sub">
           2.4 <code>useExisting</code> — bí danh
@@ -2369,32 +2585,167 @@ providers: [
 ];</code></pre>
         </div>
         <p class="prose">
-          Hai token, <strong>một</strong> instance. Khác <code>useClass</code> —
-          <code>useClass</code> sẽ tạo instance thứ hai.
+          Với provider singleton như ví dụ, <code>CONFIG</code> là bí danh trỏ
+          đến instance đã được đăng ký dưới <code>AppConfigService</code>. Nơi
+          inject <code>@Inject(&quot;CONFIG&quot;)</code> và nơi inject
+          <code>AppConfigService</code> nhận <strong>cùng object</strong>.
+        </p>
+        <p class="prose">
+          Nếu đổi thành
+          <code
+            >{ provide: &quot;CONFIG&quot;, useClass: AppConfigService }</code
+          >
+          mà vẫn giữ đăng ký <code>AppConfigService</code>, ta có hai đăng ký
+          tạo class riêng và <strong>hai instance</strong>. Alias hữu ích khi
+          muốn công khai một token khác mà vẫn dùng chung instance/state, chẳng
+          hạn global guard ở
+          <a href="#6-bốn-token-đặc-biệt-app_guard-và-anh-em">mục 6</a>. Với
+          request/transient scope, cần xét context và consumer; không suy rộng
+          ví dụ singleton này thành &quot;một object cho mọi request&quot;.
         </p>
         <h3 id="25-token-không-phải-class" class="sub">
           2.5 Token không phải class
         </h3>
         <div class="code-file">
           <div class="code-file__header">ts</div>
-          <pre class="code-file__body"><code>// ví dụ minh hoạ
-providers: [{ provide: &quot;S3_BUCKET&quot;, useValue: process.env.S3_BUCKET }];
+          <pre
+            class="code-file__body"
+          ><code>// Token khai một lần, dùng chung ở file đăng ký và file inject.
+export const S3_BUCKET = Symbol(&quot;S3_BUCKET&quot;);
+
+// Trong @Module({ providers: [...] }) của ví dụ:
+// { provide: S3_BUCKET, useValue: &quot;demo-bucket&quot; }, MediaService
 
 @Injectable()
 export class MediaService {
-  constructor(@Inject(&quot;S3_BUCKET&quot;) private readonly bucket: string) {}
+  constructor(@Inject(S3_BUCKET) private readonly bucket: string) {}
 }</code></pre>
         </div>
         <p class="prose">
-          Vì <code>string</code> không mang thông tin ở
-          <code>design:paramtypes</code>, bạn <strong>phải</strong> chỉ tay bằng
-          <code>@Inject(token)</code>. Dự án không dùng cách này — nó chọn gói
-          toàn bộ cấu hình vào một class có kiểu là
+          Metadata của kiểu <code>string</code> chỉ cho biết
+          <code>String</code>, không cho biết bạn muốn bucket, URL hay tên ứng
+          dụng. <code>@Inject(S3_BUCKET)</code> chỉ rõ token thay cho suy luận
+          kiểu. Có thể dùng chuỗi <code>&quot;S3_BUCKET&quot;</code> thay
+          symbol, miễn token khi đăng ký và khi inject khớp nhau. Hai lần gọi
+          <code>Symbol(&quot;S3_BUCKET&quot;)</code> tạo hai token khác nhau, dù
+          cùng mô tả; hãy export/import <strong>cùng hằng token</strong>.
+        </p>
+        <p class="prose">
+          Interface cũng không tự làm token runtime được, vì TypeScript xóa
+          interface khi biên dịch. Để inject một implementation theo interface,
+          dùng token rõ ràng:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>export const ROLE_READER = Symbol(&quot;ROLE_READER&quot;);
+
+interface RoleReader {
+  findAll(): string[];
+}
+
+@Injectable()
+class RoleService {
+  constructor(@Inject(ROLE_READER) private readonly reader: RoleReader) {}
+
+  getRoles(): string[] {
+    return this.reader.findAll();
+  }
+}
+
+// Trong module, với RoleRepository triển khai findAll():
+// providers: [RoleService, { provide: ROLE_READER, useClass: RoleRepository }]</code></pre>
+        </div>
+        <p class="prose">
+          Interface kiểm tra hợp đồng ở TypeScript; symbol là khóa mà Nest tra
+          lúc chạy. Hai việc bổ sung cho nhau.
+        </p>
+        <p class="prose">
+          Với cấu hình, dự án chọn gói vào một class có kiểu là
           <code>AppConfigService</code> (<a
             href="../../src/shared/services/app-config.service.ts"
             >app-config.service.ts</a
-          >), rồi inject class đó. Gọn hơn và có autocomplete; chương 9 của
-          series sẽ nói kỹ.
+          >), rồi inject class đó. Gọn hơn và có autocomplete;
+          <a href="14-bootstrap-configuration-and-shutdown.html">chương 14</a>
+          nói về cấu hình và kiểm tra biến môi trường.
+        </p>
+        <h3
+          id="26-chọn-công-thức-nào-và-dependency-có-bắt-buộc-không"
+          class="sub"
+        >
+          2.6 Chọn công thức nào, và dependency có bắt buộc không?
+        </h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Nhu cầu</th>
+                <th>Cách đăng ký</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  Nest tạo một service/repository và inject constructor của nó
+                </td>
+                <td><code>ClassName</code> hoặc <code>useClass</code></td>
+              </tr>
+              <tr>
+                <td>
+                  Đưa một giá trị/object đã có vào graph DI, thường là fake
+                  trong test
+                </td>
+                <td><code>useValue</code></td>
+              </tr>
+              <tr>
+                <td>
+                  Tạo dependency bằng logic riêng, options hoặc thao tác async
+                </td>
+                <td><code>useFactory</code> + <code>inject</code></td>
+              </tr>
+              <tr>
+                <td>Thêm token trỏ đến provider đã có, dùng chung singleton</td>
+                <td><code>useExisting</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          Dependency mặc định là <strong>bắt buộc</strong>. Nếu tính năng vẫn
+          hoạt động được khi không có dependency đó, có thể dùng
+          <code>@Optional()</code> cùng <code>@Inject()</code> (cả hai import từ
+          <code>@nestjs/common</code>):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>constructor(
+  @Optional() @Inject(&quot;AUDIT_LOG&quot;)
+  private readonly auditLog?: { write(message: string): void },
+) {}</code></pre>
+        </div>
+        <p class="prose">
+          Khi không có đăng ký cho token này, giá trị nhận được là
+          <code>undefined</code>; code phải xử lý, ví dụ
+          <code>this.auditLog?.write(&quot;role changed&quot;)</code>. Đừng đánh
+          dấu repository bắt buộc là optional để che lỗi module.
+          <code>@Optional()</code> chỉ liên quan việc cung cấp dependency; nó
+          không bắt lỗi khi bạn gọi <code>auditLog.write()</code> lúc xử lý
+          request.
+        </p>
+        <p class="prose">
+          Nest còn hỗ trợ inject vào property với <code>@Inject(token)</code>.
+          Constructor injection là lựa chọn dễ đọc dependency và dễ truyền fake
+          khi gọi <code>new</code> trong test; property injection thường hữu ích
+          khi phải tránh truyền lặp dependency qua nhiều constructor của các lớp
+          kế thừa. Cả hai đều cần container thực hiện injection.
+        </p>
+        <p class="prose">
+          Đọc thêm:
+          <a href="https://docs.nestjs.com/providers">Nest — Providers</a>,
+          <a href="https://docs.nestjs.com/fundamentals/custom-providers"
+            >Nest — Custom providers</a
+          >.
         </p>
         <hr />
         <h2 id="3-module-bốn-ô-của-module" class="sec-head">
@@ -2429,6 +2780,441 @@ export class RoleModule {}</code></pre>
           Không <code>imports</code> (mọi thứ nó cần đã toàn cục —
           <a href="#5-global-và-sharedmodule">mục 5</a>), không
           <code>exports</code> (không ai cần <code>RoleService</code>).
+        </p>
+        <h3 id="31-controller-là-gì-và-khác-provider-ở-đâu" class="sub">
+          3.1 Controller là gì, và khác provider ở đâu?
+        </h3>
+        <p class="prose">
+          <strong
+            >Controller là class định nghĩa những điểm vào của ứng dụng qua
+            HTTP.</strong
+          >
+          Nó khai request nào gọi method nào, nhận đầu vào HTTP, gọi công việc
+          thích hợp và trả kết quả. Ví dụ <code>GET /roles</code> đi vào
+          <code>RoleController.getRoles()</code>. <strong>Service</strong> thực
+          hiện nghiệp vụ; <strong>repository</strong> đọc/ghi dữ liệu. Service
+          và repository được đăng ký làm provider để controller/service khác
+          nhận chúng qua DI.
+        </p>
+        <p class="prose">
+          Nest quản lý và inject dependency cho cả controller lẫn provider,
+          nhưng đăng ký chúng ở hai ô khác nhau vì controller còn cần được Nest
+          quét route:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>So sánh</th>
+                <th>Controller HTTP</th>
+                <th>Provider</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Vai trò</td>
+                <td>
+                  Điểm vào HTTP, chuyển input sang lời gọi nghiệp vụ và trả
+                  response
+                </td>
+                <td>Công việc/dependency được cung cấp cho consumer</td>
+              </tr>
+              <tr>
+                <td>Decorator class thường dùng</td>
+                <td><code>@Controller(&quot;roles&quot;)</code></td>
+                <td><code>@Injectable()</code> với class do Nest dựng</td>
+              </tr>
+              <tr>
+                <td>Đăng ký module</td>
+                <td><code>controllers: [RoleController]</code></td>
+                <td><code>providers: [RoleService, RoleRepository]</code></td>
+              </tr>
+              <tr>
+                <td>Được inject dependency qua constructor?</td>
+                <td>Có</td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td>Tự tạo HTTP route?</td>
+                <td>
+                  Cần thêm <code>@Get()</code>, <code>@Post()</code>… trên
+                  method
+                </td>
+                <td>Không; method service được code khác gọi</td>
+              </tr>
+              <tr>
+                <td>Được chia sẻ qua <code>exports</code>?</td>
+                <td>Không export controller để dùng nghiệp vụ</td>
+                <td>Export provider/token cần cho module khác</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="prose">
+          <code>@Controller(&quot;roles&quot;)</code> gắn metadata prefix;
+          <code>@Get()</code> gắn HTTP method/path cho handler.
+          <code>controllers: [RoleController]</code> giúp Nest biết phải dựng
+          class và đăng ký route của nó. Module đó còn phải nằm trong cây module
+          của ứng dụng. Chỉ viết decorator rồi để class trong một file không làm
+          xuất hiện endpoint; chỉ đưa controller vào <code>providers</code> cũng
+          không đăng ký route của nó.
+        </p>
+        <p class="prose">
+          Controller không cần thêm <code>@Injectable()</code> để nhận service
+          qua constructor: <code>@Controller()</code> đã là decorator của class
+          và Nest có quy trình riêng để dựng controller. Ngược lại, controller
+          không mặc nhiên là một provider cho service khác inject. Nếu hai
+          controller cần chung nghiệp vụ, tách nghiệp vụ thành một provider rồi
+          inject provider đó vào cả hai.
+        </p>
+        <h3 id="32-controller-nên-làm-gì-service-nên-làm-gì" class="sub">
+          3.2 Controller nên làm gì, service nên làm gì?
+        </h3>
+        <p class="prose">Với endpoint liệt kê role, phân công hợp lý là:</p>
+        <ol start="1">
+          <li>
+            <p class="prose">
+              <strong>Controller:</strong> nhận query HTTP, chuyển nó cho
+              service, dựng response theo hợp đồng endpoint.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Service:</strong> tính phân trang, áp dụng quy tắc nghiệp
+              vụ, gọi repository và kết hợp kết quả.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <strong>Repository:</strong> diễn đạt truy vấn dữ liệu, chẳng hạn
+              <code>findManyRoles()</code> qua Prisma.
+            </p>
+          </li>
+        </ol>
+        <p class="prose">
+          Đây là cách tổ chức code để có thể dùng lại nghiệp vụ và test riêng.
+          Nest không cấm controller truy cập DB; nhưng nếu controller chứa cả
+          truy vấn và nghiệp vụ, một job/CLI muốn làm cùng việc sẽ phải kéo code
+          HTTP vào. Ở chiều ngược lại, truyền <code>req</code>/<code>res</code>
+          vào mọi service khiến service phụ thuộc vào adapter HTTP; thường nên
+          truyền dữ liệu cần thiết như query, user ID, body đã kiểm tra và nhận
+          kết quả trả về.
+        </p>
+        <p class="prose">Đừng nhầm hai loại tham số dưới đây:</p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Controller(&quot;roles&quot;)
+class RoleController {
+  constructor(private readonly service: RoleService) {} // dependency do DI cung cấp
+
+  @Get(&quot;:name&quot;)
+  getRole(@Param(&quot;name&quot;) name: string) {
+    // input lấy từ request hiện tại
+    return this.service.getRole(name);
+  }
+}</code></pre>
+        </div>
+        <p class="prose">
+          <code>RoleService</code> trong constructor được container cung cấp
+          theo đăng ký và scope. <code>name</code> ở handler được Nest lấy từ
+          URL của <strong>từng request</strong>, không phải provider tên
+          <code>name</code>. <code>@Body()</code>, <code>@Query()</code>,
+          <code>@Param()</code> cũng thuộc nhóm lấy input HTTP; kiểu TypeScript
+          của chúng không tự validate dữ liệu. Chi tiết route, binding, status
+          và response nằm ở
+          <a href="11-controllers-and-http-routing.html">chương 11</a>,
+          validation nằm ở
+          <a href="12-pipes-and-input-contracts.html">chương 12</a>.
+        </p>
+        <h3
+          id="33-ghép-controller--service--repository-thành-app-chạy-được"
+          class="sub"
+        >
+          3.3 Ghép controller → service → repository thành app chạy được
+        </h3>
+        <p class="prose">
+          Ví dụ này dùng mảng cố định, có đủ import, module tính năng, module
+          gốc và bootstrap; không cần DB/Redis. Các class được để chung file cho
+          dễ chạy. Trong dự án, chúng thường nằm ở các file
+          <code>.controller.ts</code>, <code>.service.ts</code>,
+          <code>.repository.ts</code>, <code>.module.ts</code> tương ứng.
+        </p>
+        <p class="prose">
+          Tạo <code>scratch-foundation.ts</code> ở gốc repo với nội dung sau.
+          Đây là app độc lập, không import <code>AppModule</code> thật và không
+          áp dụng auth/policy của dự án:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre
+            class="code-file__body"
+          ><code>import &quot;reflect-metadata&quot;;
+import {
+  Controller,
+  Get,
+  Injectable,
+  Module,
+  NotFoundException,
+  Param,
+} from &quot;@nestjs/common&quot;;
+import { NestFactory } from &quot;@nestjs/core&quot;;
+
+@Injectable()
+class RoleRepository {
+  findAll(): string[] {
+    return [&quot;admin&quot;, &quot;seller&quot;];
+  }
+}
+
+@Injectable()
+class RoleService {
+  constructor(private readonly repository: RoleRepository) {}
+
+  getRoles(): string[] {
+    return this.repository.findAll();
+  }
+
+  getRole(name: string): { name: string } {
+    if (!this.repository.findAll().includes(name)) {
+      throw new NotFoundException(&quot;Role not found&quot;);
+    }
+    return { name };
+  }
+}
+
+@Controller(&quot;roles&quot;)
+class RoleController {
+  constructor(private readonly service: RoleService) {}
+
+  @Get()
+  getRoles(): string[] {
+    return this.service.getRoles();
+  }
+
+  @Get(&quot;:name&quot;)
+  getRole(@Param(&quot;name&quot;) name: string): { name: string } {
+    return this.service.getRole(name);
+  }
+}
+
+@Module({
+  controllers: [RoleController],
+  providers: [RoleService, RoleRepository],
+})
+class RoleModule {}
+
+@Module({ imports: [RoleModule] })
+class AppModule {}
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3001);
+}
+
+void bootstrap().catch((error: unknown) =&gt; {
+  console.error(error);
+  process.exitCode = 1;
+});</code></pre>
+        </div>
+        <p class="prose">
+          Chạy từ gốc repo, dùng cấu hình decorator/metadata của repo:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre
+            class="code-file__body"
+          ><code>pnpm exec ts-node --project tsconfig.json scratch-foundation.ts</code></pre>
+        </div>
+        <p class="prose">Ở terminal khác:</p>
+        <div class="code-file">
+          <div class="code-file__header">bash</div>
+          <pre class="code-file__body"><code>curl -i http://localhost:3001/roles
+# HTTP 200, body: [&quot;admin&quot;,&quot;seller&quot;]
+
+curl -i http://localhost:3001/roles/admin
+# HTTP 200, body: {&quot;name&quot;:&quot;admin&quot;}
+
+curl -i http://localhost:3001/roles/unknown
+# HTTP 404, body chứa message &quot;Role not found&quot;</code></pre>
+        </div>
+        <p class="prose">
+          Dừng bằng Ctrl+C và xóa file scratch sau khi thử. Không cần thêm file
+          này vào <code>src/</code> hoặc đăng ký nó trong app thật.
+        </p>
+        <p class="prose">
+          <strong>Lúc khởi động</strong>, Nest đọc cây module bắt đầu từ
+          <code>AppModule</code>, thấy <code>RoleModule</code>, rồi dựng graph
+          dependency:
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">text</div>
+          <pre class="code-file__body"><code>AppModule imports RoleModule
+                 ├─ providers: RoleRepository, RoleService
+                 └─ controllers: RoleController
+
+RoleController cần RoleService
+RoleService cần RoleRepository
+→ Nest cung cấp repository cho service, rồi service cho controller
+→ Nest đăng ký GET /roles và GET /roles/:name</code></pre>
+        </div>
+        <p class="prose">
+          Đây là quan hệ dependency, không phải cam kết thứ tự khởi tạo mọi
+          provider trong app. Nest có thể khởi tạo những nhánh độc lập song
+          song. Với các class singleton và graph tĩnh ở ví dụ, object được dựng
+          khi khởi động và dùng lại; không có
+          <code>new RoleController()</code> trong mỗi request.
+        </p>
+        <p class="prose">
+          <strong>Khi nhận <code>GET /roles/admin</code></strong
+          >, Nest gọi handler trên controller đã dựng, lấy
+          <code>name = &quot;admin&quot;</code> từ URL; controller gọi service;
+          service gọi repository, kiểm role tồn tại và trả
+          <code>{ name: &quot;admin&quot; }</code>; Nest gửi JSON với status
+          200. Khi service ném <code>NotFoundException</code>, đường lỗi đi qua
+          exception filter và trả 404. Phần tạo/cung cấp object là DI; phần
+          framework chọn và gọi handler khi có request là ví dụ IoC đã học ở mục
+          1. Trong app thật, guard/pipe/interceptor còn bọc quanh handler theo
+          <a href="05-request-lifecycle-in-this-project.html"
+            >request pipeline</a
+          >.
+        </p>
+        <p class="prose">
+          Thử thay đổi cấu hình để thấy mỗi ô chịu trách nhiệm gì:
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Thay đổi trong ví dụ</th>
+                <th>Kết quả</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  Xóa <code>RoleRepository</code> khỏi <code>providers</code>
+                </td>
+                <td>
+                  Nest không resolve được dependency của
+                  <code>RoleService</code> khi khởi động
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Xóa <code>RoleController</code> khỏi <code>controllers</code>
+                </td>
+                <td>
+                  Provider vẫn có thể được dựng, nhưng <code>/roles</code> không
+                  có route và trả 404
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Xóa <code>RoleModule</code> khỏi
+                  <code>AppModule.imports</code>
+                </td>
+                <td>
+                  Tính năng không thuộc cây app, nên route cũng không được đăng
+                  ký
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Đổi tên method controller, giữ nguyên
+                  <code>@Get(&quot;:name&quot;)</code>
+                </td>
+                <td>
+                  URL vẫn là <code>/roles/:name</code>; tên method không phải
+                  path
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3
+          id="34-đối-chiếu-với-rolemodule-thật-và-chia-sẻ-service"
+          class="sub"
+        >
+          3.4 Đối chiếu với RoleModule thật và chia sẻ service
+        </h3>
+        <p class="prose">
+          Ví dụ trên giữ nguyên cấu trúc DI của
+          <a href="../../src/routes/role/role.module.ts">RoleModule</a>, nhưng
+          dữ liệu và API đã rút gọn. Trong code thật:
+        </p>
+        <ul>
+          <li>
+            <p class="prose">
+              <a href="../../src/routes/role/role.controller.ts"
+                >RoleController</a
+              >
+              nhận <code>RoleService</code> qua constructor, lấy
+              <code>PaginationQueryDto</code> qua <code>@Query()</code>, khai
+              permission và trả <code>PageDto</code>.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <a href="../../src/routes/role/role.service.ts">RoleService</a>
+              cần cả <code>RoleRepository</code> và
+              <code>RolePermissionCacheService</code>.
+              <code>getRoles()</code> tính <code>skip</code>/<code>take</code>,
+              gọi repository và dựng thông tin phân trang.
+            </p>
+          </li>
+          <li>
+            <p class="prose">
+              <code>RoleRepository</code> được đăng ký cục bộ trong
+              <code>RoleModule</code>; cache service nằm trong
+              <code>SharedModule</code> global và được export, nên không cần
+              đăng ký lại nó ở <code>RoleModule</code>.
+            </p>
+          </li>
+        </ul>
+        <p class="prose">
+          Nếu một module khác cần dùng <strong>service</strong> từ ví dụ độc
+          lập, thay cấu hình module như sau (không áp dụng thay đổi này vào repo
+          chỉ để chạy ví dụ):
+        </p>
+        <div class="code-file">
+          <div class="code-file__header">ts</div>
+          <pre class="code-file__body"><code>@Module({
+  controllers: [RoleController],
+  providers: [RoleService, RoleRepository],
+  exports: [RoleService],
+})
+class RoleModule {}
+
+@Injectable()
+class ReportService {
+  constructor(private readonly roles: RoleService) {}
+
+  listRoleNames(): string[] {
+    return this.roles.getRoles();
+  }
+}
+
+@Module({ imports: [RoleModule], providers: [ReportService] })
+class ReportModule {}</code></pre>
+        </div>
+        <p class="prose">
+          <code>ReportModule</code> còn phải nằm trong cây module gốc nếu muốn
+          sử dụng trong app. Nó import <code>RoleModule</code>, rồi
+          <code>ReportService</code> nhận <code>RoleService</code> đã export.
+          Repository vẫn là chi tiết nội bộ của <code>RoleModule</code>: service
+          được dựng ở module sở hữu nó và đã có dependency của mình. Không cần
+          export repository chỉ để service hoạt động từ consumer bên ngoài; cũng
+          không cần thêm <code>RoleService</code> vào
+          <code>ReportModule.providers</code>, vì như vậy là đăng ký một
+          provider cục bộ mới (<a
+            href="#4-quy-tắc-phân-giải-nest-tìm-provider-ở-đâu"
+            >mục 4</a
+          >).
+        </p>
+        <p class="prose">
+          Đọc thêm:
+          <a href="https://docs.nestjs.com/controllers">Nest — Controllers</a>,
+          <a href="https://docs.nestjs.com/modules">Nest — Modules</a>.
         </p>
         <h3 id="đóng-gói-là-thật" class="sub">Đóng gói là thật</h3>
         <p class="prose">
