@@ -11,6 +11,8 @@ const config = [
     ignores: [
       "dist",
       "node_modules",
+      // Frontend submodule has its own dependencies and lint configuration.
+      "ecom-web/**",
       "coverage",
       "schema.ts",
       // Only Prisma's own generated/SQL output is exempt — prisma/seed*.ts and

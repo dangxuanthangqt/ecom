@@ -1,5 +1,8 @@
 node_modules
 
+# Frontend submodule is formatted in its own repository.
+/ecom-web/
+
 # dependencies
 /dist
 /build

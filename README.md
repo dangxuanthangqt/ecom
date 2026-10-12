@@ -1,5 +1,63 @@
 # E-commerce project API
 
+## Frontend submodule
+
+The Next.js frontend is included at `ecom-web/` as a Git submodule from
+[dangxuanthangqt/ecom-web](https://github.com/dangxuanthangqt/ecom-web).
+It keeps its own Git history, dependencies and build configuration. Backend
+lint, formatting and Docker builds exclude this directory.
+
+Clone both repositories together:
+
+```bash
+git clone --recurse-submodules https://github.com/dangxuanthangqt/ecom.git
+```
+
+For an existing checkout, or after pulling a changed frontend commit pointer,
+run this from the backend root:
+
+```bash
+git submodule update --init --recursive
+```
+
+After preparing and starting the backend as described below, start the frontend
+in a separate terminal from the backend root:
+
+```bash
+cd ecom-web
+pnpm install
+pnpm dev
+```
+
+The frontend runs at `http://localhost:3000/vi` and defaults to the backend at
+`http://localhost:4000`. To use a different backend URL, set `API_URL` in
+`ecom-web/.env.local`.
+
+The [frontend README](ecom-web/README.md) describes a sibling-repository layout.
+With this nested submodule layout, regenerate frontend API types from the
+backend root instead:
+
+```bash
+pnpm build:swagger
+cd ecom-web
+pnpm exec openapi-typescript ../swagger.yaml --export-type -o src/lib/api/schema.ts
+```
+
+The parent repository pins a specific frontend commit. The `main` branch setting
+in `.gitmodules` selects the branch used by `--remote`; it does not automatically
+update the pinned commit. To adopt the latest frontend from `main`:
+
+```bash
+git submodule update --remote ecom-web
+git add ecom-web
+git commit -m "chore: update frontend submodule"
+```
+
+Before editing frontend code, switch to a branch inside the submodule
+(`git -C ecom-web switch main`), since `git submodule update` normally checks out
+the pinned commit with a detached HEAD. Commit and push frontend changes in
+`ecom-web/` first, then commit the updated submodule pointer in the backend.
+
 ## Preparation steps
 
 You need to run the following step by step.
