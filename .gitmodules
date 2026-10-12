@@ -1,0 +1,4 @@
+[submodule "ecom-web"]
+	path = ecom-web
+	url = https://github.com/dangxuanthangqt/ecom-web.git
+	branch = main

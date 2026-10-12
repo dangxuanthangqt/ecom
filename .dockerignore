@@ -31,6 +31,10 @@ coverage
 # Git
 .git
 .gitignore
+.gitmodules
+
+# Frontend submodule is built and deployed separately.
+ecom-web
 
 # Documentation
 README.md
